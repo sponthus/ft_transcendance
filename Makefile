@@ -135,12 +135,12 @@ clean-db:
 	@echo " ✔ DB deleted";
 
 clean-modules:
-	@rm -rf $(FRONTEND_DIR)/node_modules \
+	@sudo rm -rf $(FRONTEND_DIR)/node_modules \
 		$(USERS_DIR)/node_modules \
 		$(UPLOAD_DIR)/node_modules \
 		$(GAMES_DIR)/node_modules \
 		$(API_DIR)/node_modules
-	@rm -f $(FRONTEND_DIR)/package-lock.json \
+	@sudo rm -f $(FRONTEND_DIR)/package-lock.json \
     	$(USERS_DIR)/package-lock.json \
     	$(UPLOAD_DIR)/package-lock.json \
     	$(GAMES_DIR)/package-lock.json \

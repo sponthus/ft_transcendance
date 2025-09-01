@@ -14,8 +14,6 @@ export class BabylonSceneBuilder
 	private _camera!: Babylon.ArcRotateCamera;
 	private _light!: Babylon.HemisphericLight;
 	private _ball: BallMesh | null = null;
-	private _paddle1: Babylon.Mesh | null = null;
-	private _paddle2: Babylon.Mesh | null = null;
 
 	constructor(scene: Babylon.Scene, canvas: HTMLCanvasElement, engine: Babylon.Engine)
 	{
@@ -26,7 +24,6 @@ export class BabylonSceneBuilder
 		this.initializeCamera();
 		this.initializeLight();
 		this.initializeBall();
-		this.initializePaddle();
 	}
 
 	private initializeCamera()
@@ -59,38 +56,11 @@ export class BabylonSceneBuilder
 		this._ball.speed = 0;
 	}
 
-	private initializePaddle()
-	{
-		this._paddle1 = Babylon.MeshBuilder.CreateBox("paddle1", {width: 2, height: 0.5, depth: 0.5}, this._scene);
-		this._paddle1.position.z = -5;
-  		this._paddle1.position.y = 0.25;
-		this._paddle1.isVisible = false;
-
-		this._paddle2 = Babylon.MeshBuilder.CreateBox("paddle2", {width: 2, height: 0.5, depth: 0.5}, this._scene);
-		this._paddle2.position.z = 5;
-  		this._paddle2.position.y = 0.25;
-		this._paddle2.isVisible = false;
-	}
-
 	get ball(): BallMesh | null 
 	{
 		if (!this._ball)
 			throw new Error("");
 		return this._ball;
-	}
-
-	get paddle1(): Babylon.Mesh | null
-	{
-		if (!this._paddle1)
-			throw new Error("");
-		return this._paddle1;
-	}
-
-	get paddle2(): Babylon.Mesh | null 
-	{
-		if (!this._paddle2)
-			throw new Error("");
-		return this._paddle2;
 	}
 
 	get scene(): Babylon.Scene
