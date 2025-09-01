@@ -36,25 +36,44 @@ export function createLabel(Name: string, ClassName: string): HTMLLabelElement {
 	return Label;
 }
 
-export function createInput(InpuOptions: [Type: string,  id: String, PlaceHolder: string, required: boolean],  Name: string, ClassName: string): HTMLInputElement {
+export function createImage(Id: string, ClassName: string, srcImg: string): HTMLImageElement {
+	const Img = document.createElement('img') as HTMLImageElement;
+	Img.id = Id + "-img";
+	Img.className = ClassName;
+	Img.src = srcImg;
+
+	return Img;
+}
+
+export function createAnchorElement(Id: string, TextContent: string, Link: string, ClassName: string): HTMLAnchorElement {
+	const a = document.createElement('a') as HTMLAnchorElement;
+	a.id = Id + "-a";
+	a.textContent = TextContent;
+	a.className = ClassName;
+	a.href = Link;
+	return a;
+}
+
+export function createInput(InputOptions: [Type: string,  id: String, PlaceHolder: string, required: boolean],  Name: string, ClassName: string): HTMLInputElement {
 	const Input: HTMLInputElement = document.createElement('input');
 	Input.className = ClassName;
-	Input.type = InpuOptions[0];
+	Input.type = InputOptions[0];
 	Input.name = Name;
-	Input.id = InpuOptions[1] + "-input";
-	Input.placeholder = InpuOptions[2];
-	Input.required = InpuOptions[3];
+	Input.id = InputOptions[1] + "-input";
+	Input.placeholder = InputOptions[2];
+	Input.required = InputOptions[3];
 
 	return Input;
 }
 
-export function  createFormDiv(InpuOptions: [Type: string, id: String, PlaceHolder: string, required: boolean]
-				,Name: string, TextContent: string
-				,ClassName: [DivClass:string, LabelClass: string, InputClass: string, TextClass: string]): HTMLElement  {
+export function  createFormDiv(InputOptions: [Type: string, id: String, PlaceHolder: string, required: boolean]
+								, Name: string
+								, TextContent: string
+								, ClassName: [DivClass:string, LabelClass: string, InputClass: string, TextClass: string]): HTMLElement  {
 
 		const Div: HTMLElement = createDiv(Name, ClassName[0]);
 		const Label: HTMLLabelElement = createLabel(Name, ClassName[1]);
-		const Input: HTMLInputElement = createInput(InpuOptions, Name, ClassName[2]);
+		const Input: HTMLInputElement = createInput(InputOptions, Name, ClassName[2]);
 		const Text: HTMLElement = createElement('p', Name, TextContent, ClassName[3]);
 
 		append(Div, [Text, Label, Input]);

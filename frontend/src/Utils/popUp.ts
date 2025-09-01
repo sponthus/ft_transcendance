@@ -48,6 +48,12 @@ export class popUp{
 		this._Body.appendChild(content);
 	}
 
+	appendsToBody(contents: any[]) {
+		contents.forEach(content => {
+			this._Body.appendChild(content);
+		})
+	}
+
 	addOverlayToWindow() {
 		document.body.appendChild(this._Overlay);
 	}

@@ -2,29 +2,22 @@ import { navigate } from '../core/router.js';
 import { checkLog } from "../api/check-log.js";
 import { loginUser } from "../api/user.js";
 import { BasePage } from "./BasePage.js";
+import { createLogo } from './RegisterPage.js';
+import { createDiv, createElement, append, createFormDiv, createButton, createAnchorElement } from '../Utils/elementMaker.js';
 
 export class LoginPage extends BasePage {
 
-	private _Background?: HTMLElement;
-	private _front?: HTMLElement;
-	private _TopTextDiv?: HTMLElement;
-	private _form?: HTMLFormElement;
-	private _BotTextDiv?: HTMLElement;
+	private Background!: HTMLElement;
+	private Front!: HTMLElement;
+	private TopTextDiv!: HTMLElement;
+	private Form!: HTMLFormElement;
+	private BotTextDiv!: HTMLElement;
 
     constructor() {
         super();
     }
 
     async render(): Promise<void> {
-		const res = await checkLog();
-	
-		// if (res.ok) {
-		// 	this.app.innerHTML = `
-		// 	<h1></h1>
-		// 	<h1>Already logged in as ${res.user.username}.</h1>
-        //     `;
-		// 	return ;
-        // }
 		this.app.innerHTML = "";
 		this.renderBanner();
 
@@ -37,144 +30,49 @@ export class LoginPage extends BasePage {
     }
 
 	private async initDivs(): Promise<void> {
-		this._Background = this.initBackground();
-		this._Background.className = "flex items-center justify-center min-h-screen bg-gradient-to-br from-orange-100 to-orange-300 p-8";
-
-		this._front = document.createElement('div');
-		this._front.className = "rounded-xl shadow-2xl p-12 max-w-md text-center w-full space-y-4";
-
-		this._TopTextDiv = document.createElement('div');
-		this._TopTextDiv.className = "text-center mb-8";
-
-		this._BotTextDiv= document.createElement('div');
-		this._BotTextDiv.className = "mt-6 text-center";
-
-		this._form = document.createElement('form');
-		this._form.id = "login-form";
-		this._form.className = "space-y-6";
+		this.Background = this.initBackground();
+		this.Background.className = "flex items-center justify-center min-h-screen bg-gradient-to-br from-orange-100 to-orange-300 p-8";
+		this.Front = createDiv('front', 'rounded-xl shadow-2xl p-12 max-w-md text-center w-full space-y-4');
+		this.TopTextDiv = createDiv("top-text", "text-center mb-8");
+		this.BotTextDiv = createDiv("bot-text", "mt-6 text-center");
+		this.Form = createElement('form', "register-form", "", "space-y-6") as HTMLFormElement;
 	}
 
 	private async createTopText(): Promise<void>  {
-		await this.createLogo();
-		if (this._TopTextDiv) {
-			await this.addText('h1', "text-3xl font-bold text-emerald-600 mb-2", "Login", this._TopTextDiv);
-			await this.addText('p', "text-emerald-600", "Sign in to your account", this._TopTextDiv)
-		}
+		append(this.TopTextDiv, [(createLogo("M15 12H3m0 0l4-4m-4 4l4 4m13-9v10a2 2 0 01-2 2h-6") as HTMLElement)
+						, (createElement('h1', "create-account", "Login", "text-3xl font-bold text-emerald-600 mb-2") as HTMLElement)
+						, (createElement('p', "", "Sign in to your account", "text-emerald-600") as HTMLElement)]);
 	}
 
 	private async createGlobalForm(): Promise<void>  {
-		await this.createForm("text", "username", "username", "Enter your username");
-		await this.createForm("password", "password", "password", "Enter your password");
+		const ClassNames: [DivClass:string, LabelClass: string, InputClass: string, TextClass: string] = [""
+										, "block text-sm font-medium text-emerald-600 mb-2"
+										, "w-full px-4 py-3 border bg-orange-200 border-emerald-600 rounded-lg focus:ring-2 focus:ring-emerald-800 focus:border-emerald-8 	00 transition-colors duration-200 placeholder-emerald-600"
+										, "block text-sm  text-center font-medium text-emerald-500 mb-2"];
 		
-		await this.createSubmitButton();
+		append (this.Form, [(createFormDiv(["text", 'username', "username", true], "username",   "Enter your username",  ClassNames) as HTMLElement)
+							, (createFormDiv(["password", 'password', "password", true], "password", "Enter your password", ClassNames) as HTMLElement)
+							,(createButton("submit", "w-full bg-orange-300 hover:bg-orange-400 text-emerald-600 font-bold py-3 px-4 rounded-lg transition-colors duration-200 transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-orange-300", "Sign In") as HTMLButtonElement)])
 	}
 	
 	private async createBotText() {
-		if (this._BotTextDiv)
-			await this.addText('p', "text-sm text-emerald-600", "Don't have an account?", this._BotTextDiv);
-		await this.createBotLink();
+		append(this.BotTextDiv, [(createElement('p', 'bot-text', "Don't have an account?", "text-sm text-emerald-600") as HTMLElement)
+								, (createAnchorElement('bot-ling',  "Sign up", "/register", "text-emerald-800 hover:text-emerald-900 font-medium hover:underline") as HTMLAnchorElement)]);
 	}
 
-	/*************************************Function for creating Top Text*************************************/
-	private async createLogo(): Promise<void> {
-		const logoDiv: HTMLElement = document.createElement('div');
-		logoDiv.className = "mb-4";
-
-		const logoSvg: SVGSVGElement = document.createElementNS("http://www.w3.org/2000/svg", 'svg');
-		logoSvg.setAttribute("class", "w-12 h-12 mx-auto text-emerald-600");
-		logoSvg.setAttribute("fill", "none");
-		logoSvg.setAttribute("stroke", "currentColor");
-		logoSvg.setAttribute("viewBox", "0 0 24 24");
-
-		const logoPath: SVGPathElement = document.createElementNS("http://www.w3.org/2000/svg" ,'path');
-		logoPath.setAttribute("stroke-linecap", "round");
-		logoPath.setAttribute("stroke-linejoin", "round");
-		logoPath.setAttribute("stroke-width", "2");
-		logoPath.setAttribute("d", "M15 12H3m0 0l4-4m-4 4l4 4m13-9v10a2 2 0 01-2 2h-6");
-
-		logoSvg.appendChild(logoPath);
-		logoDiv.appendChild(logoSvg);
-
-		if (this._TopTextDiv)
-			this._TopTextDiv.appendChild(logoDiv);
-	}
-	
-	/*************************************Function for creating Form*************************************/
-	private async createForm(type: string, name: string, placeHolder: string, texteContent:string): Promise<void>  {
-		const Div: HTMLElement = document.createElement('div');
-		
-		const Label: HTMLLabelElement = document.createElement('label');
-		Label.htmlFor = name;
-		Label.className = "block text-sm font-medium text-emerald-600 mb-2";
-		
-		const Input: HTMLInputElement = document.createElement('input');
-		Input.className = "w-full px-4 py-3 border bg-orange-200 border-emerald-600 rounded-lg focus:ring-2 focus:ring-emerald-800 focus:border-emerald-8 	00 transition-colors duration-200 placeholder-emerald-600";
-		Input.type = type;
-		Input.name = name;
-		Input.id = name;
-		Input.placeholder = placeHolder;
-		Input.required = true;
-		
-		const Text: HTMLElement = document.createElement('p');
-		Text.textContent = texteContent;
-		Text.className = "block text-sm text-left font-medium text-emerald-500 mb-2";
-		
-		
-		Div.appendChild(Text);
-		Div.appendChild(Label);
-		Div.appendChild(Input);
-		
-		if (this._form)
-			this._form.appendChild(Div);
-	}
-	
-	private async createSubmitButton(): Promise<void>  {
-		const ButtonForm: HTMLButtonElement = document.createElement('button');
-		ButtonForm.type = "submit";
-		ButtonForm.className = "w-full bg-orange-300 hover:bg-orange-400 text-emerald-600 font-bold py-3 px-4 rounded-lg transition-colors duration-200 transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-orange-300"
-		ButtonForm.textContent = "Sign In";
-		
-		if (this._form)
-			this._form.appendChild(ButtonForm);
-	}
-
-	/*************************************Function for creating Bot Text*************************************/
-	private async createBotLink() {
-		const TextBotlink: HTMLAnchorElement = document.createElement('a');
-		TextBotlink.href = "/register";
-		TextBotlink.className = "text-emerald-800 hover:text-emerald-900 font-medium hover:underline"
-		TextBotlink.textContent = "Sign up";
-		
-		if (this._BotTextDiv)
-			this._BotTextDiv.appendChild(TextBotlink);
-	}
-	
-	/*************************************Function Utils*************************************/
-	private async addText(Element: string, ClassName: string, TextContent: string, Div: HTMLElement) {
-			const Text: HTMLElement = document.createElement(Element);
-			Text.className = ClassName;
-			Text.textContent = TextContent;
-	
-			if (Div)
-				Div.appendChild(Text);
-		}
 	
 	private async addInApp() {
-		if (this._Background && this._front && this._TopTextDiv && this._form && this._BotTextDiv) {
-			this._front.appendChild(this._TopTextDiv);
-			this._front.appendChild(this._form);
-			this._front.appendChild(this._BotTextDiv);
-			this._Background.appendChild(this._front);
-			this.app.appendChild(this._Background);
-		}
+		append(this.Front, [this.TopTextDiv, this.Form, this.BotTextDiv]);
+		append(this.Background, [this.Front]);
+		append(this.app, [this.Background]);
 	}
 
 	private async watchForm() {
 				
-		if (!this._form) 
+		if (!this.Form) 
 			this.ErrorForm();
 		else {
-			this._form.addEventListener('submit', async (e) => {
+			this.Form.addEventListener('submit', async (e) => {
 			e.preventDefault();
 			const form = e.target as HTMLFormElement;
 			const formData = new FormData(form);
