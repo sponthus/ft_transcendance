@@ -1,5 +1,3 @@
-import { Socket } from "../../../core/Socket.js";
-
 type UserBasic = {
     username: string;
     slug: string;

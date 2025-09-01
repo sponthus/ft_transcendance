@@ -50,5 +50,6 @@ export async function checkLog(): Promise<Result>
     localStorage.removeItem("token");
     localStorage.removeItem("user-info");
     console.log("Log check failure");
-     return { ok: false, error: data.error};
+        if (res.status === 401)
+    return { ok: false, error: data.error};
 }
