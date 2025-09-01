@@ -1,54 +1,47 @@
-import * as Babylon from "@babylonjs/core";
-import { spawnImpactFX, spellAvailableFX } from "./impactFX";
+import { Scene, Engine, Mesh, AbstractMesh, Vector3, ActionManager, ExecuteCodeAction } from "@babylonjs/core";
+import { spawnImpactFX} from "./impactFX";
 import { spawnExplosionFX } from "./impactFX";
 import { crabmehamehaFX } from "./impactFX";
 import { Score } from "./score";
+import { State }  from "../../../core/state.js"
 
-interface BallMesh extends Babylon.Mesh {
-	direction: Babylon.Vector3;
+const state = State.getInstance();
+
+interface BallMesh extends Mesh {
+	direction: Vector3;
 	speed: number;
 }
 
 export class GamePhysics {
-	private _dt = 0;
-	private _gameMode = 0;
-	private _bounceCooldownPaddle = 0;
-	private _valueBounceCooldown = 0.1;
+	private _dt = 0.01666;
+	private _gameMode = 1; // 0 = bot, 1 = qq1                                 a mettre dans constructeur
+	private _gameOption = 1; // // 0 pong classique, 1 crabmeha, 2 4x4, 3 les 2    a mettre dans constructeur
 	private _ball: BallMesh;
-	private _paddle1: Babylon.Mesh;
-	private _paddle2: Babylon.Mesh;
-	private _scene: Babylon.Scene;
-	private _engine: Babylon.Engine;
-	private _crab1: Babylon.AbstractMesh | null;
-	private _crab2: Babylon.AbstractMesh | null;
-
-	private _projectiles: Babylon.Mesh[] = [];
-	private _specialCooldown = 0;
-	private _specialCooldownDuration = 2.5;
-
-	private _projectiles2: Babylon.Mesh[] = [];
-	private _specialCooldown2 = 0;
-	private _specialCooldownDuration2 = 2.5;
+	private _scene: Scene;
+	private _engine: Engine;
+	private _crab1: AbstractMesh | null;
+	private _crab2: AbstractMesh | null;
 
 	private _score!: Score;
 	private _scoreValue1 = 0;
 	private _scoreValue2 = 0;
 
-	private _timeBobSpeak = 0;
+	private _timeBobSpeak = 5;
 	private _timeout = 5;
+
+	private _spell1!: Vector3;
+	private _spell2!: Vector3;
+
+	private _serverState: any = null;
 
 	constructor(
 		ball: BallMesh,
-		paddle1: Babylon.Mesh,
-		paddle2: Babylon.Mesh,
-		scene: Babylon.Scene,
-		engine: Babylon.Engine,
-		crab1: Babylon.AbstractMesh | null,
-		crab2: Babylon.AbstractMesh | null
+		scene: Scene,
+		engine: Engine,
+		crab1: AbstractMesh | null,
+		crab2: AbstractMesh | null
 	) {
 		this._ball = ball;
-		this._paddle1 = paddle1;
-		this._paddle2 = paddle2;
 		this._scene = scene;
 		this._engine = engine;
 		this._crab1 = crab1;
@@ -62,321 +55,118 @@ export class GamePhysics {
 
 	private setupControls()
 	{
-		const inputMap: Record<string, boolean> = {};
-		this._scene.actionManager = new Babylon.ActionManager(this._scene);
+		const	playerId = "player1"; // prompt("t ki ? player1 ou player2 ?") || "player1";
+		const	inputMap: Record<string, boolean> = {};
+		const	socket = state.ws;
+		if (!socket || !socket.ws)
+			return;
+		//const	socket = new WebSocket("ws://192.168.1.30:8080");
+
+		this._scene.actionManager = new ActionManager(this._scene);
 
 		this._scene.actionManager.registerAction(
-			new Babylon.ExecuteCodeAction(Babylon.ActionManager.OnKeyDownTrigger, evt => {
+			new ExecuteCodeAction(ActionManager.OnKeyDownTrigger, evt => {
 				inputMap[evt.sourceEvent.key.toLowerCase()] = true;
 			})
 		);
 
 		this._scene.actionManager.registerAction(
-			new Babylon.ExecuteCodeAction(Babylon.ActionManager.OnKeyUpTrigger, evt => {
-				inputMap[evt.sourceEvent.key.toLowerCase()] = false;
+			new ExecuteCodeAction(ActionManager.OnKeyUpTrigger, evt => {
+				delete inputMap[evt.sourceEvent.key.toLowerCase()];
 			})
 		);
-
-		this._scene.onBeforeRenderObservable.add(() => {
-			this._dt = this._engine.getDeltaTime() / 1000;
-			this._timeout -= this._dt;
-			if (this._timeout < 0)
+			socket.send(JSON.stringify({
+				type: "gameMode",
+				playerId: playerId,
+				mode: this._gameMode,
+				option: this._gameOption
+			}));
+				// envoie les inputs au serveur
+			setInterval(() => {
+				socket.send(JSON.stringify({ // traduire en JSON
+					type: "input",
+					playerId: playerId, // fixe pour test, à améliorer plus tard
+					input: inputMap
+				}));
+			}, 33); // 30fps
+		// stocke l’état serveur
+		socket.ws.onmessage = (event) => {
+			const data = JSON.parse(event.data); // Traduire en variable
+			if (data.type == "pong")
 			{
-				this._ball.speed = 40;
+				console.log('Received pong from server');
+				socket.clearHeartbeatTimeout();
+				return;
 			}
-			else
-				this._ball.speed = 0;
-			// Déplacement joueur 1
-			this.movePlayer1(inputMap);
-			this.movePlayer2(inputMap);
-
-			// Bouge balle
-			this._ball.position.addInPlace(this._ball.direction.scale(this._ball.speed * this._dt));
-
-			this._bounceCooldownPaddle -= this._dt;
-
-			// Collisions murs
-			this.collisionWall();
-			// Collisions paddles
-			this.collisionPaddle();
-			// Reset si balle sort
-			this.resetBall();
-
-			this.crabmehaha(inputMap);
-			this.crabmehaha2(inputMap);
-			this.updateProjectiles();
-			this.updateProjectiles2();
-			if (this._specialCooldown > 0)
+			if (data.type === "stateUpdate")
 			{
-        		this._specialCooldown -= this._dt;
-    		}
-			else
-				spellAvailableFX(this._scene,  new Babylon.Vector3(-6, 1, -10));
-			if (this._specialCooldown2 > 0)
-			{
-				this._specialCooldown2 -= this._dt;
-    		}
-			else
-				spellAvailableFX(this._scene,  new Babylon.Vector3(6, 1, 10));
+				this._serverState = data.gameState;
+				this.updateFrontend();
+			}
+		};
+	}
 
-		// fonction bobSpeak
+	private updateFrontend()
+	{
+		//  Si y’a un état reçu du serveur
+		if (this._serverState)
+		{
+			this._ball.position.x = this._serverState.ball.x;
+			this._ball.position.z = this._serverState.ball.z;
+
+			if (this._crab1)
+			{
+				const targetPaddle1Pos = new Vector3(
+				this._serverState.paddle1.x,
+				this._crab1.position.y,
+				this._crab1.position.z
+				);
+				this._crab1.position = Vector3.Lerp(this._crab1.position, targetPaddle1Pos, 0.3);
+
+				if (this._serverState.die1 === true)
+				{
+					spawnExplosionFX(this._scene, this._crab1.position);
+					this._crab1.position.y = -4;
+				}
+				else
+					this._crab1.position.y = 0;
+			}
+			if (this._crab2)
+			{
+				const targetPaddle2Pos = new Vector3(
+				this._serverState.paddle2.x,
+				this._crab2.position.y,
+				this._crab2.position.z
+				);
+				this._crab2.position = Vector3.Lerp(this._crab2.position, targetPaddle2Pos, 0.3);
+				if (this._serverState.die2 === true)
+				{
+					spawnExplosionFX(this._scene, this._crab2.position);
+					this._crab2.position.y = -4;
+				}
+				else
+					this._crab2.position.y = 0;
+			}
 			this._timeBobSpeak -= this._dt;
 			if (this._timeBobSpeak < 0)
 			{
+				this._timeBobSpeak = 5;
 				this._score._drawSpeak();
-				this._timeBobSpeak = 3;
 			}
-			// -----------------
-		//}
-		});
-	}
-
-	private movePlayer1(inputMap: Record<string, boolean>)
-	{
-		if (inputMap["q"] && this._paddle1.position.x > -4.5)
-		{
-			this._paddle1.position.x -= 20 * this._dt;
-			if (this._crab1)
-				this._crab1.position.x = this._paddle1.position.x;
-		}
-		if (inputMap["e"] && this._paddle1.position.x < 4.5)
-		{
-			this._paddle1.position.x += 20 * this._dt;
-			if (this._crab1)
-				this._crab1.position.x = this._paddle1.position.x;
-		}
-	}
-
-	private movePlayer2(inputMap: Record<string, boolean>)
-	{
-		if (this._gameMode === 1)
-		{
-			if (inputMap["9"] && this._paddle2.position.x > -4.5)
+			if (this._scoreValue1 < this._serverState.score.s1 || this._scoreValue2 < this._serverState.score.s2)
 			{
-				this._paddle2.position.x -= 20 * this._dt;
-				if (this._crab2)
-					this._crab2.position.x = this._paddle2.position.x;
+				this._scoreValue1 = this._serverState.score.s1;
+				this._scoreValue2 = this._serverState.score.s2;
+				this._score.updateScore(this._scoreValue1, this._scoreValue2);
+				this._timeBobSpeak = 10;
 			}
-			if (inputMap["7"] && this._paddle2.position.x < 4.5)
-			{
-				this._paddle2.position.x += 20 * this._dt;
-				if (this._crab2)
-					this._crab2.position.x = this._paddle2.position.x;
-			}
-		}
-		else
-		{
-			// IA débile
-			this._paddle2.position.x = this._ball.position.x;
-			if (this._crab2)
-				this._crab2.position.x = this._paddle2.position.x;
-		}
-	}
+			this._spell1 = new Vector3(this._serverState.spell1.x , 1, this._serverState.spell1.z);
+			if (this._spell1.z > -9 || (this._spell1.z < -9 && this._serverState.specialCooldown1 < 0))
+				crabmehamehaFX(this._scene, this._spell1);
+			this._spell2 = new Vector3(this._serverState.spell2.x , 1, this._serverState.spell2.z);
+			if (this._spell2.z < 9 || (this._spell2.z > 9 && this._serverState.specialCooldown2 < 0))
+				crabmehamehaFX(this._scene, this._spell2);
 
-	private collisionWall()
-	{
-		if (this._ball.position.x > 5.8)
-		{
-			this._ball.direction.x *= -1;
-			this._ball.position.x = 5.8;
-			spawnImpactFX(this._scene, this._ball.position);
-		}
-		if (this._ball.position.x < -5.8)
-		{
-			this._ball.direction.x *= -1;
-			this._ball.position.x = -5.8;
-			spawnImpactFX(this._scene, this._ball.position);
-		}
-	}
-
-	private collisionPaddle()
-	{
-		if (this._bounceCooldownPaddle <= 0 &&
-			(this._ball.intersectsMesh(this._paddle1, false) || this._ball.intersectsMesh(this._paddle2, false)))
-		{
-			const paddle = this._ball.intersectsMesh(this._paddle1, false) ? this._paddle1 : this._paddle2;
-			// Position relative de l'impact (entre -1 et 1)
-			const relativeImpact = (this._ball.position.x - paddle.position.x) / (paddle.scaling.x * 1.5);
-
-			// Clamp entre -1 et 1
-			const clampedImpact = Math.max(-1, Math.min(1, relativeImpact));
-
-			// Nouvelle direction X basée sur le point d’impact (plus tu tapes vers les bords, plus l’angle est fort)
-			const angleX = clampedImpact;// * 0.5; // 0.5 = angle max (ajuste à ta sauce)
-
-			this._ball.direction.x = angleX;
-			this._ball.direction.z *= -1;
-			this._bounceCooldownPaddle = this._valueBounceCooldown;
-			if (this._ball.speed < 200)
-				this._ball.speed += 5;
-			if (paddle === this._paddle1)
-				this._ball.position.z = this._paddle1.position.z + 0.6;
-			else
-				this._ball.position.z = this._paddle2.position.z - 0.6;
-			spawnImpactFX(this._scene, this._ball.position);
-		}
-	}
-
-	private resetBall()
-	{
-		if (Math.abs(this._ball.position.z) > 9)
-		{
-			if (this._ball.position.z > 9)
-				this._scoreValue2++;
-			else
-				this._scoreValue1++;
-			this._score.updateScore(this._scoreValue1, this._scoreValue2);
-			// this._ball.speed = 90;
-			this._ball.position = new Babylon.Vector3(0, 0.4, 0);
-			this._ball.direction = new Babylon.Vector3(
-				Math.random() * 0.2 - 0.1,
-				0,
-				Math.random() > 0.5 ? 0.15 : -0.15
-			).normalize();
-			if (this._crab2)
-				this._crab2.position.y = 0.25;
-			this._paddle2.position.y = 0.25;
-			for (let i = this._projectiles.length - 1; i >= 0; i--)
-			{
-				this._projectiles[i].dispose();
-				this._projectiles.splice(i, 1);
-			}
-			if (this._crab1)
-				this._crab1.position.y = 0.25;
-			this._paddle1.position.y = 0.25;
-			for (let i = this._projectiles2.length - 1; i >= 0; i--)
-			{
-				this._projectiles2[i].dispose();
-				this._projectiles2.splice(i, 1);
-			}
-			this._specialCooldown = 0;
-			this._specialCooldown2 = 0;
-			this._timeout = 3;
-		}
-	}
-
-	private crabmehaha(inputMap: Record<string, boolean>)
-	{
-		if (inputMap["c"] && this._specialCooldown <= 0)
-		{
-			this._specialCooldown = this._specialCooldownDuration - (this._ball.speed * 0.01);
-			this.spawnProjectile();
-			inputMap["c"] = false; //eviter le spam
-		}
-	}
-
-	private crabmehaha2(inputMap: Record<string, boolean>)
-	{
-		if (inputMap["3"] && this._specialCooldown2 <= 0)
-		{
-			this._specialCooldown2 = this._specialCooldownDuration2 - (this._ball.speed * 0.01);
-			this.spawnProjectile2();
-			inputMap["3"] = false; //eviter le spam
-		}
-	}
-
-	private spawnProjectile()
-	{
-		const projectile = Babylon.MeshBuilder.CreateSphere("projectile", { diameter: 0.3 }, this._scene);
-		projectile.position = this._paddle1.position.clone();
-		projectile.position.y = 0.4; // hauteur si besoin
-		projectile.material = new Babylon.StandardMaterial("projMat", this._scene);
-		(projectile.material as Babylon.StandardMaterial).diffuseColor = new Babylon.Color3(0.3, 0.8, 1);
-
-		this._projectiles.push(projectile);
-	}
-
-	private updateProjectiles()
-	{
-		const speed = 30;
-
-		for (let i = this._projectiles.length - 1; i >= 0; i--)
-		{
-			const proj = this._projectiles[i];
-
-			proj.position.z += speed * this._dt; // avance vers l'adversaire (vers le -Z)
-
-			// Check si touche le paddle2
-			if (proj.intersectsMesh(this._paddle2, false))
-			{
-				spawnExplosionFX(this._scene, this._paddle2.position);
-				if (this._crab2) {
-					this._crab2.position.y = -4;
-				}
-				this._paddle2.position.y = -4;
-				
-
-				proj.dispose();
-				this._projectiles.splice(i, 1);
-				continue;
-			}
-			// Check si touche ball
-			if (proj.intersectsMesh(this._ball, false))
-			{
-				proj.dispose();
-				this._projectiles.splice(i, 1);
-			}
-
-			// Check si sort du terrain
-			if (proj.position.z > 9)
-			{
-				proj.dispose();
-				this._projectiles.splice(i, 1);
-			}
-			crabmehamehaFX(this._scene, proj.position);
-		}
-	}
-
-	private spawnProjectile2()
-	{
-		const projectile = Babylon.MeshBuilder.CreateSphere("projectile", { diameter: 0.3 }, this._scene);
-		projectile.position = this._paddle2.position.clone();
-		projectile.position.y = 0.4; // hauteur si besoin
-		projectile.material = new Babylon.StandardMaterial("projMat", this._scene);
-		(projectile.material as Babylon.StandardMaterial).diffuseColor = new Babylon.Color3(0.3, 0.8, 1);
-
-		this._projectiles2.push(projectile);
-	}
-
-	private updateProjectiles2()
-	{
-		const speed = 30;
-
-		for (let i = this._projectiles2.length - 1; i >= 0; i--)
-		{
-			const proj = this._projectiles2[i];
-
-			proj.position.z -= speed * this._dt; // avance vers l'adversaire (vers le -Z)
-
-			// Check si touche le paddle2
-			if (proj.intersectsMesh(this._paddle1, false))
-			{
-				spawnExplosionFX(this._scene, this._paddle1.position);
-				if (this._crab1) {
-					this._crab1.position.y = -4;
-				}
-				this._paddle1.position.y = -4;
-				
-
-				proj.dispose();
-				this._projectiles2.splice(i, 1);
-				continue;
-			}
-			// Check si touche ball
-			if (proj.intersectsMesh(this._ball, false))
-			{
-				proj.dispose();
-				this._projectiles2.splice(i, 1);
-			}
-
-			// Check si sort du terrain
-			if (proj.position.z < -9)
-			{
-				proj.dispose();
-				this._projectiles2.splice(i, 1);
-			}
-			crabmehamehaFX(this._scene, proj.position);
 		}
 	}
 }
-

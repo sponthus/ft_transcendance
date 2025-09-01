@@ -2,7 +2,7 @@
 
 export class Socket {
     static instance: null | Socket = null;
-    private ws: WebSocket | null = null;
+    public ws: WebSocket | null = null;
     private heartbeatInterval: number | null = null;
     private heartbeatTimeout: number | null = null;
     private pingInterval: number = 30000; // every 30s sends a ping
@@ -55,7 +55,7 @@ export class Socket {
         this.ws.onmessage = (event) => {
             try {
                 const data = JSON.parse(event.data);
-
+				console.log(data);
                 if (data.type === 'pong') {
                     console.log('Received pong from server');
                     this.clearHeartbeatTimeout();
@@ -109,7 +109,7 @@ export class Socket {
         this.clearHeartbeatTimeout();
     }
 
-    private clearHeartbeatTimeout(): void {
+    public clearHeartbeatTimeout(): void {
         if (this.heartbeatTimeout) {
             clearTimeout(this.heartbeatTimeout);
             this.heartbeatTimeout = null;
