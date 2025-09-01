@@ -47,7 +47,7 @@ export class availableGames {
 			}
 			const games = result.games;
 			const TitlePartys = document.getElementById('Title-Party-p') as HTMLElement;
-			this.renderParty(games, BodyParty, TitlePartys);
+			this.renderParty(games, BodyParty, TitlePartys, false);
 		}
 		catch (error) {
 			console.error('Error fetching games:', error);
@@ -55,7 +55,37 @@ export class availableGames {
 		}
 	}
 
-	private renderParty(games:any, Parent: HTMLElement , TitlePartys: HTMLElement) {
+	async refreshAvailableTournament() {
+		/*************************here to call API get Availables tounrament********************************/
+		this.PartyMap!.clear();
+		const BodyParty = document.getElementById("Body-Party-div")  as HTMLElement;
+		BodyParty.innerHTML = '';
+	
+		const availableGamesDiv = document.getElementById('available-games-div');
+		if (!availableGamesDiv || !state.user?.id) {
+			console.log('availableGames debug');
+			if(!availableGamesDiv)
+			   this.Page.innerHTML = `Error don't find availables games`;
+			return;
+		}
+	
+		try {
+			const result = await getAvailableGames(state.user?.id); // change for Available Tournament
+			if (!result.ok) {
+				availableGamesDiv.innerHTML = 'Error loading games.';
+				return;
+			}
+			const games = result.games;
+			const TitlePartys = document.getElementById('Title-Party-p') as HTMLElement;
+			this.renderParty(games, BodyParty, TitlePartys, true);
+		}
+		catch (error) {
+			console.error('Error fetching games:', error);
+			availableGamesDiv.innerHTML = '<p>Error loading games</p>';
+		}
+	}
+
+	private renderParty(games: any, Parent: HTMLElement , TitlePartys: HTMLElement, tournament: boolean) {
 			if (games.length === 0) {
 				TitlePartys.textContent = 'No games available';
 			}
@@ -65,13 +95,14 @@ export class availableGames {
 					const PartyDiv: HTMLElement = createDiv("game-item" + index.toString(), "flex border-2 border-orange-600 w-full h-[40%] space-x-8");
 
 					this.CreateGameIdDiv(PartyDiv, index, Party);
-					this.CreatePlayerNamesDiv(PartyDiv, index, Party);
+					if (!tournament)
+						this.CreatePlayerNamesDiv(PartyDiv, index, Party);
 					this.createGameStatusDiv(PartyDiv, index, Party);
 					this.createCreatedAtDiv(PartyDiv, index, Party);
 					this.createCheckBoxDiv(PartyDiv, index, Party);
 					append(Parent, [PartyDiv]);
 				})
-				this.ManagePartyEvent();
+				this.ManagePartyEvent(tournament);
 			}
 	}
 
@@ -118,7 +149,7 @@ export class availableGames {
 		append(Div, [checkboxDiv]);
 	}
 
-	private ManagePartyEvent() {
+	private ManagePartyEvent(tournament: boolean) {
 		this.PartyMap?.forEach((value, key) =>{
 			value.addEventListener('change', () => {
 				this.PartyMap?.forEach((value, key) => {
@@ -130,7 +161,10 @@ export class availableGames {
 		document.getElementById("delete-btn")?.addEventListener('click', async (e) => {
 			this.PartyMap?.forEach(async (value, key) => {
 				if (value.checked) {
-					await this.deleteGame(key);
+					if (!tournament)
+						await this.deleteGame(key);
+					// else
+						// await this.deleteTournament(key) // create funtion to delete tournament
 					await this.refreshAvailableGames();
 					return ;
 				}

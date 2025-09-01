@@ -3,11 +3,11 @@ import { popUp } from '../../Utils/popUp.js';
 import { renderScene } from '../../babylon/displaying/renderScene.js';
 import { createDiv, createElement, createButton, createDropdownDiv, createFormDiv, createCheckBoxLabel, append} from '../../Utils/elementMaker.js';
 import { LocalGamePage } from './LocalGamePage.js';
+import { TournamentPage } from "./tounramentPage.js";
 import { Event } from './Event.js';
+import { PageState } from "./Event.js";
 
 const state = State.getInstance();
-
-enum PageState {MOD = 0, PARTY = 1, NEWGAME = 2};
 
 export async function renderDropdown(Parent: HTMLElement, Options: string[], Name: string, TextContent: string): Promise<void> {
 	const Div = createDropdownDiv(Options, Name, TextContent, 
@@ -21,6 +21,7 @@ export class GamePage extends popUp {
 
 	private Page!: HTMLElement;
 	private LocalGamePage!: LocalGamePage;
+	private TournamentPage!: TournamentPage;
 	private Event!: Event;
 	private render!: renderScene;
 
@@ -35,7 +36,8 @@ export class GamePage extends popUp {
 		this.initPopUpPage();
 		this.generateGamePage();
 		this.LocalGamePage = new LocalGamePage(this.Page);
-		this.Event = new Event(this.LocalGamePage, this);
+		this.TournamentPage = new TournamentPage(this.Page);
+		this.Event = new Event(this.LocalGamePage, this.TournamentPage, this);
 	}
 
 	private initPage() {
@@ -49,9 +51,23 @@ export class GamePage extends popUp {
 		this._Body.appendChild(this.Page);
 	}
 
+	/*********************************************function for rendering tournament Mod Page**********************************************/
+	async generateTournamentPage() {
+		(document.getElementById("Save-btn") as HTMLButtonElement).textContent = "Play Tournament";
+		this.cleanPage();
+		this.TournamentPage.render();
+		this.Event.addDeleteButton();
+		this.Event.manageNewGameEvent();
+	}
 
+	async generateBracketTournament(IdTournament: number) {
+		(document.getElementById("Save-btn") as HTMLButtonElement).textContent = "Play Round";
+		this.cleanPage();
+		this.TournamentPage.renderBracket(IdTournament);
+	}
 	/*********************************************function for rendering 1v1 Mod Page**********************************************/
 	async generate1v1GamePage() {
+		(document.getElementById("Save-btn") as HTMLButtonElement).textContent = "Play";
 		this.cleanPage();
 		this.LocalGamePage.render();
 		this.Event.addDeleteButton();
@@ -68,7 +84,7 @@ export class GamePage extends popUp {
 	/*********************************************function Utils for rendering Game Mod Select Page**********************************************/
 	private async createGamePageDiv() {
 		const TextDiv: HTMLElement =  createDiv("GamePage-title", "flex items-center justify-center h-[30%]");
-		const GameModText: HTMLElement = createElement('h1', "GamePage-title", "Please Choose your game mod (local only, coming soon: tournament)",  "text-emerald-600 text-center underline");
+		const GameModText: HTMLElement = createElement('h1', "GamePage-title", "Please Choose your game mod",  "text-emerald-600 text-center underline");
 
 		append(TextDiv, [GameModText]);
 		append(this.Page, [TextDiv]);

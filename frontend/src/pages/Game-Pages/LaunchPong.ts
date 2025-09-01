@@ -8,7 +8,7 @@ export class launchPong {
 		this.Render = Render;
 	}
 
-	render() {
+	render(/*******add IdParty: number or Party: any*********/) {
 		let lastTime = 0;
 		const targetFPS = 120;
 		const frameDuration = 1000 / targetFPS;

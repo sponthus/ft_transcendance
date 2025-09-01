@@ -5,22 +5,25 @@ import { State } from "../../core/state.js";
 import { GamePage } from './GamePage.js';
 import { navigate } from '../../core/router.js';
 import { launchPong } from './LaunchPong.js';
+import { TournamentPage } from './tounramentPage.js';
 
 const state = State.getInstance();
 
-enum PageState {MOD = 0, PARTY = 1, NEWGAME = 2};
+export enum PageState {MOD = 0, TOURNAMENT = 1, PARTY = 2, NEWGAME = 3, BRACKET = 4};
 
 export class Event {
 
 
 	private StatePage!: number;
 	private LocalGamePage!: LocalGamePage;
+	private TournamentPage!: TournamentPage;
 	private GamePage: GamePage;
 	private LaunchPong: launchPong;
 
-	constructor(LocalGamePage: LocalGamePage, GamePage: GamePage) {
+	constructor(LocalGamePage: LocalGamePage, TournamentPage: TournamentPage, GamePage: GamePage) {
 		this.StatePage = PageState.MOD;
 		this.LocalGamePage = LocalGamePage;
+		this.TournamentPage = TournamentPage;
 		this.GamePage = GamePage;
 		this.LaunchPong = new launchPong(this.GamePage._render);
 	}
@@ -53,9 +56,16 @@ export class Event {
 			this.ChangeBackPageButtonText([document.getElementById("Return-btn") as HTMLButtonElement, "Cancel"]
 			, [document.getElementById("Save-btn")  as HTMLButtonElement, "Save New Game"]);
 	
-			this.StatePage = PageState.NEWGAME;
-			this.removeDeleteButton();
-			this.LocalGamePage._NewGameForm.classList.remove("hidden");
+			if (this.StatePage == PageState.PARTY) {
+				this.StatePage = PageState.NEWGAME;
+				this.removeDeleteButton();
+				this.LocalGamePage._NewGameForm.classList.remove("hidden");
+			}
+			else if (this.StatePage == PageState.TOURNAMENT) {
+				this.StatePage = PageState.NEWGAME;
+				this.removeDeleteButton();
+				this.TournamentPage._NewTournamentForm.classList.remove("hidden");
+			}
 		});
 	}
 
@@ -72,8 +82,14 @@ export class Event {
 				case PageState.PARTY:
 					this.returnToGameMod();
 					break;
+				case PageState.TOURNAMENT:
+					this.returnToGameMod();
+					break;
 				case PageState.NEWGAME:
 					this.CancelNewGame();
+					break;
+				case PageState.BRACKET:
+					this.returnToTournament();
 					break;
 				default: break;
 			}
@@ -106,12 +122,24 @@ export class Event {
 		this.ChangeBackPageButtonText([document.getElementById("Return-btn") as HTMLButtonElement, "Return"]
 		, [document.getElementById("Save-btn")  as HTMLButtonElement, "Play"]);
 
-		this.StatePage = PageState.PARTY;
+		console.log("cancel fgame function called");
+		if (this.LocalGamePage._NewGameForm && !this.LocalGamePage._NewGameForm.classList.contains("hidden")) {
+			console.log("we are in localgame page");
+			this.StatePage = PageState.PARTY;
+			this.LocalGamePage._NewGameForm.classList.add('hidden');
+		}
+		else if (this.TournamentPage._NewTournamentForm && !this.TournamentPage._NewTournamentForm.classList.contains("hidden")) {
+			console.log("we are in tournament page");
+			this.StatePage = PageState.TOURNAMENT;
+			this.TournamentPage._NewTournamentForm.classList.add("hidden");
+		}
 	
 		this.addDeleteButton();
-	
-		console.log("Cancel New Game function called")
-		this.LocalGamePage._NewGameForm.classList.add('hidden');
+	}
+
+	private async returnToTournament() {
+		this.StatePage = PageState.TOURNAMENT;
+		await this.GamePage.generateTournamentPage();
 	}
 
 	/*************************************Function for Event Save button*************************************/
@@ -124,8 +152,14 @@ export class Event {
 				case PageState.PARTY:
 					this.PlayGame();
 					break;
+				case PageState.TOURNAMENT:
+					this.PlayTournament();
+					break;
 				case PageState.NEWGAME:
 					this.SaveNewParty();
+					break;
+				case PageState.BRACKET:
+					this.PlayRound();
 					break;
 				default: break;
 			}
@@ -136,13 +170,15 @@ export class Event {
 	private async SaveGameMod() {
 		const SelectValue = this.FindSelectValue("GameMod-DropDown-div");
 		if (SelectValue == "1v1") {
-			(document.getElementById("Save-btn") as HTMLButtonElement).textContent = "Play";
-			this.StatePage = 1;
-			this.GamePage._Page.classList.remove("border-4");
+			this.StatePage = PageState.PARTY;
 			await this.GamePage.generate1v1GamePage();
 		}
 		else if (SelectValue == "tournament")
-			alert("tournament in build please choose 1v1 mode");
+		{
+			this.StatePage = PageState.TOURNAMENT;
+			await this.GamePage.generateTournamentPage();
+			// alert("tournament in build please choose 1v1 mode");
+		}
 		else if (!SelectValue)
 			alert("Please Select Value");
 	}
@@ -153,14 +189,47 @@ export class Event {
 		return Select?.value;
 	}
 
+	private PlayTournament() {
+		this.removeDeleteButton();
+		this.StatePage = PageState.BRACKET;
+		this.GamePage.generateBracketTournament(0);
+		// let found = false;
+	
+		// this.TournamentPage._PartyMap?.forEach(async(value: HTMLInputElement, key: number) => {
+		// 	if (value.checked) {
+		// 		this.GamePage.generateBracketTournament(key);
+		// 		found = true;
+		// 		return ;
+		// 	}
+		// })
+		// if (!found)
+		// 	alert("please choose a Party");
+	}
+
+	private PlayRound() {
+		/******************Find Next Round with this.tournamentPage._tournament*************/
+		try {
+			// find round id
+			//start round
+			this.GamePage.removeOverlayToWindow();
+			this.renderGame();
+		} catch (error) {
+			alert('error : ' + error);
+		}
+	}
+
 	private PlayGame() {
-		this.LocalGamePage._PartyMap?.forEach(async(value, key) => {
+		let found = false;
+	
+		this.LocalGamePage._PartyMap?.forEach(async(value: HTMLInputElement, key: number) => {
 			if (value.checked) {
 				this.launchGame(key);
+				found = true;
 				return ;
 			}
 		})
-		alert("please choose a Party");
+		if (!found)
+			alert("please choose a Party");
 	}
 
 	private async launchGame(gameId: number) {
@@ -170,7 +239,11 @@ export class Event {
 				throw new Error('Unable to start game : ' + request.error);
 			}
 			state.launchGame(gameId);
+			this.GamePage.cleanPage();
+			this.GamePage.cleanBody();
 			this.GamePage.removeOverlayToWindow();
+			this.GamePage.startGamePage();
+			this.StatePage = PageState.MOD;
 			this.renderGame();
 		} 
 		catch (error) {
@@ -183,14 +256,24 @@ export class Event {
 		this.LaunchPong.render();
 	}
 
+
 	private async SaveNewParty() {
-		this.saveParty()
-		this.StatePage = PageState.PARTY;
 		this.ChangeBackPageButtonText([document.getElementById("Return-btn") as HTMLButtonElement, "Return"]
 		, [document.getElementById("Save-btn")  as HTMLButtonElement, "Play"]);
 		this.addDeleteButton();
-		this.LocalGamePage._NewGameForm.classList.add("hidden");
-		await this.LocalGamePage.refreshAvailableGames();
+		console.log("state page = ", this.StatePage);
+		if (this.LocalGamePage._NewGameForm && !this.LocalGamePage._NewGameForm.classList.contains("hidden")) {
+			this.saveParty()
+			this.StatePage = PageState.PARTY;
+			this.LocalGamePage._NewGameForm.classList.add("hidden");
+			await this.LocalGamePage.refreshAvailableGames();
+		}
+		else if (this.TournamentPage._NewTournamentForm && !this.TournamentPage._NewTournamentForm.classList.contains("hidden")) {
+			this.saveTournament();
+			this.StatePage = PageState.TOURNAMENT;
+			this.TournamentPage._NewTournamentForm.classList.add("hidden");
+			await this.TournamentPage.refreshAvailableTournament();
+		}
 	}
 
 	private saveParty() {
@@ -207,6 +290,14 @@ export class Event {
 		}
 		this.addPartyToServer(PlayerA, PlayerB);
 		alert('Game created successfully!');
+	}
+
+	private saveTournament() {
+		/****************************function for call API to save tounrnament**********************/
+		const formData = new FormData(document.getElementById('new-tournament-form') as HTMLFormElement) ;
+
+		// const PlayerA = this.GetDataForm('Player1', formData); Player1, Player2, Player3 etc...
+
 	}
 
 	private GetDataForm(id: string, formData: any): string {

@@ -21,11 +21,12 @@ export class LocalGamePage {
 
 	async render() {
 		this.Page.classList.remove("justify-center");
-
+		this.Page.classList.remove("border-4");
 		await this.create1v1PageDiv();
 		await this.create1v1FormDiv();
 		this.AvailableGames.render();
 		this.open1v1GameForm();
+		await this.refreshAvailableGames();
 	}
 
 	private async create1v1PageDiv() {
@@ -108,8 +109,6 @@ export class LocalGamePage {
 
 		this.meCheckBox1ChoiceOnly(playerAMeCheckbox, playerAInput, playerBMeCheckbox, playerBInput);
 		this.meCheckBox1ChoiceOnly(playerBMeCheckbox, playerBInput, playerAMeCheckbox, playerAInput);
-
-		await this.refreshAvailableGames();
 	}
 
 	async refreshAvailableGames() {

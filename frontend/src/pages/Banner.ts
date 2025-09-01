@@ -3,7 +3,7 @@ import { State } from "../core/state.js";
 import { getUserInfo, modifyUserAvatar , modifyUserInfo } from "../api/user.js";
 import { createDiv, createElement, append, createAnchorElement, createImage } from '../Utils/elementMaker.js';
 
-const wrapper: HTMLElement = createDiv('wrapper' ,'grid grid-cols-3 items-center justify-between p-4 bg-orange-200 shadow-md');
+const wrapper: HTMLElement = createDiv('wrapper' ,'grid grid-cols-3 items-center justify-between p-4 bg-orange-200 shadow-md h-[10%] w-full min-w-[800px]');
 const userInfo: HTMLElement = createDiv('user-info',  'flex flex-wrap order-1 text-sm text-gray-600');
 const logo: HTMLElement = createDiv('logo',  'mx-auto order-2 snap-center');
 const navLinks: HTMLUListElement = createElement('ul', 'nav-links', "", 'flex justify-end space-x-4 order-3 list-none') as HTMLUListElement;
