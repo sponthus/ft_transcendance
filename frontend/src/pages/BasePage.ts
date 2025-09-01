@@ -4,6 +4,7 @@ import { renderBaseBanner, renderLoggedInBanner, renderLoggedOutBanner } from ".
 import { State } from "../core/state.js";
 import { checkLog } from "../api/user-service/connection/check-log";
 import { getUserInfo } from "../api/user-service/user-info/getUserInfo";
+import { Socket } from "../core/Socket";
 
 const state = State.getInstance();
 
@@ -29,13 +30,14 @@ export abstract class BasePage {
     protected async renderBanner(): Promise<void> {
         renderBaseBanner(this.banner);
 
-        const res = await checkLog();
-        if (res.ok) {
+        const req = await checkLog();
+        if (req.ok) {
             const req = await getUserInfo();
             if (!req.ok) {
                 return; // Afficher une erreur ??
             }
             const userData = req.userInfo;
+            const socket = Socket.getInstance(userData.id); //Creation du socket du user
             await renderLoggedInBanner(this.banner, userData);
         }
         else {

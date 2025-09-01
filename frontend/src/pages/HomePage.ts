@@ -23,6 +23,7 @@ export class HomePage extends BasePage {
 	//ou mettre le check log ? 
     async render(): Promise<void> {
 
+		
 		await this.renderBanner();
 		
 		await this.InitDivs();

@@ -22,7 +22,7 @@ export async function loginUser(username: string, password: string): Promise<Log
     if (res.ok) 
     {
         localStorage.setItem("token", data.token);
-        const socket = Socket.getInstance(data.id);
+       // const socket = Socket.getInstance(data.id);
         console.log('token is ' + data.token);
         console.log('slug is ' + data.slug);
         return { ok: true, token: data.token, user: { username: data.username, slug: data.slug } };
