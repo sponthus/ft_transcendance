@@ -20,6 +20,8 @@ export class renderScene {
 	private _canvas: HTMLCanvasElement | null = null;
 	private _engine: BABYLON.Engine | null = null;
 
+	private _PongGame!: PongGame;
+
 	private _homeScene: BABYLON.Scene | null = null;
 	private _pongScene: BABYLON.Scene | null = null;
 
@@ -92,10 +94,10 @@ export class renderScene {
 	}
 
 	private async _initPongGame(): Promise<void> {
-		const pong = new PongGame();
-		if (!pong)
+		this._PongGame = new PongGame();
+		if (!this._PongGame)
 			throw new Error("pongGame failed to load");
-		await pong.start(this.pongScene!, this.canvas!, this.engine!)
+		await this._PongGame.start(this.pongScene!, this.canvas!, this.engine!)
 	}
 
 	private _initScene(): BABYLON.Scene {
@@ -158,7 +160,6 @@ export class renderScene {
 		return null;
 	}
 
-	
 	get pongScene(): BABYLON.Scene | null {
 		if (this._pongScene)
 			return this._pongScene;
@@ -185,6 +186,10 @@ export class renderScene {
 		if (this._state)
 			return this._state;
 		return null;
+	}
+
+	get PongGame(): PongGame {
+		return this._PongGame;
 	}
 
 	private _renderingloop() {

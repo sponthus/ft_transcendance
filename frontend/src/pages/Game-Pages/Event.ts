@@ -25,7 +25,7 @@ export class Event {
 		this.LocalGamePage = LocalGamePage;
 		this.TournamentPage = TournamentPage;
 		this.GamePage = GamePage;
-		this.LaunchPong = new launchPong(this.GamePage._render);
+		this.LaunchPong = new launchPong(this.GamePage._render, this.GamePage);
 	}
 
 	render() {
@@ -211,7 +211,6 @@ export class Event {
 		try {
 			// find round id
 			//start round
-			this.GamePage.removeOverlayToWindow();
 			this.renderGame();
 		} catch (error) {
 			alert('error : ' + error);
@@ -239,10 +238,6 @@ export class Event {
 				throw new Error('Unable to start game : ' + request.error);
 			}
 			state.launchGame(gameId);
-			this.GamePage.cleanPage();
-			this.GamePage.cleanBody();
-			this.GamePage.removeOverlayToWindow();
-			this.GamePage.startGamePage();
 			this.StatePage = PageState.MOD;
 			this.renderGame();
 		} 
