@@ -1,5 +1,3 @@
-import { State } from "../../../core/state.js"; //sert a rien pour l'instant
-
 type AssetSuccess = { ok: true; asset: number };
 type Failure = { ok: false; error: string };
 
