@@ -107,6 +107,9 @@ export class GamePhysics {
 				this._serverState = data.gameState;
 				this.updateFrontend();
 			}
+			if (data.type === "endGame") {
+				this._win = true;
+			}
 		};
 	}
 
@@ -162,11 +165,11 @@ export class GamePhysics {
 				this._scoreValue1 = this._serverState.score.s1;
 				this._scoreValue2 = this._serverState.score.s2;
 				this._score.updateScore(this._scoreValue1, this._scoreValue2);
-				if (this._scoreValue1 >= this._MaxScore || this._scoreValue2 >= this._MaxScore) {
-					this._scoreValue1 = 0;
-					this._scoreValue2 = 0;
-					this._Win = true;
-				}
+				// if (this._scoreValue1 >= this._MaxScore || this._scoreValue2 >= this._MaxScore) {
+				// 	this._scoreValue1 = 0;
+				// 	this._scoreValue2 = 0;
+				// 	this._Win = true;
+				// }
 				this._timeBobSpeak = 10;
 			}
 			this._spell1 = new Vector3(this._serverState.spell1.x , 1, this._serverState.spell1.z);
