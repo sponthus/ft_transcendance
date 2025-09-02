@@ -40,7 +40,6 @@ export async function checkLog(): Promise<Result>
     console.log('res dans checklog', res);
     if (res.ok)
     {
-        //state.login(data.username, data.slug); // Restore user in local state
         console.log("Log check successful"); // Debug
         return { ok: true }//, user: { username: data.username, slug: data.slug } };
     }

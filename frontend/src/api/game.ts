@@ -56,7 +56,7 @@ export async function createLocalGame(userId: number, player_a: string, player_b
             player_b: player_b,
         })
     });
-    const data = await res.json(); // Possibility to update state with data
+    const data = await res.json();
 
     if (res.ok) {
         return {
@@ -86,7 +86,7 @@ export async function startGame(gameId: number): Promise<GameInfoResult> {
         return { ok: false, error: "No game ID given" };
     }
     try {
-        const request = await fetch(`api/games/${gameId}`, {
+        const request = await fetch(`/api/games/${gameId}`, {
             method: 'POST',
             headers: {
                 // 'Content-Type': 'application/json',

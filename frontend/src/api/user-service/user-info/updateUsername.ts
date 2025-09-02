@@ -27,7 +27,6 @@ export async function updateUsername(username: string): Promise<UserModification
     {
         console.log("New username accepted");
         localStorage.setItem("token", data.token); //mise a jour token avec le nouveau username
-        state.login(data.username, data.slug);
         return {ok: true, user: data.user, token: data.token};
     }
     return { ok: false, error: data.error};

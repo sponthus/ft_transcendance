@@ -39,7 +39,7 @@ export class LocalGamePage extends BasePage {
         console.log("Pong game created");
     }
 
-    // // TODO = Add this in a listener of resizing ?
+    // // If needed, this can resize canva. but there is no state anymore so it will need to be adapted
     // resizeCanvas(canvas: HTMLCanvasElement) {
     //     if (window.innerWidth * 0.6 >= 900)
     //         state.canvas.width = window.innerWidth * 0.6;

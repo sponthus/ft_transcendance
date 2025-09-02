@@ -1,8 +1,7 @@
 export default async function   getUserInfo (request, reply)
 {
-    const   db = request.server.db;
+	const   db = request.server.db;
     const   idUser = request.user.idUser;
-
     try
     {
        const user = db.prepare("   SELECT \
@@ -15,6 +14,7 @@ export default async function   getUserInfo (request, reply)
     }
     catch (err)
     {
+		console.log("returning 500");
         return reply.code(500).send({ error: "Internal Server Error" });
     }
 }

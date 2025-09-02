@@ -2,7 +2,7 @@
 
 export class Socket {
     static instance: null | Socket = null;
-    public ws: WebSocket | null = null;
+    public ws: WebSocket;
     private heartbeatInterval: number | null = null;
     private heartbeatTimeout: number | null = null;
     private pingInterval: number = 30000; // every 30s sends a ping
@@ -11,18 +11,14 @@ export class Socket {
 
     constructor(userId: number) {
         this.userId = userId;
-        this.connect();
-    }
-
-    private connect() {
-        try {
-            console.log("Creating new WebSocket connection");
-            this.ws = new WebSocket(this.getWsUrl());
-            this.setupEventListeners();
-        } catch (error) {
-            console.error("Failed to create socket", error);
-            throw error;
-        }
+		try {
+			console.log("Creating new WebSocket connection");
+			this.ws = new WebSocket(this.getWsUrl());
+			this.setupEventListeners();
+		} catch (error) {
+			console.error("Failed to create socket", error);
+			throw error;
+		}
     }
 
     static getInstance(userId: number = -1): Socket {

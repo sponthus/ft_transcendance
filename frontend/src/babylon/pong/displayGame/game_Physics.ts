@@ -55,7 +55,7 @@ export class GamePhysics {
 	{
 		const	playerId = "player1"; // prompt("t ki ? player1 ou player2 ?") || "player1";
 		const	inputMap: Record<string, boolean> = {};
-		const socket = Socket.getInstance();
+		const	socket = Socket.getInstance();
 		if (!socket || !socket.ws)
 			return;
 		//const	socket = new WebSocket("ws://192.168.1.30:8080");

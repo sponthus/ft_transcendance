@@ -48,7 +48,6 @@ export class GamePage extends popUp {
             if (!request.ok) {
                 throw new Error('Unable to start game : ' + request.error);
             }
-           // state.launchGame(gameId);
 			this.removeOverlayToWindow();
 			let lastTime = 0;
 			const targetFPS = 120;

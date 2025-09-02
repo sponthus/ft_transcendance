@@ -18,8 +18,6 @@ const userInfo = document.createElement('div');
 const logo = document.createElement('div');
 const navLinks = document.createElement('ul');
 
-//const socket = Socket.getInstance(-1);
-
 /*************************************export Functions for creatin banner*************************************/
 export function renderBaseBanner(banner: HTMLElement): void {
 	banner.innerHTML = '';
@@ -178,7 +176,7 @@ function SetLogOutEvent() {
 		e.preventDefault();
 		localStorage.removeItem("token");
 	//	socket.close();
-	//	state.logout();
+	// TODO = Logout correctly
 		navigate('/');
 		location.reload();
 	});
