@@ -1,5 +1,3 @@
-import { State } from "../../../core/state.js";
-
 type UserBasic = {
     username: string;
     slug: string;
