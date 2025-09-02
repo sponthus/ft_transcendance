@@ -64,7 +64,7 @@ export class renderScene {
 	}
 
 	private _initState() {
-		this._state = state.PONG;
+		this._state = state.HOME;
 	}
 
 	private _initCanvas(App: HTMLElement): HTMLCanvasElement {
@@ -128,17 +128,28 @@ export class renderScene {
 		this._isocamera.setTarget(BABYLON.Vector3.Zero());
 		this._isocamera.minZ = 0.1; 
 
-		const zoom: number = 0.000012 * screen.width; // evantually to change with Dell machines
-		console.log('zoom :', zoom);
-		this._isocamera.orthoLeft = (-this._engine!.getRenderWidth() * zoom);
-		this._isocamera.orthoRight = (this._engine!.getRenderWidth() * zoom);
-		this._isocamera.orthoTop = (this._engine!.getRenderHeight() * zoom);
-		this._isocamera.orthoBottom =( -this._engine!.getRenderHeight() * zoom);
-		this._isocamera.detachControl();
-		// /***************************for debug to delete at end of project***************************/
-		// this._isocamera.attachControl(this._canvas, true);
-		// if (this._homeScene)
-		// 	this._homeScene.activeCamera = this._isocamera;
+		// const zoom: number = 0.0000125 * screen.width; // evantually to change with Dell machines
+		// console.log('zoom :', zoom);
+		// this._isocamera.orthoLeft = (-this._engine!.getRenderWidth() * zoom);
+		// this._isocamera.orthoRight = (this._engine!.getRenderWidth() * zoom);
+		// this._isocamera.orthoTop = (this._engine!.getRenderHeight() * zoom);
+		// this._isocamera.orthoBottom =( -this._engine!.getRenderHeight() * zoom);
+		const renderWidth = this._engine!.getRenderWidth();
+		const renderHeight =  this._engine!.getRenderHeight();
+		const aspect = renderWidth / renderHeight;
+		
+		// demi-hauteur en unités monde (contrôle ton "zoom réel")
+		const halfHeight = 20;
+		const halfWidth = halfHeight * aspect;
+
+		this._isocamera.orthoLeft   = -halfWidth + 5;
+		this._isocamera.orthoRight  =  halfWidth + 5;
+		this._isocamera.orthoTop    =  halfHeight + 5;
+		this._isocamera.orthoBottom = -halfHeight + 5;
+		/***************************for debug to delete at end of project***************************/
+		this._isocamera.attachControl(this._canvas, true);
+		if (this._homeScene)
+			this._homeScene.activeCamera = this._isocamera;
 	}
 
 	private _initLight() {
