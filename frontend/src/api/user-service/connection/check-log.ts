@@ -1,5 +1,3 @@
-import { State } from "../../../core/state.js";
-
 type Result =
     | { ok: true }
     | { ok: false; error?: string} //? --> pas forcement la variable
