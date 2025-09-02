@@ -1,10 +1,6 @@
 import { checkLog } from "../api/user-service/connection/check-log.js";
 import { navigate } from "../core/router.js";
 import { BasePage } from "./BasePage.js";
-//import { State } from "../core/state.js";
-
-//const state = State.getInstance();
-
 import { getUserInfo } from "../api/user-service/user-info/getUserInfo.js";
 import { updateUsername } from "../api/user-service/user-info/updateUsername.js";
 import { addFriend } from "../api/user-service/menu/friendsList.js";
