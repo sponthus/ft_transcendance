@@ -3,22 +3,6 @@ type Result =
     | { ok: false; error?: string} //? --> pas forcement la variable
   //  | { ok: true; user: { username: string; slug: string; id: number } }
 
-// GET /me request using the token found in memory, and updates the local infos for user
-// -> Returns ok: true | false, and if ok, user: { username: string; slug: string }
-// TODO = Not functional !
-
-//OBSOLETE
-/*const userInfo = localStorage.getItem("user-info"); // enlever remettre token
-    if (!userInfo)
-    {
-        console.log("No user info - disconnected");
-        return { ok: false};
-
-    }
-    return ({ ok: true }); // A ENLEVER TEMPORAIRE POUR VOIR
-    */
-
-
 export async function checkLog(): Promise<Result>
 {
     console.log("Checking log...");
@@ -43,10 +27,10 @@ export async function checkLog(): Promise<Result>
         console.log("Log check successful"); // Debug
         return { ok: true }//, user: { username: data.username, slug: data.slug } };
     }
-    // Invalid or expired token = Disconnect
-    localStorage.removeItem("token");
-    localStorage.removeItem("user-info");
+    localStorage.removeItem("token"); //remove si le token est pas présent ?
     console.log("Log check failure");
-        // if (res.status === 401) // TODO = Is it useful ?
-    return { ok: false, error: data.error};
+    console.log('status = ', res.status);
+         if (res.status === 401) // TODO = Is it useful // Oui je met une alerte que si le token expire
+            return { ok: false, error: data.error};
+    return { ok: false };
 }

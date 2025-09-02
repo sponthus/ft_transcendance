@@ -31,7 +31,7 @@ export default async function registerUser(request, reply)
     try 
     {
         idUser = fillInfoUserInDb(db, username, slug, avatar, pw_hash);
-        const token = await reply.jwtSign({ idUser, username, slug }, {expiresIn: '1h'});
+        const token = await reply.jwtSign({ idUser, username, slug }, {expiresIn: '10s'});
         return reply.code(200).send({ token: token, username: username, slug: slug });
     }
     catch (err)

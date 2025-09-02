@@ -37,7 +37,8 @@ export class HomePage extends BasePage {
 		else 
 		{
 			await this.rengerLogoutHome();
-			alert(res.error); //Met une alerte sur l'absence ou l'expiration du token
+			if (res.error)
+				alert(res.error); //Met une alerte sur l'absence ou l'expiration du token
 		}
 		await this.addInApp();
     }
