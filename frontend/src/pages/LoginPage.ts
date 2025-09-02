@@ -1,6 +1,6 @@
+import { checkLog } from "../api/user-service/connection/check-log.js";
+import { loginUser } from "../api/user-service/connection/loginUser.js";
 import { navigate } from '../core/router.js';
-import { checkLog } from "../api/check-log.js";
-import { loginUser } from "../api/user.js";
 import { BasePage } from "./BasePage.js";
 import { createLogo } from './RegisterPage.js';
 import { createDiv, createElement, append, createFormDiv, createButton, createAnchorElement } from '../Utils/elementMaker.js';

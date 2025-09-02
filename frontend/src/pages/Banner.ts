@@ -1,14 +1,25 @@
 import { navigate } from '../core/router.js';
-import { State } from "../core/state.js";
-import { getUserInfo, modifyUserAvatar , modifyUserInfo } from "../api/user.js";
-import { createDiv, createElement, append, createAnchorElement, createImage } from '../Utils/elementMaker.js';
+//import { State } from "../core/state.js";
+import { modifyUserAvatar , modifyUserInfo } from "../api/user.js";
+import { getUserInfo } from '../api/user-service/user-info/getUserInfo.js';
+import { Socket } from '../core/Socket.js';
+import { createElement, createAnchorElement, append, createImage} from '../Utils/elementMaker.js';
+type UserData = //VA ETRE CHANGER, le token renvoie le username et l'id du user
+{
+    id: number
+    username: string;
+    nickname: string;
+    avatar: string;
+    slug: string;
+    created_at: string;
+};
 
-const wrapper: HTMLElement = createDiv('wrapper' ,'grid grid-cols-3 items-center justify-between p-4 bg-orange-200 shadow-md h-[10%] w-full min-w-[800px]');
-const userInfo: HTMLElement = createDiv('user-info',  'flex flex-wrap order-1 text-sm text-gray-600');
-const logo: HTMLElement = createDiv('logo',  'mx-auto order-2 snap-center');
-const navLinks: HTMLUListElement = createElement('ul', 'nav-links', "", 'flex justify-end space-x-4 order-3 list-none') as HTMLUListElement;
+const wrapper = document.createElement('div');
+const userInfo = document.createElement('div');
+const logo = document.createElement('div');
+const navLinks = document.createElement('ul');
 
-const state = State.getInstance();
+//const socket = Socket.getInstance(-1);
 
 /*************************************export Functions for creatin banner*************************************/
 export function renderBaseBanner(banner: HTMLElement): void {
@@ -26,14 +37,14 @@ export async function renderLoggedOutBanner(banner: HTMLElement): Promise<void> 
 	createItem('/register', 'Register', 'px-4 py-2 bg-emerald-600 text-green-200 hover:bg-emerald-800 rounded-md transition-colors');
 }
 
-export async function renderLoggedInBanner(banner: HTMLElement): Promise<void> {
-	if (!checkLoginElement(banner)) {
+export async function renderLoggedInBanner(banner: HTMLElement, userData: UserData): Promise<void> {	
+	if (!checkLoginElement(banner)) { //On sait deja que les infos du user existe grace a la requete
 		return;
 	}
+	setLoginUserInfo(userData);
 
-	setLoginUserInfo();
 	createItem('/setting', "Settings", "px-4 py-2 text-emerald-600 hover:text-emerald-800 hover:bg-orange-300 rounded-md transition-colors");
-	createItem(`/user/${state.user?.slug}`, 'Profile', 'px-4 py-2 text-emerald-600 hover:text-emerald-800 hover:bg-orange-300 rounded-md transition-colors');
+	createItem(`/user/${userData.slug}`, 'Profile', 'px-4 py-2 text-emerald-600 hover:text-emerald-800 hover:bg-orange-300 rounded-md transition-colors');
 	createItem('/', 'Logout', 'px-4 py-2 text-red-200 bg-red-600 hover:text-red-300 hover:bg-red-800 rounded-md transition-colors cursor-pointer');
 	SetLogOutEvent();
 }
@@ -67,66 +78,69 @@ function checkLogoutElement(banner: HTMLElement): boolean {
 
 /*************************************Function for creating login Banner*************************************/
 function checkLoginElement(banner: HTMLElement): boolean {
-	if (!navLinks || !userInfo || !state.isLoggedIn()) {
+	if (!navLinks || !userInfo) {
 		if (!navLinks)
 			 console.log("No nav link");
 		if (!userInfo)
 			console.log("No user info");
-		if (!state.user) {
-			console.log("No user in state");
-		}
 		banner.innerHTML = '<div class="text-red-500 font-semibold">Error</div>';
 		return false;
 	}
 	return true;
 }
 
-function setLoginUserInfo() {
-	const usersForm = createDiv('user-div', "flex flex-col text-left text-sm text-emerald-600");
-	setTextLoginUserInfo(usersForm);
-	setAvatarLoginUserInfo();
+function setLoginUserInfo(userData: UserData) {
+	const usersForm = document.createElement('div');
+	usersForm.className = "flex flex-col text-left text-sm text-emerald-600";
+
+	setTextLoginUserInfo(usersForm, userData);
+	setAvatarLoginUserInfo(userData);
+
 	userInfo.appendChild(usersForm);
 }
 
-async function setTextLoginUserInfo(usersForm: HTMLElement) {
-	try {
-		const req = await getUserInfo(state.user?.slug!);
-		if (!req.ok) {
-			return ;
-		}
-		const userData = req.user;
-		append(usersForm, [(createElement('h1', 'user-state', "online 💚", "") as HTMLElement)
-							, (createElement('h1', 'user-name', userData.username, "text-emerald-900"))])
-	}
-	catch (error) {
-		alert(error);
-	}
+async function setTextLoginUserInfo(usersForm: HTMLElement, userData: UserData) {
+
+	const userState = document.createElement('h1');
+	userState.id = "user-state";
+	userState.className = "";
+	userState.textContent = "online 💚"; //  call API
+
+	const userName = document.createElement('h1');
+	userName.id = "user-name";
+	userName.className = "text-emerald-900";
+	userName.textContent = userData.username;
+
+	usersForm.appendChild(userState);
+	usersForm.appendChild(userName);
 }
 
-function setAvatarLoginUserInfo() {
-	const userIconbutton: HTMLAnchorElement = createAnchorElement("user-icon", "", `/user/${state.user?.slug}`, "flex items-center mr-2");
-	const userIcon = createDiv("user-icon", "flex items-center justify-center bg-orange-300 hover:bg-orange-400 rounded-full relative w-14 h-14");
-	SetUserImg(userIcon);
-	append(userIconbutton, [userIcon]);
-	append(userInfo, [userIconbutton]);
+function setAvatarLoginUserInfo(userData: UserData) {
+	const userIconbutton = document.createElement('a') as HTMLAnchorElement;
+	userIconbutton.href = `/user/${userData.slug}`;
+	userIconbutton.className = "flex items-center mr-2";
+
+	const userIcon = document.createElement('div');
+	userIcon.className = "flex items-center justify-center bg-orange-300 hover:bg-orange-400 rounded-full relative w-14 h-14";
+
+	SetUserImg(userIcon, userData);
+
+	userIconbutton.appendChild(userIcon);
+
+	userInfo.appendChild(userIconbutton);
 }
 
-async function SetUserImg(userIcon: HTMLElement) {
-	try {
-		const req = await getUserInfo(state.user?.slug!);
-		if (!req.ok) {
-			return ;
-		}
-		const userData = req.user;
-		console.log(`user data = ` + JSON.stringify(userData));
-		const avatar: string = userData.avatar;
-		const srcImg: string = `https://localhost:4443/uploads/${avatar}`; // problem firefox https autosignate certificate 
-		
-		append(userIcon, [(createImage('user',"w-12 h-12 rounded-full object-cover object-center", srcImg) as HTMLImageElement)])
-	}
-	catch (error) {
-		alert(error);
-	}
+async function SetUserImg(userIcon: HTMLElement, userData: UserData) {
+	console.log(`user data = ` + JSON.stringify(userData));
+	const avatar: string = userData.avatar;
+	const srcImg: string = `https://localhost:4443/uploads/${avatar}`; // problem firefox https autosignate certificate 
+
+	const userImg = document.createElement('img');
+	userImg.id = "user-img";
+	userImg.className = "w-12 h-12 rounded-full object-cover object-center";
+	userImg.src = srcImg;
+
+	userIcon.appendChild(userImg);
 }
 
 function SetLogOutEvent() {
@@ -135,7 +149,10 @@ function SetLogOutEvent() {
 		return ;
 	logoutLink.addEventListener('click', async (e) => {
 		e.preventDefault();
-		state.logout();
+		localStorage.removeItem("token");
+	//	socket.close();
+	//	state.logout();
+		navigate('/');
 		location.reload();
 	});
 }

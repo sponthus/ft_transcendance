@@ -1,6 +1,6 @@
 import { navigate } from '../../core/router.js';
-import { checkLog } from "../../api/check-log.js";
-import { getUserInfo, modifyUserAvatar , modifyUserInfo } from "../../api/user.js";
+import { updateUsername } from "../../api/user-service/user-info/updateUsername.js";
+import { getUserInfo } from '../../api/user-service/user-info/getUserInfo.js';
 import { uploadAvatar } from "../../api/avatar.js";
 import { BasePage } from "../BasePage.js";
 import { State } from '../../core/state.js';
@@ -12,10 +12,9 @@ import { DisplayHistoryPage } from './HistoryPage.js';
 import { UserBanner } from './UserBannerPage.js';
 
 enum BodyState {PROFILE = 0, FRIENDS = 1, HISTORY = 2};
-const state = State.getInstance();
 
 export class UserPage extends BasePage {
-	protected slug?: string;
+	// protected slug?: string;
 
 	private Background!: HTMLElement;
 	private UserBanner!: UserBanner;
@@ -27,11 +26,11 @@ export class UserPage extends BasePage {
 
 
 	constructor(slug: string) {
-		if (!state.isLoggedIn())
-			navigate('/');
+		// if (!state.isLoggedIn())
+		// 	navigate('/');
 		super();
 		console.log('Constructor');
-		this.slug = state!.user?.slug;
+		// this.slug = state!.user?.slug;
 	}
 	
 	async render(): Promise<void> {
@@ -50,9 +49,9 @@ export class UserPage extends BasePage {
 	
 	private async TryGetUserInfo() {
 		try {
-			const req = await getUserInfo(this.slug!);
+			const req = await getUserInfo();
 			if (req.ok) {
-				this.UserData = req.user;
+				this.UserData = req.userInfo;
 				this.UserBanner = new UserBanner(this.UserData);
 				console.log(`user data = ` + JSON.stringify(this.UserData));
 				this.StateBody = this.UserBanner._ProfileState;

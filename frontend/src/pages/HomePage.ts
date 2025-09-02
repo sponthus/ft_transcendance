@@ -1,8 +1,10 @@
+import { checkLog } from "../api/user-service/connection/check-log.js";
+import { navigate } from "../core/router.js";
 import { BasePage } from "./BasePage.js";
-import { State } from "../core/state.js";
+import { getUserInfo } from "../api/user-service/user-info/getUserInfo.js";
+import { updateUsername } from "../api/user-service/user-info/updateUsername.js";
+import { addFriend } from "../api/user-service/menu/friendsList.js";
 import { append, createAnchorElement, createDiv, createImage } from "../Utils/elementMaker.js";
-
-const state = State.getInstance();
 
 export class HomePage extends BasePage {
 
@@ -15,15 +17,28 @@ export class HomePage extends BasePage {
         super();
     }
 
+	//ou mettre le check log ? 
     async render(): Promise<void> {
 
+		
 		await this.renderBanner();
 		await this.InitDivs();
 		await this.createLogo();
-		if (state.isLoggedIn()) 
+		
+		/*if (state.isLoggedIn()) 
+			await this.renderLogInHome();*/
+		//verifier que ca marche 
+		console.log("Check si token existe dans home page");
+		const res = await checkLog();
+		if (res.ok)
+		{
 			await this.renderLogInHome();
+		}
 		else 
+		{
 			await this.rengerLogoutHome();
+			alert(res.error); //Met une alerte sur l'absence ou l'expiration du token
+		}
 		await this.addInApp();
     }
 	

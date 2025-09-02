@@ -1,6 +1,7 @@
 import { popUp } from "../../Utils/popUp";
 import { State } from '../../core/state.js';
 import { createDiv, createElement, createButton, createDropdownDiv, createFormDiv, createCheckBoxLabel, append, createImage, createInput} from '../../Utils/elementMaker.js';
+import { updateUsername } from "../../api/user-service/user-info/updateUsername.js";
 import { getUserInfo, modifyUserAvatar , modifyUserInfo } from "../../api/user.js";
 import { uploadAvatar } from "../../api/avatar.js";
 import { navigate } from '../../core/router.js';
@@ -196,7 +197,7 @@ export class EditProfile extends popUp {
 			return ;
 		}
 
-		const req = await modifyUserInfo(this.UserData.slug, username);
+		const req = await updateUsername(username);
 		if (req.ok) {
 			console.log("Username edited successfully");
 			this.cleanBody();

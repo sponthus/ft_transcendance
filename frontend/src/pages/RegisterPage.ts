@@ -1,5 +1,6 @@
+import { checkLog } from "../api/user-service/connection/check-log.js";
+import { registerUser } from "../api/user-service/connection/registerUser.js";
 import { navigate } from '../core/router.js';
-import { registerUser } from "../api/user.js";
 import { BasePage } from "./BasePage.js";
 import { createDiv, createElement, append, createFormDiv, createButton, createAnchorElement } from '../Utils/elementMaker.js';
 
