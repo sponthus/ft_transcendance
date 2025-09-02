@@ -53,8 +53,6 @@ export async function uploadAvatar(request, reply) {
                 console.log(err);
                 return reply.code(500).send({error: 'Failed upload :' + err.message});
             }
-
-            // No avatar in request
         }
     }
     return reply.code(400).send({ error: "No avatar file uploaded" });

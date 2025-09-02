@@ -90,6 +90,24 @@ export default class GameServer {
     }
 
     endGame() {
+		let winner = '';
+		if (this.scoreA == this.maxScore || this.scoreB == this.maxScore) {
+			if (this.scoreA > this.scoreB)
+				winner = 'A'
+			else if (this.scoreB > this.scoreA)
+				winner = 'B'
+			else
+				winner = '='
+		} else
+			winner = '0'
+		if (this.ws.readyState === 1) {
+			this.ws.send(JSON.stringify({
+                type: "endGame",
+                winner: winner,
+				scoreA: this.scoreA,
+				scoreB: this.scoreB
+            }));
+		}
         this.state = 'finished';
         gameEventEmitter.emitGameEvent('game:ended', this.gameId, {
             scoreA: this.scoreA,

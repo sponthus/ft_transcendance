@@ -1,13 +1,21 @@
+import { checkLog } from "../api/user-service/connection/check-log.js";
 import { navigate } from '../core/router.js';
-import { checkLog } from "../api/check-log.js";
 import { BasePage } from "./BasePage.js";
 import * as BABYLON from "@babylonjs/core";
-import { State } from "../core/state.js";
 import { createLocalGame, getAvailableGames, startGame, deleteGame } from "../api/game.js"
 import { popUp } from '../Utils/popUp.js';
 import { renderScene } from '../babylon/displaying/renderScene.js';
+import { getUserInfo } from "../api/user-service/user-info/getUserInfo.js";
 
-const state = State.getInstance();
+type UserData = //VA ETRE CHANGER, le token renvoie le username et l'id du user
+{
+    id: number
+    username: string;
+    nickname: string;
+    avatar: string;
+    slug: string;
+    created_at: string;
+};
 
 export class GamePage extends popUp {
 
@@ -40,7 +48,6 @@ export class GamePage extends popUp {
             if (!request.ok) {
                 throw new Error('Unable to start game : ' + request.error);
             }
-            state.launchGame(gameId);
 			this.removeOverlayToWindow();
 			let lastTime = 0;
 			const targetFPS = 120;
@@ -71,8 +78,8 @@ export class GamePage extends popUp {
             await navigate('/game');
         }
     }
-
-    async deleteGame(gameId: number) {
+ 
+    async deleteGame(gameId: number, userData: UserData) {
         try {
             const request = await deleteGame(gameId);
             if (!request.ok) {
@@ -82,12 +89,12 @@ export class GamePage extends popUp {
         } catch (error) {
             alert(error);
         }
-        await this.refreshAvailableGames();
+        await this.refreshAvailableGames(userData);
     }
 
-    async refreshAvailableGames() {
+    async refreshAvailableGames(userData: UserData) {
         const availableGamesDiv = document.getElementById('available-games');
-        if (!availableGamesDiv || !state.user?.id) {
+        if (!availableGamesDiv) {
             console.log('availableGames debug');
             this.Page.innerHTML = `Error`;
             return;
@@ -95,7 +102,7 @@ export class GamePage extends popUp {
 
         try {
             // GET games for userId
-            const result = await getAvailableGames(state.user?.id);
+            const result = await getAvailableGames(userData.id);
             if (!result.ok) {
                 availableGamesDiv.innerHTML = 'Error loading games.';
                 return;
@@ -141,7 +148,7 @@ export class GamePage extends popUp {
                         if (gameId == 0)
                             return;
                         console.log('Delete button clicked for gameId ' + gameId);
-                        await this.deleteGame(gameId);
+                        await this.deleteGame(gameId, userData);
                     });
                 });
             }
@@ -156,7 +163,7 @@ export class GamePage extends popUp {
     meCheckBox1ChoiceOnly(playerAMeCheckbox: HTMLInputElement, 
         playerBMeCheckbox: HTMLInputElement, 
         playerAInput: HTMLInputElement, 
-        playerBInput: HTMLInputElement) {
+        playerBInput: HTMLInputElement, username: string) {
         playerAMeCheckbox?.addEventListener('change', () => {
             if (playerAMeCheckbox.checked) {
                 if (playerBMeCheckbox.checked) {
@@ -164,7 +171,7 @@ export class GamePage extends popUp {
                     playerBInput.value = '';
                     playerBInput.readOnly = false;
                 }
-                playerAInput.value = state.user?.username || '';
+                playerAInput.value = username || '';
                 playerAInput.readOnly = true;
             } else {
                 playerAInput.readOnly = false;
@@ -178,7 +185,7 @@ export class GamePage extends popUp {
                     playerAInput.value = '';
                     playerAInput.readOnly = false;
                 }
-                playerBInput.value = state.user?.username || '';
+                playerBInput.value = username || '';
                 playerBInput.readOnly = true;
             } else {
                 playerBInput.readOnly = false;
@@ -187,8 +194,8 @@ export class GamePage extends popUp {
         });
     }
 
-    async open1v1GameForm(localGameDiv: HTMLElement) {
-        if (!localGameDiv || !state.user?.id)
+    async open1v1GameForm(localGameDiv: HTMLElement, userData: UserData) {
+        if (!localGameDiv)
             return;
 
         localGameDiv.innerHTML = `
@@ -222,13 +229,13 @@ export class GamePage extends popUp {
         const playerBInput = document.getElementById('player_b') as HTMLInputElement;
 
         // Add functionality : only 1 checkbox is available
-        this.meCheckBox1ChoiceOnly(playerAMeCheckbox, playerBMeCheckbox, playerAInput, playerBInput);
+        this.meCheckBox1ChoiceOnly(playerAMeCheckbox, playerBMeCheckbox, playerAInput, playerBInput, userData.username);
 
         // Add the cancel button functionality
         document.getElementById('cancel-btn')?.addEventListener('click', () => {
             localGameDiv.innerHTML = '<button id="local-btn">🎮 Local Game</button>';
             document.getElementById('local-btn')?.addEventListener('click', async () => {
-                await this.open1v1GameForm(localGameDiv);
+                await this.open1v1GameForm(localGameDiv, userData);
             });
         });
 
@@ -261,9 +268,7 @@ export class GamePage extends popUp {
 
             try {
                 // Create game with API
-                if (!state.user?.id)
-                    throw new Error('Not connected');
-                const request = await createLocalGame(state.user?.id, playerA, playerB);
+                const request = await createLocalGame(userData.id, playerA, playerB);
                 if (!request.ok) {
                     throw new Error('Failed to create game');
                 }
@@ -277,11 +282,11 @@ export class GamePage extends popUp {
             // Cancel render after success
             localGameDiv.innerHTML = '<button id="local-btn">🎮 New</button>';
             document.getElementById('local-btn')?.addEventListener('click', async () => {
-                await this.open1v1GameForm(localGameDiv);
+                await this.open1v1GameForm(localGameDiv, userData);
             });
 
             // Refresh available games
-            await this.refreshAvailableGames();
+            await this.refreshAvailableGames(userData);
 
             // Success message
             alert('Game created successfully!');
@@ -290,10 +295,20 @@ export class GamePage extends popUp {
 
     async generate1v1GamePage() {
 		console.log("generate 1v1 Game Page");
+
+        const req = await getUserInfo();
+        if (!req.ok)
+        {
+            console.log('Error GamePage: ', req.error);
+            alert("Error GamePage" + req.error);
+            return ;
+        }
+        const userData = req.userInfo;
+    
         this.Page.innerHTML = `
             <h1></h1>
             <h1>1v1 game page</h1>
-            <p>Welcome, <strong>${state.user?.username}</strong>!</p>
+            <p>Welcome, <strong>${userData.username}</strong>!</p>
             
             <div class="game-settings">
                 <h2>Create a new game</h2>
@@ -304,7 +319,7 @@ export class GamePage extends popUp {
         `;
 
         // Update content in available games
-        await this.refreshAvailableGames();
+        await this.refreshAvailableGames(userData);
 
         // Add functionality : click on local-games open the form to say who plays
 			const newGameDiv = document.getElementById('new-game');
@@ -314,7 +329,7 @@ export class GamePage extends popUp {
             return;
         }
         document.getElementById('new-btn')?.addEventListener('click', async () => {
-            await this.open1v1GameForm(newGameDiv);
+            await this.open1v1GameForm(newGameDiv, userData);
         });
     }
 
@@ -327,10 +342,17 @@ export class GamePage extends popUp {
     async generateGamePage() {
         // Show game options
 		console.log("generate Game Page");
+
+        const req = await getUserInfo();
+        if (!req.ok)
+        {
+            alert("Error GamePage constructor : " + req.error);
+            return;
+        }
         this.Page.innerHTML = `
             <h1></h1>
             <h1>Choose your game mode</h1>
-            <p>Welcome, <strong>${state.user?.username}</strong>!</p>
+            <p>Welcome, <strong>${req.userInfo.username}</strong>!</p>
             <div class="game-modes">
                 <div id="1v1-game"><button id="1v1-btn">🎮 1v1 Game</button></div>
                 <div id="tournament"></div><button id="tournament-btn" disabled>Tournament (coming soon)</button></div>

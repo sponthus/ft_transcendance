@@ -1,9 +1,7 @@
 import { navigate } from "../core/router";
 import { BasePage } from "./BasePage";
-import { State } from "../core/state.js";
 import { DropDown } from "../Utils/dropDown";
-
-const state = State.getInstance();
+import { checkLog } from "../api/user-service/connection/check-log";
 
 export class SettingPage extends BasePage {
 
@@ -12,8 +10,9 @@ export class SettingPage extends BasePage {
 	}
 
 	async render(): Promise<void> {
-		if (state.isLoggedIn()) {
-			console.log('coucou');
+		const req = await checkLog();
+		if (req.ok) {
+			// console.log('debug info : user is logged in');
 
 			this.renderBanner();
 
