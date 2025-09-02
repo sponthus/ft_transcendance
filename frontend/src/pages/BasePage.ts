@@ -6,8 +6,6 @@ import { checkLog } from "../api/user-service/connection/check-log";
 import { getUserInfo } from "../api/user-service/user-info/getUserInfo";
 import { Socket } from "../core/Socket";
 
-const state = State.getInstance();
-
 export abstract class BasePage {
     protected app: HTMLElement;
     protected banner: HTMLElement;
