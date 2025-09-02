@@ -22,7 +22,7 @@ def parse_json(file: str):
 if __name__ == '__main__':
 	# print(np.random.rand())
 	network = Network(NB_HIDDEN_LAYERS, NB_NEURONS_PER_LAYER)
-	# % hauteur raquette, % hauteur balle, % largeur balle, ball dx, ball dy, % raquette ennemie, bool crabmehameha
+	# y paddle 1, y paddle 2, ball x, ball y, ball dy, ball dx, bool crabmehameha
 	inputs = [0.4, 0.2, 0.2, -1.3, +0.3, 0.3, False]
 	# print(network.work(inputs))
 	conf = network.get_conf()

@@ -11,3 +11,4 @@ secrets
 .env
 .venv
 data*
+__pycache__
