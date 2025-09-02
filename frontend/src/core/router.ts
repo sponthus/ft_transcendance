@@ -1,4 +1,4 @@
-import {Game} from "../babylon/main.js"
+import { Game } from "../babylon/main.js"
 import { BasePage } from '../pages/BasePage.js';
 import { HomePage } from '../pages/HomePage.js';
 import { LoginPage } from '../pages/LoginPage.js';
@@ -16,49 +16,55 @@ export async function renderRoute(path: string) {
 
     let userData;
     const req = await getUserInfo(); //Est-ce que je peux y mettre en appel en amont pour eviter une surchage de call API ?
-    if (req.ok){
+    if (req.ok)
         userData = req.userInfo;
-    }
+    else {
+		if (req.error === "No token found")
+			userData = null;
+	}
+
     /*else {
         alert("PAS DE USER INFO DANS ROUTER, PAS POSSIBLE NORMALEMENT");//a enlever
     }*/ //router est appeler a chaque fois du coup le message s'affiche a chaque page
 
+	let dynamicPart = '';
     // Dynamic routes
     if (path.startsWith('/user/')) {
         console.log("before navigation" + userData?.username);
-        const username = path.slice('/user/'.length);
-        // const { UserPage } = await import('./pages/UserPage.js');
-        currentPage = new UserPage(username);
+        dynamicPart = path.slice('/user/'.length);
+		path = '/user';
     }
-    else {
-        console.log("before navigation" + userData?.username);
-        // Static routes
+    console.log("before navigation" + userData?.username);
+	// Static routes
 	switch (path) {
-	    	case '/':
-				currentPage = new HomePage();
-				break;
-            case '/login':
-                currentPage = new LoginPage();
-                break;
-            case '/register':
-                currentPage = new RegisterPage();
-                break;
-            case '/game':
-				console.log("state user :", userData)
-				console.log("user slug :", userData?.slug);
-				currentPage = new Game(userData!.slug);
-				// currentPage = new LocalGamePage();
-                break;
-            case '/setting':
-                currentPage = new SettingPage();
-                break;
-            default:
-                currentPage = null;
-                break;
-			case '/setting':
-				currentPage = new SettingPage();
-        }
-    }
+		case '/':
+			currentPage = new HomePage();
+			break;
+		case '/login':
+			currentPage = new LoginPage();
+			break;
+		case '/register':
+			currentPage = new RegisterPage();
+			break;
+		case '/game':
+			console.log("state user :", userData)
+			console.log("user slug :", userData?.slug);
+			currentPage = new Game(userData!.slug);
+			// currentPage = new LocalGamePage();
+			break;
+		case '/user':
+			currentPage = new UserPage(dynamicPart);
+			break;
+		case '/setting':
+			currentPage = new SettingPage();
+			break;
+		// case '/tournament':
+		//     currentPage = new buttonClass(); // TODO = DEBUG only
+		//     break;
+		default:
+			currentPage = null;
+			break;
+	}
 
     if (currentPage) {
         await currentPage.render();
@@ -74,6 +80,8 @@ export async function navigate(path: string) {
 }
 
 export async function setupRouter() {
+	console.log("router setup");
+
     // Handles clicks on intern <a>
     document.body.addEventListener('click', (event) => {
         const target = event.target as HTMLElement;

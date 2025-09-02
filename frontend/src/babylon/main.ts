@@ -1,7 +1,6 @@
 import "@babylonjs/core/Debug/debugLayer";
 import * as BABYLON from "@babylonjs/core";
 import "@babylonjs/loaders/glTF";
-// import { state } from "../ui/state.js";
 import	{DropDownMenu } from "./menu/dropDownMenu";
 import { BasePage } from "../pages/BasePage.js";
 import { renderScene } from "./displaying/renderScene";

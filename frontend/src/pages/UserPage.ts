@@ -32,7 +32,7 @@ export class UserPage extends BasePage {
 	constructor(slug: string) {
 		super();
 		console.log('Constructor');
-		this.slug = state!.user?.slug;
+		this.slug = slug;
 		this.PopUp = new popUp("");
 	}
 	

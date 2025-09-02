@@ -23,15 +23,13 @@ import proxy from "@fastify/http-proxy";
 import { fileURLToPath } from "url"; // Transforms ESM paths to system paths
 import path from 'path'; // utilities for working with file and directory paths
 import env from "../config/env.js";
-// import dbConnector from "../config/db.js";
-import logger from "../config/logger.js";
-// import routes from "./routes.js";
+// import logger from "../config/logger.js";
 
 const __filename = fileURLToPath(import.meta.url); // This filename, from ESM expression to classic path
 export const __dirname = path.dirname(__filename); // Parent folder to this file
 
 const app = Fastify({
-    logger: logger,
+    logger: false,
 });
 
 console.log('Parameters for app are being set'); // debug

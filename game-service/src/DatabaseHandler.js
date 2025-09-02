@@ -15,7 +15,8 @@ export default class DatabaseHandler {
                 name TEXT NOT NULL,
                 created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                 began_at DATETIME,
-                finished_at DATETIME
+                finished_at DATETIME,
+                winner TEXT
             );
         `);
 
@@ -32,7 +33,8 @@ export default class DatabaseHandler {
                 created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                 began_at DATETIME,
                 finished_at DATETIME,
-                winner TEXT
+                winner TEXT,
+                score INTEGER DEFAULT 7
             );
         `);
 
@@ -55,28 +57,30 @@ export default class DatabaseHandler {
     }
 
     // Test ok
-    async   createGame(userId, playerA, playerB, tournamentId) {
+    async   createGame(userId, playerA, playerB, tournamentId, maxScore = 7) {
+        console.log(`maxScore: ${maxScore}`);
         return new Promise((resolve, reject) => {
             try {
                 let res;
                 if (tournamentId === 0) {
                     const stmt = this.db.prepare(`
-                    INSERT INTO games (status, id_user, player_a, player_b) VALUES (?, ?, ?, ?)
+                    INSERT INTO games (status, id_user, player_a, player_b, score) VALUES (?, ?, ?, ?, ?)
                     `);
-                    res = stmt.run('pending', userId, playerA, playerB);
+                    res = stmt.run('pending', userId, playerA, playerB, maxScore);
                 }
                 else {
                     const stmt = this.db.prepare(`
-                    INSERT INTO games (status, id_user, player_a, player_b, tournament_id) VALUES (?, ?, ?, ?, ?)
+                    INSERT INTO games (status, id_user, player_a, player_b, tournament_id, score) VALUES (?, ?, ?, ?, ?, ?)
                     `);
-                    res = stmt.run('pending', userId, playerA, playerB, tournamentId);
+                    res = stmt.run('pending', userId, playerA, playerB, tournamentId, maxScore);
                 }
                 const id = res.lastInsertRowId;
                 resolve({
                     game_id: id, 
                     status: 'pending', 
                     player_a: playerA, 
-                    player_b: playerB
+                    player_b: playerB,
+                    maxScore: maxScore
                 });
             } catch (err) {
                 reject(err);
@@ -234,6 +238,20 @@ export default class DatabaseHandler {
                     gameId,
                     winner
                 });
+            } catch (err) {
+                reject(err);
+            }
+        });
+    }
+
+    async createTournament(name, userId, players) {
+        return new Promise((resolve, reject) => {
+            try {
+                const stmt = this.db.prepare(`
+                INSERT INTO tournaments(status, id_user, name) VALUES (?, ?, ?);
+                `);
+                const res = stmt.run("pending", userId, name);
+
             } catch (err) {
                 reject(err);
             }

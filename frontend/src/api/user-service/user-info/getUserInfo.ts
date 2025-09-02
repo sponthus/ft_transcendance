@@ -16,9 +16,10 @@ export type GetUserInfoResult = getUserInfoSuccess | Failure
 export async function   getUserInfo() : Promise<GetUserInfoResult>
 {
     const token = localStorage.getItem("token");
-     if (!token)
-        return { ok: false, error : "No token found" };
-    const res = await fetch('api/user/user-info', 
+    if (!token) {
+		return { ok: false, error : "No token found" };
+	}
+    const res = await fetch('/api/user/user-info', 
     {
         method: 'GET',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },    

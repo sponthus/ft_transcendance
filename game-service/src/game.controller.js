@@ -1,7 +1,7 @@
-import State from './state.js';
+import GameMaster from './GameMaster.js';
 
 export async function createGame(request, reply) {
-    const { userId, player_a, player_b } = request.body;
+    const { userId, player_a, player_b, maxScore } = request.body;
     const { db } = request.server;
 
     console.log('User accessed POST /game');
@@ -15,7 +15,12 @@ export async function createGame(request, reply) {
     }
 
     try {
-        const result = await db.createGame(userId, player_a, player_b, 0);
+        let result;
+        if (maxScore) {
+            result = await db.createGame(userId, player_a, player_b, 0, maxScore);
+        } else {
+            result = await db.createGame(userId, player_a, player_b, 0);
+        }
         return reply.status(201).send(result);
     }
     catch (error) {
@@ -51,6 +56,26 @@ export async function getGamesForUserId(request, reply) {
     }
 }
 
+// test OK
+export async function getStatusForUserId(request, reply) {
+    const { userId } = request.params;
+    console.log('User accessed GET /:userId/status');
+    if (!userId) {
+        return reply.status(400).send({error: 'No userId found in request.'});
+    }
+
+    const gameMaster = GameMaster.getInstance();
+    if (!gameMaster) {
+        return reply.status(500).send({error: 'Internal server error while fetching users'});
+    }
+    console.log(`Looking for user`);
+    const status = gameMaster.getUserStatus(userId);
+    if (status === 'not found') {
+        return reply.status(404).send({error: 'No user found in the server.'});
+    }
+    return reply.status(200).send({ userId: userId, status: status });
+}
+
 // Test ok normal case
 export async function startGame(request, reply) {
     const { gameId } = request.params;
@@ -69,6 +94,7 @@ export async function startGame(request, reply) {
     let player_a = '';
     let player_b = '';
     let status = '';
+    let maxScore = 7;
     // Check if the game exists and is available to play
     try {
         // console.log("Trying to find games with gameId " + gameId);
@@ -81,6 +107,7 @@ export async function startGame(request, reply) {
         player_a = games[0].player_a;
         player_b = games[0].player_b;
         status = games[0].status;
+        maxScore = games[0].score;
     }
     catch (error) {
         console.error('Error fetching games:', error);
@@ -89,17 +116,63 @@ export async function startGame(request, reply) {
 
     try {
         // console.log("Trying to create game server with gameId " + gameId + " and userId " + userId);
-        State.getInstance().getGameMaster().createServer(gameId, userId);
+        const gameMaster = GameMaster.getInstance();
+        if (!gameMaster) {
+            return reply.status(500).send({error: 'Internal server error while fetching users'});
+        }
+        gameMaster.createServer(gameId, userId, maxScore);
         // console.log("sending data : " + gameId + status + player_a + player_b);
-        return reply.status(200).send({ 
+        return reply.status(201).send({
             gameId: gameId, 
             status: status, 
             player_a: player_a, 
-            player_b: player_b 
+            player_b: player_b,
+            maxScore: maxScore,
         });
     }
     catch (error) {
         console.error('Error creating game server:', error);
+        return reply.status(400).send({error: 'Internal server error while creating games'});
+    }
+}
+
+export async function sendMessageToUser(request, reply) {
+    const { userId } = request.params;
+    // TODO = Allow use only from another service, identify sender via JWT
+    const { sender, message } = request.body;
+
+    if (!sender || !message) {
+        return reply.status(400).send({
+            error: 'Incomplete message : No sender or message found in request.' });
+    }
+    const gameMaster = GameMaster.getInstance();
+    if (!gameMaster) {
+        return reply.status(500).send({
+            error: 'Internal server error while fetching users' });
+    }
+
+    try {
+        switch (gameMaster.sendMessageToUser(userId, sender, message)) {
+            case 1 :
+                return reply.status(202).send({
+                    userId: userId,
+                    sender: sender,
+                    message: message,
+                    status: 'accepted' });
+            case 2 :
+                return reply.status(404).send({
+                    error: 'Cannot find user' });
+            default:
+                return reply.status(200).send({
+                    userId: userId,
+                    sender: sender,
+                    message: message,
+                    status: 'sent' });
+        }
+    } catch (error) {
+        console.log(error);
+        return reply.status(500).send({
+            error: error.message });
     }
 }
 
