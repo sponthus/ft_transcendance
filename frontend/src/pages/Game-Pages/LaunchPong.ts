@@ -1,8 +1,6 @@
 import { renderScene } from '../../babylon/displaying/renderScene.js';
 import { GamePage } from './GamePage.js';
-import { State } from '../../core/state.js';
 
-const state = State.getInstance();
 
 export class launchPong {
 
@@ -51,7 +49,6 @@ export class launchPong {
 
 	private EndGame() {
 		this.Render.engine?.stopRenderLoop();
-		state.pause();
 		this.Render.PongGame!.GamePhysics!.SetWin = false;
 		this.returnLobby();
 	}

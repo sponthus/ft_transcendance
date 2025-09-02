@@ -1,10 +1,8 @@
-import { State } from "../../core/state.js";
 import { createDiv, createElement, createButton, createDropdownDiv, createFormDiv, createCheckBoxLabel, append} from '../../Utils/elementMaker.js';
 import { createLocalGame, getAvailableGames, startGame, deleteGame } from "../../api/game.js"
 import { renderDropdown } from "./GamePage.js";
 import { availableGames } from "./AvailableGames.js";
 
-const state = State.getInstance();
 
 export class LocalGamePage {
 
@@ -12,11 +10,13 @@ export class LocalGamePage {
 	private NewGameForm!: HTMLElement;
 	private PartyMap!: Map<number, HTMLInputElement>;
 	private AvailableGames: availableGames;
+	private Username!: string;
 
-	constructor(Page: HTMLElement) {
+	constructor(Page: HTMLElement, UserName: string) {
 		this.Page = Page;
 		this.PartyMap = new Map<number, HTMLInputElement>();
 		this.AvailableGames = new availableGames(this.Page, this.PartyMap);
+		this.Username = UserName;
 	}
 
 	async render() {
@@ -133,7 +133,8 @@ export class LocalGamePage {
 		MeCheckbox?.addEventListener('change', () => {
 		if (MeCheckbox.checked) {
 			this.ChangePlayerNameInput(ElseCheckBox, ElsePlayerInput, Select.value);
-			MePlayerInput.value = state.user?.username || '';
+			MePlayerInput.value = this.Username!; // call API 
+
 			MePlayerInput.readOnly = true;
 		} 
 		else {

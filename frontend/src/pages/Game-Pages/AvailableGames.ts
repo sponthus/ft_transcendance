@@ -1,17 +1,40 @@
 
-import { State } from "../../core/state.js";
 import { createDiv, createElement, createButton, createDropdownDiv, createFormDiv, createCheckBoxLabel, append} from '../../Utils/elementMaker.js';
 import { createLocalGame, getAvailableGames, startGame, deleteGame } from "../../api/game.js"
+import { getUserInfo } from "../../api/user-service/user-info/getUserInfo.js";
 
-const state = State.getInstance();
+type UserData = //VA ETRE CHANGER, le token renvoie le username et l'id du user
+{
+	id: number
+	username: string;
+	nickname: string;
+	avatar: string;
+	slug: string;
+	created_at: string;
+};
 
 export class availableGames {
 	private Page: HTMLElement;
 	private PartyMap: Map<number, HTMLInputElement>;
+	private UserData!: any;
 
 	constructor(page: HTMLElement,  PartyMap: Map<number, HTMLInputElement>) {
 		this.Page = page;
 		this.PartyMap = PartyMap;
+		this.initUserInfo();
+
+	}
+
+	private async initUserInfo() {
+		try {
+			const req = await getUserInfo();
+			if (req.ok) {
+				this.UserData = req.userInfo;
+			}
+
+		} catch (error) {
+
+		}
 	}
 
 	render () {
@@ -32,7 +55,7 @@ export class availableGames {
 		BodyParty.innerHTML = '';
 
 		const availableGamesDiv = document.getElementById('available-games-div');
-		if (!availableGamesDiv || !state.user?.id) {
+		if (!availableGamesDiv || !this.UserData?.id) {
 			console.log('availableGames debug');
 			if(!availableGamesDiv)
 			   this.Page.innerHTML = `Error don't find availables games`;
@@ -40,7 +63,7 @@ export class availableGames {
 		}
 
 		try {
-			const result = await getAvailableGames(state.user?.id);
+			const result = await getAvailableGames(this.UserData?.id);
 			if (!result.ok) {
 				availableGamesDiv.innerHTML = 'Error loading games.';
 				return;
@@ -62,7 +85,7 @@ export class availableGames {
 		BodyParty.innerHTML = '';
 	
 		const availableGamesDiv = document.getElementById('available-games-div');
-		if (!availableGamesDiv || !state.user?.id) {
+		if (!availableGamesDiv || !this.UserData?.id) {
 			console.log('availableGames debug');
 			if(!availableGamesDiv)
 			   this.Page.innerHTML = `Error don't find availables games`;
@@ -70,7 +93,7 @@ export class availableGames {
 		}
 	
 		try {
-			const result = await getAvailableGames(state.user?.id); // change for Available Tournament
+			const result = await getAvailableGames(this.UserData?.id); // change for Available Tournament
 			if (!result.ok) {
 				availableGamesDiv.innerHTML = 'Error loading games.';
 				return;

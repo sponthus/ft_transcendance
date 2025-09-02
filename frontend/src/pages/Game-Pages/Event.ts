@@ -1,15 +1,23 @@
 import { createDiv, createButton, append} from '../../Utils/elementMaker.js';
 import { createLocalGame, startGame } from "../../api/game.js"
 import { LocalGamePage } from './LocalGamePage.js';
-import { State } from "../../core/state.js";
 import { GamePage } from './GamePage.js';
 import { navigate } from '../../core/router.js';
 import { launchPong } from './LaunchPong.js';
 import { TournamentPage } from './tounramentPage.js';
-
-const state = State.getInstance();
+import { getUserInfo } from "../../api/user-service/user-info/getUserInfo.js";
 
 export enum PageState {MOD = 0, TOURNAMENT = 1, PARTY = 2, NEWGAME = 3, BRACKET = 4};
+
+type UserData = //VA ETRE CHANGER, le token renvoie le username et l'id du user
+{
+	id: number
+	username: string;
+	nickname: string;
+	avatar: string;
+	slug: string;
+	created_at: string;
+};
 
 export class Event {
 
@@ -237,7 +245,7 @@ export class Event {
 			if (!request.ok) {
 				throw new Error('Unable to start game : ' + request.error);
 			}
-			state.launchGame(gameId);
+			// state.launchGame(gameId);
 			this.StatePage = PageState.MOD;
 			this.renderGame();
 		} 
@@ -310,10 +318,18 @@ export class Event {
 	
 	private async addPartyToServer(PlayerA: string, PlayerB: string) {
 		try {
-			if (!state.user?.id)
+			const req = await getUserInfo();
+			if (!req.ok)
+			{
+			    console.log('Error GamePage: ', req.error);
+			    alert("Error GamePage" + req.error);
+			    return ;
+			}
+			const userData = req.userInfo;
+			if (!userData?.id)
 				throw new Error('user not connected');
-			const req = await createLocalGame(state.user?.id, PlayerA, PlayerB);
-			if (!req.ok) 
+			const request = await createLocalGame(userData?.id, PlayerA, PlayerB);
+			if (!request.ok) 
 				throw new Error('Failed to create Game');
 		}
 		catch (error) {

@@ -1,17 +1,16 @@
 import { popUp } from "../../Utils/popUp";
-import { State } from '../../core/state.js';
 import { createDiv, createElement, createButton, createDropdownDiv, createFormDiv, createCheckBoxLabel, append, createImage, createInput} from '../../Utils/elementMaker.js';
+import { modifyUserAvatar } from "../../api/user";
 import { updateUsername } from "../../api/user-service/user-info/updateUsername.js";
-import { getUserInfo, modifyUserAvatar , modifyUserInfo } from "../../api/user.js";
+import { getUserInfo } from '../../api/user-service/user-info/getUserInfo.js';
 import { uploadAvatar } from "../../api/avatar.js";
 import { navigate } from '../../core/router.js';
 
 enum EditState {AVATAR = 0, USERNAME = 1};
-const state = State.getInstance();
 
 export class EditProfile extends popUp {
 
-	protected slug?: string;
+	// protected slug?: string;
 
 	private BtnDiv!: HTMLElement
 	private EditingState!: number;
@@ -25,7 +24,7 @@ export class EditProfile extends popUp {
 		this.createReturnAndSaveBtn();
 		this.isEdit = false;
 		this.UserData = UserData;
-		this.slug = state.user?.slug;
+		// this.slug = state.user?.slug;
 	}
 
 	render(div: HTMLElement, Id: string) {
@@ -246,9 +245,9 @@ export class EditProfile extends popUp {
 	}
 
 	private async updateUserData(){
-		const req = await getUserInfo(state.user?.slug!);
+		const req = await getUserInfo();
 		if (req.ok) {
-			this.UserData = req.user;
+			this.UserData = req.userInfo;
 			console.log(`user data = ` + JSON.stringify(this.UserData));
 		}
 	}

@@ -1,4 +1,3 @@
-import { State } from "../../core/state.js";
 import { popUp } from '../../Utils/popUp.js';
 import { renderScene } from '../../babylon/displaying/renderScene.js';
 import { createDiv, createElement, createButton, createDropdownDiv, createFormDiv, createCheckBoxLabel, append} from '../../Utils/elementMaker.js';
@@ -6,8 +5,17 @@ import { LocalGamePage } from './LocalGamePage.js';
 import { TournamentPage } from "./tounramentPage.js";
 import { Event } from './Event.js';
 import { PageState } from "./Event.js";
+import { getUserInfo } from '../../api/user-service/user-info/getUserInfo.js';
 
-const state = State.getInstance();
+type UserData = //VA ETRE CHANGER, le token renvoie le username et l'id du user
+{
+	id: number
+	username: string;
+	nickname: string;
+	avatar: string;
+	slug: string;
+	created_at: string;
+};
 
 export async function renderDropdown(Parent: HTMLElement, Options: string[], Name: string, TextContent: string): Promise<void> {
 	const Div = createDropdownDiv(Options, Name, TextContent, 
@@ -24,20 +32,35 @@ export class GamePage extends popUp {
 	private TournamentPage!: TournamentPage;
 	private Event!: Event;
 	private render!: renderScene;
+	private userName!: string;
 
 	constructor(render: renderScene) {
 		super("Create Game");
 		this.render = render;
 		this.startGamePage();
 	}
-
-	startGamePage() {
+	
+	async startGamePage() {
+	await this.getUsername();
 		this.initPage();
 		this.initPopUpPage();
 		this.generateGamePage();
-		this.LocalGamePage = new LocalGamePage(this.Page);
-		this.TournamentPage = new TournamentPage(this.Page);
+		this.LocalGamePage = new LocalGamePage(this.Page, this.userName!);
+		this.TournamentPage = new TournamentPage(this.Page, this.userName!);	
 		this.Event = new Event(this.LocalGamePage, this.TournamentPage, this);
+	}
+
+	private async getUsername(){
+		try {
+			const req = await getUserInfo();
+			if (req.ok) {
+				const userData = req.userInfo;
+				this.userName = userData.username;
+				console.log("add username ", this.userName);
+			}
+		} catch(error) {
+			alert (error);
+		}
 	}
 
 	private initPage() {

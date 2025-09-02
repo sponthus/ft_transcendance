@@ -1,9 +1,7 @@
-import { State } from '../../core/state.js';
 import { Checkbox } from '@babylonjs/inspector/fluent/primitives/checkbox';
 import { createDiv, createElement, createButton, createDropdownDiv, createFormDiv, createCheckBoxLabel, append} from '../../Utils/elementMaker.js';
 import { availableGames } from './AvailableGames.js';
 
-const state = State.getInstance();
 
 export class TournamentPage {
 	private Page!: HTMLElement;
@@ -13,12 +11,14 @@ export class TournamentPage {
 	private PartyMap!: Map<number, HTMLInputElement>;
 	private AvailableGames: availableGames;
 	private Tournament?: any;
+	private Username!: string;
 
-	constructor(Page: HTMLElement) {
+	constructor(Page: HTMLElement, UserName: string) {
 		this.Page = Page;
 		this.FormMap = new Map<HTMLElement, HTMLInputElement>();
 		this.PartyMap = new Map<number, HTMLInputElement>();
 		this.AvailableGames = new availableGames(this.Page, this.PartyMap);
+		this.Username = UserName;
 	}
 
 	async render() {
@@ -178,7 +178,7 @@ export class TournamentPage {
 				const InputKey = key.querySelector("input") as HTMLInputElement;
 				value.checked = true;
 				InputKey.readOnly = true;
-				InputKey.value = state.user?.username || "";
+				InputKey.value = this.Username; // call qpi for username
 			})
 		}) 
 	}

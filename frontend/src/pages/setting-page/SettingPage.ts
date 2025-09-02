@@ -1,11 +1,9 @@
 import { navigate } from "../../core/router";
 import { BasePage } from "../BasePage";
-import { State } from "../../core/state.js";
 import { createDiv, createElement, createButton, createDropdownDiv, createFormDiv, createCheckBoxLabel, append, createImage} from '../../Utils/elementMaker.js';
 import { renderGameSetting } from "./GameSettings";
 import { renderProfileSetting } from "./ProfileSetting";
 
-const state = State.getInstance();
 
 export class SettingPage extends BasePage {
 
@@ -20,18 +18,15 @@ export class SettingPage extends BasePage {
 	}
 
 	async render(): Promise<void> {
-		if (state.isLoggedIn()) {
 
-			this.renderBanner();
+		this.renderBanner();
 
-			await this.createHomeSetting();
-			await this.createSettingDiv();
-			await this.createReturnDiv();
+		await this.createHomeSetting();
+		await this.createSettingDiv();
+		await this.createReturnDiv();
 
-			await this.renderHomeSetting();
-		}
-		else
-			navigate('/');
+		await this.renderHomeSetting();
+
 	}
 
 	/*********************************************function for creating Home Setting**********************************************/

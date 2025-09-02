@@ -3,7 +3,6 @@ import { updateUsername } from "../../api/user-service/user-info/updateUsername.
 import { getUserInfo } from '../../api/user-service/user-info/getUserInfo.js';
 import { uploadAvatar } from "../../api/avatar.js";
 import { BasePage } from "../BasePage.js";
-import { State } from '../../core/state.js';
 import { popUp } from '../../Utils/popUp.js';
 import { sleep } from '../../babylon/displaying/dialogueBox.js';
 import { createDiv, createElement, createButton, createDropdownDiv, createFormDiv, createCheckBoxLabel, append, createImage, createInput} from '../../Utils/elementMaker.js';
@@ -37,7 +36,6 @@ export class UserPage extends BasePage {
 		await this.renderBanner();
 		await this.initDivs();
 		this.TryGetUserInfo();
-		
 	}
 
 	/*************************************Functions for render Page*************************************/

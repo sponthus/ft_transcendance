@@ -108,7 +108,7 @@ export class GamePhysics {
 				this.updateFrontend();
 			}
 			if (data.type === "endGame") {
-				this._win = true;
+				this._Win = true;
 			}
 		};
 	}

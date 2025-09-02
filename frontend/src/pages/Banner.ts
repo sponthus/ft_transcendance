@@ -1,9 +1,8 @@
 import { navigate } from '../core/router.js';
-//import { State } from "../core/state.js";
 import { modifyUserAvatar , modifyUserInfo } from "../api/user.js";
 import { getUserInfo } from '../api/user-service/user-info/getUserInfo.js';
 import { Socket } from '../core/Socket.js';
-import { createElement, createAnchorElement, append, createImage} from '../Utils/elementMaker.js';
+
 type UserData = //VA ETRE CHANGER, le token renvoie le username et l'id du user
 {
     id: number
@@ -24,7 +23,11 @@ const navLinks = document.createElement('ul');
 /*************************************export Functions for creatin banner*************************************/
 export function renderBaseBanner(banner: HTMLElement): void {
 	banner.innerHTML = '';
+	console.log('coucou');
+	initWrapper();
+	initUserInfo();
 	initLogo();
+	initNavLink();
 	addInBanner(banner);
 }
 
@@ -32,7 +35,9 @@ export async function renderLoggedOutBanner(banner: HTMLElement): Promise<void> 
 	if (!checkLogoutElement(banner)) {
 		return;
 	}
+
 	setLogoutUserInfo();
+
 	createItem('/login', 'Login', 'px-4 py-2 text-emerald-600  hover:text-emerald-800 hover:bg-orange-300 rounded-md transition-colors');
 	createItem('/register', 'Register', 'px-4 py-2 bg-emerald-600 text-green-200 hover:bg-emerald-800 rounded-md transition-colors');
 }
@@ -46,16 +51,38 @@ export async function renderLoggedInBanner(banner: HTMLElement, userData: UserDa
 	createItem('/setting', "Settings", "px-4 py-2 text-emerald-600 hover:text-emerald-800 hover:bg-orange-300 rounded-md transition-colors");
 	createItem(`/user/${userData.slug}`, 'Profile', 'px-4 py-2 text-emerald-600 hover:text-emerald-800 hover:bg-orange-300 rounded-md transition-colors');
 	createItem('/', 'Logout', 'px-4 py-2 text-red-200 bg-red-600 hover:text-red-300 hover:bg-red-800 rounded-md transition-colors cursor-pointer');
+
 	SetLogOutEvent();
 }
 
 /*************************************Function for creating Base Banner*************************************/
+function initWrapper() {
+	wrapper.className = 'grid grid-cols-3 items-center justify-between p-4 bg-orange-200 shadow-md';
+}
+
+function initUserInfo() {
+	userInfo.className = 'flex flex-wrap order-1 text-sm text-gray-600';
+	userInfo.id = 'user-info';
+}
 
 function initLogo() {
-	const logoLink = createAnchorElement('logo-link', "", "/", 'text-2xl font-bold text-emerald-400 hover:text-emerald-800 transition-colors') as HTMLAnchorElement;
-	append(logoLink, [(createImage("logo", "mx-auto object-cover rounded-full hover:bg-emerald-600 object-center h-12 w-18", "/logo/logoIlsandWorld.png") as HTMLImageElement)])
+	logo.className = 'mx-auto order-2 snap-center'
 
-	append(logo, [logoLink]);
+	const logoLink = document.createElement('a');
+	logoLink.href = '/';
+	logoLink.className = 'text-2xl font-bold text-emerald-400 hover:text-emerald-800 transition-colors'
+		
+	const logoImg = document.createElement('img');
+	logoImg.className = "mx-auto object-cover rounded-full hover:bg-emerald-600 object-center h-12 w-18";
+	logoImg.src = "/logo/logoIlsandWorld.png";
+
+	logoLink.appendChild(logoImg);
+	logo.appendChild(logoLink);
+}
+
+function initNavLink() {
+	navLinks.className = 'flex justify-end space-x-4 order-3 list-none';
+	navLinks.id = 'nav-links';
 }
 
 /*************************************Function for creating logout Banner*************************************/
@@ -144,7 +171,7 @@ async function SetUserImg(userIcon: HTMLElement, userData: UserData) {
 }
 
 function SetLogOutEvent() {
-	const logoutLink = document.getElementById('Logout-id-a');
+	const logoutLink = document.getElementById('Logout_id');
 	if (!logoutLink)
 		return ;
 	logoutLink.addEventListener('click', async (e) => {
@@ -159,12 +186,21 @@ function SetLogOutEvent() {
 
 /*************************************Function utils*************************************/
 function createItem(href: string, TextContent: string, ClassName: string) {
-	const Item: HTMLLIElement = createElement('li', '', '', '') as HTMLLIElement;
-	append(Item, [createAnchorElement(TextContent + "-id", TextContent, href, ClassName)]);
-	append(navLinks, [Item]);
+	const Item = document.createElement('li');
+	const Link = document.createElement('a');
+	Link.id = TextContent + "_id";
+	Link.href = href;
+	Link.textContent = TextContent;
+	Link.className = ClassName;
+	Item.appendChild(Link);
+
+	navLinks.append(Link);
 }
 
 function addInBanner(banner: HTMLElement) {
-	append(wrapper, [logo, userInfo, navLinks]);
-	append(banner, [wrapper]);
+	wrapper.appendChild(logo);
+	wrapper.appendChild(userInfo);
+	wrapper.appendChild(navLinks);
+
+	banner.appendChild(wrapper);
 }
