@@ -1,5 +1,3 @@
-import { state } from "../../ui/state.js";
-
 // User infos possible to give back
 type UserBasic = {
     username: string;
