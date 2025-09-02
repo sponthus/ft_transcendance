@@ -1,16 +1,15 @@
+import { checkLog } from "../api/user-service/connection/check-log.js";
+import  {modifyUserAvatar } from "../api/user-service/user.js";
+import { getUserInfo } from '../api/user-service/user-info/getUserInfo.js';
 import { navigate } from '../core/router.js';
-import { checkLog } from "../api/check-log.js";
-import { getUserInfo, modifyUserAvatar , modifyUserInfo } from "../api/user.js";
 import { uploadAvatar } from "../api/avatar.js";
 import { BasePage } from "./BasePage.js";
-import { State } from '../core/state.js';
 import { popUp } from '../Utils/popUp.js';
 import { sleep } from '../babylon/displaying/dialogueBox.js';
+import { updateUsername } from "../api/user-service/user-info/updateUsername.js";
 
 enum BodyState {PROFILE = 0, FRIENDS = 1, HISTORY = 2};
 enum EditState {AVATAR = 0, USERNAME = 1};
-
-const state = State.getInstance();
 
 export class UserPage extends BasePage {
 	protected slug?: string;
@@ -56,9 +55,9 @@ export class UserPage extends BasePage {
 		}
 		// const connectedUser = res.user.slug;
 		
-		const req = await getUserInfo(this.slug!);
+		const req = await getUserInfo();
 		if (req.ok) {
-			this._UserData = req.user;
+			this._UserData = req.userInfo;
 			console.log(`user data = ` + JSON.stringify(this._UserData));
 			this.isOwnProfile = true;// = this.slug === connectedUser;
 			this.StateBody = 0;
@@ -397,10 +396,11 @@ export class UserPage extends BasePage {
 			return ;
 		}
 
-		const req = await modifyUserInfo(this._UserData.slug, username);
+		//const req = await modifyUserInfo(this._UserData.slug, username);
+		const req = await updateUsername(username);
 		if (req.ok) {
 			console.log("Username edited successfully");
-			this.PopUp.cleanBody();
+			this.PopUp.cleanBody(); // c'est quoi ?
 			this.updateUserData();
 			navigate(`/user/${this._UserData.slug}`);
 			location.reload();
@@ -501,9 +501,10 @@ export class UserPage extends BasePage {
 	}
 
 	private async updateUserData(){
-		const req = await getUserInfo(this.slug!);
+		//const req = await getUserInfo(this.slug!);
+		const req = await getUserInfo();
 		if (req.ok) {
-			this._UserData = req.user;
+			this._UserData = req.userInfo;
 			console.log(`user data = ` + JSON.stringify(this._UserData));
 		}
 	}

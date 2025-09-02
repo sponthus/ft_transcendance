@@ -6,25 +6,32 @@ import { RegisterPage } from '../pages/RegisterPage.js';
 import { SettingPage } from "../pages/SettingPage.js";
 import { UserPage } from '../pages/UserPage.js';
 import { GamePage } from '../pages/GamePage.js';
-import { State } from "./state.js";
 import { LocalGamePage } from "../pages/LocalGamePage.js";
-
-const state = State.getInstance();
+import { getUserInfo } from "../api/user-service/user-info/getUserInfo.js";
 
 let currentPage: BasePage | null = null;
 
 export async function renderRoute(path: string) {
     currentPage?.destroy();
 
+    let userData;
+    const req = await getUserInfo(); //Est-ce que je peux y mettre en appel en amont pour eviter une surchage de call API ?
+    if (req.ok){
+        userData = req.userInfo;
+    }
+    /*else {
+        alert("PAS DE USER INFO DANS ROUTER, PAS POSSIBLE NORMALEMENT");//a enlever
+    }*/ //router est appeler a chaque fois du coup le message s'affiche a chaque page
+
     // Dynamic routes
     if (path.startsWith('/user/')) {
-        console.log("before navigation" + state.user?.username);
+        console.log("before navigation" + userData?.username);
         const username = path.slice('/user/'.length);
         // const { UserPage } = await import('./pages/UserPage.js');
         currentPage = new UserPage(username);
     }
     else {
-        console.log("before navigation" + state.user?.username);
+        console.log("before navigation" + userData?.username);
         // Static routes
 	switch (path) {
 	    	case '/':
@@ -37,9 +44,9 @@ export async function renderRoute(path: string) {
                 currentPage = new RegisterPage();
                 break;
             case '/game':
-				console.log("state user :", state.user)
-				console.log("user slug :", state.user?.slug);
-				currentPage = new Game(state.user!.slug);
+				console.log("state user :", userData)
+				console.log("user slug :", userData?.slug);
+				currentPage = new Game(userData!.slug);
 				// currentPage = new LocalGamePage();
                 break;
             case '/setting':
