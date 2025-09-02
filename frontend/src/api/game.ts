@@ -1,7 +1,3 @@
-import { State } from "../core/state.js";
-
-// const state = State.getInstance();
-
 type Failure = { ok: false; error: string };
 type Success = { ok: true; message: string };
 

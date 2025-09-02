@@ -1,3 +1,5 @@
+//FICHIER OBSOLETE
+
 import { createUser, getUser, loginUser, modifyUser, modifyAvatar } from "./users.controller.js";
 
 // TODO implement routes
@@ -11,7 +13,7 @@ export default async function routes(fastify, options) {
             //     console.log('preHandler called for:', request.url);
             // });
 
-            postRoutes.post("/",
+            postRoutes.post("/register",
                 createUser);
             postRoutes.post("/login",
                 loginUser);
@@ -23,7 +25,7 @@ export default async function routes(fastify, options) {
     fastify.register(
         // TODO : Function probably not working, weird stuff; when you delete DB the request still says OK ...
         async function (getRoutes) {
-            getRoutes.get('/me',
+            getRoutes.get('/protected',
                 {onRequest: [fastify.authenticate]},
                 async (req, reply) => {
                     req.log.info({userId: req.user.id}, `User ${req.user.id} accessed /me`);

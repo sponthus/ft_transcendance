@@ -1,8 +1,5 @@
 import { PongGame } from "../babylon/pong/pong_game.js";
 import { BasePage } from "./BasePage.js";
-import { State } from "../core/state.js";
-
-const state = State.getInstance();
 
 export class LocalGamePage extends BasePage {
     constructor() {
@@ -35,21 +32,21 @@ export class LocalGamePage extends BasePage {
             console.error("Canvas element not found.");
             return;
         }
-        this.resizeCanvas(canvas);
+        // this.resizeCanvas(canvas);
 
         const pongGameApp = new PongGame();
         await pongGameApp.start();
         console.log("Pong game created");
     }
 
-    // TODO = Add this in a listener of resizing ?
-    resizeCanvas(canvas: HTMLCanvasElement) {
-        if (window.innerWidth * 0.6 >= 900)
-            state.canvas.width = window.innerWidth * 0.6;
-        else
-            state.canvas.width = 900;
-        state.canvas.height = state.canvas.width * 2/3;
-        canvas.width = state.canvas.width;
-        canvas.height = state.canvas.height;
-    }
+    // // TODO = Add this in a listener of resizing ?
+    // resizeCanvas(canvas: HTMLCanvasElement) {
+    //     if (window.innerWidth * 0.6 >= 900)
+    //         state.canvas.width = window.innerWidth * 0.6;
+    //     else
+    //         state.canvas.width = 900;
+    //     state.canvas.height = state.canvas.width * 2/3;
+    //     canvas.width = state.canvas.width;
+    //     canvas.height = state.canvas.height;
+    // }
 }

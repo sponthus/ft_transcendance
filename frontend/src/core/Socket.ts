@@ -25,7 +25,7 @@ export class Socket {
         }
     }
 
-    static getInstance(userId: number): Socket {
+    static getInstance(userId: number = -1): Socket {
         // console.log("=== Socket.getInstance DEBUG ===");
         // console.log("Current Socket.instance:", !!Socket.instance);
         // console.log("Global instance exists:", !!(window as any).GLOBAL_WEBSOCKET);
