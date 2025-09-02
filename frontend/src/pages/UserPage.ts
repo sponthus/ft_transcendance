@@ -4,15 +4,12 @@ import { getUserInfo } from '../api/user-service/user-info/getUserInfo.js';
 import { navigate } from '../core/router.js';
 import { uploadAvatar } from "../api/avatar.js";
 import { BasePage } from "./BasePage.js";
-import { State } from '../core/state.js';
 import { popUp } from '../Utils/popUp.js';
 import { sleep } from '../babylon/displaying/dialogueBox.js';
 import { updateUsername } from "../api/user-service/user-info/updateUsername.js";
 
 enum BodyState {PROFILE = 0, FRIENDS = 1, HISTORY = 2};
 enum EditState {AVATAR = 0, USERNAME = 1};
-
-const state = State.getInstance();
 
 export class UserPage extends BasePage {
 	protected slug?: string;
