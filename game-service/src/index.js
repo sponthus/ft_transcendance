@@ -4,6 +4,7 @@ import { createServer } from "http";
 import { fileURLToPath } from "url";
 import { WebSocketServer } from "ws";
 import path from "path";
+import fs from "fs";
 
 import logger from "../config/logger.js";
 import env from "../config/env.js";
@@ -37,9 +38,19 @@ app.decorate("authenticate", async function (request, reply)
     }
 });
 
+function getSecret(name) {
+	try {
+		const key = fs.readFileSync(`/run/secrets/${name}`, 'utf8').trim();
+		return (key);
+	} catch (error) {
+		console.log("❌ Critical error : Unable to read secret ", name);
+		// process.exit(1);
+	}
+}
+
 //enregistre le plugin JWT dans fastify
 app.register(fastifyJwt, {
-	secret: env.hashKey,
+	secret: getSecret('hash_key'),
 });
 
 await app.register(routes);
@@ -50,7 +61,7 @@ app.setNotFoundHandler((req, reply) => {
 });
 
 // Lancer Fastify HTTP REST API sur le port 3002
-app.listen({ port: 3002, host: "0.0.0.0" }, (err, address) => {
+app.listen({ port: env.game_port, host: "0.0.0.0" }, (err, address) => {
     if (err) {
         app.log.error(err);
         process.exit(1);
@@ -65,7 +76,7 @@ console.log("Ws server created");
 
 const WSManager = new WebSocketManager(wss);
 
-server.listen(4000, () => {
-    console.log("WebSocket server listening on port 4000");
+server.listen(env.ws_port, () => {
+    console.log('WebSocket server listening on port ', env.ws_port);
 });
 
