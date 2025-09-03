@@ -2,8 +2,8 @@ import numpy as np
 import time
 
 # WARNING : Multiply speed by 10 compared to real game
-PLAYER_SPEED = 0.3
 BASE_BALL_SPEED = 10
+PLAYER_SPEED = 0.3
 SPEED_LIMIT = 22
 SPEED_INCREMENT = 2
 
@@ -104,7 +104,6 @@ class SimplePongGame:
 				time.sleep(self.dt)
 			sec += 1
 
-
 # Real pong game from the project
 class PongGame:
 	def __init__(self):
@@ -144,6 +143,9 @@ class PongGame:
 
 		self.die1 = False
 		self.die2 = False
+
+		self.ai_score = 0
+		self.crab_score = 0
 	
 	def setGameMode(self, mode, option):
 		self.gameMode = mode
@@ -186,6 +188,9 @@ class PongGame:
 		  self.ball['dirX'], 
 		  self.ball['dirZ'], 
 		  self.isSpell1Available ]
+	
+	def get_ai_score(self):
+		return self.ai_score
 	
 	def movePlayer1(self, action_nn):
 		if action_nn == 0 and self.paddle1['x'] > INFERIOR_PADDLE_LIMIT:
@@ -234,6 +239,8 @@ class PongGame:
 		dz = abs(self.ball['z'] - paddleZ)
 
 		if (dz < 0.5 and dx < 1 and isDie == False):
+			self.ai_score += 10
+
 			if (self.ball['speed'] < SPEED_LIMIT):
 				self.ball['speed'] += SPEED_INCREMENT
 			self.ball['dirZ'] *= -1
@@ -254,10 +261,11 @@ class PongGame:
 	def checkGoal(self):
 		if (self.ball['z'] < LEFT_GOAL or self.ball['z'] > RIGHT_GOAL):
 			if (self.ball['z'] < LEFT_GOAL):
-				self.score['s1'] += 1
-			else:
 				self.score['s2'] += 1
-			self.reset()
+			else:
+				self.score['s1'] += 1
+				self.ai_score += 1
+			# self.reset() # To make game endless
 			self.ball['dirZ'] *= -1
 
 	def reset(self):
@@ -283,7 +291,9 @@ class PongGame:
 	def crabmehameha(self, action_nn):
 		if (self.specialCooldown1 < 0):
 			self.isSpell1Available = True
+
 		if (action_nn == 3 and self.isSpell1Available and self.die1 == False):
+			self.crab_score += 1
 			self.isSpellGo1 = True
 			self.isSpell1Available = False
 			self.specialCooldown1 = 50
