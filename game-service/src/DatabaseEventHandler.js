@@ -24,7 +24,7 @@ class DatabaseEventHandler {
             await this.DatabaseHandler.updateGameStatus(eventData.gameId, 'ongoing');
             // await this.DatabaseHandler.recordGameEvent(eventData.gameId, 'game_started', eventData);
         } catch (error) {
-            console.error('Error updating DatabaseHandler:', error);
+            onsole.error('Error updating DatabaseHandler:', error);
             // Emit error event ?
             // EventEmitter.emitGameEvent('database:error', eventData.gameId, { error: error.message });
         }

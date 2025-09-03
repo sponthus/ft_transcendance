@@ -16,7 +16,7 @@ export class LoginPage extends BasePage {
     }
 
     async render(): Promise<void> {
-		const res = await checkLog();
+		//const res = await checkLog();
 	
 		// if (res.ok) {
 		// 	this.app.innerHTML = `

@@ -3,7 +3,9 @@ import { navigate } from "../core/router.js";
 import { BasePage } from "./BasePage.js";
 import { getUserInfo } from "../api/user-service/user-info/getUserInfo.js";
 import { updateUsername } from "../api/user-service/user-info/updateUsername.js";
-import { addFriend } from "../api/user-service/menu/friendsList.js";
+import { addFriend, getAllFriends } from "../api/user-service/menu/friendsList/friendsList.js";
+
+import { getAllUsers } from "../api/user-service/menu/getAllUsers.js";
 
 export class HomePage extends BasePage {
 
@@ -12,50 +14,61 @@ export class HomePage extends BasePage {
 	private _ButtonDiv?: HTMLElement;
 	private _LogoDiv?: HTMLElement;
 
-    constructor() {
-        super();
-    }
+	constructor() {
+		super();
+	}
 
 	//ou mettre le check log ? 
-    async render(): Promise<void> {
+	async render(): Promise<void> {
 
-		
+
 		await this.renderBanner();
-		
+
 		await this.InitDivs();
 		await this.createLogo();
-		
+
 		/*if (state.isLoggedIn()) 
 			await this.renderLogInHome();*/
 		//verifier que ca marche 
 		console.log("Check si token existe dans home page");
 		const res = await checkLog();
-		if (res.ok)
-		{
+		if (res.ok) {
 			await this.renderLogInHome();
 		}
-		else 
-		{
+		else {
 			await this.rengerLogoutHome();
-			if (res.error)
-				alert(res.error); //Met une alerte sur l'absence ou l'expiration du token
 		}
-		await this.addInApp();
-    }
 	
+		let req = await addFriend("mbogey");
+		if (req.ok) {
+			console.log("Add friend sucessfull");
+		}
+		else
+			alert(req.error);
+
+		req = await getAllFriends();
+		if (req.ok) {
+			console.log('Friends : ', req.friends);
+		}
+		else
+			alert(req.error);
+
+		await this.addInApp();
+	}
+
 	private async InitDivs() {
 		this._Background = this.initBackground();
-		
+
 		this._front = document.createElement('div');
 		this._front.className = "rounded-xl shadow-2xl p-12 max-w-md w-full text-center";
-		
+
 		this._ButtonDiv = document.createElement('div');
 		this._ButtonDiv.className = "flex flex-col ispace-y-4";
 	}
-	
+
 	private async createLogo() {
 		const LogoDiv = this.initLogo();
-	
+
 		if (this._Background)
 			this._Background.appendChild(LogoDiv);
 	}
@@ -86,26 +99,26 @@ export class HomePage extends BasePage {
 	private initLogo(): HTMLElement {
 		const logoDiv = document.createElement('div');
 		logoDiv.className = "flex items-center justify-center relative h-full w-full ";
-		
+
 		const logo = document.createElement('img');
 		logo.id = "logo-img";
 		logo.className = "mx-auto object-cover object-center h-1/2 w-1/2";
 		logo.src = "/logo/logoIlsandWorld.png";
-		
+
 		const logoTitleText = document.createElement('img');
 		logoTitleText.id = "logo-title-Text";
 		logoTitleText.className = "absolute h-1/2 w-1/2 bottom-4";
 		logoTitleText.src = "/logo/IslandWorldText.png";
-		
+
 		const loglWelcomeText = document.createElement('img');
 		loglWelcomeText.id = "logo-Welcome.text";
 		loglWelcomeText.className = "absolute h-1/2 w-1/2 translate-x-14";
 		loglWelcomeText.src = "/logo/welcomeText.png";
-		
+
 		logoDiv.appendChild(logo);
 		logoDiv.appendChild(loglWelcomeText);
 		logoDiv.appendChild(logoTitleText);
-		
+
 		return logoDiv;
 	}
 

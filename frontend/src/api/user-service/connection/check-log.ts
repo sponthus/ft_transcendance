@@ -30,7 +30,10 @@ export async function checkLog(): Promise<Result>
     localStorage.removeItem("token"); //remove si le token est pas présent ?
     console.log("Log check failure");
     console.log('status = ', res.status);
-         if (res.status === 401) // TODO = Is it useful // Oui je met une alerte que si le token expire
+        if (res.status === 401)
+        {
+            alert(data.error);
             return { ok: false, error: data.error};
+        }
     return { ok: false };
 }

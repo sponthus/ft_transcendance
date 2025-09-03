@@ -1,5 +1,5 @@
 
-type FriendsSuccess = {ok: true }
+type FriendsSuccess = {ok: true, friends?: string[] }
 type Failure = { ok: false; error: string };
 
 export type FriendsResult = FriendsSuccess | Failure;
@@ -24,13 +24,12 @@ export async function   addFriend(username: string): Promise<FriendsResult>
     return { ok: false, error: data.error};
 }
 
-//marche pas 
-/*export async function   getAllFriends(): Promise<FriendsResult>
+export async function   getAllFriends(): Promise<FriendsResult>
 {
     const token = localStorage.getItem("token");
     if (!token)
         return {ok: false, error: "No token found"};
-    const res = await fetch('/api/user/menu/friendslist', 
+    const res = await fetch('/api/user/menu/friendslist/', 
     {
         method: 'GET',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
@@ -38,7 +37,7 @@ export async function   addFriend(username: string): Promise<FriendsResult>
     const data = await res.json();    
     if (res.ok) 
     {
-        return { ok: true,  };
+        return { ok: true,  friends: data};
     }
     return { ok: false, error: data.error};
-}*/
+}
