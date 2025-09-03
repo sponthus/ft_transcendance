@@ -266,12 +266,14 @@ export class Event {
 		this.addDeleteButton();
 		console.log("state page = ", this.StatePage);
 		if (this.LocalGamePage._NewGameForm && !this.LocalGamePage._NewGameForm.classList.contains("hidden")) {
+			/**save tournament**/
 			this.saveParty()
 			this.StatePage = PageState.PARTY;
 			this.LocalGamePage._NewGameForm.classList.add("hidden");
 			await this.LocalGamePage.refreshAvailableGames();
 		}
 		else if (this.TournamentPage._NewTournamentForm && !this.TournamentPage._NewTournamentForm.classList.contains("hidden")) {
+			/**save tournament**/
 			this.saveTournament();
 			this.StatePage = PageState.TOURNAMENT;
 			this.TournamentPage._NewTournamentForm.classList.add("hidden");
@@ -297,10 +299,10 @@ export class Event {
 
 	private saveTournament() {
 		/****************************function for call API to save tounrnament**********************/
-		const formData = new FormData(document.getElementById('new-tournament-form') as HTMLFormElement) ;
+		const formData = new FormData(document.getElementById('new-tournament-form') as HTMLFormElement);
 
 		// const PlayerA = this.GetDataForm('Player1', formData); Player1, Player2, Player3 etc...
-
+		// also you can use this.tournamentPage._FormMap
 	}
 
 	private GetDataForm(id: string, formData: any): string {

@@ -138,18 +138,18 @@ export class renderScene {
 		const renderHeight =  this._engine!.getRenderHeight();
 		const aspect = renderWidth / renderHeight;
 		
-		// demi-hauteur en unités monde (contrôle ton "zoom réel")
-		const halfHeight = 20;
+		const halfHeight = 22;
 		const halfWidth = halfHeight * aspect;
 
-		this._isocamera.orthoLeft   = -halfWidth + 5;
-		this._isocamera.orthoRight  =  halfWidth + 5;
-		this._isocamera.orthoTop    =  halfHeight + 5;
-		this._isocamera.orthoBottom = -halfHeight + 5;
+		this._isocamera.orthoLeft   = -halfWidth;
+		this._isocamera.orthoRight  =  halfWidth;
+		this._isocamera.orthoTop    =  halfHeight;
+		this._isocamera.orthoBottom = -halfHeight;
+		this._isocamera.detachControl();
 		/***************************for debug to delete at end of project***************************/
-		this._isocamera.attachControl(this._canvas, true);
-		if (this._homeScene)
-			this._homeScene.activeCamera = this._isocamera;
+		// this._isocamera.attachControl(this._canvas, true);
+		// if (this._homeScene)
+		// 	this._homeScene.activeCamera = this._isocamera;
 	}
 
 	private _initLight() {

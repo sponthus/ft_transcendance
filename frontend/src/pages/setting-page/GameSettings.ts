@@ -27,14 +27,14 @@ function createDropdownAvatar(Id: string, MaxI: number, Folder: string): HTMLEle
 
 function AddAvatarBtns(parent: HTMLElement,Id: string, MaxI: number, Folder: string) {
 		for (let i = 0; i < MaxI; i++) {
-		const btn: HTMLButtonElement = createButton(`${Id}${i.toString()}`, "h-16 aspect-square border-2 border-orange-300 hover:bg-orange-400", "")
-		
-		const src = `${Folder}character-${i.toString()}.png`;
-		console.log('src = ', src);
-		const img: HTMLImageElement = createImage(`${Id}${i.toString()}`, "h-14 aspect-square", src);
-		btn.appendChild(img);
-		parent.appendChild(btn);
-	}
+			const btn: HTMLButtonElement = createButton(`${Id}${i.toString()}`, "h-16 aspect-square border-2 border-orange-300 hover:bg-orange-400", "")
+
+			const src = `${Folder}character-${i.toString()}.png`;
+			console.log('src = ', src);
+			const img: HTMLImageElement = createImage(`${Id}${i.toString()}`, "h-14 aspect-square", src);
+			btn.appendChild(img);
+			parent.appendChild(btn);
+		}
 }
 
 function manageEventAvatar(IdBtn: string, IdDiv: string) {

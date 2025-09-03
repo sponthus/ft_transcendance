@@ -2,7 +2,12 @@ import { Checkbox } from '@babylonjs/inspector/fluent/primitives/checkbox';
 import { createDiv, createElement, createButton, createDropdownDiv, createFormDiv, createCheckBoxLabel, append} from '../../Utils/elementMaker.js';
 import { availableGames } from './AvailableGames.js';
 
-
+/**
+ * in event.ts you can find the class wich add tournament in the backend (SaveNewParty() in the if saveTournament()) and launch round (function PlayRound()) 
+ * in AvailableGames.ts you can find the class wich display available games you'll have to modify refreshAvailableTournament() in it to get available tournament
+ * after setting Tournament (create tournament and set available games) you will have to decomment the PlayTournament() function in Event.ts and delete the actually PlayTournament() (or comment)
+ *  
+ */
 export class TournamentPage {
 	private Page!: HTMLElement;
 	private NewTournamentForm!: HTMLElement;
@@ -36,11 +41,11 @@ export class TournamentPage {
 			// find tournament by id and put it in this.tournament
 			/***********************function for render bracket tournament call api for find wich tournament*************************/
 			this.BracketDiv = createDiv("bracket", "flex justify-between items-center h-full w-full space-x-4");
-			this.createRound1([0/** round 0**/, 1 /** round 1**/]);
-			this.createRound2(4/** round 4**/);
-			this.createFinal(6/** round 6**/);
-			this.createRound2(5/** round 5**/);
-			this.createRound1([2/** round 2**/, 3/** round 3**/]);
+			// this.createRound1([0/** round 0**/, 1 /** round 1**/]);
+			this.createRound2(0/** round 4**/);
+			this.createFinal(2/** round 6**/);
+			this.createRound2(1/** round 5**/);
+			// this.createRound1([2/** round 2**/, 3/** round 3**/]);
 			append(this.Page, [this.BracketDiv]);
 			this.findNextRound();
 		} catch (error) {
@@ -78,9 +83,10 @@ export class TournamentPage {
 				const PlayerDiv = createDiv(`player-${i + i}`, "border rounded-xl w-[50%] text-center") as HTMLElement;
 				append(PlayerDiv, [createElement('p', `player-${i + i}`, TabPlayer[i],  "text-emerald-600") as HTMLElement]);
 				append(MatchDiv, [PlayerDiv]);
-				if (i == 0) 
+				if (i == 0 && Match != 2) 
 					append(MatchDiv, [createElement('p', `match-${Match}`, `Round ${Match}`, "text-emerald-600 font-bold")]);
-
+				else if (i == 0 && Match == 2)
+					append(MatchDiv, [createElement('p', `match-${Match}`, `Final`, "text-emerald-600 font-bold")]);
 			}
 		}
 		catch (error) {}
@@ -88,12 +94,14 @@ export class TournamentPage {
 		return MatchDiv
 	}
 
-	private findNextRound() {
+	private findNextRound(): number {
 		// if (!this.Tournament)
 		// 	return ;
 		/****************find next round with this.Tournament***********/
 		let NextRound: number = 0;
+		let idRound: number = 0;
 		(document.getElementById(`match-${NextRound}-div`) as HTMLElement)?.classList.add('bg-orange-500');
+		return idRound; // not necessary to return something because if you have to call API you can juste put in private variable and do some get for Event.ts accessibility
 	}
 
 	private async createTournamentPageDiv() {
@@ -136,10 +144,6 @@ export class TournamentPage {
 		this.addPlayersNameForm(FormsDiv, "Player2", "player_b_me", "Player 2 Name");
 		this.addPlayersNameForm(FormsDiv, "Player3", "player_c_me", "Player 3 Name");
 		this.addPlayersNameForm(FormsDiv, "Player4", "player_d_me", "Player 4 Name");
-		this.addPlayersNameForm(FormsDiv, "Player5", "player_e_me", "Player 5 Name");
-		this.addPlayersNameForm(FormsDiv, "Player6", "player_f_me", "Player 6 Name");
-		this.addPlayersNameForm(FormsDiv, "Player7", "player_g_me", "Player 7 Name");
-		this.addPlayersNameForm(FormsDiv, "Player8", "player_h_me", "Player 8 Name");
 	}
 
 	private addPlayersNameForm(Div: HTMLElement, IdForm: string, idCheckBox: string, TextContent: string) {

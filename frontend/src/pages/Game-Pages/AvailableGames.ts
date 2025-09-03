@@ -33,7 +33,7 @@ export class availableGames {
 			}
 
 		} catch (error) {
-
+			alert("error");
 		}
 	}
 
