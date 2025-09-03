@@ -2,7 +2,7 @@ import { checkLog } from "../api/user-service/connection/check-log.js";
 import { navigate } from '../core/router.js';
 import { BasePage } from "./BasePage.js";
 import * as BABYLON from "@babylonjs/core";
-import { createLocalGame, getAvailableGames, startGame, deleteGame } from "../api/game.js"
+import { createLocalGame, getAvailableGames, startGame, deleteGame } from "../api/game-service/games/game.js"
 import { popUp } from '../Utils/popUp.js';
 import { renderScene } from '../babylon/displaying/renderScene.js';
 import { getUserInfo } from "../api/user-service/user-info/getUserInfo.js";

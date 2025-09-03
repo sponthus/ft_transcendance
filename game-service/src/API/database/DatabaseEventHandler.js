@@ -1,4 +1,4 @@
-import { gameEventEmitter } from './GameEventEmitter.js';
+import { gameEventEmitter } from '../../GameEventEmitter.js';
 
 // Recieves events
 class DatabaseEventHandler {

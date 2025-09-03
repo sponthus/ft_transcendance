@@ -1,10 +1,14 @@
 import Fastify from "fastify";
+import fastifyJwt from '@fastify/jwt';
 import { createServer } from "http";
 import { fileURLToPath } from "url";
-import path from "path";
 import { WebSocketServer } from "ws";
+import path from "path";
+
 import logger from "../config/logger.js";
-import DatabaseConnector from "./DatabaseConnector.js";
+import env from "../config/env.js";
+
+import DatabaseConnector from "./API/database/DatabaseConnector.js";
 import routes from "./routes.js";
 import WebSocketManager from "./WebSocketManager.js";
 
@@ -17,6 +21,26 @@ const app = Fastify({
 });
 
 app.register(DatabaseConnector);
+
+app.decorate("authenticate", async function (request, reply)
+{
+    try 
+    {
+		console.log("Verifying token");
+		await request.jwtVerify(); //Décode et verifie le token et stock ses infos dans request
+        console.log("Decoded token:", request.user);
+    } 
+    catch (err)
+    {
+		console.log("❌ Error : ", err.message);
+        return reply.code(401).send({error : err.message});
+    }
+});
+
+//enregistre le plugin JWT dans fastify
+app.register(fastifyJwt, {
+	secret: env.hashKey,
+});
 
 await app.register(routes);
 
