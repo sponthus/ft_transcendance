@@ -1,42 +1,40 @@
 import { createDiv, createElement, createButton, createDropdownDiv, createFormDiv, createCheckBoxLabel, append} from '../../Utils/elementMaker.js';
 import { getAllGames } from '../../api/game.js';
-import { State } from '../../core/state.js';
 import { UserPage } from './UserPage.js';
 
-const state = State.getInstance();
 
 export async function DisplayHistoryPage(Body: HTMLElement) {
 	// Body.textContent = "i'm in the History body";
-	if(!state.isLoggedIn)
-		Body.textContent = "not connected user";
+	// if(!state.isLoggedIn)
+	// 	Body.textContent = "not connected user";
 
 	Body.className = "flex flex-col items-center bg-orange-300  bg-opacity-50 w-full h-[60%] flex overflow-auto";
 	try {
-		const res = await getAllGames(state.user!.id);
-		if (!res.ok) {
-			Body.textContent = "Error loading games... please retry ";
-			return ;
-		}
-		const games = res.games;
-		if (games.length === 0) {
-			Body.textContent = "there is no games";
-		}
-		else {
-			games.map((party: any, i: number) => {
-				const PartyDiv = createDiv("party-div", "flex items-center min-h-[150px] w-[100%] border-2 border-orange-300 hover:border-orange-400 space-x-8");
+		// const res = await getAllGames();
+		// if (!res.ok) {
+		// 	Body.textContent = "Error loading games... please retry ";
+		// 	return ;
+		// }
+		// const games = res.games;
+		// if (games.length === 0) {
+		// 	Body.textContent = "there is no games";
+		// }
+		// else {
+		// 	games.map((party: any, i: number) => {
+		// 		const PartyDiv = createDiv("party-div", "flex items-center min-h-[150px] w-[100%] border-2 border-orange-300 hover:border-orange-400 space-x-8");
 
-				createGameId(PartyDiv, i);
-				createPlayers(PartyDiv, i);
-				createBeginAt(PartyDiv, i);
-				createFinishAt(PartyDiv, i);
-				createCreatedAt(PartyDiv, i);
-				createCreatedBy(PartyDiv, i);
-				createScore(PartyDiv, i);;
-				createWinner(PartyDiv, i);
+		// 		createGameId(PartyDiv, i);
+		// 		createPlayers(PartyDiv, i);
+		// 		createBeginAt(PartyDiv, i);
+		// 		createFinishAt(PartyDiv, i);
+		// 		createCreatedAt(PartyDiv, i);
+		// 		createCreatedBy(PartyDiv, i);
+		// 		createScore(PartyDiv, i);;
+		// 		createWinner(PartyDiv, i);
 					
-				append(Body, [PartyDiv]);
-			})
-		}
+		// 		append(Body, [PartyDiv]);
+		// 	})
+		// }
 
 	}
 	catch (error) {

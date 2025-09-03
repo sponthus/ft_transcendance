@@ -7,8 +7,7 @@ import {settingMenu} from "./settingMenu";
 import {profileMenu} from "./ProfileMenu";
 import {messageMenu} from "./messageMenu";
 import {historyMenu} from "./historyMenu";
-import { state } from "../../ui/state";
-import { navigate } from '../../router.js';
+import { navigate } from '../../core/router.js';
 
 export class DropDownMenu {
 
@@ -127,7 +126,7 @@ export class DropDownMenu {
 				if (option == "Logout")
 				{	
 					/*************don't work as expect*******/
-					state.logout;
+					// TODO = Logout correctly
 					await navigate('/');
 				}
 				this._optionPanel.isVisible = false;

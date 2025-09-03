@@ -3,9 +3,9 @@ import { createDiv, createElement, createButton, createDropdownDiv, createFormDi
 import { availableGames } from './AvailableGames.js';
 
 /**
- * in event.ts you can find the class wich add tournament in the backend (SaveNewParty() in the if saveTournament()) and launch round (function PlayRound()) 
+ * in event.ts you can find the class wich add tournament in the backend (saveTournament() call by SaveNewParty()) and launch round (function PlayRound()) 
  * in AvailableGames.ts you can find the class wich display available games you'll have to modify refreshAvailableTournament() in it to get available tournament
- * after setting Tournament (create tournament and set available games) you will have to decomment the PlayTournament() function in Event.ts and delete the actually PlayTournament() (or comment)
+ * after setting Tournament (create tournament and set available games) you will have to decomment the PlayTournament() function in Event.ts and delete the line this.GamePage.generateBracketTournament(0); (or comment)
  *  
  */
 export class TournamentPage {
@@ -17,6 +17,7 @@ export class TournamentPage {
 	private AvailableGames: availableGames;
 	private Tournament?: any;
 	private Username!: string;
+
 
 	constructor(Page: HTMLElement, UserName: string) {
 		this.Page = Page;
@@ -30,13 +31,14 @@ export class TournamentPage {
 		this.Page.classList.remove("border-4");
 		this.Page.classList.remove("justify-center");
 		await this.createTournamentPageDiv();
-		await this.create1v1FormDiv();
+		await this.createTournamentFormDiv();
 		this.AvailableGames.render();
 		this.openTournamentForm();
 		this.refreshAvailableTournament();
 	}
 
 	async renderBracket(IdTournament: number) {
+		/*******function for rendering bracket tournament**********/
 		try {
 			// find tournament by id and put it in this.tournament
 			/***********************function for render bracket tournament call api for find wich tournament*************************/
@@ -53,13 +55,13 @@ export class TournamentPage {
 		}
 	}
 
-	private createRound1(Matchs: [MatchA: number, MatchB: number]) {
-		const Round1Div = createDiv("round1", "flex flex-col justify-around h-full w-[20%] space-y-4");
-		for (let i = 0; i < 2; i++) 
-			append(Round1Div, [(this.createMatch(Matchs[i], "flex flex-col items-center justify-around h-[50%] w-full bg-orange-400 rounded-full space-y-4") as HTMLElement)]);
+	// private createRound1(Matchs: [MatchA: number, MatchB: number]) {
+	// 	const Round1Div = createDiv("round1", "flex flex-col justify-around h-full w-[20%] space-y-4");
+	// 	for (let i = 0; i < 2; i++) 
+	// 		append(Round1Div, [(this.createMatch(Matchs[i], "flex flex-col items-center justify-around h-[50%] w-full bg-orange-400 rounded-full space-y-4") as HTMLElement)]);
 
-		append(this.BracketDiv, [Round1Div]);
-	}
+	// 	append(this.BracketDiv, [Round1Div]);
+	// }
 	
 	private createRound2(Match: number) {
 		const Round2Div = createDiv("round2", "flex flex-col justify-around h-full w-[20%] space-y-4");
@@ -113,8 +115,8 @@ export class TournamentPage {
 	}
 	
 	private createNewTournamentText(Div: HTMLElement) {
-		const TextDiv: HTMLElement =  createDiv("1v1Page-title", "flex items-center justify-center");
-		const TournamentModText: HTMLElement = createElement('h1', "1v1Page-title", "Create New Tournament",  "text-emerald-600 text-center underline");
+		const TextDiv: HTMLElement =  createDiv("TournamentPage-title", "flex items-center justify-center");
+		const TournamentModText: HTMLElement = createElement('h1', "TournamentPage-title", "Create New Tournament",  "text-emerald-600 text-center underline");
 		append(TextDiv, [TournamentModText]);
 	
 		if (Div)
@@ -132,13 +134,13 @@ export class TournamentPage {
 			append(Div, [BtnDiv]);
 	}
 
-	private async create1v1FormDiv() {
+	private async createTournamentFormDiv() {
 		this.NewTournamentForm = createDiv("Form", "flex flex-col items-center justify-center w-full space-y-6 hidden");
 		append(this.Page, [this.NewTournamentForm]);
-		this.render1v1FormDiv();
+		this.renderTournamentFormDiv();
 	}
 
-	private async render1v1FormDiv() {
+	private async renderTournamentFormDiv() {
 		const FormsDiv: HTMLFormElement = this.createNewTournamentFormDiv();
 		this.addPlayersNameForm(FormsDiv, "Player1", "player_a_me", "Player 1 Name");
 		this.addPlayersNameForm(FormsDiv, "Player2", "player_b_me", "Player 2 Name");
@@ -165,7 +167,13 @@ export class TournamentPage {
 		const FormsDiv: HTMLFormElement = document.createElement('form');
 		FormsDiv.id = "new-tournament-form";
 		FormsDiv.className =  "grid grid-cols-4 grid-rows-2 gap-4  flex items-center justify-center w-full";
-		append(this.NewTournamentForm, [FormsDiv]);
+		append(this.NewTournamentForm, [(createFormDiv(["text", "name-tournament", "name of tournament" , true]
+										,"name-tournament"
+										,""
+										,["flex items-center flex-row-reverse space-x-4"
+											,"block text-sm font-medium text-emerald-600 mb-2"
+											,"w-full border bg-orange-200 border-emerald-600 rounded-lg focus:ring-2 focus:ring-emerald-800focus:border-emerald-8 00 transition-colors duration-200 placeholder-emerald-600 text-center"
+											,"block text-sm text-center font-medium text-emerald-500 mb-2"]) as HTMLElement ),FormsDiv]);
 
 		return FormsDiv
 	}

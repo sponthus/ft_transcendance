@@ -120,6 +120,8 @@ export class availableGames {
 					this.CreateGameIdDiv(PartyDiv, index, Party);
 					if (!tournament)
 						this.CreatePlayerNamesDiv(PartyDiv, index, Party);
+					else
+						this.CreateTournamentName(PartyDiv, index, Party);
 					this.createGameStatusDiv(PartyDiv, index, Party);
 					this.createCreatedAtDiv(PartyDiv, index, Party);
 					this.createCheckBoxDiv(PartyDiv, index, Party);
@@ -144,6 +146,15 @@ export class availableGames {
 								, (createElement('h1', "party-vs-Name" + index.toString(), `vs`, "text-emerald-600 text-center") as HTMLElement)
 								, (createElement('h1', "party-Player-b-Name" + index.toString(), `${Party.player_b}`, "text-emerald-600 text-center") as HTMLElement)]);
 		append(Div, [PLayersNameDivs]);
+	}
+
+	private CreateTournamentName(Div: HTMLElement, index: number, Party: any) {
+		const TournamentNameDiv = createDiv("party-Players-Name" + index.toString(), "w-[20%] h-full grid grid-rows-4 items-center justify-center") as HTMLElement;
+
+		append(TournamentNameDiv, [(createElement('h2', "tournament-Name" + index.toString(), "Name : ", "text-emerald-600 text-center font-bold underline") as HTMLElement)
+									, (createElement('h1', "tournament-Name" + index.toString(), `${Party.Name}`, "text-emerald-600 text-center") as HTMLElement)])
+
+		append(Div, [TournamentNameDiv])
 	}
 
 	private createGameStatusDiv(Div: HTMLElement, index: number, Party: any) {

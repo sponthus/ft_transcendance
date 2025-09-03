@@ -1,18 +1,21 @@
 import { gameEventEmitter } from "./GameEventEmitter.js";
 import { PongGame } from "./pongGame.js";
+import GameMaster from "./GameMaster.js";
 
 // Handles game logic for one game actually running
 export default class GameServer {
     
-    constructor(gameId, userId, ws) {
+    constructor(gameId, userId, ws, maxScore) {
         this.gameId = gameId;
         this.userId = userId;
         this.ws = ws;
         this.state = 'paused';
+        this.maxScore = maxScore;
         console.log("Game server up");
 
         this.scoreA = 0;
         this.scoreB = 0;
+        this.end = false;
 
         // TODO : Don't forget to start game when player launches the game (press space ?)
         this.startGame();
@@ -29,12 +32,11 @@ export default class GameServer {
             this.scoreA = game.getState().score.s1;
 			this.scoreB = game.getState().score.s2;
             // balance le message a tout les players connecté
-            if (this.ws.readyState === 1)
-			{
+            if (this.ws.readyState === 1) {
 				this.ws.send(stateMsg);
 			}
-			if(this.scoreA >= 5 || this.scoreB >= 5)
-            {
+			if ((this.scoreA >= this.maxScore || this.scoreB >= this.maxScore) && this.end === false) {
+                this.end = true;
 				this.endGame();
             }
         }, 16); // 60fps
@@ -63,6 +65,10 @@ export default class GameServer {
                         game.setGameMode(data.mode, data.option);
                         break;
 
+                    case "ping":
+                        ws.send(JSON.stringify({ type: 'pong' }));
+                        break;
+
                     default:
                         console.warn("ERR: Type inconnu :", data.type);
                 }
@@ -84,6 +90,24 @@ export default class GameServer {
     }
 
     endGame() {
+		let winner = '';
+		if (this.scoreA == this.maxScore || this.scoreB == this.maxScore) {
+			if (this.scoreA > this.scoreB)
+				winner = 'A'
+			else if (this.scoreB > this.scoreA)
+				winner = 'B'
+			else
+				winner = '='
+		} else
+			winner = '0'
+		if (this.ws.readyState === 1) {
+			this.ws.send(JSON.stringify({
+                type: "endGame",
+                winner: winner,
+				scoreA: this.scoreA,
+				scoreB: this.scoreB
+            }));
+		}
         this.state = 'finished';
         gameEventEmitter.emitGameEvent('game:ended', this.gameId, {
             scoreA: this.scoreA,
@@ -93,7 +117,7 @@ export default class GameServer {
     }
 
     destroy() {
-        console.log("🔴 GameServer stopped");
         clearInterval(this.intervalId);
+        GameMaster.getInstance().endServer(this.userId);
     }
 }

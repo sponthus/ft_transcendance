@@ -6,6 +6,7 @@ import { TournamentPage } from "./tounramentPage.js";
 import { Event } from './Event.js';
 import { PageState } from "./Event.js";
 import { getUserInfo } from '../../api/user-service/user-info/getUserInfo.js';
+import { endGamePage } from './endGamePage.js';
 
 type UserData = //VA ETRE CHANGER, le token renvoie le username et l'id du user
 {
@@ -30,12 +31,13 @@ export class GamePage extends popUp {
 	private Page!: HTMLElement;
 	private LocalGamePage!: LocalGamePage;
 	private TournamentPage!: TournamentPage;
+	private EndGamePage!: endGamePage;
 	private Event!: Event;
 	private render!: renderScene;
 	private userName!: string;
 
 	constructor(render: renderScene) {
-		super("Create Game");
+		super("Pong Game");
 		this.render = render;
 		this.startGamePage();
 	}
@@ -46,7 +48,8 @@ export class GamePage extends popUp {
 		this.initPopUpPage();
 		this.generateGamePage();
 		this.LocalGamePage = new LocalGamePage(this.Page, this.userName!);
-		this.TournamentPage = new TournamentPage(this.Page, this.userName!);	
+		this.TournamentPage = new TournamentPage(this.Page, this.userName!);
+		this.EndGamePage = new endGamePage(this.Page);
 		this.Event = new Event(this.LocalGamePage, this.TournamentPage, this);
 	}
 
@@ -84,6 +87,7 @@ export class GamePage extends popUp {
 	}
 
 	async generateBracketTournament(IdTournament: number) {
+		this.Event.setStatePage = PageState.BRACKET;
 		(document.getElementById("Save-btn") as HTMLButtonElement).textContent = "Play Round";
 		this.cleanPage();
 		this.TournamentPage.renderBracket(IdTournament);
@@ -102,6 +106,12 @@ export class GamePage extends popUp {
 		this.Page.classList.add("justify-center");
 		await this.createGamePageDiv();
 		await this.CreateDropDownGamePage();
+	}
+
+	async generateEndGamePage() {
+		this.Event.ChangeBackPageButtonText([(document.getElementById("Return-btn") as HTMLButtonElement), "Return to Lobby"], [(document.getElementById("Save-btn") as HTMLButtonElement), "new game"]);
+		this.EndGamePage.render();
+
 	}
 
 	/*********************************************function Utils for rendering Game Mod Select Page**********************************************/

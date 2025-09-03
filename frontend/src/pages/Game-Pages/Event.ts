@@ -7,7 +7,7 @@ import { launchPong } from './LaunchPong.js';
 import { TournamentPage } from './tounramentPage.js';
 import { getUserInfo } from "../../api/user-service/user-info/getUserInfo.js";
 
-export enum PageState {MOD = 0, TOURNAMENT = 1, PARTY = 2, NEWGAME = 3, BRACKET = 4};
+export enum PageState {MOD = 0, TOURNAMENT = 1, PARTY = 2, NEWGAME = 3, BRACKET = 4, WIN = 5};
 
 type UserData = //VA ETRE CHANGER, le token renvoie le username et l'id du user
 {
@@ -99,6 +99,9 @@ export class Event {
 				case PageState.BRACKET:
 					this.returnToTournament();
 					break;
+				case PageState.WIN:
+					this.ReturnToLobby();
+					break;
 				default: break;
 			}
 		})
@@ -106,10 +109,7 @@ export class Event {
 
 					/*********************************function utils for return*********************************/
 	private ReturnToLobby(){
-		this.GamePage.cleanPage();
-		this.GamePage.cleanBody();
-		this.GamePage.removeOverlayToWindow();
-		this.GamePage.startGamePage();
+		this.StatePage = PageState.MOD;
 		this.LaunchPong.returnLobby();
 	}
 
@@ -169,6 +169,9 @@ export class Event {
 				case PageState.BRACKET:
 					this.PlayRound();
 					break;
+				case PageState.WIN:
+					this.returnToGameMod();
+					break;
 				default: break;
 			}
 		})
@@ -199,7 +202,8 @@ export class Event {
 
 	private PlayTournament() {
 		this.removeDeleteButton();
-		this.StatePage = PageState.BRACKET;
+		this.LaunchPong.setTournament = true;
+
 		this.GamePage.generateBracketTournament(0);
 		// let found = false;
 	
@@ -220,6 +224,7 @@ export class Event {
 			// find round id
 			//start round
 			this.renderGame();
+			// this.launchGame(/**id**/);
 		} catch (error) {
 			alert('error : ' + error);
 		}
@@ -256,7 +261,10 @@ export class Event {
 	}
 
 	private renderGame() {
+		this.StatePage = PageState.WIN;
+		this.removeDeleteButton();
 		this.LaunchPong.render();
+		console.log("pagestate = ", this.StatePage);
 	}
 
 
@@ -303,6 +311,7 @@ export class Event {
 
 		// const PlayerA = this.GetDataForm('Player1', formData); Player1, Player2, Player3 etc...
 		// also you can use this.tournamentPage._FormMap
+		// name-tournament-form is the form for the name of the tournament
 	}
 
 	private GetDataForm(id: string, formData: any): string {
@@ -341,7 +350,7 @@ export class Event {
 	}
 
 	/*************************************Function utils*************************************/
-	private ChangeBackPageButtonText(Return: [ReturnBtn: HTMLButtonElement, ReturnText: string], Save: [Savebtn: HTMLButtonElement, SaveText: string]) {
+	ChangeBackPageButtonText(Return: [ReturnBtn: HTMLButtonElement, ReturnText: string], Save: [Savebtn: HTMLButtonElement, SaveText: string]) {
 		this.ChangeButtonText(Return[0], Return[1]);
 		this.ChangeButtonText(Save[0], Save[1]);
 	}
