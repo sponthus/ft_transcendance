@@ -53,12 +53,6 @@ export async function renderRoute(path: string) {
 		case '/user':
 			currentPage = new UserPage(dynamicPart);
 			break;
-		case '/setting':
-			currentPage = new SettingPage();
-			break;
-		// case '/tournament':
-		//     currentPage = new buttonClass(); // TODO = DEBUG only
-		//     break;
 		default:
 			currentPage = null;
 			break;

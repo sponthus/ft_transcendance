@@ -18,7 +18,7 @@ type UserData = //VA ETRE CHANGER, le token renvoie le username et l'id du user
 
 const wrapper: HTMLElement = createDiv('wrapper', 'grid grid-cols-3 items-center justify-between p-4 bg-orange-200 shadow-md');
 const userInfo: HTMLElement = createDiv('user-info', 'flex flex-wrap order-1 text-sm text-gray-600');
-const logo: HTMLElement = createDiv('logo', 'mx-auto order-2 snap-center ');
+const logo: HTMLElement = createDiv('logo', 'mx-auto order-2 snap-center');
 const navLinks: HTMLUListElement = createElement('ul', 'navlinks', '', 'flex justify-end space-x-4 order-3 list-none') as HTMLUListElement;
 
 /*************************************export Functions for creatin banner*************************************/
@@ -28,7 +28,7 @@ export function renderBaseBanner(banner: HTMLElement): void {
 	// initWrapper();
 	// initUserInfo();
 	initLogo();
-	initNavLink();
+	// initNavLink();
 	addInBanner(banner);
 }
 
@@ -61,24 +61,18 @@ export async function renderLoggedInBanner(banner: HTMLElement, userData: UserDa
 /*************************************Function for creating Base Banner*************************************/
 
 function initLogo() {
-	logo.className = 'mx-auto order-2 snap-center '
-
-	const logoLink = document.createElement('a');
-	logoLink.href = '/';
-	logoLink.className = 'text-2xl font-bold text-emerald-400 hover:text-emerald-800 transition-colors '
+	const logoLink: HTMLAnchorElement = createAnchorElement('logo-link', '', '/', 'text-2xl font-bold text-emerald-400 hover:text-emerald-800 transition-colors') as HTMLAnchorElement;
 		
-	const logoImg = document.createElement('img');
-	logoImg.className = "mx-auto object-cover rounded-full hover:bg-emerald-600 object-center h-12 w-18  hover:shadow-lg transition-all duration-200 transform hover:scale-105";
-	logoImg.src = "/logo/logoIlsandWorld.png";
+	const logoImg: HTMLImageElement = createImage('logo', 'mx-auto object-cover rounded-full hover:bg-emerald-600 object-center h-12 w-18  hover:shadow-lg transition-all duration-200 transform hover:scale-105', '/logo/logoIlsandWorld.png') as HTMLImageElement;
 
-	logoLink.appendChild(logoImg);
-	logo.appendChild(logoLink);
+	append(logoLink, [logoImg]);
+	append(logo, [logoLink])
 }
 
-function initNavLink() {
-	navLinks.className = 'flex justify-end space-x-4 order-3 list-none';
-	navLinks.id = 'nav-links';
-}
+// function initNavLink() {
+// 	navLinks.className = 'flex justify-end space-x-4 order-3 list-none';
+// 	navLinks.id = 'nav-links';
+// }
 
 /*************************************Function for creating logout Banner*************************************/
 function setLogoutUserInfo() {
