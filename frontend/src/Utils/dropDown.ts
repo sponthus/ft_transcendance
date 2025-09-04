@@ -5,20 +5,20 @@ export class DropDown {
 	constructor(Option: string[], Id: string) {
 
 		this.DropDownDiv = document.createElement('div') as HTMLElement;
-		this.DropDownDiv.id = Id + "_div";
+		this.DropDownDiv.id = Id + "-div";
 
 		const Label: HTMLLabelElement = document.createElement('label');
 		Label.className = "bg-transparent";
 		Label.htmlFor = Id + "_htmlfor";
-		Label.id = Id + "_Label";
+		Label.id = Id + "-Label";
 
 		const select: HTMLSelectElement = document.createElement('select');
-		select.className = "bg-orange-300 hover:bg-orange-400  block w-full p-2  rounded text-center bg-transparent"
-		select.id = Id + "_Select";
+		select.className = "bg-orange-300 hover:bg-orange-400  block w-full p-2 text-center bg-transparent"
+		select.id = Id + "-Select";
 
 		Option.forEach(name => {
 			const option = document.createElement('option');
-			option.id = name + "_option"
+			option.id = name + "-option"
 			option.value = name;
 			option.textContent = name;
 			select.appendChild(option);
