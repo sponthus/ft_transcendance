@@ -6,6 +6,7 @@ import { navigate } from '../../core/router.js';
 import { launchPong } from './LaunchPong.js';
 import { TournamentPage } from './tounramentPage.js';
 import { getUserInfo } from "../../api/user-service/user-info/getUserInfo.js";
+import { createTournament } from "../../api/game-service/tournaments/newTournament.js";
 
 export enum PageState {MOD = 0, TOURNAMENT = 1, PARTY = 2, NEWGAME = 3, BRACKET = 4, WIN = 5};
 
@@ -305,13 +306,31 @@ export class Event {
 		alert('Game created successfully!');
 	}
 
-	private saveTournament() {
+	private async saveTournament() {
 		/****************************function for call API to save tounrnament**********************/
 		const formData = new FormData(document.getElementById('new-tournament-form') as HTMLFormElement);
 
-		// const PlayerA = this.GetDataForm('Player1', formData); Player1, Player2, Player3 etc...
 		// also you can use this.tournamentPage._FormMap
-		// name-tournament-form is the form for the name of the tournament
+		const PlayerA = this.GetDataForm('Player1', formData);
+		const PlayerB = this.GetDataForm('Player2', formData);
+		const PlayerC = this.GetDataForm('Player3', formData);
+		const PlayerD = this.GetDataForm('Player4', formData);
+
+		const playersList = [PlayerA, PlayerB, PlayerC, PlayerD];
+		console.log('playerList', playersList);
+		
+		const nameElement = document.getElementById('name-tournament-input') as HTMLInputElement;
+		const tournamentName = nameElement.value;
+		if (!tournamentName)
+			alert("Please enter a tournament name.");
+		console.log('Tournament name is ', tournamentName);
+
+		const res = await createTournament(tournamentName, playersList);
+		if (!res.ok) {
+			alert("Error: " + res.error);
+		}
+		// You can get all the data about the created tournament if you like
+
 	}
 
 	private GetDataForm(id: string, formData: any): string {
@@ -323,7 +342,7 @@ export class Event {
 		console.log('After trim:', Player );
 		console.log('Lengths:', Player.length);
 		if (!Player)
-			alert('Please enter both player names');
+			alert('Please enter all players names');
 		return Player;
 	}
 	
