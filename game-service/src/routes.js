@@ -1,5 +1,6 @@
 
 import { createGame, startGame } from "./API/controllers/GamePostRoutes.js"
+import { createTournament } from "./API/controllers/TournamentPostRoutes.js"
 import { getGamesForUserId } from "./API/controllers/GameGetRoutes.js"
 import { deleteGame } from "./API/controllers/GameDeleteRoutes.js"
 import { getStatusForUserId } from "./API/controllers/StatusGetRoutes.js"
@@ -19,6 +20,9 @@ export default async function routes (fastify, options) {
             postRoutes.post("/message/:userId",
 				{onRequest: [fastify.authenticate]},
                 sendMessageToUser);
+            postRoutes.post("/tournament",
+                {onRequest: [fastify.authenticate]},
+                createTournament);
         }
     );
 

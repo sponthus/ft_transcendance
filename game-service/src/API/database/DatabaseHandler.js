@@ -13,10 +13,12 @@ export default class DatabaseHandler {
                 status TEXT NOT NULL CHECK (status IN ('pending', 'ongoing_game', 'between-games', 'canceled', 'done')),
                 id_user INTEGER NOT NULL,
                 name TEXT NOT NULL,
+                next_game INTEGER REFERENCES games(id),
                 created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                 began_at DATETIME,
                 finished_at DATETIME,
-                winner TEXT
+                winner TEXT,
+                players TEXT NOT NULL
             );
         `);
 
@@ -44,10 +46,7 @@ export default class DatabaseHandler {
                 tournament_id INTEGER REFERENCES tournaments(id),
                 round INTEGER NOT NULL,
                 match_number INTEGER NOT NULL,
-                player_a TEXT NOT NULL DEFAULT 'TBA',
-                player_b TEXT NOT NULL DEFAULT 'TBA',
-                game_id INTEGER REFERENCES games(id),
-                winner TEXT
+                game_id INTEGER REFERENCES games(id)
             );
         `);
     }
@@ -244,17 +243,106 @@ export default class DatabaseHandler {
         });
     }
 
-    async createTournament(name, userId, players) {
-        return new Promise((resolve, reject) => {
-            try {
-                const stmt = this.db.prepare(`
-                INSERT INTO tournaments(status, id_user, name) VALUES (?, ?, ?);
-                `);
-                const res = stmt.run("pending", userId, name);
+    // Mixes the players before assigning games
+    randomize(tab) {
+        let i, j, tmp;
+        for (i = tab.length - 1; i > 0; i--) {
+            j = Math.floor(Math.random() * (i + 1));
+            tmp = tab[i];
+            tab[i] = tab[j];
+            tab[j] = tmp;
+        }
+        return (tab);
+    }
 
-            } catch (err) {
-                reject(err);
+    // TODO = Complete round 1-2 and test me
+    // Creates a tournament, and the games from round 0 in tournament_matches
+    createTournament(name, userId, players) {
+        const transaction = this.db.transaction((userId, name, players) => {
+            console.log("before rand: ", players);
+            this.randomize(players);
+            console.log("after rand: ", players);
+            if (players.length != 4 || players.length != 6 || players.length != 8) {
+                throw new Error("Only 4, 6 or 8 players tournament available for now");
             }
+            
+            const numberOfPlayers = players.length;
+            // Rounds = 0, 1 or 0, 1, 2
+            let totalRounds;
+            if (numberOfPlayers == 4)
+                totalRounds = 1;
+            else
+                totalRounds = 2;
+            const rounds = Array(0, totalRounds);
+
+            const createTournamentStmt = this.db.prepare(`
+                INSERT INTO tournaments(status, id_user, name, players) VALUES (?, ?, ?, ?);
+            `);
+            const createTournamentGamesStmt = this.db.prepare(`
+                INSERT INTO games(status, id_user, player_a, player_b, tournament_id) VALUES (?, ?, ?, ?, ?);
+            `);
+            const createTournamentGamesTBAStmt = this.db.prepare(`
+                INSERT INTO games(status, id_user, tournament_id) VALUES (?, ?, ?);
+            `);
+            const updateNextGameStmt = this.db.prepare(`
+                UPDATE games 
+                SET next_game = ?, 
+                WHERE id = ?
+            `);
+            const createTournamentMatchesStmt = this.db.prepare(`
+                INSERT INTO tournament_matches(tournament_id, round, match_number, game_id) VALUES (?, ?, ?, ?, ?, ?);
+            `);
+
+            const creationResult = createTournamentStmt.run("pending", userId, name, players);
+            const tournamentId = creationResult.lastInsertRowId;
+            
+            const roundsResult = [];
+            const nextGameId = -1;
+            for (const round in rounds) {
+                // Add games necessary for the round
+                const gameResults = [];
+                if (round == 0) {
+                    // Register players for the 1st round only
+                    while (players.length != 0) {
+                        const player_a = players.pop();
+                        const player_b = players.pop();
+                        const gamesResult = createTournamentGamesStmt.run("pending", userId, player_a, player_b, tournamentId);
+                        gameResults.push(gamesResult.lastInsertRowId);
+                    }
+                    // At 1st round, edit next-game
+                    updateNextGameStmt.run(nextGameId, tournamentId);
+                    nextGameId = gameResults[0];
+                } else {
+                    // Finale
+                    if (round == totalRounds) {
+                        // 1 partie
+                    } else {
+                        // 2 parties
+                    }
+                }
+    
+                // Add necessary matches
+                const matchesResults = [];
+                i = gameResults.length;
+                for (const game of gameResults) {
+                    const result = createTournamentMatchesStmt.run(tournamentId, round, gameResults[i]);
+                    i--;
+                    matchesResults.push(result.lastInsertRowId);
+                }
+                roundsResult.push({
+                    round: round,
+                    games: gameResults,
+                    matches: matchesResults
+                })
+            }
+
+            result = {
+                tournamentId: tournamentId,
+                rounds: roundsResult,
+                nextGameId: nextGameId
+            };
+
+            return (result);
         });
     }
 }
