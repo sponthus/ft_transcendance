@@ -53,7 +53,7 @@ function declineInvitation() {
 function openNotification() {
 	isNotificationOpen = true;
 	
-	(document.getElementById('sliding-notification-bar-div') as HTMLElement).className = 'absolute left-0 top-16 w-80 h-72 overflow-auto transition-all duration-300 ease-in-out bg-orange-100 rounded-xl shadow-lg border-2 border-emerald-300 opacity-100';
+	(document.getElementById('sliding-notification-bar-div') as HTMLElement).className = 'absolute left-0 top-16 w-80 h-72 overflow-auto transition-all duration-300 ease-in-out bg-orange-100 rounded-xl shadow-lg border-2 border-emerald-500 opacity-100';
 	
 	// const notificationPannel = document.getElementById('notification-panel-div') as HTMLElement;
 	// setTimeout(() => {

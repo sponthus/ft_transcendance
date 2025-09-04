@@ -16,7 +16,7 @@ export function createSearchBarDiv(parent :HTMLElement) {
 function createSlidingSearchBar() : HTMLElement {
 	const slidingSearchBar = createDiv('sliding-search-bar', 'absolute right-0 top-0 w-0 overflow-hidden transition-all duration-300 ease-in-out bg-orange-100 rounded-full shadow-lg')
 
-	const searchInput: HTMLInputElement = createInput(['text', 'search', 'search', true], 'search', 'w-64 px-4 py-2 pl-4 pr-12 text-sm border-0 rounded-full bg-transparent focus:outline-none opacity-0 transition-opacity duration-300');
+	const searchInput: HTMLInputElement = createInput(['text', 'search', 'search...', true], 'search', 'w-64 px-4 py-2 pl-4 pr-12 text-sm border-0 rounded-full bg-transparent focus:outline-none opacity-0 transition-opacity duration-300');
 
 	const closeButton = createDiv('close-btn', 'absolute right-2 top-1/2 transform -translate-y-1/2 w-6 h-6 text-gray-500 hover:text-gray-700 opacity-0 transition-opacity duration-300');
 	closeButton.innerHTML = `
@@ -75,7 +75,7 @@ function toggleSearch() {
 
 function openSearch() {
 	isSearchOpen = true;
-	(document.getElementById("sliding-search-bar-div") as HTMLElement).className = 'absolute right-0 top-0 w-72 overflow-hidden transition-all duration-300 ease-in-out bg-orange-100 rounded-full shadow-lg border-2 border-emerald-300';
+	(document.getElementById("sliding-search-bar-div") as HTMLElement).className = 'absolute right-0 top-0 w-72 overflow-hidden transition-all duration-300 ease-in-out bg-orange-100 rounded-full shadow-lg border-2 border-emerald-600';
 	
 	const searchInput: HTMLInputElement = document.getElementById("search-input") as HTMLInputElement;
 	const closeButton: HTMLElement = document.getElementById('close-btn-div') as HTMLElement;

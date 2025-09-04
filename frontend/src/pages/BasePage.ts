@@ -16,6 +16,7 @@ export abstract class BasePage {
             throw new Error('App element not found');
         this.app = appDiv;
         const bannerDiv = document.getElementById('banner');
+		bannerDiv!.className = "z-50 relative";
         if (!bannerDiv)
             throw new Error('Banner element not found');
         this.banner = bannerDiv;

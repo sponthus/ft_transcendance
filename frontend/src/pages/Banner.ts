@@ -25,10 +25,7 @@ const navLinks: HTMLUListElement = createElement('ul', 'navlinks', '', 'flex jus
 export function renderBaseBanner(banner: HTMLElement): void {
 	banner.innerHTML = '';
 	console.log('rendering base banner');
-	// initWrapper();
-	// initUserInfo();
 	initLogo();
-	// initNavLink();
 	addInBanner(banner);
 }
 
@@ -64,9 +61,13 @@ function initLogo() {
 	const logoLink: HTMLAnchorElement = createAnchorElement('logo-link', '', '/', 'text-2xl font-bold text-emerald-400 hover:text-emerald-800 transition-colors') as HTMLAnchorElement;
 		
 	const logoImg: HTMLImageElement = createImage('logo', 'mx-auto object-cover rounded-full hover:bg-emerald-600 object-center h-12 w-18  hover:shadow-lg transition-all duration-200 transform hover:scale-105', '/logo/logoIlsandWorld.png') as HTMLImageElement;
+	// logoLink.innerHTML = `<div id="particle-1" class="particle absolute w-3 h-3 bg-red-400 rounded-full"></div>
+	// 						<div id="particle-2" class="particle absolute w-3 h-3 bg-orange-400 rounded-full"></div>
+	// 						<div id="particle-3" class="particle absolute w-3 h-3 bg-yellow-400 rounded-full"></div>
+	// 						<div id="particle-4" class="particle absolute w-3 h-3 bg-pink-400 rounded-full"></div>`;
 
 	append(logoLink, [logoImg]);
-	append(logo, [logoLink])
+	append(logo, [logoLink]);
 }
 
 // function initNavLink() {
@@ -175,5 +176,6 @@ function addInBanner(banner: HTMLElement) {
 	wrapper.appendChild(navLinks);
 
 	banner.appendChild(wrapper);
+
 }
 
