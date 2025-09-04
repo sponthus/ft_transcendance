@@ -312,6 +312,9 @@ export class Event {
 		// const PlayerA = this.GetDataForm('Player1', formData); Player1, Player2, Player3 etc...
 		// also you can use this.tournamentPage._FormMap
 		// name-tournament-form is the form for the name of the tournament
+		// const formNameData = new FormData(document.getElementById('new-tournament-form') as HTMLFormElement);
+		// const Name = this.GetDataForm('name-tournament', formNameData);
+		console.log('valeur name', (document.getElementById('name-tournament-input') as HTMLInputElement).value)
 	}
 
 	private GetDataForm(id: string, formData: any): string {
