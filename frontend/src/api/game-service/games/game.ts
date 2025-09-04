@@ -41,12 +41,13 @@ export type AllGamesResult = AllGamesList | Failure;
 // POST /game
 // Creates a new game for the user, taking names for players
 // Security : Accessible for every logged-in user
-export async function createLocalGame(userId: number, player_a: string, player_b: string): Promise<GameInfoResult> {
+// TODO = Add AI registration
+export async function createLocalGame(player_a: string, player_b: string): Promise<GameInfoResult> {
     const token = localStorage.getItem("token");
     if (!token)
         return { ok: false, error: "No token"};
 
-    console.log('userId = ' + userId + ' playA ' + player_a + ' playB ' + player_b);
+    console.log(' playA ' + player_a + ' playB ' + player_b);
     const res = await fetch('/api/games/game', {
         method: 'POST',
         headers: {
@@ -54,7 +55,6 @@ export async function createLocalGame(userId: number, player_a: string, player_b
             'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({
-            userId: userId,
             player_a: player_a,
             player_b: player_b,
         })
