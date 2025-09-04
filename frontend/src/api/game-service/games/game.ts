@@ -138,6 +138,34 @@ export async function getAvailableGames(userId: number): Promise<AvailableGamesR
 }
 
 // GET /:userId/games
+// All available FINISHED games for a user, gives only useful infos
+// Security : Accessible for every logged-in user
+export async function getFinishedGames(userId: number): Promise<AvailableGamesResult> {
+    try {
+        const allGamesResult = await getAllGames(userId);
+        if (!allGamesResult.ok) {
+            return { ok: false, error: allGamesResult.error };
+        }
+        const pendingGames: PendingGamesInfos[] = allGamesResult.games
+            .filter(game => game.status === 'finished')
+            .map(game => ({
+                id: game.id,
+                status: game.status,
+                player_a: game.player_a,
+                player_b: game.player_b,
+                created_at: game.created_at
+            }));
+
+        return { ok: true, games: pendingGames };
+
+    } catch (error) {
+        console.error('❌ Error filtering finished games', error as string );
+        return { ok: false, error: error as string  };
+    }
+}
+
+
+// GET /:userId/games
 // Gives all games for a user (useful for history, gives you every info available on each game)
 // Security : Accessible for every logged-in user
 export async function getAllGames(userId: number): Promise<AllGamesResult> {
