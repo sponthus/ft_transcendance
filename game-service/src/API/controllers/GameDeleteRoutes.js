@@ -5,17 +5,19 @@ export async function deleteGame(request, reply) {
     const requestingUserId = request.user.idUser;
 	if (!requestingUserId)
 		return reply.status(401).send({ error: "Unauthorized"});
+    
 	const { gameId } = request.params;
-    const { db } = request.server;
-	
-	console.log("Requesting user = ", requestingUserId, " / Game = ", gameId);
     if (!gameId) {
         return reply.status(400).send({error: 'No gameId found in request.'});
     }
+
+    const { db } = request.server;
     if (!db) {
 		console.error('❌ Error while deleting game: database connection not found');
-        return reply.status(500).send({error: 'No database connection found.'});
-    }
+		return reply.status(500).send({ error: 'No database connection found.'});
+	}
+	
+	console.log("Requesting user = ", requestingUserId, " / Game = ", gameId);
 
     try {
         const gamesToDelete = await db.getGame(gameId);
