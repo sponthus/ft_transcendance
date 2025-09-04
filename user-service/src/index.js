@@ -21,7 +21,7 @@ fastify.decorate("authenticate", async function (request, reply)
     try 
     {
         await request.jwtVerify(); //Décode et verifie le token et stock ses infos dans request
-        console.log("Decoded token:", request.user);
+        //console.log("Decoded token:", request.user);
     } 
     catch (err)
     {

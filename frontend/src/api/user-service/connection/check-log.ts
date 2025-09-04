@@ -7,6 +7,8 @@ export async function checkLog(): Promise<Result>
 {
     console.log("Checking log...");
     const token = localStorage.getItem("token");
+    if (!token)
+        return ({ ok: false });
     const res = await fetch('/api/user/protected',
     {
         method: 'GET',

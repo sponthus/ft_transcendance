@@ -9,7 +9,7 @@ type UserInfo = //VA ETRE CHANGER, le token renvoie le username et l'id du user
 };
 
 type getUserInfoSuccess = {ok: true; userInfo: UserInfo}
-type Failure = { ok: false; error: string };
+type Failure = { ok: false; error?: string };
 
 export type GetUserInfoResult = getUserInfoSuccess | Failure 
 
@@ -17,7 +17,8 @@ export async function   getUserInfo() : Promise<GetUserInfoResult>
 {
     const token = localStorage.getItem("token");
     if (!token) {
-		return { ok: false, error : "No token found" };
+        console.log("getUserInfo : no token found");
+		return { ok: false };
 	}
     const res = await fetch('/api/user/user-info', 
     {

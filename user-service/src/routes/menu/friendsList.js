@@ -16,12 +16,12 @@ export async function   addFriend(request, reply)
                                             users \
                                         WHERE \
                                             username = ?").get(friendUsername);
-        if (!idFriend.id)
+        if (!idFriend)
             return reply.code(400).send({ error: "This user doesn't exist" });
         if (idUser === idFriend.id)
             return reply.code(404).send({ error: "You can't be friend with yourself !" });
         const stmt = db.prepare(" SELECT \
-                                        frie_user_id  \
+                                        frie_status  \
                                     FROM \
                                         friends \
                                     WHERE \
@@ -29,17 +29,15 @@ export async function   addFriend(request, reply)
                                     OR \
                                         (frie_user_id = ? AND frie_friend_user_id = ?)) \
                                     LIMIT 1");
-        const status = statement.get(idFriend, idUser, idUser, idFriend);
+        const status = stmt.get(idFriend.id, idUser, idUser, idFriend.id);
         if (status)
         {
-            if (status === 0)
-                return reply.code(400).send({ error: "A friend resquest is already pending" });
-            else if (status === 1)
+            if (status.frie_status === 0)
+                return reply.code(400).send({ error: "A friend request is already pending" });
+            else if (status.frie_status === 1)
                 return reply.code(400).send({ error: "You're already friend with this user" });
             //status de refus 
         }
-            
-        //faire un check que l'utilisateur existe aussi dans la base donnée ?
         const statement = db.prepare("  INSERT INTO \
                                             friends (frie_user_id, frie_friend_user_id, frie_status) \
                                         VALUES \
@@ -49,7 +47,8 @@ export async function   addFriend(request, reply)
     }
     catch (err)
     {
-        return reply.code(500).send({ error: "❌​ Internal Servor Error" + err.message});
+        console.log('ERRRRRROOORR', err.message);
+        return reply.code(500).send({ error: "​Internal Servor Error"});
     }
 }
 
@@ -71,6 +70,6 @@ export async function   getAllFriends(request, reply)
     }
     catch (err)
     {
-        return reply.code(500).send({ error: "❌​ Internal Server Error" });
+        return reply.code(500).send({ error: "Internal Server Error" });
     }
 }
