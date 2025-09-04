@@ -1,0 +1,220 @@
+import { Checkbox } from '@babylonjs/inspector/fluent/primitives/checkbox';
+import { createDiv, createElement, createButton, createDropdownDiv, createFormDiv, createCheckBoxLabel, append} from '../../Utils/elementMaker.js';
+import { availableGames } from './AvailableGames.js';
+
+/**
+ * in event.ts you can find the class wich add tournament in the backend (saveTournament() call by SaveNewParty()) and launch round (function PlayRound()) 
+ * in AvailableGames.ts you can find the class wich display available games you'll have to modify refreshAvailableTournament() in it to get available tournament
+ * after setting Tournament (create tournament and set available games) you will have to decomment the PlayTournament() function in Event.ts and delete the line this.GamePage.generateBracketTournament(0); (or comment)
+ *  
+ */
+export class TournamentPage {
+	private Page!: HTMLElement;
+	private NewTournamentForm!: HTMLElement;
+	private BracketDiv!: HTMLElement;
+	private FormMap!: Map<HTMLElement, HTMLInputElement>;
+	private PartyMap!: Map<number, HTMLInputElement>;
+	private AvailableGames: availableGames;
+	private Tournament?: any;
+	private Username!: string;
+
+
+	constructor(Page: HTMLElement, UserName: string) {
+		this.Page = Page;
+		this.FormMap = new Map<HTMLElement, HTMLInputElement>();
+		this.PartyMap = new Map<number, HTMLInputElement>();
+		this.AvailableGames = new availableGames(this.Page, this.PartyMap);
+		this.Username = UserName;
+	}
+
+	async render() {
+		this.Page.classList.remove("border-4");
+		this.Page.classList.remove("justify-center");
+		await this.createTournamentPageDiv();
+		await this.createTournamentFormDiv();
+		this.AvailableGames.render();
+		this.openTournamentForm();
+		this.refreshAvailableTournament();
+	}
+
+	async renderBracket(IdTournament: number) {
+		/*******function for rendering bracket tournament**********/
+		try {
+			// find tournament by id and put it in this.tournament
+			/***********************function for render bracket tournament call api for find wich tournament*************************/
+			this.BracketDiv = createDiv("bracket", "flex justify-between items-center h-full w-full space-x-4");
+			// this.createRound1([0/** round 0**/, 1 /** round 1**/]);
+			this.createRound2(0/** round 4**/);
+			this.createFinal(2/** round 6**/);
+			this.createRound2(1/** round 5**/);
+			// this.createRound1([2/** round 2**/, 3/** round 3**/]);
+			append(this.Page, [this.BracketDiv]);
+			this.findNextRound();
+		} catch (error) {
+			this.Page.innerHTML = `<div class="text-red-500">error : ${error}</div>`
+		}
+	}
+
+	// private createRound1(Matchs: [MatchA: number, MatchB: number]) {
+	// 	const Round1Div = createDiv("round1", "flex flex-col justify-around h-full w-[20%] space-y-4");
+	// 	for (let i = 0; i < 2; i++) 
+	// 		append(Round1Div, [(this.createMatch(Matchs[i], "flex flex-col items-center justify-around h-[50%] w-full bg-orange-400 rounded-full space-y-4") as HTMLElement)]);
+
+	// 	append(this.BracketDiv, [Round1Div]);
+	// }
+	
+	private createRound2(Match: number) {
+		const Round2Div = createDiv("round2", "flex flex-col justify-around h-full w-[20%] space-y-4");
+		append(Round2Div, [(this.createMatch(Match, "flex flex-col items-center justify-around h-[75%] w-full bg-orange-400 rounded-full space-y-4") as HTMLElement)]);
+		append(this.BracketDiv, [Round2Div]);
+	}
+
+	private createFinal(Match: number) {
+		const Round2Div = createDiv("round2", "flex flex-col justify-around h-full w-[20%] space-y-4");
+		append(Round2Div, [(this.createMatch(Match, "flex flex-col items-center justify-around h-[50%] w-full bg-orange-400 rounded-full space-y-4") as HTMLElement)]);
+		append(this.BracketDiv, [Round2Div]);
+	}
+
+	private createMatch(Match: number, ClassName :string): HTMLElement {
+		const MatchDiv =  createDiv(`match-${Match}`, ClassName) as HTMLElement;
+	
+		try {
+			/************Call API for round with this.tournament and Match*************/
+			const TabPlayer: [Player1: string, Player2: string] = ["Player A"/**replace by player A Name or "Winner" if there is no player name***/, "Player B"/**replace by player B Name or "Winner" if there is no player name***/];
+			for (let i = 0; i < 2; i++) {
+				const PlayerDiv = createDiv(`player-${i + i}`, "border rounded-xl w-[50%] text-center") as HTMLElement;
+				append(PlayerDiv, [createElement('p', `player-${i + i}`, TabPlayer[i],  "text-emerald-600") as HTMLElement]);
+				append(MatchDiv, [PlayerDiv]);
+				if (i == 0 && Match != 2) 
+					append(MatchDiv, [createElement('p', `match-${Match}`, `Round ${Match}`, "text-emerald-600 font-bold")]);
+				else if (i == 0 && Match == 2)
+					append(MatchDiv, [createElement('p', `match-${Match}`, `Final`, "text-emerald-600 font-bold")]);
+			}
+		}
+		catch (error) {}
+	
+		return MatchDiv
+	}
+
+	private findNextRound(): number {
+		// if (!this.Tournament)
+		// 	return ;
+		/****************find next round with this.Tournament***********/
+		let NextRound: number = 0;
+		let idRound: number = 0;
+		(document.getElementById(`match-${NextRound}-div`) as HTMLElement)?.classList.add('bg-orange-500');
+		return idRound; // not necessary to return something because if you have to call API you can juste put in private variable and do some get for Event.ts accessibility
+	}
+
+	private async createTournamentPageDiv() {
+		const Div : HTMLElement = createDiv("New", "flex flex-col items-center justify-center");
+			
+		this.createNewTournamentText(Div);
+		this.createNewTournamentBtn(Div);
+		append(this.Page, [Div]);
+	}
+	
+	private createNewTournamentText(Div: HTMLElement) {
+		const TextDiv: HTMLElement =  createDiv("TournamentPage-title", "flex items-center justify-center");
+		const TournamentModText: HTMLElement = createElement('h1', "TournamentPage-title", "Create New Tournament",  "text-emerald-600 text-center underline");
+		append(TextDiv, [TournamentModText]);
+	
+		if (Div)
+			append(Div, [TextDiv]);
+	}
+	
+	private createNewTournamentBtn(Div: HTMLElement) {
+		const BtnDiv: HTMLElement = createDiv("New", "flex items-center justify-center text-center p-4 bg-transparent py-3 px-4 w-full space-x-24");
+	
+		const ClassNameBtn: string = "bg-orange-200 hover:bg-orange-400 text-emerald-600 font-bold rounded-lg transition-colors duration-200transform w-full";
+		const NewBtn: HTMLButtonElement = createButton("New", ClassNameBtn, "New");
+	
+		append(BtnDiv, [NewBtn]);
+		if (Div)
+			append(Div, [BtnDiv]);
+	}
+
+	private async createTournamentFormDiv() {
+		this.NewTournamentForm = createDiv("Form", "flex flex-col items-center justify-center w-full space-y-6 hidden");
+		append(this.Page, [this.NewTournamentForm]);
+		this.renderTournamentFormDiv();
+	}
+
+	private async renderTournamentFormDiv() {
+		const FormsDiv: HTMLFormElement = this.createNewTournamentFormDiv();
+		this.addPlayersNameForm(FormsDiv, "Player1", "player_a_me", "Player 1 Name");
+		this.addPlayersNameForm(FormsDiv, "Player2", "player_b_me", "Player 2 Name");
+		this.addPlayersNameForm(FormsDiv, "Player3", "player_c_me", "Player 3 Name");
+		this.addPlayersNameForm(FormsDiv, "Player4", "player_d_me", "Player 4 Name");
+	}
+
+	private addPlayersNameForm(Div: HTMLElement, IdForm: string, idCheckBox: string, TextContent: string) {
+		const Player: HTMLElement = createFormDiv(["text", IdForm, TextContent , true]
+										,IdForm
+										,""
+										,["flex items-center flex-row-reverse space-x-4"
+											,"block text-sm font-medium text-emerald-600 mb-2"
+											,"w-full border bg-orange-200 border-emerald-600 rounded-lg focus:ring-2 focus:ring-emerald-800focus:border-emerald-8 00 transition-colors duration-200 placeholder-emerald-600 text-center"
+											,"block text-sm text-center font-medium text-emerald-500 mb-2"]);
+	
+		const checkbox = createCheckBoxLabel(idCheckBox, idCheckBox, "me", ["text-emerald-600",""]) as HTMLLabelElement;
+		this.FormMap.set(Player, (checkbox.querySelector('input')) as HTMLInputElement);
+		append(Player, [checkbox]);
+		append(Div, [Player]);
+	}
+
+	private createNewTournamentFormDiv() : HTMLFormElement {
+		const FormsDiv: HTMLFormElement = document.createElement('form');
+		FormsDiv.id = "new-tournament-form";
+		FormsDiv.className =  "grid grid-cols-4 grid-rows-2 gap-4  flex items-center justify-center w-full";
+		append(this.NewTournamentForm, [(createFormDiv(["text", "name-tournament", "name of tournament" , true]
+										,"name-tournament"
+										,""
+										,["flex items-center flex-row-reverse space-x-4"
+											,"block text-sm font-medium text-emerald-600 mb-2"
+											,"w-full border bg-orange-200 border-emerald-600 rounded-lg focus:ring-2 focus:ring-emerald-800focus:border-emerald-8 00 transition-colors duration-200 placeholder-emerald-600 text-center"
+											,"block text-sm text-center font-medium text-emerald-500 mb-2"]) as HTMLElement ),FormsDiv]);
+
+		return FormsDiv
+	}
+
+	private openTournamentForm() {
+		this.FormMap.forEach((value: HTMLInputElement, key: HTMLElement) => {
+			value.addEventListener('change', () => {
+				this.FormMap.forEach((value: HTMLInputElement, key: HTMLElement) => {
+					const InputKey = key.querySelector("input") as HTMLInputElement;
+					value.checked = false;
+					InputKey.readOnly = false;
+					InputKey.value = "";
+				})
+				const InputKey = key.querySelector("input") as HTMLInputElement;
+				value.checked = true;
+				InputKey.readOnly = true;
+				InputKey.value = this.Username; // call qpi for username
+			})
+		}) 
+	}
+
+	async refreshAvailableTournament() {
+		this.AvailableGames.refreshAvailableTournament();
+	}
+
+	get _NewTournamentForm() : HTMLElement {
+		return this.NewTournamentForm;
+	}
+
+	get _PartyMap(): Map<number, HTMLInputElement>{
+		return this.PartyMap;
+	}
+
+	get _FormMap() : Map<HTMLElement, HTMLInputElement> {
+		return this.FormMap;
+	}
+
+	get _Tournament(): any {
+		if (this.Tournament)
+			return this.Tournament;
+		else
+			return null;
+	}
+}
