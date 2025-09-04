@@ -14,6 +14,7 @@ export class DisplayAssets {
 
 	private _ananas: AbstractMesh | null = null;
 	private _gary: AbstractMesh | null = null;
+	private _menuPause: AbstractMesh | null = null;
 
 	constructor(scene: Scene) {
 		this._scene = scene;
@@ -80,11 +81,19 @@ export class DisplayAssets {
 		this._gary.scaling = new Vector3(0.02, 0.02, 0.02);
 		//this._ananas.rotation = new Vector3(0, 4.7, 0);
 
+		const result8 = await ImportMeshAsync("/assets/MenuPause.glb", this._scene);
+		this._menuPause = result8.meshes[0];
+		this._menuPause.position.x = 0.5;
+		this._menuPause.position.y = 5;
+		this._menuPause.position.z = 0;
+		this._menuPause.scaling = new Vector3(0.3, 0.3, 0.3);
+		this._menuPause.rotation = new Vector3(1.57, 0, 4.71);
+		// this._MenuPause.setEnabled(false);
 
-		this._caste.freezeWorldMatrix(); // plus de recalculs de position/rotation/scale
-		this._caste.doNotSyncBoundingInfo = true; // plus de bounding box à recalculer
-		this._caste.isPickable = false; // si t'as pas besoin de clic dessus
-		this._caste.receiveShadows = false; // si pas de shadow nécessaire
+		// this._caste.freezeWorldMatrix(); // plus de recalculs de position/rotation/scale
+		// this._caste.doNotSyncBoundingInfo = true; // plus de bounding box à recalculer
+		// this._caste.isPickable = false; // si t'as pas besoin de clic dessus
+		// this._caste.receiveShadows = false; // si pas de shadow nécessaire
 
 		this.playWalk1();
 	}
@@ -114,6 +123,11 @@ export class DisplayAssets {
 	public get crab2(): AbstractMesh | null
 	{
 		return this._crab2;
+	}
+
+	public get menuPause(): AbstractMesh | null
+	{
+		return this._menuPause;
 	}
 	
 }
