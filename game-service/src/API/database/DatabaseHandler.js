@@ -255,18 +255,14 @@ export default class DatabaseHandler {
         return (tab);
     }
 
-    // TODO = Complete round 1-2 and test me
-    // Creates a tournament, and the games from round 0 in tournament_matches
+    // TODO = test me
+    // Creates a tournament, and the games for every round in tournament_matches + games
     createTournament(name, userId, players) {
-        const transaction = this.db.transaction((userId, name, players) => {
-            console.log("before rand: ", players);
-            this.randomize(players);
-            console.log("after rand: ", players);
-            if (players.length != 4 || players.length != 6 || players.length != 8) {
+        const transaction = this.db.transaction((userId, name, players) => {          
+            const numberOfPlayers = players.length;
+            if (numberOfPlayers != 4 || numberOfPlayers != 6 || numberOfPlayers != 8) {
                 throw new Error("Only 4, 6 or 8 players tournament available for now");
             }
-            
-            const numberOfPlayers = players.length;
             // Rounds = 0, 1 or 0, 1, 2
             let totalRounds;
             if (numberOfPlayers == 4)
@@ -296,7 +292,7 @@ export default class DatabaseHandler {
             const creationResult = createTournamentStmt.run("pending", userId, name, players);
             const tournamentId = creationResult.lastInsertRowId;
             
-            const roundsResult = [];
+            const roundsResults = [];
             const nextGameId = -1;
             for (const round in rounds) {
                 // Add games necessary for the round
@@ -306,30 +302,35 @@ export default class DatabaseHandler {
                     while (players.length != 0) {
                         const player_a = players.pop();
                         const player_b = players.pop();
-                        const gamesResult = createTournamentGamesStmt.run("pending", userId, player_a, player_b, tournamentId);
-                        gameResults.push(gamesResult.lastInsertRowId);
+                        const gameResult = createTournamentGamesStmt.run("pending", userId, player_a, player_b, tournamentId);
+                        gameResults.push(gameResult.lastInsertRowId);
                     }
                     // At 1st round, edit next-game
                     updateNextGameStmt.run(nextGameId, tournamentId);
                     nextGameId = gameResults[0];
                 } else {
-                    // Finale
+                    // Final round = 1 game
                     if (round == totalRounds) {
-                        // 1 partie
+                       const gameResult = createTournamentGamesTBAStmt.run("pending", userId, tournamentId);
+                       gameResults.push(gameResult.lastInsertRowId);
                     } else {
-                        // 2 parties
+                        // Middle-round = 2 games
+                        for (const i = 0; i <= 1; i++) {
+                            const gameResult = createTournamentGamesTBAStmt.run("pending", userId, tournamentId);
+                            gameResults.push(gameResult.lastInsertRowId);
+                        }
                     }
                 }
     
                 // Add necessary matches
                 const matchesResults = [];
-                i = gameResults.length;
-                for (const game of gameResults) {
-                    const result = createTournamentMatchesStmt.run(tournamentId, round, gameResults[i]);
-                    i--;
+                i = 0;
+                for (const _ of gameResults) {
+                    const result = createTournamentMatchesStmt.run(tournamentId, round, i, gameResults[i]);
+                    i++;
                     matchesResults.push(result.lastInsertRowId);
                 }
-                roundsResult.push({
+                roundsResults.push({
                     round: round,
                     games: gameResults,
                     matches: matchesResults
@@ -338,11 +339,17 @@ export default class DatabaseHandler {
 
             result = {
                 tournamentId: tournamentId,
-                rounds: roundsResult,
+                rounds: roundsResults,
                 nextGameId: nextGameId
             };
 
             return (result);
         });
+
+        console.log("before rand: ", players);
+        this.randomize(players);
+        console.log("after rand: ", players);
+        const result = transaction(userId, name, players);
+        return (result);
     }
 }
