@@ -1,6 +1,6 @@
 import { popUp } from "../../Utils/popUp";
 import { createDiv, createElement, createButton, createDropdownDiv, createFormDiv, createCheckBoxLabel, append, createImage, createInput} from '../../Utils/elementMaker.js';
-import { modifyUserAvatar } from "../../api/user";
+import { modifyUserAvatar } from "../../api/user-service/user";
 import { updateUsername } from "../../api/user-service/user-info/updateUsername.js";
 import { getUserInfo } from '../../api/user-service/user-info/getUserInfo.js';
 import { uploadAvatar } from "../../api/avatar.js";
