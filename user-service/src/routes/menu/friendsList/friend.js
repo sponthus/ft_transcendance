@@ -1,13 +1,13 @@
+import Ajv from "ajv"
+
 export async function   addFriend(request, reply)
 {
     const   db = request.server.db;
     const   idUser = request.user.idUser;
     const   friendUsername = request.body.username;
 
-    //key  user   friend
-    //1    1     2
-    //2    1     3
-
+    if (checkFormat(request) == false)
+        return reply.code(400).send( {error : "Invalid format for the friend's username"} );
     try
     {   
         const idFriend = db.prepare("   SELECT \
@@ -43,33 +43,65 @@ export async function   addFriend(request, reply)
                                         VALUES \
                                             (?, ?, 0)");
         statement.run(idUser, idFriend.id);
-        return reply.code(200).send({ friend: idFriend }); //idFriend a enlever pas safe
+        return reply.code(200);
     }
     catch (err)
     {
-        console.log('ERRRRRROOORR', err.message);
         return reply.code(500).send({ error: "​Internal Servor Error"});
     }
 }
 
-
-export async function   getAllFriends(request, reply)
+export async function   removeFriend(request, reply)
 {
     const   db = request.server.db;
     const   idUser = request.user.idUser;
+    const   friendUsername = request.body.username;
 
+    console.log("REMOVE FRIEND");
+    if (checkFormat(request) == false)
+        return reply.code(400).send( {error : "Invalid format for the friend's username"} );
     try
     {
-        const friends = db.prepare("    SELECT \
-                                            frie_friend_user_id \
+        const idFriend = db.prepare("   SELECT \
+                                            id \
                                         FROM \
+                                            users \
+                                        WHERE \
+                                            username = ?").get(friendUsername);
+        if (!idFriend)
+            return reply.code(400).send({ error: "This user doesn't exist" });
+        
+        const statement = db.prepare("  DELETE FROM \
                                             friends \
                                         WHERE \
-                                            frie_user_id = ?").all(idUser);
-        return reply.code(200).send({ friends: friends });
+                                            ((frie_user_id = ? AND frie_friend_user_id = ?) \
+                                        OR \
+                                            (frie_user_id = ? AND frie_friend_user_id = ?))");
+        statement.run(idUser, idFriend.id, idFriend.id, idUser);
+        return reply.code(200);
     }
     catch (err)
     {
         return reply.code(500).send({ error: "Internal Server Error" });
-    }
+    }   
+} 
+
+function    checkFormat(request)
+{
+    const schema = 
+    {
+        type: "object",
+        properties:
+        {
+            username: { type: "string", minLength: 3, maxLength: 15, pattern: "^(?=.*[a-zA-Z])[^\\[\\]{}();]+$"},
+        },
+        required: ["username"],
+        additionalProperties: false
+    };
+    const ajv = new Ajv();
+    const contract = ajv.compile(schema);
+    const valid = contract(request.body);
+    if (!valid)
+        return (false);
+    return (true);
 }

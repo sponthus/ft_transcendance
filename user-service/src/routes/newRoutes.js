@@ -8,7 +8,8 @@ import getUserInfo from "./user-info/getUserInfo.js";
 import { getCharacterAsset, changeCharacterAsset } from "./menu/characterAsset.js";
 import { getNpcAsset, changeNpcAsset } from "./menu/npcAsset.js";
 import { changeBackgroundColor, getBackgroundColor } from "./menu/backgroundColor.js";
-import { addFriend, getAllFriends } from "./menu/friendsList.js";
+import { addFriend, removeFriend } from "./menu/friendsList/friend.js";
+import { getAllFriends } from "./menu/friendsList/getAllFriends.js";
 import { getAllUsers } from "./menu/getAllUsers.js";
 
 //TODO
@@ -46,7 +47,7 @@ export default async function newRoutes(fastify, options)
     fastify.get("/menu/users", { preHandler: [fastify.authenticate] }, getAllUsers);
 
     fastify.post("/menu/friendslist", { preHandler: [fastify.authenticate] }, addFriend);
+    fastify.delete("/menu/friendslist", { preHandler: [fastify.authenticate] }, removeFriend);
     //fastify.get("/menu/friendslist", { preHandler: [fastify.authenticate] }, addFriend);
     fastify.get("/menu/friendslist/", { preHandler: [fastify.authenticate] }, getAllFriends);
-
 }

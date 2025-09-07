@@ -48,8 +48,8 @@ function    checkFormat(request)
         type: "object",
         properties:
         {
-            username: { type: "string", minLength: 3, maxLength: 15, pattern: "^(?=.*[a-zA-Z]).+$"},
-            password: { type: "string", minLength: 6, maxLength: 15, pattern: "^(?=.*[a-zA-Z]).+$"},
+            username: { type: "string", minLength: 3, maxLength: 15, pattern: "^(?=.*[a-zA-Z])[^\\[\\]{}();]+$"},
+            password: { type: "string", minLength: 6, maxLength: 15, pattern: "^(?=.*[a-zA-Z])[^\\[\\]{}();]+$"},
         },
         required: ["username", "password"],
         additionalProperties: false

@@ -31,4 +31,9 @@ export class PongGame  {
 		}
 	}
 
+	get GamePhysics(): GamePhysics | null{
+		if (this._gamePhysics)
+			return this._gamePhysics;
+		return null;
+	}
 }

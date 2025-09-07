@@ -33,12 +33,13 @@ export class renderGround {
 			throw new Error("skybox materials failed to load")
 		this._skyboxMaterial.backFaceCulling = false;
 		this._skyboxMaterial.disableLighting = true;
-		this._skyboxMaterial.diffuseColor = new BABYLON.Color3(0, 0, 0);
-		this._skyboxMaterial.specularColor = new BABYLON.Color3(0, 0, 0);
+		// this._skyboxMaterial.diffuseColor = new BABYLON.Color3(0, 0, 0);
+		// this._skyboxMaterial.specularColor = new BABYLON.Color3(0, 0, 0);
 		this._skyboxMaterial.reflectionTexture = new BABYLON.CubeTexture("/asset/skybox/skybox", this._scene, ["_px.png","_nx.png", "_py.png", "_ny.png", "_pz.png", "_nz.png"]);
 		(this._skyboxMaterial.reflectionTexture as BABYLON.CubeTexture).onLoadObservable.add(() => {
 			console.log("Skybox texture loaded successfully");
 		});
+	
 		this._skybox.material = this._skyboxMaterial;
 		this._skybox.infiniteDistance = true;
 	}
@@ -58,6 +59,7 @@ export class renderGround {
 		(this._waterMaterial.bumpTexture as BABYLON.Texture).onLoadObservable.add(() => {
 			console.log("succesfully load Bump texture");
 		});
+
 		this._waterMaterial.bumpHeight = 9;
 		this._waterMaterial.bumpAffectsReflection = true;
 		this._waterMaterial.bumpSuperimpose = true;

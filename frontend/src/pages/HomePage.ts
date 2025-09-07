@@ -3,16 +3,17 @@ import { navigate } from "../core/router.js";
 import { BasePage } from "./BasePage.js";
 import { getUserInfo } from "../api/user-service/user-info/getUserInfo.js";
 import { updateUsername } from "../api/user-service/user-info/updateUsername.js";
-import { addFriend, getAllFriends } from "../api/user-service/menu/friendsList/friendsList.js";
+import { addFriend, getAllFriends, removeFriend } from "../api/user-service/menu/friendsList/friendsList.js";
 
 import { getAllUsers } from "../api/user-service/menu/getAllUsers.js";
+import { append, createAnchorElement, createDiv, createImage } from "../Utils/elementMaker.js";
 
 export class HomePage extends BasePage {
 
-	private _Background?: HTMLElement;
-	private _front?: HTMLElement;
-	private _ButtonDiv?: HTMLElement;
-	private _LogoDiv?: HTMLElement;
+	private Background!: HTMLElement;
+	private Front!: HTMLElement;
+	private ButtonDiv!: HTMLElement;
+	private LogoDiv!: HTMLElement;
 
 	constructor() {
 		super();
@@ -23,7 +24,6 @@ export class HomePage extends BasePage {
 
 
 		await this.renderBanner();
-
 		await this.InitDivs();
 		await this.createLogo();
 
@@ -39,9 +39,9 @@ export class HomePage extends BasePage {
 			await this.rengerLogoutHome();
 		}
 	
-		let req = await addFriend("Boulangere");
+		let req = await removeFriend("paula");
 		if (req.ok) {
-			console.log("Add friend sucessfull");
+			console.log("remove friend sucessfully");
 		}
 		else
 			alert(req.error);
@@ -50,84 +50,36 @@ export class HomePage extends BasePage {
 		if (req.ok) {
 			console.log('Friends : ', req.friends);
 		}
-		//else
-			//alert(req.error);
-
 		await this.addInApp();
 	}
 
 	private async InitDivs() {
-		this._Background = this.initBackground();
-
-		this._front = document.createElement('div');
-		this._front.className = "rounded-xl shadow-2xl p-12 max-w-md w-full text-center";
-
-		this._ButtonDiv = document.createElement('div');
-		this._ButtonDiv.className = "flex flex-col ispace-y-4";
+		this.Background = this.initBackground();
+		this.Front = createDiv("front", "flex items-center justify-center rounded-xl shadow-2xl p-12 max-w-md w-full h-[30%] text-center");
+		this.ButtonDiv = createDiv("Button", "flex flex-col items-center justify-center space-y-6 w-full");
 	}
 
 	private async createLogo() {
-		const LogoDiv = this.initLogo();
-
-		if (this._Background)
-			this._Background.appendChild(LogoDiv);
+		this.LogoDiv = createDiv("logo", "flex items-center justify-center h-[70%] w-full");
+		append(this.LogoDiv, [(createImage("logo", "mx-auto object-contain object-center absolute h-[70%] w-[70%]", "/logo/logoIlsandWorld.png") as HTMLImageElement)
+						, (createImage("logo-title-Text", "absolute h-1/2 w-1/2 translate-y-32", "/logo/IslandWorldText.png") as HTMLImageElement)
+						, (createImage("logo-Welcome.text", "absolute h-1/2 w-1/2 translate-x-14",  "/logo/welcomeText.png") as HTMLImageElement)]);
+		append(this.Background, [this.LogoDiv]);
 	}
 
 	private async renderLogInHome() {
-		await this.createButton('play-btn', "click to play", '/game');
+		append(this.ButtonDiv, [(createAnchorElement("play", "click to play", '/game', "w-full mt-8 bg-orange-300 hover:bg-orange-400 text-emerald-600 font-bold py-4 px-8 rounded-lg text-xl transition-colorsduration-200 transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-blue-300") as HTMLAnchorElement)])
 	}
 
 	private async rengerLogoutHome() {
-
-		await this.createButton('login-btn', "Login", '/login');
-		await this.createButton('register-btn', "Register", '/register');
-	}
-
-	/*************************************Function for creating Button*************************************/
-	private async createButton(Id: string, TextContent: string, link: string) {
-		const Button = document.createElement('a');
-		Button.id = Id;
-		Button.href = link;
-		Button.textContent = TextContent;
-		Button.className = "w-full mt-8 bg-orange-300 hover:bg-orange-400 text-emerald-600 font-bold py-4 px-8 rounded-lg text-xl transition-colorsduration-200 transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-blue-300";
-
-		if (this._ButtonDiv)
-			this._ButtonDiv.appendChild(Button);
-	}
-
-	/*************************************Function for creating logo*************************************/
-	private initLogo(): HTMLElement {
-		const logoDiv = document.createElement('div');
-		logoDiv.className = "flex items-center justify-center relative h-full w-full ";
-
-		const logo = document.createElement('img');
-		logo.id = "logo-img";
-		logo.className = "mx-auto object-cover object-center h-1/2 w-1/2";
-		logo.src = "/logo/logoIlsandWorld.png";
-
-		const logoTitleText = document.createElement('img');
-		logoTitleText.id = "logo-title-Text";
-		logoTitleText.className = "absolute h-1/2 w-1/2 bottom-4";
-		logoTitleText.src = "/logo/IslandWorldText.png";
-
-		const loglWelcomeText = document.createElement('img');
-		loglWelcomeText.id = "logo-Welcome.text";
-		loglWelcomeText.className = "absolute h-1/2 w-1/2 translate-x-14";
-		loglWelcomeText.src = "/logo/welcomeText.png";
-
-		logoDiv.appendChild(logo);
-		logoDiv.appendChild(loglWelcomeText);
-		logoDiv.appendChild(logoTitleText);
-
-		return logoDiv;
+		append(this.ButtonDiv, [(createAnchorElement("login", "Login", '/login', "w-full mt-8 bg-orange-300 hover:bg-orange-400 text-emerald-600 font-bold py-4 px-8 rounded-lg text-xl transition-colorsduration-200 transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-blue-300") as HTMLAnchorElement)
+								, (createAnchorElement("register", "Register", '/register', "w-full mt-8 bg-orange-300 hover:bg-orange-400 text-emerald-600 font-bold py-4 px-8 rounded-lg text-xl transition-colorsduration-200 transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-blue-300") as HTMLAnchorElement) ]);
 	}
 
 	/*************************************Function utils*************************************/
 	private async addInApp() {
-		if (this._Background && this._front && this._ButtonDiv) {
-			this._front.appendChild(this._ButtonDiv);
-			this._Background.appendChild(this._front);
-			this.app.appendChild(this._Background);
-		}
+		append(this.Front, [this.ButtonDiv]);
+		append(this.Background, [this.Front]);
+		append(this.app, [this.Background]);
 	}
 }

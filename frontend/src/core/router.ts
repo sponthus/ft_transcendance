@@ -3,10 +3,8 @@ import { BasePage } from '../pages/BasePage.js';
 import { HomePage } from '../pages/HomePage.js';
 import { LoginPage } from '../pages/LoginPage.js';
 import { RegisterPage } from '../pages/RegisterPage.js';
-import { SettingPage } from "../pages/SettingPage.js";
-import { UserPage } from '../pages/UserPage.js';
-import { GamePage } from '../pages/GamePage.js';
-import { LocalGamePage } from "../pages/LocalGamePage.js";
+import { SettingPage } from "../pages/setting-page/SettingPage.js";
+import { UserPage } from '../pages/User-Pages/UserPage.js';
 import { getUserInfo } from "../api/user-service/user-info/getUserInfo.js";
 
 let currentPage: BasePage | null = null;

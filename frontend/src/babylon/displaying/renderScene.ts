@@ -7,7 +7,7 @@ import "@babylonjs/inspector";
 import { PongGame } from "../pong/pong_game";
 import { LoadingScreen } from "./loadingScreen";
 import { popUp } from "../../Utils/popUp";
-import { GamePage } from "../../pages/GamePage";
+import { GamePage } from "../../pages/Game-Pages/GamePage";
 
 enum state {HOME = 0, PONG = 1};
 
@@ -19,6 +19,8 @@ export class renderScene {
 
 	private _canvas: HTMLCanvasElement | null = null;
 	private _engine: BABYLON.Engine | null = null;
+
+	private _PongGame!: PongGame;
 
 	private _homeScene: BABYLON.Scene | null = null;
 	private _pongScene: BABYLON.Scene | null = null;
@@ -32,9 +34,9 @@ export class renderScene {
 	private _gameCreatorPage?: GamePage;
 
 
-	constructor() {
+	constructor(App: HTMLElement) {
 		/**********************scene builder***********************/
-		this._canvas = this._initCanvas();
+		this._canvas = this._initCanvas(App);
 
 		this._initEngine();
 	
@@ -58,14 +60,14 @@ export class renderScene {
 	}
 
 	private _initGameCreatorPage() {
-		this._gameCreatorPage = new GamePage(this._pongScene!, this._engine!, this);
+		this._gameCreatorPage = new GamePage(this);
 	}
 
 	private _initState() {
-		this._state = 0;
+		this._state = state.HOME;
 	}
 
-	private _initCanvas(): HTMLCanvasElement {
+	private _initCanvas(App: HTMLElement): HTMLCanvasElement {
 		/**********************canvas builder***********************/
 		document.documentElement.style["overflow"] = "hidden";
 		document.documentElement.style.overflow = "hidden";
@@ -85,17 +87,17 @@ export class renderScene {
 		this._canvas.style.width = "100%";
 		this._canvas.style.height = "100%";
 		this._canvas.id = "gameCanvas";
-		document.body.appendChild(this._canvas);
+		App.appendChild(this._canvas);
 
 		console.log("Canvas create and add to DOM");
 		return this._canvas;
 	}
 
 	private async _initPongGame(): Promise<void> {
-		const pong = new PongGame();
-		if (!pong)
+		this._PongGame = new PongGame();
+		if (!this._PongGame)
 			throw new Error("pongGame failed to load");
-		await pong.start(this.pongScene!, this.canvas!, this.engine!)
+		await this._PongGame.start(this.pongScene!, this.canvas!, this.engine!)
 	}
 
 	private _initScene(): BABYLON.Scene {
@@ -126,17 +128,28 @@ export class renderScene {
 		this._isocamera.setTarget(BABYLON.Vector3.Zero());
 		this._isocamera.minZ = 0.1; 
 
-		const zoom: number = 0.000012 * screen.width; // evantually to change with Dell machines
-		console.log('zoom :', zoom);
-		this._isocamera.orthoLeft = (-this._engine!.getRenderWidth() * zoom);
-		this._isocamera.orthoRight = (this._engine!.getRenderWidth() * zoom);
-		this._isocamera.orthoTop = (this._engine!.getRenderHeight() * zoom);
-		this._isocamera.orthoBottom =( -this._engine!.getRenderHeight() * zoom);
-		// this._isocamera.detachControl();
+		// const zoom: number = 0.0000125 * screen.width; // evantually to change with Dell machines
+		// console.log('zoom :', zoom);
+		// this._isocamera.orthoLeft = (-this._engine!.getRenderWidth() * zoom);
+		// this._isocamera.orthoRight = (this._engine!.getRenderWidth() * zoom);
+		// this._isocamera.orthoTop = (this._engine!.getRenderHeight() * zoom);
+		// this._isocamera.orthoBottom =( -this._engine!.getRenderHeight() * zoom);
+		const renderWidth = this._engine!.getRenderWidth();
+		const renderHeight =  this._engine!.getRenderHeight();
+		const aspect = renderWidth / renderHeight;
+		
+		const halfHeight = 22;
+		const halfWidth = halfHeight * aspect;
+
+		this._isocamera.orthoLeft   = -halfWidth;
+		this._isocamera.orthoRight  =  halfWidth;
+		this._isocamera.orthoTop    =  halfHeight;
+		this._isocamera.orthoBottom = -halfHeight;
+		this._isocamera.detachControl();
 		/***************************for debug to delete at end of project***************************/
-		this._isocamera.attachControl(this._canvas, true);
-		if (this._homeScene)
-			this._homeScene.activeCamera = this._isocamera;
+		// this._isocamera.attachControl(this._canvas, true);
+		// if (this._homeScene)
+		// 	this._homeScene.activeCamera = this._isocamera;
 	}
 
 	private _initLight() {
@@ -163,21 +176,31 @@ export class renderScene {
 			return this._pongScene;
 		return null;
 	}
-
+	
 	get engine(): BABYLON.Engine | null {
 		if (this._engine)
 			return this._engine;
 		return null;
 	}
-
+	
 	get	canvas(): HTMLCanvasElement | null {
 		if (this._canvas)
 			return this._canvas;
 		return null;
 	}
-
+	
 	set setState(state: number) {
 		this._state = state;
+	}
+	
+	get state(): number | null {
+		if (this._state)
+			return this._state;
+		return null;
+	}
+
+	get PongGame(): PongGame {
+		return this._PongGame;
 	}
 
 	private _renderingloop() {
@@ -207,17 +230,13 @@ export class renderScene {
 
 		window.addEventListener('resize', () => {
 		    this._engine!.resize();
-			location.reload();
+			// location.reload();
 		});
 	}
 
 	private renderPongscene() {
 		this.engine?.stopRenderLoop();
-		
 		this._gameCreatorPage?.renderGamePage();
-		this._gameCreatorPage?.Manage1v1Event();
-
-		// this._pongScene?.render();
 	}
 
 	/***************************for debug to delete at end of project***************************/

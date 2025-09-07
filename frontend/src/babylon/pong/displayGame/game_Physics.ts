@@ -23,6 +23,7 @@ export class GamePhysics {
 	private _score!: Score;
 	private _scoreValue1 = 0;
 	private _scoreValue2 = 0;
+	private _MaxScore: number = 0
 
 	private _timeBobSpeak = 5;
 	private _timeout = 5;
@@ -31,6 +32,8 @@ export class GamePhysics {
 	private _spell2!: Vector3;
 
 	private _serverState: any = null;
+
+	private _Win: boolean = false;
 
 	constructor(
 		ball: BallMesh,
@@ -48,6 +51,7 @@ export class GamePhysics {
 		this._score = new Score(this._scene, this._scoreValue1, this._scoreValue2);
 
 		this._ball.speed = 0;
+		console.log("win ? in game physics", this.Win);
 		this.setupControls();
 	}
 
@@ -100,6 +104,9 @@ export class GamePhysics {
 			{
 				this._serverState = data.gameState;
 				this.updateFrontend();
+			}
+			if (data.type === "endGame") {
+				this._Win = true;
 			}
 		};
 	}
@@ -156,6 +163,11 @@ export class GamePhysics {
 				this._scoreValue1 = this._serverState.score.s1;
 				this._scoreValue2 = this._serverState.score.s2;
 				this._score.updateScore(this._scoreValue1, this._scoreValue2);
+				// if (this._scoreValue1 >= this._MaxScore || this._scoreValue2 >= this._MaxScore) {
+				// 	this._scoreValue1 = 0;
+				// 	this._scoreValue2 = 0;
+				// 	this._Win = true;
+				// }
 				this._timeBobSpeak = 10;
 			}
 			this._spell1 = new Vector3(this._serverState.spell1.x , 1, this._serverState.spell1.z);
@@ -166,5 +178,26 @@ export class GamePhysics {
 				crabmehamehaFX(this._scene, this._spell2);
 
 		}
+	}
+
+	set setMaxScore(MaxScore: number) {
+		this._MaxScore = MaxScore;
+	}
+
+	set SetWin(win: boolean) {
+		this._Win = win;
+	}
+
+	get Win(): boolean {
+		console.log("getter Win called, returning:", this._Win);
+		return this._Win;
+	}
+
+	get Score1() : number {
+		return this._scoreValue1;
+	}
+
+	get Score2() : number {
+		return this._scoreValue2;
 	}
 }

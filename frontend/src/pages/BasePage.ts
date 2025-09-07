@@ -43,14 +43,14 @@ export abstract class BasePage {
         }
     }
 
-    protected initBackground(): HTMLElement {
-        const BackgroundHome = document.createElement('div');
-        BackgroundHome.className = "flex flex-col items-center min-h-screen p-8";
-        BackgroundHome.style.backgroundImage = "url('/background1.gif')";
-        BackgroundHome.style.backgroundSize = "cover";
-        BackgroundHome.style.backgroundPosition = "center";
-        return BackgroundHome;
-    }
+	protected initBackground(): HTMLElement {
+		const BackgroundHome = document.createElement('div');
+		BackgroundHome.className = "flex flex-col items-center h-screen min-h-[540px] w-screen min-w-[960px] p-8";
+		BackgroundHome.style.backgroundImage = "url('/background1.gif')";
+		BackgroundHome.style.backgroundSize = "cover";
+		BackgroundHome.style.backgroundPosition = "center";
+		return BackgroundHome;
+	}
     // Optional : does nothing, can be overloaded if needed, to destroy listeners
     destroy(): void { }
 }
