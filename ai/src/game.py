@@ -239,11 +239,12 @@ class PongGame:
 		dz = abs(self.ball['z'] - paddleZ)
 
 		if (dz < 0.5 and dx < 1 and isDie == False):
-			self.ai_score += 10
+			if (paddleZ == -8):
+				self.ai_score += 10
 
 			if (self.ball['speed'] < SPEED_LIMIT):
 				self.ball['speed'] += SPEED_INCREMENT
-			self.ball['dirZ'] *= -1
+			self.ball['dirZ'] *= -8
 			if (self.ball['z'] < 0):
 				self.ball['z'] = LEFT_PADDLE
 			else:
