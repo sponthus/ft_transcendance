@@ -260,9 +260,8 @@ export default class DatabaseHandler {
             tab[j] = tmp;
         }
         return (tab);
-    }
-bn 
-    // TODO = test me
+    } 
+
     // Creates a tournament, and the games for every round in tournament_matches + games
     createTournament(name, userId, players) {
         const transaction = this.db.transaction((userId, name, players) => {          
