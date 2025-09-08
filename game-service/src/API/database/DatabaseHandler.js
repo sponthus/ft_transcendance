@@ -63,192 +63,179 @@ export default class DatabaseHandler {
     }
 
     // Test ok
-    async   createGame(userId, playerA, playerB, tournamentId, maxScore = 7) {
-        console.log(`maxScore: ${maxScore}`);
-        return new Promise((resolve, reject) => {
-            try {
-                let res;
-                if (tournamentId === 0) {
-                    const stmt = this.db.prepare(`
-                    INSERT INTO games (status, id_user, player_a, player_b, score) VALUES (?, ?, ?, ?, ?)
-                    `);
-                    res = stmt.run('pending', userId, playerA, playerB, maxScore);
-                }
-                else {
-                    const stmt = this.db.prepare(`
-                    INSERT INTO games (status, id_user, player_a, player_b, tournament_id, score) VALUES (?, ?, ?, ?, ?, ?)
-                    `);
-                    res = stmt.run('pending', userId, playerA, playerB, tournamentId, maxScore);
-                }
-                const id = res.lastInsertRowId;
-                resolve({
-                    game_id: id, 
-                    status: 'pending', 
-                    player_a: playerA, 
-                    player_b: playerB,
-                    maxScore: maxScore
-                });
-            } catch (err) {
-                reject(err);
-            }
-        });
+    async   createGame(userId, playerA, playerB, maxScore = 7) {
+        // console.log(`maxScore: ${maxScore}`);
+		const transaction = this.db.transaction((userId, playerA, playerB, maxScore) => {
+			const stmt = this.db.prepare(`
+	INSERT INTO games (status, id_user, player_a, player_b, score) VALUES (?, ?, ?, ?, ?)
+			`);
+			const res = stmt.run('pending', userId, playerA, playerB, maxScore);
+			const id = res.lastInsertRowId;
+			return ({
+				game_id: id, 
+				status: 'pending', 
+				player_a: playerA, 
+				player_b: playerB,
+				maxScore: maxScore
+			});
+		});
+		const result = transaction(userId, playerA, playerB, maxScore);
+		return (result);
     }
 
     // Test OK
-    async   getGamesForUserId(userId) {
-        return new Promise((resolve, reject) => {
-            try {
-                const stmt = this.db.prepare(`
-                    SELECT *
-                    FROM games
-                    WHERE id_user = ?
-                    ORDER BY created_at DESC
-                `);
-                const res = stmt.all(userId);
-                // console.log(res);
-                resolve(res);
-            } catch (err) {
-                reject(err);
-            }
-        });
+    getGamesForUserId(userId) {
+        const transaction = this.db.transaction((userId) => {
+			const stmt = this.db.prepare(`
+	SELECT *
+	FROM games
+	WHERE id_user = ?
+	ORDER BY created_at DESC
+			`);
+			const results = stmt.all(userId);
+			return (results);
+		});
+		const results = transaction(userId);
+		return (results);
     }
 
     // Test ok
-    async   getGame(gameId) {
-        return new Promise((resolve, reject) => {
-            try {
-                const stmt = this.db.prepare(`
-                    SELECT *
-                    FROM games
-                    WHERE id = ?
-                `);
-                const res = stmt.all(gameId);
-                resolve(res);
-            } catch (err) {
-                reject(err);
-            }
-        });
+    getGame(gameId) {
+        const transaction = this.db.transaction((gameId) => {
+			const stmt = this.db.prepare(`
+	SELECT *
+	FROM games
+	WHERE id = ?
+			`);
+			const res = stmt.get(gameId);
+			return (res);
+		});
+		const result = transaction(gameId);
+		return (result);
     }
 
     // Test ok
-    async   deleteGame(gameId) {
-        return new Promise((resolve, reject) => {
-            try {
-                const stmt = this.db.prepare(`
-                    DELETE FROM games
-                    WHERE id = ?
-                `);
-                const res = stmt.run(gameId);
-                if (res.changes === 0) {
-                    throw new Error("No game deleted with the given gameId");
-                }
-                resolve(res);
-            } catch (error) {
-                reject(error);
-            }
-        })
+    deleteGame(gameId) {
+		const transaction = this.db.transaction((gameId) => {
+			const stmt = this.db.prepare(`
+	DELETE FROM games
+	WHERE id = ?
+			`);
+			const res = stmt.run(gameId);
+			if (res.changes === 0) {
+				throw new Error("No game deleted with the given gameId");
+			}
+			return {
+				deletedGameId: gameId
+			};
+		});
+		const result = transaction(gameId);
+		return (result);
     }
 
-    // test seems ok
-    async   updateGameStatus(gameId, status) {
+    // Test ok with ongoing & finished
+    updateGameStatus(gameId, status) {
         console.log('updating game ' + gameId + ' with status ' + status);
-        if (status === 'ongoing') {
-            return new Promise((resolve, reject) => {
-                try {
-                    const stmt = this.db.prepare(`
-                    UPDATE games 
-                    SET status = ?, began_at = CURRENT_TIMESTAMP
-                    WHERE id = ?
-                `);
-                    const res = stmt.run(status, gameId);
-                    if (res.changes === 0) {
-                        throw new Error("No game found with the given gameId");
-                    }
-                    resolve(res);
-                } catch (err) {
-                    reject(err);
-                }
-            });
+        
+		let transaction;
+		if (status === 'ongoing') {
+            transaction = this.db.transaction((gameId, status) => {
+				const stmt = this.db.prepare(`
+	UPDATE games 
+	SET status = ?, began_at = CURRENT_TIMESTAMP
+	WHERE id = ?
+				`);
+				const res = stmt.run(status, gameId);
+				if (res.changes === 0) {
+					throw new Error("No game found with the given gameId");
+				}
+				return {
+					gameId: gameId,
+					status: status
+				};
+			});
         }
         else if (status === 'finished' || status === 'canceled') {
-            return new Promise((resolve, reject) => {
-                try {
-                    const stmt = this.db.prepare(`
-                    UPDATE games 
-                    SET status = ?, finished_at = CURRENT_TIMESTAMP
-                    WHERE id = ?
-                    `);
-                    const res = stmt.run(status, gameId);
-                    if (res.changes === 0) {
-                        throw new Error("No game found with the given gameId");
-                    }
-                    resolve(res);
-                } catch (err) {
-                    reject(err);
-                }
-            });
+            transaction = this.db.transaction((gameId, status) => {
+				const stmt = this.db.prepare(`
+	UPDATE games 
+	SET status = ?, finished_at = CURRENT_TIMESTAMP
+	WHERE id = ?
+				`);
+				const res = stmt.run(status, gameId);
+				if (res.changes === 0) {
+					throw new Error("No game found with the given gameId");
+				}
+				return {
+					gameId: gameId,
+					status: status
+				};
+			});
         }
-        else {
-            return new Promise((resolve, reject) => {
-                reject('Unknown game status');
-            });
-        }
+        else
+        	throw new Error("Unknown game status");
+
+		const result = transaction(gameId, status);
+		return (result);
     }
 
-    async   updateScore(gameId, newScoreA, newScoreB) {
-        console.log("Test me !"); // TODO = Test me
-        return new Promise((resolve, reject) => {
-            try {
-                const stmt = this.db.prepare(`
-                    UPDATE games 
-                    SET score_a = ?, score_b = ? 
-                    WHERE id = ?
-                `);
-                const res = stmt.run(newScoreA, newScoreB, gameId);
-                if (res.changes === 0) {
-                    return reject(new Error("No game found with the given gameId"));
-                }
-                resolve(res);
-            } catch (err) {
-                reject(err);
-            }
-        });
+	// Test ok
+    updateScore(gameId, newScoreA, newScoreB) {
+        const transaction = this.db.transaction((gameId, newScoreA, newScoreB) => {
+			const stmt = this.db.prepare(`
+	UPDATE games 
+	SET score_a = ?, score_b = ? 
+	WHERE id = ?
+			`);
+			const res = stmt.run(newScoreA, newScoreB, gameId);
+			if (res.changes === 0) {
+				throw new Error("No game found with the given gameId");
+			}
+			const result = {
+				gameId: gameId,
+				scoreA: newScoreA,
+				scoreB: newScoreB
+			};
+			return (result);
+		});
+
+		const result = transaction(gameId, newScoreA, newScoreB);
+		return (result);
     }
 
-    async recordWinner(gameId) {
-        return new Promise((resolve, reject) => {
-            try {
-                const stmt = this.db.prepare(`
-                    SELECT score_a, score_b, player_a, player_b 
-                    FROM games
-                    WHERE id = ?
-                `);
-                const game = stmt.get(gameId);
-                if (!game)
-                    reject(new Error("Game not found"));
-                
-                let winner = null;
-                if (game.score_a > game.score_b) {
-                    winner = game.player_a;
-                } else if (game.score_b > game.score_a) {
-                    winner = game.player_b;
-                }
-                const updateStmt = this.db.prepare(`
-                    UPDATE games 
-                    SET winner = ?, finished_at = CURRENT_TIMESTAMP 
-                    WHERE id = ?
-                `);
-                updateStmt.run(winner, gameId);
-                resolve({
-                    message: `Game ${gameId} winner recorded: ${winner}`,
-                    gameId,
-                    winner
-                });
-            } catch (err) {
-                reject(err);
-            }
-        });
-    }
+	// Test ok
+	recordWinner(gameId) {
+		const transaction = this.db.transaction((gameId) => {
+			const stmt = this.db.prepare(`
+	SELECT score_a, score_b, player_a, player_b 
+	FROM games
+	WHERE id = ?
+			`);
+			const game = stmt.get(gameId);
+			if (!game)
+				throw new Error("Game not found");
+			
+			let winner = null;
+			if (game.score_a > game.score_b) {
+				winner = game.player_a;
+			} else if (game.score_b > game.score_a) {
+				winner = game.player_b;
+			}
+			const updateStmt = this.db.prepare(`
+	UPDATE games 
+	SET winner = ?, finished_at = CURRENT_TIMESTAMP 
+	WHERE id = ?
+			`);
+			updateStmt.run(winner, gameId);
+			return ({
+				gameId: gameId,
+				winner: winner
+			});
+		});
+
+		const result = transaction(gameId);
+		return (result);
+	}
 
     // Mixes the players before assigning games
     randomize(tab) {
@@ -278,26 +265,26 @@ export default class DatabaseHandler {
             const rounds = Array(0, totalRounds);
 
             const createTournamentStmt = this.db.prepare(`
-                INSERT INTO tournaments(status, id_user, name) VALUES (?, ?, ?);
+	INSERT INTO tournaments(status, id_user, name) VALUES (?, ?, ?);
             `);
             
             const createTournamentPlayerStmt = this.db.prepare(`
-            	INSERT INTO tournament_players(tournament_id, name) VALUES (?, ?);
+	INSERT INTO tournament_players(tournament_id, name) VALUES (?, ?);
             `);
 
             const updateNextGameStmt = this.db.prepare(`
-                UPDATE tournaments
-                SET next_game = ? 
-                WHERE id = ?
+	UPDATE tournaments
+	SET next_game = ? 
+	WHERE id = ?
             `);
             const createTournamentGamesStmt = this.db.prepare(`
-                INSERT INTO games(status, id_user, player_a, player_b, tournament_id) VALUES (?, ?, ?, ?, ?);
+	INSERT INTO games(status, id_user, player_a, player_b, tournament_id) VALUES (?, ?, ?, ?, ?);
             `);
             const createTournamentGamesTBAStmt = this.db.prepare(`
-                INSERT INTO games(status, id_user, tournament_id) VALUES (?, ?, ?);
+	INSERT INTO games(status, id_user, tournament_id) VALUES (?, ?, ?);
             `);
             const createTournamentMatchesStmt = this.db.prepare(`
-                INSERT INTO tournament_matches(tournament_id, round, match_number, game_id) VALUES (?, ?, ?, ?);
+	INSERT INTO tournament_matches(tournament_id, round, match_number, game_id) VALUES (?, ?, ?, ?);
             `);
 
             const creationResult = createTournamentStmt.run("pending", userId, name);

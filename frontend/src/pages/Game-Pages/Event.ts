@@ -358,7 +358,8 @@ export class Event {
 			const userData = req.userInfo;
 			if (!userData?.id)
 				throw new Error('user not connected');
-			const request = await createLocalGame(userData?.id, PlayerA, PlayerB);
+			// Add here the field for the max score in game creation, as a third parameter
+			const request = await createLocalGame(PlayerA, PlayerB);
 			if (!request.ok) 
 				throw new Error('Failed to create Game');
 		}

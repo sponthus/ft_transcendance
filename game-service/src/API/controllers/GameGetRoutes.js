@@ -20,7 +20,7 @@ export async function getGamesForUserId(request, reply) {
 
 	try {
 		// console.log("Trying to find games with userId " + userId);
-		const games = await db.getGamesForUserId(userId);
+		const games = db.getGamesForUserId(userId);
 		if (!games || games.length === 0) {
 			return reply.status(200).send([]);
 		}

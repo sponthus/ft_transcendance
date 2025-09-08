@@ -28,25 +28,26 @@ export async function startGame(request, reply) {
     let maxScore = 7;
     try {
         // console.log("Trying to find games with gameId " + gameId);
-        const games = await db.getGame(gameId);
-        if (!games || games.length !== 1 || games[0].status !== 'pending') {
-            return reply.status(404).send({ error : 'No available game found' });
-        }
-        userId = games[0].id_user;
-        player_a = games[0].player_a;
-        player_b = games[0].player_b;
-        status = games[0].status;
-        maxScore = games[0].score;
-    }
+        const game = await db.getGame(gameId);
+        if (!game)
+            return reply.status(404).send({ error : 'No game found' });
+		userId = game.id_user;
+        player_a = game.player_a;
+        player_b = game.player_b;
+        status = game.status;
+        maxScore = game.score;
+	}
     catch (error) {
-        console.error('❌ Error fetching games: ');
+		console.error('❌ Error fetching games: ');
 		console.log(error);
         return reply.status(500).send({ error: "Internal server error while fetching games" });
     }
-
-	// Only the user can launch his own games
+	
+	// Only the user can launch his own games, game must be pending
 	if (userId != requestingUserId)
 		return reply.status(401).send({ error: "Unauthorized, this is not your game"});
+	if (status !== 'pending')
+		return reply.status(401).send({ error : 'Game is not pending' });
 
     try {
         // console.log("Trying to create game server with gameId " + gameId + " and userId " + userId);
@@ -76,29 +77,29 @@ export async function startGame(request, reply) {
 // Security : Road is protected to logged-in users
 // TODO = Add input validation VS SQL injections
 export async function createGame(request, reply) {
-    console.log('➡️ User accessed POST /game');
+	console.log('➡️ User accessed POST /game');
 
 	const { idUser } = request.user;
-    const { player_a, player_b, maxScore } = request.body;
-    const { db } = request.server;
+	const { player_a, player_b, maxScore } = request.body;
+	const { db } = request.server;
 
 	const userId = idUser;
 	console.log('userId = ' + userId + ' playA ' + player_a + ' playB ' + player_b);
-    if (!userId || !player_a || !player_b || player_a === player_b) {
+	if (!userId || !player_a || !player_b || player_a === player_b) {
 		console.log("Lack of given data");
-        return reply.status(400).send({error: 'Invalid input, expected : userId, player_a != player_b'});
-    }
-    if (!db) {
+		return reply.status(400).send({error: 'Invalid input, expected : userId, player_a != player_b'});
+	}
+	if (!db) {
 		console.error('❌ Error while deleting game: database connection not found');
-        return reply.status(500).send({error: 'No database connection found.'});
-    }
+		return reply.status(500).send({error: 'No database connection found.'});
+	}
 
     try {
         let result;
         if (maxScore) {
-            result = await db.createGame(userId, player_a, player_b, 0, maxScore);
+            result = await db.createGame(userId, player_a, player_b, maxScore);
         } else {
-            result = await db.createGame(userId, player_a, player_b, 0);
+            result = await db.createGame(userId, player_a, player_b);
         }
         return reply.status(201).send(result);
     }

@@ -42,7 +42,7 @@ export type AllGamesResult = AllGamesList | Failure;
 // Creates a new game for the user, taking names for players
 // Security : Accessible for every logged-in user
 // TODO = Add AI registration
-export async function createLocalGame(player_a: string, player_b: string): Promise<GameInfoResult> {
+export async function createLocalGame(player_a: string, player_b: string, maxScore: number = 7): Promise<GameInfoResult> {
     const token = localStorage.getItem("token");
     if (!token)
         return { ok: false, error: "No token"};
@@ -57,6 +57,7 @@ export async function createLocalGame(player_a: string, player_b: string): Promi
         body: JSON.stringify({
             player_a: player_a,
             player_b: player_b,
+			maxScore: maxScore
         })
     });
     const data = await res.json();
@@ -200,6 +201,7 @@ export async function getAllGames(userId: number): Promise<AllGamesResult> {
 
 // DELETE /:gameId
 // Delete a game in backend
+// TODO : Works but in case of an error, writes alert("Error: Error:...")
 // Security : is gonna be possible only if the logges-in user is the owner of the game
 export async function deleteGame(gameId: number): Promise<SimpleResult> {
     const token = localStorage.getItem("token");
@@ -217,7 +219,8 @@ export async function deleteGame(gameId: number): Promise<SimpleResult> {
             }
         });
         if (!response.ok) {
-            throw new Error(`Unable to delete game because ` + response.status);
+			const data = await response.json();
+            throw new Error(`Unable to delete game ->` + data.error);
         }
         return { ok: true, message: gameId + ' game has been deleted' };
     } catch(error) {

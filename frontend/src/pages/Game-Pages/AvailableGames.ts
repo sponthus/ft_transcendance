@@ -210,7 +210,7 @@ export class availableGames {
 		try {
 			const request = await deleteGame(gameId);
 			if (!request.ok) {
-				throw new Error('Unable to delete game : ' + request.error);
+				throw new Error(request.error);
 			}
 			alert("Game deleted");
 		} catch (error) {
