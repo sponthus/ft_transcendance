@@ -28,7 +28,8 @@ export async function getGamesForUserId(request, reply) {
 		return reply.status(200).send(games);
 	}
 	catch (error) {
-		console.error('❌ Error fetching games:', error);
+		console.error('❌ Error fetching games:');
+		console.log(error);
 		return reply.status(500).send({error: 'Internal server error while fetching games'});
 	}
 }

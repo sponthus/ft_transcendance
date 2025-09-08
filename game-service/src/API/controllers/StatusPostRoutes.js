@@ -42,7 +42,8 @@ export async function sendMessageToUser(request, reply) {
                     status: 'sent' });
         }
     } catch (error) {
-        console.log("❌ Error while sending message to user: ", error.message);
+        console.log("❌ Error while sending message to user: ")
+		console.log(error);
 		return reply.status(500).send({
 			error: 'Internal server error while sending message'});
     }

@@ -26,6 +26,8 @@ export async function createTournament(request, reply) {
         return reply.status(201).send(result);
     }
     catch (error) {
-        return reply.status(500).send({ error: '❌ Error creating tournament :', error });
+		console.log('❌ Error creating tournament : ');
+		console.log(error);
+        return reply.status(500).send({ error: 'Internal server error while creating tournament'});
     }
 }

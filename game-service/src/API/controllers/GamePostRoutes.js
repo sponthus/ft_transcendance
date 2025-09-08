@@ -39,8 +39,9 @@ export async function startGame(request, reply) {
         maxScore = games[0].score;
     }
     catch (error) {
-        console.error('❌ Error fetching games: ', error);
-        return ;
+        console.error('❌ Error fetching games: ');
+		console.log(error);
+        return reply.status(500).send({ error: "Internal server error while fetching games" });
     }
 
 	// Only the user can launch his own games
@@ -51,6 +52,7 @@ export async function startGame(request, reply) {
         // console.log("Trying to create game server with gameId " + gameId + " and userId " + userId);
         const gameMaster = GameMaster.getInstance();
         if (!gameMaster) {
+			console.error('❌ Error : No GameMaster found while fetching games');
             return reply.status(500).send({error: 'Internal server error while fetching users'});
         }
         gameMaster.createServer(gameId, userId, maxScore);
@@ -64,7 +66,8 @@ export async function startGame(request, reply) {
         });
     }
     catch (error) {
-        console.error('❌ Error creating game server:', error);
+        console.error('❌ Error creating game server:')
+		console.log(error);
         return reply.status(500).send({error: 'Internal server error while creating games'});
     }
 }
@@ -100,7 +103,8 @@ export async function createGame(request, reply) {
         return reply.status(201).send(result);
     }
     catch (error) {
-		console.log("❌ Error creating game : ", error);
+		console.log("❌ Error creating game : ")
+		console.log(error);
         return reply.status(500).send({ error: "Game creation failed " + error.message });
     }
 }

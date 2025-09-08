@@ -14,7 +14,8 @@ export async function getStatusForUserId(request, reply) {
 
     const gameMaster = GameMaster.getInstance();
     if (!gameMaster) {
-		console.log("❌ Error fetching users : ", error);
+		console.log("❌ Error fetching users : ")
+		console.log(error);
         return reply.status(500).send({error: 'Internal server error while fetching users'});
     }
     const status = gameMaster.getUserStatus(userId);

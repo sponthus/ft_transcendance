@@ -39,7 +39,8 @@ export async function deleteGame(request, reply) {
         const del = await db.deleteGame(gameId);
         return reply.status(200).send(del);
     } catch (error) {
-        console.error('❌ Error deleting game: ' + error);
+        console.error('❌ Error deleting game: ');
+		console.log(error);
 		return reply.status(500);
     }
 }

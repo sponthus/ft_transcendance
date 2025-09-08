@@ -283,7 +283,7 @@ bn
             `);
             
             const createTournamentPlayerStmt = this.db.prepare(`
-            INSERT INTO tournament_players(tournament_id, name) VALUES (?, ?);
+            	INSERT INTO tournament_players(tournament_id, name) VALUES (?, ?);
             `);
 
             const updateNextGameStmt = this.db.prepare(`
@@ -365,11 +365,7 @@ bn
         });
 
         this.randomize(players);
-        console.log("len = ", players.length);
-
-        const createTournamentStmt = this.db.prepare(`
-        INSERT INTO tournaments(status, id_user, name) VALUES (?, ?, ?);
-    `);
+        // console.log("len = ", players.length);
 
         const result = transaction(userId, name, players);
         return (result);
