@@ -5,6 +5,7 @@ import { getGamesForUserId } from "./API/controllers/GameGetRoutes.js"
 import { deleteGame } from "./API/controllers/GameDeleteRoutes.js"
 import { getStatusForUserId } from "./API/controllers/StatusGetRoutes.js"
 import { sendMessageToUser } from "./API/controllers/StatusPostRoutes.js"
+import { getTournamentsForUserId } from "./API/controllers/TournamentGetRoutes.js"
 
 export default async function routes (fastify, options) {
     console.log(`Registering routes`);
@@ -34,6 +35,9 @@ export default async function routes (fastify, options) {
             getRoutes.get(`/:userId/status`,
 				{onRequest: [fastify.authenticate]},
                 getStatusForUserId);
+			getRoutes.get(`/:userId/tournaments`, 
+				{onRequest: [fastify.authenticate]},
+				getTournamentsForUserId);
         }
     );
 

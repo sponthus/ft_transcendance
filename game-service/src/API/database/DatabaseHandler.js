@@ -356,4 +356,20 @@ export default class DatabaseHandler {
         const result = transaction(userId, name, players);
         return (result);
     }
+
+	// Gives all informations except userId
+	getTournamentsForUserId(userId) {
+		const transaction = this.db.transaction((userId) => {
+			const stmt = this.db.prepare(`
+	SELECT id, status, name, next_game, created_at, began_at, finished_at, winner
+	FROM tournaments
+	WHERE id_user = ?
+	ORDER BY created_at DESC
+			`);
+			const results = stmt.all(userId);
+			return (results);
+		});
+		const results = transaction(userId);
+		return (results);
+    }
 }
