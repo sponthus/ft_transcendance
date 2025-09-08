@@ -14,7 +14,7 @@ export async function getGamesForUserId(request, reply) {
 
 	const { db } = request.server;
 	if (!db) {
-		console.error('❌ Error while deleting game: database connection not found');
+		console.error('❌ Error while getting games: database connection not found');
 		return reply.status(500).send({ error: 'No database connection found.'});
 	}
 
