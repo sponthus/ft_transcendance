@@ -43,7 +43,7 @@ export async function   addFriend(request, reply)
                                         VALUES \
                                             (?, ?, 0)");
         statement.run(idUser, idFriend.id);
-        return reply.code(200);
+        return reply.code(200).send();
     }
     catch (err)
     {
@@ -78,7 +78,7 @@ export async function   removeFriend(request, reply)
                                         OR \
                                             (frie_user_id = ? AND frie_friend_user_id = ?))");
         statement.run(idUser, idFriend.id, idFriend.id, idUser);
-        return reply.code(200);
+        return reply.code(200).send();
     }
     catch (err)
     {

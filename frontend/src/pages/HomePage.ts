@@ -39,7 +39,7 @@ export class HomePage extends BasePage {
 			await this.rengerLogoutHome();
 		}
 	
-		let req = await removeFriend("paula");
+		let req = await addFriend("mbogey");
 		if (req.ok) {
 			console.log("remove friend sucessfully");
 		}

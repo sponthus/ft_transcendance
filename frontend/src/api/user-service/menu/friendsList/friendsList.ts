@@ -16,11 +16,11 @@ export async function   addFriend(username: string): Promise<FriendsResult>
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
         body: JSON.stringify({ username }),
     });
-    const data = await res.json();    
     if (res.ok) 
     {
         return { ok: true };
     }
+    const data = await res.json(); // il est la car au dessus le JSON envoye est vide  
     return { ok: false, error: data.error};
 }
 
@@ -36,11 +36,11 @@ export async function   removeFriend(username: string): Promise<FriendsResult>
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
         body: JSON.stringify({ username }),
     });
-    const data = await res.json();    
     if (res.ok) 
     {
         return { ok: true };
     }
+    const data = await res.json();    
     return { ok: false, error: data.error};
 }
 
