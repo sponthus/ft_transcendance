@@ -383,4 +383,59 @@ export default class DatabaseHandler {
 		const results = transaction(userId);
 		return (results);
     }
+
+	getMatchesForTournamentId(tournamentId) {
+		const transaction = this.db.transaction((tournamentId) => {
+			const stmt = this.db.prepare(`
+	SELECT
+		tm.id,
+		tm.round,
+		tm.match_number AS match,
+		g.status,
+		g.player_a,
+		g.player_b,
+		g.score_a,
+		g.score_b,
+		g.began_at,
+		g.finished_at,
+		g.winner,
+		g.score
+	FROM tournament_matches tm
+	JOIN games g ON tm.game_id = g.id
+	WHERE tm.tournament_id = ?
+	ORDER BY tm.round, tm.match_number 
+			`);
+			const results = stmt.all(tournamentId);
+			return (results);
+		});
+		const results = transaction(tournamentId);
+		return (results);
+	}
+
+	getNextMatchForTournamentId(tournamentId) {
+		const transaction = this.db.transaction((tournamentId) => {
+			const stmt = this.db.prepare(`
+	SELECT
+		tm.game_id,
+    	g.player_a,
+		g.player_b,
+    	tm.round,
+    	tm.match_number AS match
+	FROM tournaments t
+	JOIN tournament_matches tm ON tm.game_id = t.next_game
+	JOIN games g ON tm.game_id = g.id
+	WHERE t.id = ?
+	LIMIT 1
+			`);
+			const result = stmt.get(tournamentId);
+			if (result) {
+				result.players = [result.player_a, result.player_b];
+				delete result.player_a;
+				delete result.player_b;
+			}
+			return (result);
+		});
+		const results = transaction(tournamentId);
+		return (results);
+	}
 }

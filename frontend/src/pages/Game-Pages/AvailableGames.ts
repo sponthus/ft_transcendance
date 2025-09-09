@@ -42,9 +42,11 @@ export class availableGames {
 		this.createAvailableGame();
 	}
 
+	// create div for available games div 
 	private async createAvailableGame() {
 		const AvailableDiv: HTMLElement = createDiv("available-games", "flex flex-col items-center w-[90%] h-[90%] space-y-8  mb-auto");
 
+		// Append title, and body
 		append(AvailableDiv, [(createElement('p', "Title-Party", "", "text-center text-emerald-600 w-[50%] font-bold border-4 rounded-xl translate-y-4 border-orange-400 shadow-xl") as HTMLElement)
 							, (createDiv("Body-Party", "flex flex-col w-[90%] h-64 border-4 border-orange-400 rounded-xl -translate-y-2shadow-xl overflow-auto") as HTMLElement)]);
 		append(this.Page, [AvailableDiv]);

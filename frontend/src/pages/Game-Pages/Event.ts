@@ -205,26 +205,28 @@ export class Event {
 		this.removeDeleteButton();
 		this.LaunchPong.setTournament = true;
 
-		this.GamePage.generateBracketTournament(0);
-		// let found = false;
+		// this.GamePage.generateBracketTournament(0);
+		let found = false;
 	
-		// this.TournamentPage._PartyMap?.forEach(async(value: HTMLInputElement, key: number) => {
-		// 	if (value.checked) {
-		// 		this.GamePage.generateBracketTournament(key);
-		// 		found = true;
-		// 		return ;
-		// 	}
-		// })
-		// if (!found)
-		// 	alert("please choose a Party");
+		this.TournamentPage._PartyMap?.forEach(async(value: HTMLInputElement, key: number) => {
+			if (value.checked) {
+				this.GamePage.generateBracketTournament(key);
+				found = true;
+				return ;
+			}
+		})
+		if (!found)
+			alert("please choose a Party");
 	}
 
+	/***********-*******playing match****************/
 	private PlayRound() {
 		/******************Find Next Round with this.tournamentPage._tournament*************/
 		try {
 			// find round id
+			// TODO = Add API call 
 			//start round
-			this.renderGame();
+			this.renderGame(); //to delete
 			// this.launchGame(/**id**/);
 		} catch (error) {
 			alert('error : ' + error);
@@ -311,6 +313,9 @@ export class Event {
 		const formData = new FormData(document.getElementById('new-tournament-form') as HTMLFormElement);
 
 		// also you can use this.tournamentPage._FormMap
+		// this.TournamentPage._FormMap.forEach((value: HTMLInputElement , key :(string) HTMLElement) => {
+		// 	console.log("key = ", key, "value = ", value);
+		// })
 		const PlayerA = this.GetDataForm('Player1', formData);
 		const PlayerB = this.GetDataForm('Player2', formData);
 		const PlayerC = this.GetDataForm('Player3', formData);
