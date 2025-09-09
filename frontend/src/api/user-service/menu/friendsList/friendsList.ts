@@ -61,3 +61,22 @@ export async function   getAllFriends(): Promise<FriendsResult>
     }
     return { ok: false, error: data.error};
 }
+
+export async function   acceptRequest(username :string): Promise<FriendsResult>
+{
+    const token = localStorage.getItem("token");
+    if (!token)
+        return {ok: false, error: "No token found"};
+    const res = await fetch('/api/user/menu/friendslist/request/accept', 
+    {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify({ username }),
+    });
+    if (res.ok) 
+    {
+        return { ok: true };
+    }
+    const data = await res.json();    
+    return { ok: false, error: data.error};
+}

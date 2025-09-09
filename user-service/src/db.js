@@ -46,7 +46,7 @@ async function dbConnector(fastify, options)
             frie_id INTEGER PRIMARY KEY AUTOINCREMENT,
             frie_user_id INTEGER NOT NULL,
             frie_friend_user_id INTEGER NOT NULL,
-            frie_status INTEGER NOT NULL CHECK(frie_status BETWEEN 0 AND 2),
+            frie_status INTEGER NOT NULL CHECK(frie_status BETWEEN 0 AND 1),
             FOREIGN KEY (frie_user_id) REFERENCES users(id),
             FOREIGN KEY (frie_friend_user_id) REFERENCES users(id)
         );

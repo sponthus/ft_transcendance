@@ -12,7 +12,7 @@ export async function   getAllUsers(request, reply)
     }
     catch (err)
     {
-        return reply.code(500).send({ error : "❌​ Internal Server Error" });
+        return reply.code(500).send({ error : "Internal Server Error" });
     }
 }
 
