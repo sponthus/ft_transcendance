@@ -63,6 +63,7 @@ export default class DatabaseHandler {
     }
 
     // Test ok
+	// Creates a simple game, not a tournament one
     async   createGame(userId, playerA, playerB, maxScore = 7) {
         // console.log(`maxScore: ${maxScore}`);
 		const transaction = this.db.transaction((userId, playerA, playerB, maxScore) => {
@@ -96,7 +97,12 @@ export default class DatabaseHandler {
 			const results = stmt.all(userId);
 			return (results);
 		});
-		const results = transaction(userId);
+		let results = transaction(userId);
+		results = results.map(game => {
+        if (game.tournament === undefined) 
+			game.tournament = 0;
+			return game;
+		});
 		return (results);
     }
 
@@ -108,7 +114,11 @@ export default class DatabaseHandler {
 	FROM games
 	WHERE id = ?
 			`);
-			const res = stmt.get(gameId);
+			let res = stmt.get(gameId);
+			if (!res) 
+				return null;
+			if (res.tournament == undefined)
+				res.tournament = 0;
 			return (res);
 		});
 		const result = transaction(gameId);

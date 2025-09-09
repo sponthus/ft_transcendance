@@ -127,7 +127,7 @@ export default class GameMaster {
     }
 
     // gameId has been checked when server creation is called
-    createServer(gameId, userId, maxScore) {
+    createServer(gameId, userId, maxScore, tournament) {
         const client = this.clients.get(Number(userId));
         if (!client) {
             console.log(`user not found`);
@@ -144,7 +144,11 @@ export default class GameMaster {
         }
         client.status = 'playing';
         client.currentGame = gameId;
-        this.games.set(gameId, new GameServer(gameId, userId, ws, maxScore));
+		console.log("Registering a game with tournament = ", tournament);
+        this.games.set(gameId, {
+			server: new GameServer(gameId, userId, ws, maxScore),
+			tournament: tournament
+		});
     }
 
     // Call when a game is finished to destroy its object completely
@@ -160,6 +164,7 @@ export default class GameMaster {
             throw new Error(`user with userId ${userId} is not playing`);
         }
         if (this.games.has(gameId)) {
+			// TODO = Add reactions if it was a tournament game
             this.games.delete(gameId);
             console.log("🔴 GameServer stopped");
             client.currentGame = 0;
