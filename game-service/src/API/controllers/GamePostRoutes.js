@@ -26,6 +26,7 @@ export async function startGame(request, reply) {
     let player_b = '';
     let status = '';
     let maxScore = 7;
+	let tournament = -1;
     try {
         // console.log("Trying to find games with gameId " + gameId);
         const game = await db.getGame(gameId);
@@ -36,6 +37,7 @@ export async function startGame(request, reply) {
         player_b = game.player_b;
         status = game.status;
         maxScore = game.score;
+		tournament = game.tournament;
 	}
     catch (error) {
 		console.error('❌ Error fetching games: ');
@@ -64,6 +66,7 @@ export async function startGame(request, reply) {
             player_a: player_a, 
             player_b: player_b,
             maxScore: maxScore,
+			tournament: tournament
         });
     }
     catch (error) {

@@ -76,6 +76,7 @@ export default class DatabaseHandler {
 				status: 'pending', 
 				player_a: playerA, 
 				player_b: playerB,
+				tournament: 0,
 				maxScore: maxScore
 			});
 		});

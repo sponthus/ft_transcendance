@@ -3,8 +3,9 @@ type Success = { ok: true; message: string };
 
 type SimpleResult = Success | Failure;
 
+// When a game is created or launched, it gives its info, including maxScore and if it's part of a tournament
 type GameInfoResult =
-    | { ok: true; gameId: number, status: string, player_a: string, player_b: string }
+    | { ok: true; gameId: number, status: string, player_a: string, player_b: string, maxScore: number, tournament: number }
     | Failure
 
 type PendingGamesInfos = {
@@ -69,6 +70,8 @@ export async function createLocalGame(player_a: string, player_b: string, maxSco
             status: data.status,
             player_a: data.player_a,
             player_b: data.player_b,
+			tournament: data.tournament,
+			maxScore: data.maxScore
         };
     } else {
         // Invalid or expired token = Disconnect
@@ -104,7 +107,14 @@ export async function startGame(gameId: number): Promise<GameInfoResult> {
             throw new Error('Unable to start game ' + request.status);
         }
         const data = await request.json();
-        return { ok: true, gameId: data.game_id, status: data.status, player_a: data.player_a, player_b: data.player_b };
+        return { ok: true, 
+			gameId: data.game_id, 
+			status: data.status, 
+			player_a: data.player_a, 
+			player_b: data.player_b, 
+			tournament: data.tournament, 
+			maxScore: data.maxScore 
+		};
     }
     catch (error) {
         return { ok: false, error: error as string  };
