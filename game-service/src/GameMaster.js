@@ -130,21 +130,17 @@ export default class GameMaster {
     createServer(gameId, userId, maxScore, tournament) {
         const client = this.clients.get(Number(userId));
         if (!client) {
-            console.log(`user not found`);
             throw new Error('user not found for userId ' + userId);
         }
         if (!this.isUserConnected(userId)) {
-            console.log(`user not connected`);
             throw new Error('User not connected: userId ' + userId);
         }
         const ws = client.ws;
         if (!ws) {
-            console.log(`user ws not found`);
             throw new Error('ws not found for userId ' + userId);
         }
         client.status = 'playing';
         client.currentGame = gameId;
-		console.log("Registering a game with tournament = ", tournament);
         this.games.set(gameId, {
 			server: new GameServer(gameId, userId, ws, maxScore),
 			tournament: tournament
