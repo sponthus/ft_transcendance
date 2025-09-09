@@ -23,12 +23,27 @@ const app = Fastify({
 
 app.register(DatabaseConnector);
 
+function getSecret(name) {
+	try {
+		const key = fs.readFileSync(`/run/secrets/${name}`, 'utf8').trim();
+		return (key);
+	} catch (error) {
+		console.log("❌ Critical error : Unable to read secret ", name);
+		process.exit(1);
+	}
+}
+
 app.decorate("authenticate", async function (request, reply)
 {
     try 
     {
-		// console.log("Verifying token");
-		await request.jwtVerify(); //Décode et verifie le token et stock ses infos dans request
+		// Check internal API key
+		const internalApiKey = request.headers['x-internal-api-key'];
+		if (internalApiKey && internalApiKey === getSecret('api_key')) {
+			return;
+    }
+		// Check external JWT token from users and store their infos in request.user
+		await request.jwtVerify();
         // console.log("Decoded token:", request.user);
     } 
     catch (err)
@@ -38,15 +53,6 @@ app.decorate("authenticate", async function (request, reply)
     }
 });
 
-function getSecret(name) {
-	try {
-		const key = fs.readFileSync(`/run/secrets/${name}`, 'utf8').trim();
-		return (key);
-	} catch (error) {
-		console.log("❌ Critical error : Unable to read secret ", name);
-		// process.exit(1);
-	}
-}
 
 //enregistre le plugin JWT dans fastify
 app.register(fastifyJwt, {
