@@ -99,8 +99,8 @@ export default class DatabaseHandler {
 		});
 		let results = transaction(userId);
 		results = results.map(game => {
-        if (game.tournament === undefined) 
-			game.tournament = 0;
+        if (game.tournament_id == undefined) 
+			game.tournament_id = 0;
 			return game;
 		});
 		return (results);

@@ -5,7 +5,7 @@ type SimpleResult = Success | Failure;
 
 // When a game is created or launched, it gives its info, including maxScore and if it's part of a tournament
 type GameInfoResult =
-    | { ok: true; gameId: number, status: string, player_a: string, player_b: string, maxScore: number, tournament: number }
+    | { ok: true; gameId: number, status: string, player_a: string, player_b: string, maxScore: number, tournament_id: number }
     | Failure
 
 type PendingGamesInfos = {
@@ -70,7 +70,7 @@ export async function createLocalGame(player_a: string, player_b: string, maxSco
             status: data.status,
             player_a: data.player_a,
             player_b: data.player_b,
-			tournament: data.tournament,
+			tournament_id: data.tournament,
 			maxScore: data.maxScore
         };
     } else {
@@ -112,7 +112,7 @@ export async function startGame(gameId: number): Promise<GameInfoResult> {
 			status: data.status, 
 			player_a: data.player_a, 
 			player_b: data.player_b, 
-			tournament: data.tournament, 
+			tournament_id: data.tournament_id, 
 			maxScore: data.maxScore 
 		};
     }
@@ -122,7 +122,7 @@ export async function startGame(gameId: number): Promise<GameInfoResult> {
 }
 
 // GET /:userId/games
-// All available PENDING games for a user, gives only useful infos
+// All available PENDING non-tournament games for a user, gives only useful infos
 // Security : Accessible for every logged-in user
 export async function getAvailableGames(userId: number): Promise<AvailableGamesResult> {
     try {
@@ -132,6 +132,7 @@ export async function getAvailableGames(userId: number): Promise<AvailableGamesR
         }
         const pendingGames: PendingGamesInfos[] = allGamesResult.games
             .filter(game => game.status === 'pending')
+			.filter(game => game.tournament_id == 0)
             .map(game => ({
                 id: game.id,
                 status: game.status,

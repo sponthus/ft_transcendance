@@ -66,7 +66,7 @@ export async function startGame(request, reply) {
             player_a: player_a, 
             player_b: player_b,
             maxScore: maxScore,
-			tournament: tournament
+			tournament_id: tournament
         });
     }
     catch (error) {
