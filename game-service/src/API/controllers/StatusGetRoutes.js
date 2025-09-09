@@ -1,11 +1,9 @@
+import GameMaster from "../../GameMaster.js"
+
 // Gives the status of a user : online, playing, disconnected
 // Security : Road is protected to logged-in users
 export async function getStatusForUserId(request, reply) {
-	console.log('➡️ User accessed GET /:userId/status for ' + userId);
-	
-    const requestingUserId = request.user.idUser;
-	if (!requestingUserId)
-			return reply.status(401).send({ error: "Unauthorized"});
+	console.log('➡️ User accessed GET /:userId/status');
 	
 	const { userId } = request.params;
     if (!userId) {
@@ -20,7 +18,7 @@ export async function getStatusForUserId(request, reply) {
     }
     const status = gameMaster.getUserStatus(userId);
     if (status === 'not found') {
-        return reply.status(404).send({error: 'No user found in the server.'});
+        return reply.status(404).send({error: 'No user found in the server : user never logged-in or doesn\'t exist'});
     }
     return reply.status(200).send({ userId: userId, status: status });
 }
