@@ -83,11 +83,11 @@ export default class GameMaster {
         }
         if (this.isUserConnected(Number(userId)) && client.status !== 'playing') {
             if (client.ws.readyState === 1) {
-                client.ws.send(JSON.stringify({
-                    type: 'message',
+				client.ws.send(JSON.stringify({
+					type: 'message',
                     sender: sender,
                     message: message}));
-                // console.log('out');
+				console.log(`Message sent to user ${userId}:`, message);
                 return 0;
             } else
                 throw new Error(`Internal server error : Websocket connection failed`);
