@@ -17,13 +17,18 @@ export class PongGame {
 
 		this.paddle1 = { x: 0 };
 		this.paddle2 = { x: 0 };
+		this.speedPaddle = 0.2;
+
 		this.ball = {
 			x: 0,
 			z: 0,
-			dirX: 0,//Math.random() > 0.5 ? 1 : -1,
-			dirZ: 1,//(Math.random() * 2 - 1),
+			dirX: (Math.random() * (0.5 - (0)) + (0)),
+			dirZ: (Math.random() * 2 - 1),
 			speed: 1 // unité par seconde
 		};
+		const length = Math.sqrt(this.ball.dirX ** 2 + this.ball.dirZ ** 2);
+		this.ball.dirX /= length;
+		this.ball.dirZ /= length;
 		this.score = {s1: 0, s2: 0};
 
 		this.die1 = false;
@@ -72,7 +77,8 @@ export class PongGame {
 			specialCooldown1: this.specialCooldown1,
 			specialCooldown2: this.specialCooldown2,
 			die1: this.die1,
-			die2: this.die2
+			die2: this.die2,
+			ispaused: this.ispaused
 		};
 	}
 
@@ -87,9 +93,9 @@ export class PongGame {
 	movePlayer1()
 	{
 		if (this.input1.q && this.paddle1.x > -4.5)
-			this.paddle1.x -= 0.3;
+			this.paddle1.x -= this.speedPaddle;
 		if (this.input1.e && this.paddle1.x < 4.5)
-			this.paddle1.x += 0.3;
+			this.paddle1.x += this.speedPaddle;
 	}
 
 	movePlayer2()
@@ -97,19 +103,19 @@ export class PongGame {
 		if (this.gameMode === 1)
 		{
 			if (this.input1['7'] && this.paddle2.x > -4.5)
-				this.paddle2.x -= 0.3;
+				this.paddle2.x -= this.speedPaddle;
 			if (this.input1['9'] && this.paddle2.x < 4.5)
-				this.paddle2.x += 0.3;
+				this.paddle2.x += this.speedPaddle;
 		}
 		else
 		{
 			// IA débile
 			if (this.paddle2.x > this.ball.x)
-				this.paddle2.x -= 0.3;
+				this.paddle2.x -= this.speedPaddle;
 			else if (this.paddle2.x === this.ball.x)
 				;
 			else
-				this.paddle2.x += 0.3;
+				this.paddle2.x += this.speedPaddle;
 		}
 		
 	}
@@ -142,7 +148,7 @@ export class PongGame {
 
 		if (dz < 0.5 && dx < 1 && isDie === false)
 		{
-			if (this.ball.speed < 2.2)
+			if (this.ball.speed < 2)
 				this.ball.speed += 0.2;
 			this.ball.dirZ *= -1;
 			if (this.ball.z < 0)
@@ -182,10 +188,13 @@ export class PongGame {
 		this.ball = {
 			x: 0,
 			z: 0,
-			dirX: 0,//Math.random() > 0.5 ? 1 : -1,
-			dirZ: 1,//(Math.random() * 2 - 1),
+			dirX: Math.random() * (0.5 - (0)) + (0),
+			dirZ: (Math.random() * 2 - 1),
 			speed: 1
 		};
+		const length = Math.sqrt(this.ball.dirX ** 2 + this.ball.dirZ ** 2);
+		this.ball.dirX /= length;
+		this.ball.dirZ /= length;
 		this.die1 = false;
 		this.die2 = false;
 
