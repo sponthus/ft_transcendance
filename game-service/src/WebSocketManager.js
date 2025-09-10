@@ -10,7 +10,7 @@ export default class WebSocketManager {
 
     initializeWebSocket() {
         this.ws.on('connection', (ws, request) => {
-            console.log('New WebSocket connection');
+            console.log('🟢 New WebSocket connection');
 
             ws.on('message', (data) => {
                 try {
@@ -19,17 +19,17 @@ export default class WebSocketManager {
                         console.log('Message received :', message);
                     this.handleMessage(ws, message);
                 } catch (error) {
-                    console.error('Invalid JSON:', error);
+                    console.error('❌ Invalid JSON:', error);
                 }
             });
 
             ws.on('close', () => {
-                console.log('Connection closed');
+                console.log('🔴 Connection closed');
                 this.handleDisconnection(ws);
             });
 
             ws.on('error', (error) => {
-                console.error('WebSocket error:', error);
+                console.error('❌ WebSocket error:', error);
                 this.handleDisconnection(ws);
             });
         });

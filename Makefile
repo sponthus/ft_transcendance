@@ -122,6 +122,7 @@ fclean: clean
 	@docker builder prune -f
 	@echo " ✔ System";
 	@docker system prune -a -f --volumes
+	@echo " ✔ Env";
 
 subject:
 	docker stop $$(docker ps -qa)

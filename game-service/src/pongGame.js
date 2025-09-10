@@ -1,7 +1,11 @@
+import { gameEventEmitter } from "./GameEventEmitter.js";
+
 export class PongGame {
-	constructor() {
+	constructor(gameId) {
 		 this.gameMode = 0;
 		 this.gameOption = 1;
+
+		this.gameId = gameId;
 
 		this.inputs = {}; // { player1: {...}, player2: {...} }
 		this.input1 = {};
@@ -176,6 +180,10 @@ export class PongGame {
 				this.score.s1++;
 			else
 				this.score.s2++;
+			gameEventEmitter.emitGameEvent('player:scored', this.gameId, {
+				scoreA: this.score.s1,
+				scoreB: this.score.s2
+			});
 			this.reset();
 			this.ball.dirZ *= -1;
 		}

@@ -17,10 +17,9 @@ export default class GameServer {
         this.scoreB = 0;
         this.end = false;
 
-        // TODO : Don't forget to start game when player launches the game (press space ?)
         this.startGame();
         // à chaque tick du serveur
-        const game = new PongGame();
+        const game = new PongGame(this.gameId);
         this.intervalId = setInterval(() => {
             // Appliquer les inputs pour déplacer le paddle
             game.update();

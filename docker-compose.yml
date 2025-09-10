@@ -1,5 +1,11 @@
 # name: pong
 
+secrets:
+  hash_key:
+    file: ./secrets/hash_key.txt
+  api_key:
+    file: ./secrets/api_key.txt
+
 services:
 
   api-gateway:
@@ -27,6 +33,9 @@ services:
       - ./config:/app/config
     networks:
       - pongnet
+    secrets:
+      - hash_key
+      - api_key
     restart: always
 
   game-service:
@@ -39,6 +48,9 @@ services:
       - ./config:/app/config
     networks:
       - pongnet
+    secrets:
+      - hash_key
+      - api_key
     restart: always
 
   nginx:
@@ -89,6 +101,9 @@ services:
     depends_on:
       - api-gateway
       - frontend
+    secrets:
+      - hash_key
+      - api_key
     networks:
       - pongnet
     restart: always

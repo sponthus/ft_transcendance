@@ -83,11 +83,11 @@ export default class GameMaster {
         }
         if (this.isUserConnected(Number(userId)) && client.status !== 'playing') {
             if (client.ws.readyState === 1) {
-                client.ws.send(JSON.stringify({
-                    type: 'message',
+				client.ws.send(JSON.stringify({
+					type: 'message',
                     sender: sender,
                     message: message}));
-                // console.log('out');
+				console.log(`Message sent to user ${userId}:`, message);
                 return 0;
             } else
                 throw new Error(`Internal server error : Websocket connection failed`);
@@ -127,24 +127,24 @@ export default class GameMaster {
     }
 
     // gameId has been checked when server creation is called
-    createServer(gameId, userId, maxScore) {
+    createServer(gameId, userId, maxScore, tournament) {
         const client = this.clients.get(Number(userId));
         if (!client) {
-            console.log(`user not found`);
             throw new Error('user not found for userId ' + userId);
         }
         if (!this.isUserConnected(userId)) {
-            console.log(`user not connected`);
             throw new Error('User not connected: userId ' + userId);
         }
         const ws = client.ws;
         if (!ws) {
-            console.log(`user ws not found`);
             throw new Error('ws not found for userId ' + userId);
         }
         client.status = 'playing';
         client.currentGame = gameId;
-        this.games.set(gameId, new GameServer(gameId, userId, ws, maxScore));
+        this.games.set(gameId, {
+			server: new GameServer(gameId, userId, ws, maxScore),
+			tournament: tournament
+		});
     }
 
     // Call when a game is finished to destroy its object completely
@@ -160,6 +160,7 @@ export default class GameMaster {
             throw new Error(`user with userId ${userId} is not playing`);
         }
         if (this.games.has(gameId)) {
+			// TODO = Add reactions if it was a tournament game
             this.games.delete(gameId);
             console.log("🔴 GameServer stopped");
             client.currentGame = 0;

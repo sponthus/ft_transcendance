@@ -1,7 +1,8 @@
 
 import { createDiv, createElement, createButton, createDropdownDiv, createFormDiv, createCheckBoxLabel, append} from '../../Utils/elementMaker.js';
-import { createLocalGame, getAvailableGames, startGame, deleteGame } from "../../api/game.js"
+import { createLocalGame, getAvailableGames, startGame, deleteGame } from "../../api/game-service/games/game.js"
 import { getUserInfo } from "../../api/user-service/user-info/getUserInfo.js";
+import { getAvailableTournaments } from  "../../api/game-service/tournaments/getTournaments.js";
 
 type UserData = //VA ETRE CHANGER, le token renvoie le username et l'id du user
 {
@@ -41,9 +42,11 @@ export class availableGames {
 		this.createAvailableGame();
 	}
 
+	// create div for available games div 
 	private async createAvailableGame() {
 		const AvailableDiv: HTMLElement = createDiv("available-games", "flex flex-col items-center w-[90%] h-[90%] space-y-8  mb-auto");
 
+		// Append title, and body
 		append(AvailableDiv, [(createElement('p', "Title-Party", "", "text-center text-emerald-600 w-[50%] font-bold border-4 rounded-xl translate-y-4 border-orange-400 shadow-xl") as HTMLElement)
 							, (createDiv("Body-Party", "flex flex-col w-[90%] h-64 border-4 border-orange-400 rounded-xl -translate-y-2shadow-xl overflow-auto") as HTMLElement)]);
 		append(this.Page, [AvailableDiv]);
@@ -93,14 +96,14 @@ export class availableGames {
 		}
 	
 		try {
-			const result = await getAvailableGames(this.UserData?.id); // change for Available Tournament
+			const result = await getAvailableTournaments(this.UserData?.id); // change for Available Tournament
 			if (!result.ok) {
 				availableGamesDiv.innerHTML = 'Error loading games.';
 				return;
 			}
-			const games = result.games;
+			const tournaments = result.tournaments;
 			const TitlePartys = document.getElementById('Title-Party-p') as HTMLElement;
-			this.renderParty(games, BodyParty, TitlePartys, true);
+			this.renderParty(tournaments, BodyParty, TitlePartys, true);
 		}
 		catch (error) {
 			console.error('Error fetching games:', error);
@@ -152,7 +155,7 @@ export class availableGames {
 		const TournamentNameDiv = createDiv("party-Players-Name" + index.toString(), "w-[20%] h-full grid grid-rows-4 items-center justify-center") as HTMLElement;
 
 		append(TournamentNameDiv, [(createElement('h2', "tournament-Name" + index.toString(), "Name : ", "text-emerald-600 text-center font-bold underline") as HTMLElement)
-									, (createElement('h1', "tournament-Name" + index.toString(), `${Party.Name}`, "text-emerald-600 text-center") as HTMLElement)])
+									, (createElement('h1', "tournament-Name" + index.toString(), `${Party.name}`, "text-emerald-600 text-center") as HTMLElement)])
 
 		append(Div, [TournamentNameDiv])
 	}
@@ -210,7 +213,7 @@ export class availableGames {
 		try {
 			const request = await deleteGame(gameId);
 			if (!request.ok) {
-				throw new Error('Unable to delete game : ' + request.error);
+				throw new Error(request.error);
 			}
 			alert("Game deleted");
 		} catch (error) {

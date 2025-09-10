@@ -1,22 +1,3 @@
-// const fastify = require('fastify')({ logger: true });
-// const proxy = require('@fastify/http-proxy');
-//
-// fastify.register(proxy, {
-//     upstream: 'http://user-service:3001',
-//     prefix: '/api/user',
-//     rewritePrefix: '/'
-// });
-//
-// fastify.register(proxy, {
-//     upstream: 'http://game-service:3002',
-//     prefix: '/api/games',
-//     rewritePrefix: '/'
-// });
-//
-// fastify.listen({ port: 3000, host: '0.0.0.0' }, err => {
-//     if (err) throw err;
-// });
-
 import Fastify from "fastify";
 import fastifyJwt from "@fastify/jwt";
 import proxy from "@fastify/http-proxy";
@@ -35,18 +16,18 @@ const app = Fastify({
 console.log('Parameters for app are being set'); // debug
 
 
-app.register(fastifyJwt, {
-    secret: env.hashKey,
-});
+// app.register(fastifyJwt, {
+//     secret: env.hashKey,
+// });
 
-app.decorate("authenticate", async function (request, reply) {
-    try {
-        await request.jwtVerify();
-    } catch (err) {
-        console.error("JWT error:", err);
-        reply.code(401).send({ error: "Unauthorized" });
-    }
-});
+// app.decorate("authenticate", async function (request, reply) {
+//     try {
+//         await request.jwtVerify();
+//     } catch (err) {
+//         console.error("JWT error:", err);
+//         reply.code(401).send({ error: "Unauthorized" });
+//     }
+// });
 
 app.register(proxy, {
     upstream: 'http://user-service:3001',
