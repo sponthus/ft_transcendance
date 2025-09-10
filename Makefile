@@ -57,7 +57,7 @@ down:
 ps:
 	docker compose -f $(COMPOSE_FILE) ps
 
-clean: clean-db clean-modules
+clean: clean-db clean-env clean-modules
 	docker compose -f $(COMPOSE_FILE) down --rmi all -v --remove-orphans
 
 # manual_clean: clean_network
@@ -122,7 +122,6 @@ fclean: clean
 	@docker builder prune -f
 	@echo " ✔ System";
 	@docker system prune -a -f --volumes
-	@echo " ✔ Env";
 
 subject:
 	docker stop $$(docker ps -qa)
