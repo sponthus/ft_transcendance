@@ -2,6 +2,7 @@ import { Checkbox } from '@babylonjs/inspector/fluent/primitives/checkbox';
 import { createDiv, createElement, createButton, createDropdownDiv, createFormDiv, createCheckBoxLabel, append} from '../../Utils/elementMaker.js';
 import { availableGames } from './AvailableGames.js';
 import { getTournamentMatches, GameInfos, getTournamentNextMatch } from "../../api/game-service/tournaments/getTournaments.js" 
+import { Game } from '../../babylon/main.js';
 
 /**
  * in event.ts you can find the class wich add tournament in the backend (saveTournament() call by SaveNewParty()) and launch round (function PlayRound()) 
@@ -19,6 +20,7 @@ export class TournamentPage {
 	private Tournament?: any;
 	private TournamentId?: number;
 	private Username!: string;
+	private TournamentMatches: Map<number, number>;
 
 
 	constructor(Page: HTMLElement, UserName: string) {
@@ -27,6 +29,8 @@ export class TournamentPage {
 		this.PartyMap = new Map<number, HTMLInputElement>();
 		this.AvailableGames = new availableGames(this.Page, this.PartyMap);
 		this.Username = UserName;
+		this.TournamentMatches = new Map<number, number>();
+		
 	}
 
 	async render() {
@@ -46,12 +50,18 @@ export class TournamentPage {
 			const data = await getTournamentMatches(IdTournament);
 			if (!data.ok)
 				throw new Error("Unable to get tournament matches");
+
+				this.TournamentMatches.clear(); // On vide avant de remplir
+
+				// Assign key = gameId, value = element in div
+				data.matches.forEach((match, index) => {
+					this.TournamentMatches.set(match.id, index);
+				});
 			
 			/***********************function to render bracket tournament *************************/
 			this.BracketDiv = createDiv("bracket", "flex justify-between items-center h-full w-full space-x-4") as HTMLElement;
 			
 			const numberOfMatches = data.matches.length;
-			
 			if (numberOfMatches == 3)
 			{
 				// this.createRound1([0/** round 0**/, 1 /** round 1**/]);
@@ -63,7 +73,7 @@ export class TournamentPage {
 				// Render right
 				this.createRound2(2, data.matches[1]/** match 5**/);
 				// this.createRound1([2/** round 2**/, 3/** round 3**/]);
-			}
+			} 
 			append(this.Page, [this.BracketDiv]);
 			this.findNextRound();
 		} catch (error) {
@@ -111,17 +121,17 @@ export class TournamentPage {
 		return MatchDiv
 	}
 
-	// TODO = Gives next gameId, whick round and which match number it is, but it's not linked to the div yet
 	private async findNextRound() {
 		let NextRound: number = 0;
-		let idRound: number = 0;
 		try {
 			if (!this.TournamentId)
 				throw new Error("No tournament ID defined in class"); // Debug, to remove ?
 			const data = await getTournamentNextMatch(this.TournamentId);
 			if (!data.ok)
 				throw new Error("Error getting next match: " + data.error);
-			
+			if (!this.TournamentMatches.get(data.next_match.game_id))
+				throw new Error("Next tournament id not found in matches");
+			NextRound = this.TournamentMatches.get(data.next_match.game_id)!;
 		} catch (error) {
 			alert(error);
 		}
