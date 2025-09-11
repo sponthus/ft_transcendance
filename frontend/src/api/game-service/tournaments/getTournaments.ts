@@ -18,7 +18,7 @@ type TournamentsList = { ok: true; tournaments: TournamentsInfos[] }
 export type TournamentsResult = TournamentsList | Failure;
 
 export type GameInfos = {
-	id: number;
+	id: number; // game_id
     round: number;
 	match: number;
 	status: 'pending' | 'ongoing' | 'finished' | 'canceled';

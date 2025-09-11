@@ -19,6 +19,7 @@ export class TournamentPage {
 	private AvailableGames: availableGames;
 	private Tournament?: any;
 	private TournamentId?: number;
+	private NextGameId: number;
 	private Username!: string;
 	private TournamentMatches: Map<number, number>; // Map<gameId, idDiv>
 
@@ -30,7 +31,7 @@ export class TournamentPage {
 		this.AvailableGames = new availableGames(this.Page, this.PartyMap);
 		this.Username = UserName;
 		this.TournamentMatches = new Map<number, number>();
-		
+		this.NextGameId = 0; // Impossible value, game id never 0
 	}
 
 	async render() {
@@ -57,7 +58,7 @@ export class TournamentPage {
 				data.matches.forEach((match, index) => {
 					this.TournamentMatches.set(match.id, index + 1);
 				});
-			
+				console.log(this.TournamentMatches);
 			/***********************function to render bracket tournament *************************/
 			this.BracketDiv = createDiv("bracket", "flex justify-between items-center h-full w-full space-x-4") as HTMLElement;
 			
@@ -130,6 +131,7 @@ export class TournamentPage {
 		return MatchDiv
 	}
 
+	// Identifies next game to play in a tournament
 	private async findNextRound() {
 		let NextRound: number = 0;
 		try {
@@ -138,9 +140,10 @@ export class TournamentPage {
 			const data = await getTournamentNextMatch(this.TournamentId);
 			if (!data.ok)
 				throw new Error("Error getting next match: " + data.error);
-			if (!this.TournamentMatches.has(data.next_match.game_id))
+			this.NextGameId = data.next_match.game_id;
+			if (!this.TournamentMatches.has(this.NextGameId))
 				throw new Error("Next tournament id not found in matches");
-			NextRound = this.TournamentMatches.get(data.next_match.game_id)!;
+			NextRound = this.TournamentMatches.get(this.NextGameId)!;
 		} catch (error) {
 			alert(error);
 		}
@@ -264,5 +267,9 @@ export class TournamentPage {
 			return this.Tournament;
 		else
 			return null;
+	}
+
+	get _NextGameId(): number {
+		return this.NextGameId;
 	}
 }
