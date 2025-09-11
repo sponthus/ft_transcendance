@@ -1,4 +1,4 @@
-import { checkFormat } from "../../tools/checkFormat";
+import { checkUsernameFormat } from "../../tools/checkFormat.js";
 
 export async function   addFriend(request, reply)
 {
@@ -6,8 +6,8 @@ export async function   addFriend(request, reply)
     const   idUser = request.user.idUser;
     const   friendUsername = request.body.username;
 
-    //if (checkFormat(request) == false)
-      //  return reply.code(400).send( {error : "Invalid format for the friend's username"} );
+    if (checkUsernameFormat(request) == false)
+        return reply.code(400).send( {error : "Invalid format for the friend's username"} );
     try
     {   
         const idFriend = db.prepare("   SELECT \
@@ -35,7 +35,7 @@ export async function   addFriend(request, reply)
             if (status.frie_status === 0)
                 return reply.code(409).send({ error: "A friend request is already pending" });
             else if (status.frie_status === 1)
-                return reply.code(409).send({ error: "You're already friend with this user" });
+                return reply.code(409).send({ error: "You're already friend with " + friendUsername });
             //status de refus 
         }
         const statement = db.prepare("  INSERT INTO \
@@ -57,8 +57,7 @@ export async function   removeFriend(request, reply)
     const   idUser = request.user.idUser;
     const   friendUsername = request.body.username;
 
-    console.log("REMOVE FRIEND");
-    if (checkFormat(request) == false)
+    if (checkUsernameFormat(request) == false)
         return reply.code(400).send( {error : "Invalid format for the friend's username"} );
     try
     {

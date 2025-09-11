@@ -6,7 +6,7 @@ export async function   getAllFriends(request, reply)
     try
     {
         const friends = db.prepare("    SELECT \
-                                            frie_friend_user_id \
+                                            frie_friend_user_id,  \
                                         FROM \
                                             friends \
                                         WHERE \

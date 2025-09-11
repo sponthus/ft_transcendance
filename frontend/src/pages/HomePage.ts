@@ -3,7 +3,7 @@ import { navigate } from "../core/router.js";
 import { BasePage } from "./BasePage.js";
 import { getUserInfo } from "../api/user-service/user-info/getUserInfo.js";
 import { updateUsername } from "../api/user-service/user-info/updateUsername.js";
-import { acceptRequest, addFriend, getAllFriends, removeFriend } from "../api/user-service/menu/friendsList/friendsList.js";
+import { acceptRequest, addFriend, getAllFriends, refuseRequest, removeFriend} from "../api/user-service/menu/friendsList/friendsList.js";
 
 import { getAllUsers } from "../api/user-service/menu/getAllUsers.js";
 import { append, createAnchorElement, createDiv, createImage } from "../Utils/elementMaker.js";
@@ -39,24 +39,24 @@ export class HomePage extends BasePage {
 			await this.rengerLogoutHome();
 		}
 	
-		let req = await addFriend("Pe");
+/*		let req = await addFriend("Pedro");
 		if (req.ok) {
 			console.log("add friend sucessfully");
 		}
 		else
 			alert(req.error);
+*/
 
-
-		req = await acceptRequest("ebriere");
+/*		let req = await refuseRequest("Pedro");
 		if (req.ok) {
 			console.log("accept request sucessfully");
 		}
 		else
 			alert(req.error);
-
-		req = await getAllFriends();
+*/
+		let req = await getAllUsers();
 		if (req.ok) {
-			console.log('Friends : ', req.friends);
+			console.log('Friends : ', req.users);
 		}
 		await this.addInApp();
 	}
