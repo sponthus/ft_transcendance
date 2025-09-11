@@ -388,7 +388,7 @@ export default class DatabaseHandler {
 		const transaction = this.db.transaction((tournamentId) => {
 			const stmt = this.db.prepare(`
 	SELECT
-		tm.id,
+		g.id,
 		tm.round,
 		tm.match_number AS match,
 		g.status,
