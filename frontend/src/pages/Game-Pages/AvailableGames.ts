@@ -3,6 +3,7 @@ import { createDiv, createElement, createButton, createDropdownDiv, createFormDi
 import { createLocalGame, getAvailableGames, startGame, deleteGame } from "../../api/game-service/games/game.js"
 import { getUserInfo } from "../../api/user-service/user-info/getUserInfo.js";
 import { getAvailableTournaments } from  "../../api/game-service/tournaments/getTournaments.js";
+import { deleteTournament } from  "../../api/game-service/tournaments/deleteTournament.js";
 
 type UserData = //VA ETRE CHANGER, le token renvoie le username et l'id du user
 {
@@ -200,8 +201,8 @@ export class availableGames {
 				if (value.checked) {
 					if (!tournament)
 						await this.deleteGame(key);
-					// else
-						// await this.deleteTournament(key) // create funtion to delete tournament
+					else
+						await this.deleteTournament(key);
 					await this.refreshAvailableGames();
 					return ;
 				}
@@ -216,6 +217,19 @@ export class availableGames {
 				throw new Error(request.error);
 			}
 			alert("Game deleted");
+		} catch (error) {
+			alert(error);
+		}
+		await this.refreshAvailableGames();
+	}
+
+		private async deleteTournament(tournamentId: number) {
+		try {
+			const request = await deleteTournament(tournamentId);
+			if (!request.ok) {
+				throw new Error(request.error);
+			}
+			alert("Tournament deleted");
 		} catch (error) {
 			alert(error);
 		}

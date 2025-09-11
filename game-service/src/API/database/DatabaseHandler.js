@@ -368,6 +368,22 @@ export default class DatabaseHandler {
         return (result);
     }
 
+	// Gives 1 tournament
+	getTournament(tournamentId) {
+		const transaction = this.db.transaction((tournamentId) => {
+			const stmt = this.db.prepare(`
+	SELECT id, status, id_user, name, next_game, created_at, began_at, finished_at, winner
+	FROM tournaments
+	WHERE id = ?
+	ORDER BY created_at DESC
+			`);
+			const results = stmt.get(tournamentId);
+			return (results);
+		});
+		const results = transaction(tournamentId);
+		return (results);
+	}
+
 	// Gives all informations except userId
 	getTournamentsForUserId(userId) {
 		const transaction = this.db.transaction((userId) => {
@@ -437,5 +453,74 @@ export default class DatabaseHandler {
 		});
 		const results = transaction(tournamentId);
 		return (results);
+	}
+
+	updateTournamentStatus(tournamentId, status) {
+        const transaction = this.db.transaction((tournamentId, status) => {
+			const stmt = this.db.prepare(`
+	UPDATE tournaments 
+	SET status = ?,
+	WHERE id = ?
+			`);
+			const res = stmt.run(status, tournamentId);
+			if (res.changes === 0) {
+				throw new Error("No tournament found with the given tournamentId");
+			}
+			const result = {
+				tournamentId: tournamentId,
+				status: status
+			};
+			return (result);
+		});
+
+		const result = transaction(tournamentId, status);
+		return (result);
+	}
+
+	deleteTournament(tournamentId) {
+		const transaction = this.db.transaction((tournamentId) => {
+			const deletePlayersStmt = this.db.prepare(`
+	DELETE FROM tournament_players
+	WHERE tournament_id = ?
+			`);
+			const deleteMatchesStmt = this.db.prepare(`
+	DELETE FROM tournament_matches
+	WHERE tournament_id = ?
+			`);
+			const deleteGamesStmt = this.db.prepare(`
+	DELETE FROM games
+	WHERE tournament_id = ?
+			`);
+			const clearNextGameStmt = this.db.prepare(`
+	UPDATE tournaments
+	SET next_game = NULL
+	WHERE id = ?
+			`);
+			const deleteTournamentStmt = this.db.prepare(`
+	DELETE FROM tournaments
+	WHERE id = ?
+			`);
+			let res;
+			res = deletePlayersStmt.run(tournamentId);
+			if (res.changes === 0) {
+				throw new Error("No players deleted with the given tournamentId");
+			}
+			res = deleteMatchesStmt.run(tournamentId);
+			if (res.changes === 0) {
+				throw new Error("No matches deleted with the given tournamentId");
+			}
+			clearNextGameStmt.run(tournamentId);
+			res = deleteGamesStmt.run(tournamentId);
+			if (res.changes === 0) {
+				throw new Error("No game deleted with the given tournamentId");
+			}
+			res = deleteTournamentStmt.run(tournamentId);
+			if (res.changes === 0) {
+				throw new Error("No game deleted with the given tournamentId");
+			}
+			return { deletedTournamentId: tournamentId } ;
+		});
+		const result = transaction(tournamentId);
+		return (result);
 	}
 }
