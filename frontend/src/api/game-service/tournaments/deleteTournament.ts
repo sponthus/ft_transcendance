@@ -25,7 +25,8 @@ export async function deleteTournament(tournamentId: number): Promise<SimpleResu
 			const data = await response.json();
 			throw new Error(`Unable to delete tournament ->` + data.error);
 		}
-		return { ok: true, message: tournamentId + ' tournament has been deleted' };
+		const data = await response.json();
+		return { ok: true, message: data.name + ' tournament has been ' + data.action }
 	} catch(error) {
 		return { ok: false, error: error as string  };
 	}

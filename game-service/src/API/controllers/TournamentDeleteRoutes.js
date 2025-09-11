@@ -26,7 +26,10 @@ export async function deleteTournament(request, reply) {
         if (tournamentToDelete.status !== 'pending') {
 			if (tournamentToDelete.status === 'between-games' ) {
 				const result = db.updateTournamentStatus(tournamentId, 'canceled');
-				return reply.status(200).send(result);
+				return reply.status(200).send({
+					action: "canceled",
+					name: tournamentToDelete.name
+				});
 			}
             return reply.status(403).send({ error : 'Forbidden, tournament is not pending' });
         }
@@ -36,7 +39,10 @@ export async function deleteTournament(request, reply) {
 		}
 
         const result = db.deleteTournament(tournamentId);
-        return reply.status(200).send(result);
+        return reply.status(200).send({
+			action: "deleted",
+			name: tournamentToDelete.name
+		});
     } catch (error) {
         console.error('❌ Error deleting tournament: ');
 		console.log(error);

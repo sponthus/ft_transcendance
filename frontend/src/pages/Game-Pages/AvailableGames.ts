@@ -216,7 +216,7 @@ export class availableGames {
 			if (!request.ok) {
 				throw new Error(request.error);
 			}
-			alert("Game deleted");
+			alert(request.message);
 		} catch (error) {
 			alert(error);
 		}
@@ -229,7 +229,7 @@ export class availableGames {
 			if (!request.ok) {
 				throw new Error(request.error);
 			}
-			alert("Tournament deleted");
+			alert(request.message);
 		} catch (error) {
 			alert(error);
 		}

@@ -247,7 +247,7 @@ export async function deleteGame(gameId: number): Promise<SimpleResult> {
 			const data = await response.json();
             throw new Error(`Unable to delete game ->` + data.error);
         }
-        return { ok: true, message: gameId + ' game has been deleted' };
+        return { ok: true, message: 'Game has been deleted' };
     } catch(error) {
         return { ok: false, error: error as string  };
     }
