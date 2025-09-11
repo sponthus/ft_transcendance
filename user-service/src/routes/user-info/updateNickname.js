@@ -3,14 +3,13 @@ import { checkNicknameFormat } from "../tools/checkFormat.js";
 export default async function   updateNickname (request, reply)
 {
     if (checkNicknameFormat(request) == false)
-        return reply.code(400).send( {error : "Invalid format nickname"} );
+        return reply.code(400).send( {error : "Invalid format for nickname"} );
 
     const db = request.server.db;
     const newNickname = request.body.nickname;
     const idUser = request.user.idUser;      
     try
     {
-        //faire un message comme quoi on a deja ce nickname si veut changer avec le meme 
         const existingNickname = db.prepare('   SELECT \
                                                     1 \
                                                 FROM \

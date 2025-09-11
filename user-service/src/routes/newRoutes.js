@@ -12,6 +12,7 @@ import { addFriend, removeFriend } from "./menu/friendsList/friendRequest.js";
 import { getAllFriends } from "./menu/friendsList/getAllFriends.js";
 import { getAllUsers } from "./menu/getAllUsers.js";
 import { acceptRequest, refuseRequest } from "./menu/friendsList/requestHandlers.js";
+import updatePassword from "./user-info/updatePassword.js";
 
 //TODO
 // Faire la verif de username et du pass dans register
@@ -32,8 +33,9 @@ export default async function newRoutes(fastify, options)
     //pas de page de profil, fonction tester avec curl --> MARCHE :)))))))
     //faudra juste verifier qu'il prend bien le nouveau token
     fastify.get("/user-info", { preHandler: [fastify.authenticate] }, getUserInfo);
-    fastify.put("/user-info/username", { preHandler: [fastify.authenticate] } , updateUsername);
+    fastify.patch("/user-info/username", { preHandler: [fastify.authenticate] } , updateUsername);
     fastify.patch("/user-info/nickname", { preHandler: [fastify.authenticate] } , updateNickname);
+    fastify.patch("/user-info/password", { preHandler: [fastify.authenticate] } , updatePassword);
     //fastify.put("/:slug/avatar", { preHandler: [fastify.authenticate] }, updateAvatar);
 
     //Routes pour le menu

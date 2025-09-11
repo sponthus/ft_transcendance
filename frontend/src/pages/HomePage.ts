@@ -7,6 +7,7 @@ import { acceptRequest, addFriend, getAllFriends, refuseRequest, removeFriend} f
 
 import { getAllUsers } from "../api/user-service/menu/getAllUsers.js";
 import { append, createAnchorElement, createDiv, createImage } from "../Utils/elementMaker.js";
+import { updatePassword } from "../api/user-service/user-info/updatePassword.js";
 
 export class HomePage extends BasePage {
 
@@ -39,9 +40,9 @@ export class HomePage extends BasePage {
 			await this.rengerLogoutHome();
 		}
 	
-		let req = await getAllFriends();
+		let req = await updatePassword("encule");
 		if (req.ok) {
-			console.log('Friends : ', req.friends);
+			console.log('update pass');
 		}
 		else
 			alert(req.error);

@@ -22,8 +22,8 @@ export default async function loginUser (request, reply)
                                             username = ?").get(username);
         if (!userData)
             return (reply.code(401).send({error : "Username or password invalid"}));
-        //if ((bcrypt.compareSync(password, userData.pw_hash) == false))
-           // return(reply.code(401).send({error : "Username or password invalid"})); //message generique pour les attaques
+        if ((bcrypt.compareSync(password, userData.pw_hash) == false))
+            return(reply.code(401).send({error : "Username or password invalid"})); //message generique pour les attaques
         const idUser = userData.id;
         const slug = userData.slug;
         const token = await reply.jwtSign({ idUser, username, slug }, {expiresIn: '1h'});
@@ -31,6 +31,6 @@ export default async function loginUser (request, reply)
     }
     catch (err)
     {
-        return (reply.code(500).send( {error : "Internal Server Error"} ));
+        return (reply.code(500).send( {error : "Internal Server Error" + err.message} ));
     }
 }

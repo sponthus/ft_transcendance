@@ -60,3 +60,23 @@ export function    checkNicknameFormat(request)
         return (false);
     return (true);
 }
+
+export function    checkPasswordFormat(request)
+{
+    const schema = 
+    {
+        type: "object",
+        properties:
+        {
+            password: { type: "string", minLength: 6, maxLength: 15, pattern: "^(?=.*[a-zA-Z])[^\\[\\]{}();]+$"},
+        },
+        required: ["password"],
+        additionalProperties: false
+    };
+    const ajv = new Ajv();
+    const contract = ajv.compile(schema);
+    const valid = contract(request.body);
+    if (!valid)
+        return (false);
+    return (true);
+}
