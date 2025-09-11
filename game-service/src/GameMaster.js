@@ -1,4 +1,5 @@
 import GameServer from "./GameServer.js";
+import { gameEventEmitter } from "./GameEventEmitter.js";
 
 // Handles every GameServer
 export default class GameMaster {
@@ -160,7 +161,13 @@ export default class GameMaster {
             throw new Error(`user with userId ${userId} is not playing`);
         }
         if (this.games.has(gameId)) {
-			// TODO = Add reactions if it was a tournament game
+			const tournament = this.games[gameId].tournament;
+			if (tournament != 0) {
+				// TODO = Check me
+				gameEventEmitter.emitTournamentEvent('tournament:endgame', tournament, {
+					gameId: gameId
+				});
+			}
             this.games.delete(gameId);
             console.log("🔴 GameServer stopped");
             client.currentGame = 0;

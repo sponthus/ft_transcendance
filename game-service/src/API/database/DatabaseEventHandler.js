@@ -13,6 +13,7 @@ class DatabaseEventHandler {
         gameEventEmitter.on('player:disconnected', this.handlePlayerDisconnected.bind(this));
         gameEventEmitter.on('player:scored', this.handlePlayerScored.bind(this));
         gameEventEmitter.on('game:ended', this.handleGameEnded.bind(this));
+		gameEventEmitter.on('tournament:endgame', this.handleTournamentGameEnded.bind(this));
 
         console.log('📊 Database event service listening');
     }
@@ -63,9 +64,19 @@ class DatabaseEventHandler {
 		} catch (error) {
 			console.log("❌ Error while handling end of game: ")
 			console.log(error);
-		}
-		
+		}	
     }
+
+	async handleTournamentGameEnded(eventData) {
+		console.log('🔄 End of a tournament game in DatabaseHandler:', eventData.tournamentId);
+	
+		try {
+			this.DatabaseHandler.endTournamentGame(eventData.tournamentId, eventData.gameId)
+		} catch (error) {
+			console.log("❌ Error while handling end of tournament game: ")
+			console.log(error);
+		}	
+	}
 }
 
 export default DatabaseEventHandler;

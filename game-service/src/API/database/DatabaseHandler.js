@@ -450,13 +450,13 @@ export default class DatabaseHandler {
 	WHERE t.id = ?
 	LIMIT 1
 			`);
-			const result = stmt.get(tournamentId);
-			if (result) {
-				result.players = [result.player_a, result.player_b];
-				delete result.player_a;
-				delete result.player_b;
+			const nextMatch = stmt.get(tournamentId);
+			if (nextMatch) {
+				nextMatch.players = [nextMatch.player_a, nextMatch.player_b];
+				delete nextMatch.player_a;
+				delete nextMatch.player_b;
 			}
-			return (result);
+			return (nextMatch);
 		});
 		const results = transaction(tournamentId);
 		return (results);
@@ -528,6 +528,111 @@ export default class DatabaseHandler {
 			return { deletedTournamentId: tournamentId } ;
 		});
 		const result = transaction(tournamentId);
+		return (result);
+	}
+
+	// TODO = Test me please ...
+	endTournamentGame(tournamentId, gameId) {
+		const transaction = this.db.transaction((tournamentId, gameId) => {
+			// Find current match round & number
+			const currentMatchStmt = this.db.prepare(`
+	SELECT round, match_number, winner
+	FROM tournament_matches
+	WHERE tournament_id = ? AND game_id = ?
+			`);
+			
+			const currentMatch = currentMatchStmt.get(tournamentId, gameId);
+			if (!currentMatch) 
+				throw new Error("Current match not found");
+		
+			// Find next match on the same round 
+			const nextMatchSameRoundStmt = this.db.prepare(`
+	SELECT game_id
+	FROM tournament_matches
+	WHERE tournament_id = ? AND round = ? AND match_number = ?
+			`);
+
+			let nextMatch = nextMatchSameRoundStmt.get(
+				tournamentId,
+				currentMatch.round,
+				currentMatch.match_number + 1
+			);
+
+			// No more match on this round -> Is there a new round ?
+			if (!nextMatch) {
+				// Find next round match 0
+				const nextMatchNextRoundStmt = this.db.prepare(`
+	SELECT game_id
+	FROM tournament_matches
+	WHERE tournament_id = ? AND round = ? AND match_number = 0
+				`);
+				nextMatch = nextMatchNextRoundStmt.get(
+					tournamentId,
+					currentMatch.round + 1
+				);
+			}
+		
+			const updateNextGameStmt = this.db.prepare(`
+	UPDATE tournaments
+	SET next_game = ?
+	WHERE id = ?
+			`);
+				
+			if (nextMatch) {
+				// Update tournament next_game
+				updateNextGameStmt.run(nextMatch.game_id, tournamentId);
+
+				// Update players for the next game, at the right spot
+				const nextRound = currentMatch.round + 1;
+				// Match 0 & 1 round 0 = match 0 round 1 || Match 2 & 3 round 0 = match 1 round 1 || Round 1 match 0 & 1 -> Round 2 match 0
+				const nextMatchNumber = Math.floor(currentMatch.match_number / 2);
+
+				// Find corresponding game to see it it has player_a & player_b
+				const nextRoundMatchStmt = this.db.prepare(`
+	SELECT game_id, player_a, player_b
+	FROM tournament_matches
+	JOIN games ON tournament_matches.game_id = games.id
+	WHERE tournament_matches.tournament_id = ? AND tournament_matches.round = ? AND tournament_matches.match_number = ?
+				`);
+				const nextRoundMatch = nextRoundMatchStmt.get(tournamentId, nextRound, nextMatchNumber);
+
+				if (nextRoundMatch) {
+					// Slot to fill
+					if (currentMatch.match_number % 2 === 0 && nextRoundMatch.player_a === "undefined") {
+						// Winner goes to player_a
+						const updatePlayerAStmt = this.db.prepare(`
+	UPDATE games SET player_a = ? WHERE id = ?
+						`);
+						updatePlayerAStmt.run(currentMatch.winner, nextRoundMatch.game_id);
+					} else if (currentMatch.match_number % 2 === 1 && nextRoundMatch.player_b === "undefined") {
+						// Winner goes to player_b
+						const updatePlayerBStmt = this.db.prepare(`
+							UPDATE games SET player_b = ? WHERE id = ?
+						`);
+						updatePlayerBStmt.run(currentMatch.winner, nextRoundMatch.game_id);
+					}
+				}
+			} 
+			else {
+				// Tournament is over, no next game
+				updateNextGameStmt.run(null, tournamentId);
+
+				// Set the tournament winner
+				const updateTournamentWinner = this.db.prepare(`
+	UPDATE tournaments
+	SET winner = ?
+	WHERE id = ?
+				`);
+				updateTournamentWinner.run(currentMatch.winner, tournamentId);
+			}
+			
+			return {
+				tournamentId,
+				next_game: nextMatch ? nextMatch.game_id : null
+			};
+
+		});
+		const result = transaction(tournamentId, gameId);
 		return (result);
 	}
 }
