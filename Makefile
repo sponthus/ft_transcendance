@@ -57,7 +57,7 @@ down:
 ps:
 	docker compose -f $(COMPOSE_FILE) ps
 
-clean: clean-db clean-env clean-modules
+clean: clean-db clean-modules
 	docker compose -f $(COMPOSE_FILE) down --rmi all -v --remove-orphans
 
 # manual_clean: clean_network

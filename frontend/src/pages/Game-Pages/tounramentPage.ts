@@ -20,7 +20,7 @@ export class TournamentPage {
 	private Tournament?: any;
 	private TournamentId?: number;
 	private Username!: string;
-	private TournamentMatches: Map<number, number>;
+	private TournamentMatches: Map<number, number>; // Map<gameId, idDiv>
 
 
 	constructor(Page: HTMLElement, UserName: string) {
@@ -55,25 +55,29 @@ export class TournamentPage {
 
 				// Assign key = gameId, value = element in div
 				data.matches.forEach((match, index) => {
-					this.TournamentMatches.set(match.id, index);
+					this.TournamentMatches.set(match.id, index + 1);
 				});
 			
 			/***********************function to render bracket tournament *************************/
 			this.BracketDiv = createDiv("bracket", "flex justify-between items-center h-full w-full space-x-4") as HTMLElement;
 			
 			const numberOfMatches = data.matches.length;
-			if (numberOfMatches == 3)
+			// TODO = Add 6-players tournament disposition ?
+			if (numberOfMatches == 3) // 4 players tournament
 			{
-				// this.createRound1([0/** round 0**/, 1 /** round 1**/]);
 				// Give 1 element from the list of matches results as a parameter
-				// Render left
-				this.createRound2(1, data.matches[0]/** match 4**/);
-				// Rendered in the middle = Final match
-				this.createFinal(3, data.matches[2]/** match 6**/);
-				// Render right
-				this.createRound2(2, data.matches[1]/** match 5**/);
-				// this.createRound1([2/** round 2**/, 3/** round 3**/]);
-			} 
+				// Render from left to right
+				this.createRound2(1, data.matches[0]);
+				this.createFinal(3, data.matches[2]);
+				this.createRound2(2, data.matches[1]);
+			} else if (numberOfMatches == 7) // 8-players tournament
+			{
+				this.createRound1([1, 2], [data.matches[0], data.matches[1]]);/** match 1**//** round 2**/
+				this.createRound2(5, data.matches[4]/** match 5**/);
+				this.createFinal(7, data.matches[6]/** match 7**/);
+				this.createRound2(4, data.matches[5]/** match 6**/);
+				this.createRound1([3, 4], [data.matches[2], data.matches[3]]);/** match 3**//** match 4**/
+			}
 			append(this.Page, [this.BracketDiv]);
 			this.findNextRound();
 		} catch (error) {
@@ -81,43 +85,48 @@ export class TournamentPage {
 		}
 	}
 
-	// private createRound1(Matchs: number, data: GameInfos) {
-	// 	const Round1Div = createDiv("round1", "flex flex-col justify-around h-full w-[20%] space-y-4");
-	// 	for (let i = 0; i < 2; i++) 
-	// 		append(Round1Div, [(this.createMatch(Matchs[i], "flex flex-col items-center justify-around h-[50%] w-full bg-orange-400 rounded-full space-y-4") as HTMLElement)]);
+	// Create 2 matches in 1 vertical div
+	private createRound1(Matchs: number[], data: GameInfos[]) {
+		const Round1Div = createDiv("round1", "flex flex-col justify-around h-full w-[20%] space-y-4");
+		for (let i = 0; i < 2; i++) 
+			append(Round1Div, [(this.createMatch(Matchs[i], "flex flex-col items-center justify-around h-[50%] w-full bg-orange-400 rounded-full space-y-4", data[i], true) as HTMLElement)]);
 
-	// 	append(this.BracketDiv, [Round1Div]);
-	// }
+		append(this.BracketDiv, [Round1Div]);
+	}
 	
-	// Add the match parameter
-	private createRound2(Match: number, data: GameInfos/*********/) {
+	// Create div match for round
+	private createRound2(Match: number, data: GameInfos) {
 		const Round2Div = createDiv("round2", "flex flex-col justify-around h-full w-[20%] space-y-4");
-		append(Round2Div, [(this.createMatch(Match, "flex flex-col items-center justify-around h-[75%] w-full bg-orange-400 rounded-full space-y-4", data) as HTMLElement)]);
+		append(Round2Div, [(this.createMatch(Match, "flex flex-col items-center justify-around h-[75%] w-full bg-orange-400 rounded-full space-y-4", data, false) as HTMLElement)]);
 		append(this.BracketDiv, [Round2Div]);
 	}
 
+	// Create the final match 
 	private createFinal(Match: number, data: GameInfos) {
 		const Round2Div = createDiv("round2", "flex flex-col justify-around h-full w-[20%] space-y-4");
-		append(Round2Div, [(this.createMatch(Match, "flex flex-col items-center justify-around h-[50%] w-full bg-orange-400 rounded-full space-y-4", data) as HTMLElement)]);
+		append(Round2Div, [(this.createMatch(Match, "flex flex-col items-center justify-around h-[50%] w-full bg-orange-400 rounded-full space-y-4", data, true) as HTMLElement)]);
 		append(this.BracketDiv, [Round2Div]);
 	}
 
-	private createMatch(Match: number, ClassName :string, data: GameInfos): HTMLElement {
+	private createMatch(Match: number, ClassName :string, data: GameInfos, final: boolean): HTMLElement {
 		const MatchDiv =  createDiv(`match-${Match}`, ClassName) as HTMLElement;
 		const MatchRound = data.round + 1;
 		const MatchNumber = data.match + 1;
 
 		const TabPlayer: [Player1: string, Player2: string] = [data.player_a/**replace by player A Name or "Winner" if there is no player name***/, data.player_b/**replace by player B Name or "Winner" if there is no player name***/];
+		
 		for (let i = 0; i < 2; i++) {
 			const PlayerDiv = createDiv(`player-${i + i}`, "border rounded-xl w-[50%] text-center") as HTMLElement;
 			append(PlayerDiv, [createElement('p', `player-${i + i}`, TabPlayer[i],  "text-emerald-600") as HTMLElement]);
 			append(MatchDiv, [PlayerDiv]);
-			if (i == 0 && Match != 2) 
-				append(MatchDiv, [createElement('p', `match-${Match}`, `Round ${MatchRound}`, "text-emerald-600 font-bold")]);
-			else if (i == 0 && Match == 2)
-				append(MatchDiv, [createElement('p', `match-${Match}`, `Final`, "text-emerald-600 font-bold")]);
+			if (i == 0) {
+				if (final) {
+					append(MatchDiv, [createElement('p', `match-${Match}`, `Final`, "text-emerald-600 font-bold")]);
+				} else {
+					append(MatchDiv, [createElement('p', `match-${Match}`, `Round ${MatchRound}`, "text-emerald-600 font-bold")]);
+				}
+			}
 		}
-	
 		return MatchDiv
 	}
 
@@ -129,15 +138,12 @@ export class TournamentPage {
 			const data = await getTournamentNextMatch(this.TournamentId);
 			if (!data.ok)
 				throw new Error("Error getting next match: " + data.error);
-			if (!this.TournamentMatches.get(data.next_match.game_id))
+			if (!this.TournamentMatches.has(data.next_match.game_id))
 				throw new Error("Next tournament id not found in matches");
 			NextRound = this.TournamentMatches.get(data.next_match.game_id)!;
 		} catch (error) {
 			alert(error);
 		}
-		// if (!this.Tournament)
-		// 	return ;
-		/****************find next round with this.Tournament***********/
 		(document.getElementById(`match-${NextRound}-div`) as HTMLElement)?.classList.add('bg-orange-500');
 	}
 
