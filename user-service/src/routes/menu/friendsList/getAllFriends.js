@@ -5,12 +5,18 @@ export async function   getAllFriends(request, reply)
 
     try
     {
-        const friends = db.prepare("    SELECT \
-                                            frie_friend_user_id,  \
+       const friends = db.prepare("    SELECT \
+                                            users.username  \
                                         FROM \
                                             friends \
+                                        INNER JOIN \
+                                            users \
+                                        ON \
+                                            friends.frie_friend_user_id = users.id \
                                         WHERE \
-                                            frie_user_id = ?").all(idUser);
+                                            friends.frie_status = 1 \
+                                        AND \
+                                            friends.frie_user_id = ?").all(idUser);
         return reply.code(200).send({ friends: friends });
     }
     catch (err)

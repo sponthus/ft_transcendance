@@ -36,7 +36,6 @@ export async function   addFriend(request, reply)
                 return reply.code(409).send({ error: "A friend request is already pending" });
             else if (status.frie_status === 1)
                 return reply.code(409).send({ error: "You're already friend with " + friendUsername });
-            //status de refus 
         }
         const statement = db.prepare("  INSERT INTO \
                                             friends (frie_user_id, frie_friend_user_id, frie_status) \

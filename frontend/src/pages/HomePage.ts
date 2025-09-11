@@ -39,13 +39,13 @@ export class HomePage extends BasePage {
 			await this.rengerLogoutHome();
 		}
 	
-/*		let req = await addFriend("Pedro");
+		let req = await getAllFriends();
 		if (req.ok) {
-			console.log("add friend sucessfully");
+			console.log('Friends : ', req.friends);
 		}
 		else
 			alert(req.error);
-*/
+
 
 /*		let req = await refuseRequest("Pedro");
 		if (req.ok) {
@@ -54,10 +54,6 @@ export class HomePage extends BasePage {
 		else
 			alert(req.error);
 */
-		let req = await getAllUsers();
-		if (req.ok) {
-			console.log('Friends : ', req.users);
-		}
 		await this.addInApp();
 	}
 
