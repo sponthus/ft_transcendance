@@ -30,6 +30,7 @@ export type GameInfos = {
     finished_at: string;
     winner: string;
 	score: number;
+	option: number
 }
 
 type TournamentMatches = { ok: true; matches: GameInfos[] }

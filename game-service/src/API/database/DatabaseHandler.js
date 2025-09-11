@@ -8,53 +8,56 @@ export default class DatabaseHandler {
    
     initializeDb() {
         this.db.exec(`
-            CREATE TABLE IF NOT EXISTS tournaments (
-                id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-                status TEXT NOT NULL CHECK (status IN ('pending', 'ongoing_game', 'between-games', 'canceled', 'done')),
-                id_user INTEGER NOT NULL,
-                name TEXT NOT NULL,
-                next_game INTEGER REFERENCES games(id),
-                created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-                began_at DATETIME,
-                finished_at DATETIME,
-                winner TEXT
-            );
+	CREATE TABLE IF NOT EXISTS tournaments (
+		id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+		status TEXT NOT NULL CHECK (status IN ('pending', 'ongoing_game', 'between-games', 'canceled', 'done')),
+		id_user INTEGER NOT NULL,
+		name TEXT NOT NULL,
+		next_game INTEGER REFERENCES games(id),
+		created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+		began_at DATETIME,
+		finished_at DATETIME,
+		winner TEXT, 
+		option INTEGER DEFAULT 1 CHECK (option IN (0, 1))
+	);
         `);
 
         this.db.exec(`
-                CREATE TABLE IF NOT EXISTS tournament_players (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-                    tournament_id INTEGER REFERENCES tournaments(id),
-                    name TEXT NOT NULL
-                );
+	CREATE TABLE IF NOT EXISTS tournament_players (
+		id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+		tournament_id INTEGER REFERENCES tournaments(id),
+		name TEXT NOT NULL
+	);
         `);
 
         this.db.exec(`
-            CREATE TABLE IF NOT EXISTS games (
-                id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-                status TEXT NOT NULL CHECK (status IN ('pending', 'ongoing', 'finished', 'canceled')),
-                id_user INTEGER NOT NULL,
-                player_a TEXT NOT NULL DEFAULT 'undefined',
-                player_b TEXT NOT NULL DEFAULT 'undefined',
-                score_a INTEGER DEFAULT 0,
-                score_b INTEGER DEFAULT 0,
-                tournament_id INTEGER REFERENCES tournaments(id),
-                created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-                began_at DATETIME,
-                finished_at DATETIME,
-                winner TEXT,
-                score INTEGER DEFAULT 7
-            );
+	CREATE TABLE IF NOT EXISTS games (
+		id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+		status TEXT NOT NULL CHECK (status IN ('pending', 'ongoing', 'finished', 'canceled')),
+		id_user INTEGER NOT NULL,
+		player_a TEXT NOT NULL DEFAULT 'undefined',
+		player_b TEXT NOT NULL DEFAULT 'undefined',
+		score_a INTEGER DEFAULT 0,
+		score_b INTEGER DEFAULT 0,
+		tournament_id INTEGER REFERENCES tournaments(id),
+		created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+		began_at DATETIME,
+		finished_at DATETIME,
+		winner TEXT,
+		score INTEGER DEFAULT 7,
+		ai INTEGER DEFAULT 0 CHECK (ai IN (0, 1, 2)),
+		option INTEGER DEFAULT 1 CHECK (option IN (0, 1))
+	);
         `);
 
         this.db.exec(`
-            CREATE TABLE IF NOT EXISTS tournament_matches (
-                id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-                tournament_id INTEGER REFERENCES tournaments(id),
-                round INTEGER NOT NULL,
-                match_number INTEGER NOT NULL,
-                game_id INTEGER REFERENCES games(id)
-            );
+	CREATE TABLE IF NOT EXISTS tournament_matches (
+		id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+		tournament_id INTEGER REFERENCES tournaments(id),
+		round INTEGER NOT NULL,
+		match_number INTEGER NOT NULL,
+		game_id INTEGER REFERENCES games(id)
+	);
         `);
     }
 
@@ -64,13 +67,13 @@ export default class DatabaseHandler {
 
     // Test ok
 	// Creates a simple game, not a tournament one
-    async   createGame(userId, playerA, playerB, maxScore = 7) {
+    async   createGame(userId, playerA, playerB, maxScore = 7, ai = 0, option = 1) {
         // console.log(`maxScore: ${maxScore}`);
-		const transaction = this.db.transaction((userId, playerA, playerB, maxScore) => {
+		const transaction = this.db.transaction((userId, playerA, playerB, maxScore, ai, option) => {
 			const stmt = this.db.prepare(`
-	INSERT INTO games (status, id_user, player_a, player_b, score) VALUES (?, ?, ?, ?, ?)
+	INSERT INTO games (status, id_user, player_a, player_b, score, ai, option) VALUES (?, ?, ?, ?, ?, ?, ?)
 			`);
-			const res = stmt.run('pending', userId, playerA, playerB, maxScore);
+			const res = stmt.run('pending', userId, playerA, playerB, maxScore, ai, option);
 			const id = res.lastInsertRowId;
 			return ({
 				game_id: id, 
@@ -78,10 +81,12 @@ export default class DatabaseHandler {
 				player_a: playerA, 
 				player_b: playerB,
 				tournament: 0,
-				maxScore: maxScore
+				maxScore: maxScore,
+				ai: ai,
+				option: option
 			});
 		});
-		const result = transaction(userId, playerA, playerB, maxScore);
+		const result = transaction(userId, playerA, playerB, maxScore, ai, option);
 		return (result);
     }
 
@@ -261,8 +266,8 @@ export default class DatabaseHandler {
     } 
 
     // Creates a tournament, and the games for every round in tournament_matches + games
-    createTournament(name, userId, players) {
-        const transaction = this.db.transaction((userId, name, players) => {          
+    createTournament(name, userId, players, option) {
+        const transaction = this.db.transaction((userId, name, players, option = 1) => {          
             const numberOfPlayers = players.length;
             if (numberOfPlayers != 4 && numberOfPlayers != 6 && numberOfPlayers != 8) {
                 throw new Error("Only 4, 6 or 8 players tournament available for now");
@@ -276,7 +281,7 @@ export default class DatabaseHandler {
             const rounds = Array(0, totalRounds);
 
             const createTournamentStmt = this.db.prepare(`
-	INSERT INTO tournaments(status, id_user, name) VALUES (?, ?, ?);
+	INSERT INTO tournaments(status, id_user, name, option) VALUES (?, ?, ?, ?);
             `);
             
             const createTournamentPlayerStmt = this.db.prepare(`
@@ -289,16 +294,16 @@ export default class DatabaseHandler {
 	WHERE id = ?
             `);
             const createTournamentGamesStmt = this.db.prepare(`
-	INSERT INTO games(status, id_user, player_a, player_b, tournament_id) VALUES (?, ?, ?, ?, ?);
+	INSERT INTO games(status, id_user, player_a, player_b, tournament_id, option) VALUES (?, ?, ?, ?, ?, ?);
             `);
             const createTournamentGamesTBAStmt = this.db.prepare(`
-	INSERT INTO games(status, id_user, tournament_id) VALUES (?, ?, ?);
+	INSERT INTO games(status, id_user, tournament_id, option) VALUES (?, ?, ?, ?);
             `);
             const createTournamentMatchesStmt = this.db.prepare(`
 	INSERT INTO tournament_matches(tournament_id, round, match_number, game_id) VALUES (?, ?, ?, ?);
             `);
 
-            const creationResult = createTournamentStmt.run("pending", userId, name);
+            const creationResult = createTournamentStmt.run("pending", userId, name, option);
             const tournamentId = creationResult.lastInsertRowid;
             
             const playersResult = [];
@@ -317,7 +322,7 @@ export default class DatabaseHandler {
                     while (players.length != 0) {
                         const player_a = players.pop();
                         const player_b = players.pop();
-                        const gameResult = createTournamentGamesStmt.run("pending", userId, player_a, player_b, tournamentId);
+                        const gameResult = createTournamentGamesStmt.run("pending", userId, player_a, player_b, tournamentId, option);
                         gameResults.push(gameResult.lastInsertRowid);
                     }
                     // At 1st round, edit next-game
@@ -326,12 +331,12 @@ export default class DatabaseHandler {
                 } else {
                     // Final round = 1 game
                     if (round == totalRounds) {
-                       const gameResult = createTournamentGamesTBAStmt.run("pending", userId, tournamentId);
+                       const gameResult = createTournamentGamesTBAStmt.run("pending", userId, tournamentId, option);
                        gameResults.push(gameResult.lastInsertRowid);
                     } else {
                         // Middle-round = 2 games
                         for (const i = 0; i <= 1; i++) {
-                            const gameResult = createTournamentGamesTBAStmt.run("pending", userId, tournamentId);
+                            const gameResult = createTournamentGamesTBAStmt.run("pending", userId, tournamentId, option);
                             gameResults.push(gameResult.lastInsertRowid);
                         }
                     }
@@ -356,7 +361,8 @@ export default class DatabaseHandler {
                 tournamentId: tournamentId,
                 numberOfPlayers: playersResult.length,
                 rounds: roundsResults,
-                nextGameId: nextGameId
+                nextGameId: nextGameId,
+				option: option
             };
             return (result);
         });
@@ -364,7 +370,7 @@ export default class DatabaseHandler {
         this.randomize(players);
         // console.log("len = ", players.length);
 
-        const result = transaction(userId, name, players);
+        const result = transaction(userId, name, players, option);
         return (result);
     }
 
@@ -372,7 +378,7 @@ export default class DatabaseHandler {
 	getTournament(tournamentId) {
 		const transaction = this.db.transaction((tournamentId) => {
 			const stmt = this.db.prepare(`
-	SELECT id, status, id_user, name, next_game, created_at, began_at, finished_at, winner
+	SELECT id, status, id_user, name, next_game, created_at, began_at, finished_at, winner, option
 	FROM tournaments
 	WHERE id = ?
 	ORDER BY created_at DESC
@@ -388,7 +394,7 @@ export default class DatabaseHandler {
 	getTournamentsForUserId(userId) {
 		const transaction = this.db.transaction((userId) => {
 			const stmt = this.db.prepare(`
-	SELECT id, status, name, next_game, created_at, began_at, finished_at, winner
+	SELECT id, status, name, next_game, created_at, began_at, finished_at, winner, option
 	FROM tournaments
 	WHERE id_user = ?
 	ORDER BY created_at DESC
@@ -415,7 +421,8 @@ export default class DatabaseHandler {
 		g.began_at,
 		g.finished_at,
 		g.winner,
-		g.score
+		g.score,
+		g.option
 	FROM tournament_matches tm
 	JOIN games g ON tm.game_id = g.id
 	WHERE tm.tournament_id = ?

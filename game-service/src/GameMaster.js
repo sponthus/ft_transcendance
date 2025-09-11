@@ -127,7 +127,7 @@ export default class GameMaster {
     }
 
     // gameId has been checked when server creation is called
-    createServer(gameId, userId, maxScore, tournament) {
+    createServer(gameId, userId, maxScore, tournament, ai) {
         const client = this.clients.get(Number(userId));
         if (!client) {
             throw new Error('user not found for userId ' + userId);
@@ -142,7 +142,7 @@ export default class GameMaster {
         client.status = 'playing';
         client.currentGame = gameId;
         this.games.set(gameId, {
-			server: new GameServer(gameId, userId, ws, maxScore),
+			server: new GameServer(gameId, userId, ws, maxScore, ai),
 			tournament: tournament
 		});
     }

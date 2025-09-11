@@ -57,7 +57,7 @@ export async function getTournamentMatches(request, reply) {
 		if (!matches || matches.length === 0) {
 			return reply.status(200).send([]);
 		}
-		console.log(`Found ${matches.length} matches for user ${tournamentId}`);
+		console.log(`Found ${matches.length} matches for id ${tournamentId}`);
 		console.log(matches);
 		return reply.status(200).send(matches);
 	}

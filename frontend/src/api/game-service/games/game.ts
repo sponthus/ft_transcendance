@@ -5,7 +5,7 @@ type SimpleResult = Success | Failure;
 
 // When a game is created or launched, it gives its info, including maxScore and if it's part of a tournament
 type GameInfoResult =
-    | { ok: true; gameId: number, status: string, player_a: string, player_b: string, maxScore: number, tournament_id: number }
+    | { ok: true; gameId: number, status: string, player_a: string, player_b: string, maxScore: number, tournament_id: number, ai: number, option: number }
     | Failure
 
 type PendingGamesInfos = {
@@ -14,6 +14,8 @@ type PendingGamesInfos = {
     player_a: string;
     player_b: string;
     created_at: string;
+	ai: number;
+	option: number;
 }
 
 type AllGamesInfos = {
@@ -29,6 +31,8 @@ type AllGamesInfos = {
     began_at: string;
     finished_at: string;
     winner: string;
+	ai: number;
+	option: number;
 }
 
 type AvailableGamesList = { ok: true; games: PendingGamesInfos[] }
@@ -43,7 +47,7 @@ export type AllGamesResult = AllGamesList | Failure;
 // Creates a new game for the user, taking names for players
 // Security : Accessible for every logged-in user
 // TODO = Add AI registration
-export async function createLocalGame(player_a: string, player_b: string, maxScore: number = 7): Promise<GameInfoResult> {
+export async function createLocalGame(player_a: string, player_b: string, maxScore: number = 7, ai: number = 0, option: number = 1): Promise<GameInfoResult> {
     const token = localStorage.getItem("token");
     if (!token)
         return { ok: false, error: "No token"};
@@ -58,7 +62,9 @@ export async function createLocalGame(player_a: string, player_b: string, maxSco
         body: JSON.stringify({
             player_a: player_a,
             player_b: player_b,
-			maxScore: maxScore
+			requestedMaxScore: maxScore,
+			requestedAi: ai,
+			requestedOption: option
         })
     });
     const data = await res.json();
@@ -71,7 +77,9 @@ export async function createLocalGame(player_a: string, player_b: string, maxSco
             player_a: data.player_a,
             player_b: data.player_b,
 			tournament_id: data.tournament,
-			maxScore: data.maxScore
+			maxScore: data.maxScore,
+			ai: ai,
+			option: option
         };
     } else {
         // Invalid or expired token = Disconnect
@@ -113,7 +121,9 @@ export async function startGame(gameId: number): Promise<GameInfoResult> {
 			player_a: data.player_a, 
 			player_b: data.player_b, 
 			tournament_id: data.tournament_id, 
-			maxScore: data.maxScore 
+			maxScore: data.maxScore,
+			ai: data.ai,
+			option: data.option
 		};
     }
     catch (error) {
@@ -138,7 +148,9 @@ export async function getAvailableGames(userId: number): Promise<AvailableGamesR
                 status: game.status,
                 player_a: game.player_a,
                 player_b: game.player_b,
-                created_at: game.created_at
+                created_at: game.created_at,
+				ai: game.ai,
+				option: game.option
             }));
 
         return { ok: true, games: pendingGames };
@@ -165,7 +177,9 @@ export async function getFinishedGames(userId: number): Promise<AvailableGamesRe
                 status: game.status,
                 player_a: game.player_a,
                 player_b: game.player_b,
-                created_at: game.created_at
+                created_at: game.created_at,
+				ai: game.ai,
+				option: game.option
             }));
 
         return { ok: true, games: pendingGames };
