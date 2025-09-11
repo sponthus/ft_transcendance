@@ -35,3 +35,4 @@ loading screen htmlcss
 
 probleme avec la bannier lorsque l'on fait retour et qu'on revient sur la page (la banniere se decuple)
 probleme avec upload service (en https dons pas forcement accessible car certificat autosigner et donc probleme pour se connecter en firefox)
+https://prismic.io/blog/tailwind-animations

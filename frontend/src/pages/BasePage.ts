@@ -16,6 +16,7 @@ export abstract class BasePage {
             throw new Error('App element not found');
         this.app = appDiv;
         const bannerDiv = document.getElementById('banner');
+		bannerDiv!.className = "z-50 relative";
         if (!bannerDiv)
             throw new Error('Banner element not found');
         this.banner = bannerDiv;
@@ -45,7 +46,7 @@ export abstract class BasePage {
 
 	protected initBackground(): HTMLElement {
 		const BackgroundHome = document.createElement('div');
-		BackgroundHome.className = "flex flex-col items-center h-screen min-h-[540px] w-screen min-w-[960px] p-8";
+		BackgroundHome.className = "flex flex-col items-center h-screen min-h-[1920x] w-screen min-w-[1024px] p-8";
 		BackgroundHome.style.backgroundImage = "url('/background1.gif')";
 		BackgroundHome.style.backgroundSize = "cover";
 		BackgroundHome.style.backgroundPosition = "center";

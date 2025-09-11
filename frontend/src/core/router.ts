@@ -56,9 +56,6 @@ export async function renderRoute(path: string) {
 		case '/setting':
 			currentPage = new SettingPage();
 			break;
-		// case '/tournament':
-		//     currentPage = new buttonClass(); // TODO = DEBUG only
-		//     break;
 		default:
 			currentPage = null;
 			break;

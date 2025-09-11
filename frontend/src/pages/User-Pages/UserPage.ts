@@ -12,6 +12,16 @@ import { UserBanner } from './UserBannerPage.js';
 
 enum BodyState {PROFILE = 0, FRIENDS = 1, HISTORY = 2};
 
+type UserData = //VA ETRE CHANGER, le token renvoie le username et l'id du user
+{
+	id: number
+	username: string;
+	nickname: string;
+	avatar: string;
+	slug: string;
+	created_at: string;
+};
+
 export class UserPage extends BasePage {
 	// protected slug?: string;
 
@@ -94,7 +104,7 @@ export class UserPage extends BasePage {
 				this.BodyDiv.textContent = "i'm in the Friendlist body";
 				break;
 			case BodyState.HISTORY:
-				DisplayHistoryPage(this.BodyDiv);
+				DisplayHistoryPage(this.BodyDiv, this.UserData);
 				break;
 			default:break;
 		}
