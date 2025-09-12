@@ -1,6 +1,7 @@
 import Fastify from "fastify";
 import fastifyJwt from "@fastify/jwt";
 import proxy from "@fastify/http-proxy";
+import rateLimit from "@fastify/rate-limit";
 import { fileURLToPath } from "url"; // Transforms ESM paths to system paths
 import path from 'path'; // utilities for working with file and directory paths
 import env from "../config/env.js";
@@ -15,6 +16,24 @@ const app = Fastify({
 
 console.log('Parameters for app are being set'); // debug
 
+// Protection of
+// Limits requests from a specific IP :: 100 every 100 seconds
+// Otherwise gives a 429 code
+await app.register(rateLimit, {
+    global: true,
+    max: 100,
+    timeWindow: '100 seconds'
+});
+
+// Protection of attacks looking for valid URL by hardly protecting 404
+app.setNotFoundHandler({
+    preHandler: app.rateLimit({
+        max: 10,
+        timeWindow: '60 seconds'
+    })
+}, function (request, reply) {
+    reply.code(404).send({ error: 'Not found' })
+})
 
 // app.register(fastifyJwt, {
 //     secret: env.hashKey,
