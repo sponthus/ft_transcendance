@@ -536,9 +536,10 @@ export default class DatabaseHandler {
 		const transaction = this.db.transaction((tournamentId, gameId) => {
 			// Find current match round & number
 			const currentMatchStmt = this.db.prepare(`
-	SELECT round, match_number, winner
-	FROM tournament_matches
-	WHERE tournament_id = ? AND game_id = ?
+	SELECT tm.round, tm.match_number, g.winner
+	FROM tournament_matches tm
+	JOIN games g ON tm.game_id = g.id
+	WHERE tm.tournament_id = ? AND tm.game_id = ?
 			`);
 			
 			const currentMatch = currentMatchStmt.get(tournamentId, gameId);

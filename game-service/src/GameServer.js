@@ -5,7 +5,7 @@ import GameMaster from "./GameMaster.js";
 // Handles game logic for one game actually running
 export default class GameServer {
     
-    constructor(gameId, userId, ws, maxScore, ai) {
+    constructor(gameId, userId, ws, maxScore, ai, option) {
         this.gameId = gameId;
         this.userId = userId;
         this.ws = ws;
@@ -19,7 +19,7 @@ export default class GameServer {
 
         this.startGame();
         // à chaque tick du serveur
-        const game = new PongGame(this.gameId, ai);
+        const game = new PongGame(this.gameId, ai, option);
         this.intervalId = setInterval(() => {
             // Appliquer les inputs pour déplacer le paddle
             game.update();

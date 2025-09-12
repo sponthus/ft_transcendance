@@ -128,7 +128,7 @@ export default class GameMaster {
     }
 
     // gameId has been checked when server creation is called
-    createServer(gameId, userId, maxScore, tournament, ai) {
+    createServer(gameId, userId, maxScore, tournament, ai, option) {
         const client = this.clients.get(Number(userId));
         if (!client) {
             throw new Error('user not found for userId ' + userId);
@@ -141,11 +141,13 @@ export default class GameMaster {
             throw new Error('ws not found for userId ' + userId);
         }
         client.status = 'playing';
-        client.currentGame = gameId;
-        this.games.set(gameId, {
-			server: new GameServer(gameId, userId, ws, maxScore, ai),
+        client.currentGame = Number(gameId);
+		console.log("Setting games with : tournament ",tournament, " ai, option ", ai, option);
+        this.games.set(Number(gameId), {
+			server: new GameServer(Number(gameId), userId, ws, maxScore, ai, option),
 			tournament: tournament
 		});
+		console.log(this.games);
     }
 
     // Call when a game is finished to destroy its object completely
@@ -155,23 +157,25 @@ export default class GameMaster {
             console.log(`user not found`);
             throw new Error('user not found for userId ' + userId);
         }
-        const gameId = client.currentGame;
+        const gameId = Number(client.currentGame);
         if (!gameId) {
             console.log(`user is not playing`);
             throw new Error(`user with userId ${userId} is not playing`);
         }
+		console.log(this.games);
         if (this.games.has(gameId)) {
-			const tournament = this.games[gameId].tournament;
-			if (tournament != 0) {
-				// TODO = Check me
-				gameEventEmitter.emitTournamentEvent('tournament:endgame', tournament, {
-					gameId: gameId
-				});
-			}
+            const gameObj = this.games.get(gameId);
+            const tournament = gameObj.tournament;
+            if (tournament != 0) {
+                // TODO = Check me
+                gameEventEmitter.emitTournamentEvent('tournament:endgame', tournament, {
+                    gameId: gameId
+                });
+            }
             this.games.delete(gameId);
             console.log("🔴 GameServer stopped");
             client.currentGame = 0;
-            if (client.ws.readyState === 1) {
+            if (client.ws && client.ws.readyState === 1) {
                 client.status = 'online';
             }
         } else {

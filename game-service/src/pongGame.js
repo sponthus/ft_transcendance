@@ -1,7 +1,7 @@
 import { gameEventEmitter } from "./GameEventEmitter.js";
 
 export class PongGame {
-	constructor(gameId, ai, option ) {
+	constructor(gameId, ai, option) {
 		if (ai == 0)
 			this.gameMode = 0;
 		else 

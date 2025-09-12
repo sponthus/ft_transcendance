@@ -28,6 +28,7 @@ export async function startGame(request, reply) {
     let maxScore = 7;
 	let tournament = -1;
 	let	ai = -1;
+	let option = -1;
     try {
         // console.log("Trying to find games with gameId " + gameId);
         const game = await db.getGame(gameId);
@@ -38,8 +39,9 @@ export async function startGame(request, reply) {
         player_b = game.player_b;
         status = game.status;
         maxScore = game.score;
-		tournament = game.tournament;
+		tournament = game.tournament_id;
 		ai = game.ai;
+		option = game.option;
 	}
     catch (error) {
 		console.error('❌ Error fetching games: ');
@@ -60,7 +62,7 @@ export async function startGame(request, reply) {
 			console.error('❌ Error : No GameMaster found while fetching games');
             return reply.status(500).send({error: 'Internal server error while fetching users'});
         }
-        gameMaster.createServer(gameId, userId, maxScore, tournament, ai);
+        gameMaster.createServer(gameId, userId, maxScore, tournament, ai, option);
         // console.log("sending data : " + gameId + status + player_a + player_b);
         return reply.status(201).send({
             gameId: gameId, 
