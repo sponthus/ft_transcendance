@@ -14,7 +14,16 @@ export class GameEventEmitter extends EventEmitter {
             ...data
         };
 
-        console.log(`📢 Event sent: ${eventType}`, eventData);
+        this.emit(eventType, eventData);
+    }
+
+	emitTournamentEvent(eventType, tournamentId, data = {}) {
+        const eventData = {
+            tournamentId,
+            timestamp: new Date(),
+            ...data
+        };
+
         this.emit(eventType, eventData);
     }
 }

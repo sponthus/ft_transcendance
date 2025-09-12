@@ -57,7 +57,7 @@ export async function getTournamentMatches(request, reply) {
 		if (!matches || matches.length === 0) {
 			return reply.status(200).send([]);
 		}
-		console.log(`Found ${matches.length} matches for user ${tournamentId}`);
+		console.log(`Found ${matches.length} matches for id ${tournamentId}`);
 		console.log(matches);
 		return reply.status(200).send(matches);
 	}
@@ -87,8 +87,7 @@ export async function getTournamentNextMatch(request, reply) {
 		console.log("Trying to find next match from tournamentId " + tournamentId);
 		const match = db.getNextMatchForTournamentId(tournamentId);
 		if (!match) {
-			// TODO: 404 ?
-			return reply.status(200).send([]);
+			return reply.status(404).send([]);
 		}
 		console.log(match);
 		return reply.status(200).send(match);

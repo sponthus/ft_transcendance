@@ -6,6 +6,7 @@ import { deleteGame } from "./API/controllers/GameDeleteRoutes.js"
 import { getStatusForUserId } from "./API/controllers/StatusGetRoutes.js"
 import { sendMessageToUser } from "./API/controllers/StatusPostRoutes.js"
 import { getTournamentsForUserId, getTournamentMatches, getTournamentNextMatch } from "./API/controllers/TournamentGetRoutes.js"
+import { deleteTournament } from "./API/controllers/TournamentDeleteRoutes.js"
 
 export default async function routes (fastify, options) {
     console.log(`Registering routes`);
@@ -52,6 +53,9 @@ export default async function routes (fastify, options) {
             deleteRoutes.delete("/:gameId",
 				{onRequest: [fastify.authenticate]},
                 deleteGame);
-            }
+			deleteRoutes.delete("/tournament/:tournamentId",
+				{onRequest: [fastify.authenticate]},
+				deleteTournament);
+			}
     );
 }
