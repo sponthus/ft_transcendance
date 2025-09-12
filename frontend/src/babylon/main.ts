@@ -70,7 +70,7 @@ export class Game extends BasePage {
 				// BannerMeshDiv.position.y = 28;
 			}
 
-			await sleep(100);
+			await sleep(3000);
 			if (this._renderScene.engine)
 				this._renderScene.engine.hideLoadingUI(); 
 		} 
