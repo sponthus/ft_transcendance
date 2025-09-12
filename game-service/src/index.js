@@ -82,7 +82,7 @@ console.log("Ws server created");
 
 const WSManager = new WebSocketManager(wss);
 
-server.listen(env.ws_port, () => {
-    console.log('WebSocket server listening on port ', env.ws_port);
+server.listen(env.game_ws_port, () => {
+    console.log('WebSocket server listening on port ', env.game_ws_port);
 });
 

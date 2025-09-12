@@ -53,6 +53,25 @@ services:
       - api_key
     restart: always
 
+  session-service:
+    container_name: session-service
+    build: 
+      context: ./session-service
+      args: 
+        API_PORT: ${SESSION_PORT}
+
+    env_file:
+      - ".env"
+    volumes:
+      - ./session-service:/app # Dev only,prod = pas de volume, seulement copie des fichiers.
+      - ./config:/app/config
+    networks:
+      - pongnet
+    secrets:
+      - hash_key
+      - api_key
+    restart: always
+
   nginx:
     container_name: nginx
     build: ./nginx
