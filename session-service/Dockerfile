@@ -6,10 +6,9 @@ RUN		chmod +x /usr/local/bin/entrypoint.sh
 RUN mkdir app
 WORKDIR /app
 
-ARG API_PORT
-ENV API_PORT=${API_PORT}
+ARG WS_PORT
+ENV WS_PORT=${WS_PORT}
 
-EXPOSE 3004
-EXPOSE 5000
+EXPOSE $WS_PORT
 
 ENTRYPOINT ["entrypoint.sh"]

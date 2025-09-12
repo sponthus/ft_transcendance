@@ -66,6 +66,8 @@ SESSION_PORT=3004
 SESSION_SERVICE=session-service
 GAME_WS_PORT=4000
 SESSION_WS_PORT=5000
+DOMAIN_NAME=localhost
+IP=0.0.0.0
 
 HASH_KEY=$(generate_rand "hash_key.txt")
 API_KEY=$(generate_rand "api_key.txt")
@@ -74,6 +76,9 @@ NODE_ENV=$(chose_mode "Chose dev mode (1) or production mode (2) : " validate_nu
 
 cat > "$ENV_FILE" << EOF
 NODE_ENV=$NODE_ENV
+LOG_LEVEL=info
+DOMAIN_NAME=$DOMAIN_NAME
+IP=$IP
 VITE_PORT=$VITE_PORT
 API_PORT=$API_PORT
 API_SERVICE=$API_SERVICE
@@ -87,6 +92,10 @@ SESSION_PORT=$SESSION_PORT
 SESSION_SERVICE=$SESSION_SERVICE
 GAME_WS_PORT=$GAME_WS_PORT
 SESSION_WS_PORT=$SESSION_WS_PORT
+VITE_IP=$IP
+VITE_DOMAIN_NAME=localhost
+VITE_API_SERVICE=$API_SERVICE
+VITE_API_PORT=$API_PORT
 EOF
 
 echo "-------------------------------------------"

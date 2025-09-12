@@ -10,7 +10,10 @@ services:
 
   api-gateway:
     container_name: api-gateway
-    build: ./api-gateway
+    build: 
+      context: ./api-gateway
+      args:
+        API_PORT: ${API_PORT}
     env_file:
       - ".env"
     depends_on:
@@ -40,7 +43,10 @@ services:
 
   game-service:
     container_name: game-service
-    build: ./game-service
+    build: 
+      context: ./game-service
+      args:
+        WS_PORT: ${GAME_WS_PORT}
     env_file:
       - ".env"
     volumes:
@@ -58,7 +64,7 @@ services:
     build: 
       context: ./session-service
       args: 
-        API_PORT: ${SESSION_PORT}
+        WS_PORT: ${SESSION_WS_PORT}
 
     env_file:
       - ".env"

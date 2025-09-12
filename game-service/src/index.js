@@ -66,8 +66,8 @@ app.setNotFoundHandler((req, reply) => {
     reply.status(404).send("Not found");
 });
 
-// Lancer Fastify HTTP REST API sur le port 3002
-app.listen({ port: env.game_port, host: "0.0.0.0" }, (err, address) => {
+// Launch Fastify HTTP REST API on port ${env.game_port}
+app.listen({ port: env.game_port, host: `${env.ip}` }, (err, address) => {
     if (err) {
         app.log.error(err);
         process.exit(1);
@@ -75,7 +75,7 @@ app.listen({ port: env.game_port, host: "0.0.0.0" }, (err, address) => {
     app.log.info(`Game API running at ${address}`);
 });
 
-// WebSocket server on port 4000
+// WebSocket server on port ${env.game_ws_port}
 const server = createServer();
 const wss = new WebSocketServer({ server, path: "/ws/" });
 console.log("Ws server created");

@@ -15,7 +15,7 @@ const fastify = Fastify({
     logger: false,
 });
 
-console.log('\nFastify user-service listen on port 3001\n'); // debug
+console.log(`\nFastify user-service listen on port ${env.user_port}\n`); // debug
 
 fastify.decorate("authenticate", async function (request, reply)
 {
@@ -81,7 +81,7 @@ fastify.setNotFoundHandler((req, reply) => {
 
 // Fastify listens
 // TODO : Set port in env
-fastify.listen({ port: env.user_port, host: "0.0.0.0" }, (err, address) => {
+fastify.listen({ port: env.user_port, host: `${env.ip}` }, (err, address) => {
     if (err) {
         fastify.log.error(err);
         process.exit(1);

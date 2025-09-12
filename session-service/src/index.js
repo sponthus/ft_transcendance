@@ -63,8 +63,8 @@ fastify.setNotFoundHandler((req, reply) => {
 	reply.status(404).send("Not found");
 });
 
-// Launch Fastify HTTP REST API on port 3004
-fastify.listen({ port: env.session_port, host: "0.0.0.0" }, (err, address) => {
+// Launch Fastify HTTP REST API on port ${env.session_port}
+fastify.listen({ port: env.session_port, host: `${env.ip}` }, (err, address) => {
 	if (err) {
 		fastify.log.error(err);
 		process.exit(1);
@@ -72,7 +72,7 @@ fastify.listen({ port: env.session_port, host: "0.0.0.0" }, (err, address) => {
 	fastify.log.info(`Session API running at ${address}`);
 });
 
-// WebSocket server on port 5000
+// WebSocket server on port ${env.session_ws_port}
 // const server = createServer();
 // const wss = new WebSocketServer({ server, path: "/ws/" });
 // console.log("Ws server created");

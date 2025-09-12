@@ -6,7 +6,9 @@ RUN		chmod +x /usr/local/bin/entrypoint.sh
 RUN mkdir app
 WORKDIR /app
 
-EXPOSE 3002
-EXPOSE 4000
+ARG WS_PORT
+ENV WS_PORT=${WS_PORT}
+
+EXPOSE $WS_PORT
 
 ENTRYPOINT ["entrypoint.sh"]

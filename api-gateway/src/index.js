@@ -91,7 +91,7 @@ app.register(proxy, {
 // });
 
 // Fastify listens
-app.listen({ port: env.api_port, host: "0.0.0.0" }, (err, address) => {
+app.listen({ port: env.api_port, host: `${env.ip}` }, (err, address) => {
     if (err) {
         app.log.error(err);
         process.exit(1);
