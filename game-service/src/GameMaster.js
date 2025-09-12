@@ -144,7 +144,7 @@ export default class GameMaster {
         client.currentGame = Number(gameId);
 		console.log("Setting games with : tournament ",tournament, " ai, option ", ai, option);
         this.games.set(Number(gameId), {
-			server: new GameServer(Number(gameId), userId, ws, maxScore, ai, option),
+			server: new GameServer(Number(gameId), tournament, userId, ws, maxScore, ai, option),
 			tournament: tournament
 		});
 		console.log(this.games);
@@ -154,20 +154,18 @@ export default class GameMaster {
     endServer(userId) {
         const client = this.clients.get(userId);
         if (!client) {
-            console.log(`user not found`);
-            throw new Error('user not found for userId ' + userId);
+            console.log(`User not found`);
+            return ;
         }
         const gameId = Number(client.currentGame);
         if (!gameId) {
-            console.log(`user is not playing`);
-            throw new Error(`user with userId ${userId} is not playing`);
+            console.log(`User is not playing`);
+            return ;
         }
-		console.log(this.games);
         if (this.games.has(gameId)) {
             const gameObj = this.games.get(gameId);
             const tournament = gameObj.tournament;
             if (tournament != 0) {
-                // TODO = Check me
                 gameEventEmitter.emitTournamentEvent('tournament:endgame', tournament, {
                     gameId: gameId
                 });

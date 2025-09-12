@@ -23,7 +23,10 @@ class DatabaseEventHandler {
 
         try {
             this.DatabaseHandler.updateGameStatus(eventData.gameId, 'ongoing');
-            // await this.DatabaseHandler.recordGameEvent(eventData.gameId, 'game_started', eventData);
+            if (eventData.tournamentId != 0) {
+				this.DatabaseHandler.updateTournamentStatus(eventData.tournamentId, 'ongoing_game');
+			}
+			// await this.DatabaseHandler.recordGameEvent(eventData.gameId, 'game_started', eventData);
         } catch (error) {
             console.log("❌ Error while handling game start: ")
 			console.log(error);
@@ -35,6 +38,9 @@ class DatabaseEventHandler {
 
         try {
 			this.DatabaseHandler.updateGameStatus(eventData.gameId, 'canceled');
+			if (eventData.tournamentId != 0) {
+				this.DatabaseHandler.cancelTournament(eventData.tournamentId);
+			}
 			// await this.DatabaseHandler.recordPlayerEvent(eventData.gameId, eventData.playerId, 'disconnected');
 		} catch (error) {
 			console.log("❌ Error while handling player disconnection: ")

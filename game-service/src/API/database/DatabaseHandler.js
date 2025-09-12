@@ -10,7 +10,7 @@ export default class DatabaseHandler {
         this.db.exec(`
 	CREATE TABLE IF NOT EXISTS tournaments (
 		id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-		status TEXT NOT NULL CHECK (status IN ('pending', 'ongoing_game', 'between-games', 'canceled', 'done')),
+		status TEXT NOT NULL CHECK (status IN ('pending', 'ongoing_game', 'between_games', 'canceled', 'done')),
 		id_user INTEGER NOT NULL,
 		name TEXT NOT NULL,
 		next_game INTEGER REFERENCES games(id),
@@ -462,14 +462,84 @@ export default class DatabaseHandler {
 		return (results);
 	}
 
-	updateTournamentStatus(tournamentId, status) {
-        const transaction = this.db.transaction((tournamentId, status) => {
-			const stmt = this.db.prepare(`
-	UPDATE tournaments 
-	SET status = ?,
+	cancelTournament(tournamentId) {
+			const transaction = this.db.transaction((tournamentId, status) => {
+			const getTournamentStmt = this.db.prepare(`
+	SELECT status
+	FROM tournaments 
 	WHERE id = ?
 			`);
-			const res = stmt.run(status, tournamentId);
+			const tournament = getTournamentStmt.get(tournamentId);
+			if (!tournament) {
+				throw new Error("No tournament found to cancel");
+			}
+			let updateStatusStmt = null;
+			if (tournament.status === "pending") {
+				updateStatusStmt = this.db.prepare(`
+	UPDATE tournaments 
+	SET status = ?, began_at = CURRENT_TIMESTAMP, finished_at = CURRENT_TIMESTAMP
+	WHERE id = ?
+				`);
+			} 
+			else {
+				updateStatusStmt = this.db.prepare(`
+	UPDATE tournaments 
+	SET status = ?, finished_at = CURRENT_TIMESTAMP
+	WHERE id = ?
+				`);
+			}
+			const res = updateStatusStmt.run(status, tournamentId);
+			if (res.changes === 0) {
+				throw new Error("No tournament found with the given tournamentId");
+			}
+
+			const cancelGamesStmt = this.db.prepare(`
+	UPDATE games
+	SET status = ?
+	WHERE id IN (
+		SELECT game_id
+		FROM tournament_matches
+		WHERE tournament_id = ?
+	)
+			`);
+			cancelGamesStmt.run(status, tournamentId);
+
+			const result = {
+				tournamentId: tournamentId,
+				status: status
+			};
+			return (result);
+		});
+
+		const result = transaction(tournamentId, "canceled");
+		return (result);
+	}
+
+	updateTournamentStatus(tournamentId, status) {
+        const transaction = this.db.transaction((tournamentId, status) => {
+			const getTournamentStmt = this.db.prepare(`
+	SELECT status
+	FROM tournaments
+	WHERE id = ?
+			`);
+			const tournament = getTournamentStmt.get(tournamentId);
+			
+			let updateStatusStmt = null;
+			if (tournament.status === "pending") {
+				updateStatusStmt = this.db.prepare(`
+	UPDATE tournaments 
+	SET status = ?, began_at = CURRENT_TIMESTAMP
+	WHERE id = ?
+				`);
+			} 
+			else {
+				updateStatusStmt = this.db.prepare(`
+	UPDATE tournaments 
+	SET status = ?
+	WHERE id = ?
+				`);
+			}
+			const res = updateStatusStmt.run(status, tournamentId);
 			if (res.changes === 0) {
 				throw new Error("No tournament found with the given tournamentId");
 			}
@@ -612,19 +682,27 @@ export default class DatabaseHandler {
 						`);
 						updatePlayerBStmt.run(currentMatch.winner, nextRoundMatch.game_id);
 					}
+
+					// Update tournament status
+					const updateTournamentStatus = this.db.prepare(`
+	UPDATE tournaments
+	SET status = ?
+	WHERE id = ?	
+					`);
+					updateTournamentStatus.run("between_games", tournamentId);
 				}
 			} 
 			else {
 				// Tournament is over, no next game
 				updateNextGameStmt.run(null, tournamentId);
 
-				// Set the tournament winner
+				// Set the tournament winner & status
 				const updateTournamentWinner = this.db.prepare(`
 	UPDATE tournaments
-	SET winner = ?
+	SET winner = ?, status = ?, finished_at = CURRENT_TIMESTAMP
 	WHERE id = ?
 				`);
-				updateTournamentWinner.run(currentMatch.winner, tournamentId);
+				updateTournamentWinner.run(currentMatch.winner, "done", tournamentId);
 			}
 			
 			return {
