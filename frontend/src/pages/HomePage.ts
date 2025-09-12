@@ -40,7 +40,7 @@ export class HomePage extends BasePage {
 			await this.rengerLogoutHome();
 		}
 	
-		let req = await updatePassword("encule");
+		let req = await addFriend("Pedro");
 		if (req.ok) {
 			console.log('update pass');
 		}
@@ -50,9 +50,11 @@ export class HomePage extends BasePage {
 
 /*		let req = await refuseRequest("Pedro");
 		if (req.ok) {
-			console.log("accept request sucessfully");
-		}
-		else
+			console.log("accept request sucessfully")Network: http://172.18.0.5:5173/
+frontend        | 7:13:18 PM [vite] http proxy error: /api/user/user-info
+frontend        | Error: connect ECONNREFUSED 172.18.0.4:3000
+frontend        |     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1611:16)
+
 			alert(req.error);
 */
 		await this.addInApp();

@@ -1,3 +1,4 @@
+import { sendRequestToUser } from "../../../request.js";
 import { checkUsernameFormat } from "../../tools/checkFormat.js";
 
 export async function   addFriend(request, reply)
@@ -41,6 +42,13 @@ export async function   addFriend(request, reply)
                                             friends (frie_user_id, frie_friend_user_id, frie_status) \
                                         VALUES \
                                             (?, ?, 0)");
+        const username = db.prepare ("  SELECT \
+                                            username \
+                                        FROM \
+                                            users \
+                                        WHERE \
+                                            id = ?").get(idUser);
+       // const req = await sendRequestToUser(idUser, username, friendUsername);
         statement.run(idUser, idFriend.id);
         return reply.code(200).send();
     }
