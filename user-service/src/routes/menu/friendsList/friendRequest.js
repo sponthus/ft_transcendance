@@ -48,13 +48,13 @@ export async function   addFriend(request, reply)
                                             users \
                                         WHERE \
                                             id = ?").get(idUser);
-       // const req = await sendRequestToUser(idUser, username, friendUsername);
+        const req = await sendRequestToUser(idUser, username, friendUsername);
         statement.run(idUser, idFriend.id);
         return reply.code(200).send();
     }
     catch (err)
     {
-        return reply.code(500).send({ error: "​Internal Servor Error"});
+        return reply.code(500).send({ error: "​Internal Servor Error" + err.message});
     }
 }
 
