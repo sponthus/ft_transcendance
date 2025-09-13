@@ -34,8 +34,10 @@ export default class GameServer {
             // balance le message a tout les players connecté
             if (this.ws.readyState === 1) {
 				this.ws.send(stateMsg);
-			}
-			if ((this.scoreA >= this.maxScore || this.scoreB >= this.maxScore) && this.end === false) {
+			} else {
+				console.log("❌ Unable to send game state");
+            }
+                if ((this.scoreA >= this.maxScore || this.scoreB >= this.maxScore) && this.end === false) {
                 this.end = true;
 				this.endGame();
             }
@@ -75,7 +77,10 @@ export default class GameServer {
 					break;
 
 				case "ping":
-					ws.send(JSON.stringify({ type: 'pong' }));
+					if (this.ws.readyState === 1)
+						this.ws.send(JSON.stringify({ type: 'pong' }));
+					else
+						console.log(" ❌ Websocket not available for pong")
 					break;
 
 				default:
@@ -109,6 +114,8 @@ export default class GameServer {
 				scoreA: this.scoreA,
 				scoreB: this.scoreB
             }));
+        } else {
+			console.log(" ❌ Unable to send endGame");
 		}
         this.state = 'finished';
         gameEventEmitter.emitGameEvent('game:ended', this.gameId, {
