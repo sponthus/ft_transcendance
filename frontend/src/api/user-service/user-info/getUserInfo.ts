@@ -1,6 +1,6 @@
 type UserInfo = //VA ETRE CHANGER, le token renvoie le username et l'id du user
 {
-    id: number
+    id?: number
     username: string;
     nickname: string;
     avatar: string;
@@ -24,6 +24,26 @@ export async function   getUserInfo() : Promise<GetUserInfoResult>
     {
         method: 'GET',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },    
+    });
+    const data = await res.json();
+    if (res.ok)
+    {
+        return ({ ok: true, userInfo: data.userInfo })   
+    }
+    return ({ ok: false, error: data.error });
+}
+
+export async function   getUserInfoByUsername(username: string) : Promise<GetUserInfoResult>
+{
+    const token = localStorage.getItem("token");
+    if (!token) {
+        console.log("getUserInfo : no token found");
+		return { ok: false };
+	}
+    const res = await fetch(`/api/user/user-info/other/${username}`, 
+    {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }, 
     });
     const data = await res.json();
     if (res.ok)

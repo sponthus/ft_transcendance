@@ -1,7 +1,7 @@
 import { checkLog } from "../api/user-service/connection/check-log.js";
 import { navigate } from "../core/router.js";
 import { BasePage } from "./BasePage.js";
-import { getUserInfo } from "../api/user-service/user-info/getUserInfo.js";
+import { getUserInfo, getUserInfoByUsername } from "../api/user-service/user-info/getUserInfo.js";
 import { updateUsername } from "../api/user-service/user-info/updateUsername.js";
 import { acceptRequest, addFriend, getAllFriends, refuseRequest, removeFriend} from "../api/user-service/menu/friendsList/friendRequest.js";
 
@@ -41,24 +41,14 @@ export class HomePage extends BasePage {
 			await this.rengerLogoutHome();
 		}
 	
-		let req = await addFriend("Pedro");
+		/*let req = await getUserInfoByUsername("Pedro");
 		if (req.ok) {
-			console.log('addFriend');
+			console.log('USER: ', req.userInfo);
 		}
 		else
 			alert(req.error);
-
-
-/*		let req = await refuseRequest("Pedro");
-		if (req.ok) {
-			console.log("accept request sucessfully")Network: http://172.18.0.5:5173/
-frontend        | 7:13:18 PM [vite] http proxy error: /api/user/user-info
-frontend        | Error: connect ECONNREFUSED 172.18.0.4:3000
-frontend        |     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1611:16)
-
-			alert(req.error);
 */
-		await this.addInApp();
+	await this.addInApp();
 	}
 
 	private async InitDivs() {

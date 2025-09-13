@@ -4,7 +4,7 @@ import loginThroughToken from "./connection/loginThroughToken.js";
 import updateUsername from "./user-info/updateUsername.js";
 import updateNickname from "./user-info/updateNickname.js";
 import { changeGameState, getGameState } from "./menu/gameState.js";
-import getUserInfo from "./user-info/getUserInfo.js";
+import { getUserInfo, getUserInfoByUsername } from "./user-info/getUserInfo.js";
 import { getCharacterAsset, changeCharacterAsset } from "./menu/characterAsset.js";
 import { getNpcAsset, changeNpcAsset } from "./menu/npcAsset.js";
 import { changeBackgroundColor, getBackgroundColor } from "./menu/backgroundColor.js";
@@ -33,6 +33,7 @@ export default async function newRoutes(fastify, options)
     //pas de page de profil, fonction tester avec curl --> MARCHE :)))))))
     //faudra juste verifier qu'il prend bien le nouveau token
     fastify.get("/user-info", { preHandler: [fastify.authenticate] }, getUserInfo);
+    fastify.get("/api/user/user-info/other/:username", { preHandler: [fastify.authenticate] }, getUserInfoByUsername);
     fastify.patch("/user-info/username", { preHandler: [fastify.authenticate] } , updateUsername);
     fastify.patch("/user-info/nickname", { preHandler: [fastify.authenticate] } , updateNickname);
     fastify.patch("/user-info/password", { preHandler: [fastify.authenticate] } , updatePassword);
