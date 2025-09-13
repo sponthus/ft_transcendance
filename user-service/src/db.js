@@ -7,7 +7,7 @@ import env from "../config/env.js"; //ou c'est ? sert a quoi ?
 // Initializes database from a file spec. in env variables, default = ./blog.db
 async function dbConnector(fastify, options)
 {
-    const dbFile = env.dbFile || "./users.db";
+    const dbFile = env.usersDbFile || "./users.db";
     const db = new Database(dbFile, { verbose: console.log });
    
     //FAIRE UNE TRANSACTION

@@ -64,6 +64,7 @@ UPLOAD_PORT=3003
 UPLOAD_SERVICE=upload-service
 
 HASH_KEY=$(generate_rand "hash_key.txt")
+API_KEY=$(generate_rand "api_key.txt")
 
 NODE_ENV=$(chose_mode "Chose dev mode (1) or production mode (2) : " validate_num_choice)
 
@@ -78,7 +79,6 @@ GAME_PORT=$GAME_PORT
 GAME_SERVICE=$GAME_SERVICE
 UPLOAD_PORT=$UPLOAD_PORT
 UPLOAD_SERVICE=$UPLOAD_SERVICE
-HASH_KEY=$HASH_KEY
 EOF
 
 echo "-------------------------------------------"

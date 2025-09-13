@@ -11,7 +11,7 @@ import { changeBackgroundColor, getBackgroundColor } from "./menu/backgroundColo
 import { addFriend, removeFriend } from "./menu/friendsList/friendRequest.js";
 import { getAllFriends } from "./menu/friendsList/getAllFriends.js";
 import { getAllUsers } from "./menu/getAllUsers.js";
-import { acceptRequest, refuseRequest } from "./menu/friendsList/requestHandlers.js";
+import { acceptRequest, getReceivedRequests, getSentRequests, refuseRequest } from "./menu/friendsList/requestHandlers.js";
 import updatePassword from "./user-info/updatePassword.js";
 
 //TODO
@@ -53,6 +53,8 @@ export default async function newRoutes(fastify, options)
     fastify.delete("/menu/friendslist", { preHandler: [fastify.authenticate] }, removeFriend);
     //fastify.get("/menu/friendslist", { preHandler: [fastify.authenticate] }, addFriend);
     fastify.get("/menu/friendslist/", { preHandler: [fastify.authenticate] }, getAllFriends);
+    fastify.get("/menu/friendslist/request/sent", { preHandler: [fastify.authenticate] }, getSentRequests);
+    fastify.get("/menu/friendslist/request/received", { preHandler: [fastify.authenticate] }, getReceivedRequests);
     fastify.post("/menu/friendslist/request", { preHandler: [fastify.authenticate] }, acceptRequest);
     fastify.delete("/menu/friendslist/request", { preHandler: [fastify.authenticate] }, refuseRequest);
 }

@@ -1,6 +1,8 @@
 import { Checkbox } from '@babylonjs/inspector/fluent/primitives/checkbox';
 import { createDiv, createElement, createButton, createDropdownDiv, createFormDiv, createCheckBoxLabel, append} from '../../Utils/elementMaker.js';
 import { availableGames } from './AvailableGames.js';
+import { getTournamentMatches, GameInfos, getTournamentNextMatch } from "../../api/game-service/tournaments/getTournaments.js" 
+import { Game } from '../../babylon/main.js';
 
 /**
  * in event.ts you can find the class wich add tournament in the backend (saveTournament() call by SaveNewParty()) and launch round (function PlayRound()) 
@@ -16,7 +18,10 @@ export class TournamentPage {
 	private PartyMap!: Map<number, HTMLInputElement>;
 	private AvailableGames: availableGames;
 	private Tournament?: any;
+	private TournamentId?: number;
+	private NextGameId: number;
 	private Username!: string;
+	private TournamentMatches: Map<number, number>; // Map<gameId, idDiv>
 
 
 	constructor(Page: HTMLElement, UserName: string) {
@@ -25,6 +30,8 @@ export class TournamentPage {
 		this.PartyMap = new Map<number, HTMLInputElement>();
 		this.AvailableGames = new availableGames(this.Page, this.PartyMap);
 		this.Username = UserName;
+		this.TournamentMatches = new Map<number, number>();
+		this.NextGameId = 0; // Impossible value, game id never 0
 	}
 
 	async render() {
@@ -38,16 +45,40 @@ export class TournamentPage {
 	}
 
 	async renderBracket(IdTournament: number) {
+		this.TournamentId = IdTournament;
 		/*******function for rendering bracket tournament**********/
 		try {
-			// find tournament by id and put it in this.tournament
-			/***********************function for render bracket tournament call api for find wich tournament*************************/
-			this.BracketDiv = createDiv("bracket", "flex justify-between items-center h-full w-full space-x-4");
-			// this.createRound1([0/** round 0**/, 1 /** round 1**/]);
-			this.createRound2(0/** round 4**/);
-			this.createFinal(2/** round 6**/);
-			this.createRound2(1/** round 5**/);
-			// this.createRound1([2/** round 2**/, 3/** round 3**/]);
+			const data = await getTournamentMatches(IdTournament);
+			if (!data.ok)
+				throw new Error("Unable to get tournament matches");
+
+				this.TournamentMatches.clear(); // On vide avant de remplir
+
+				// Assign key = gameId, value = element in div
+				data.matches.forEach((match, index) => {
+					this.TournamentMatches.set(match.id, index + 1);
+				});
+				console.log(this.TournamentMatches);
+			/***********************function to render bracket tournament *************************/
+			this.BracketDiv = createDiv("bracket", "flex justify-between items-center h-full w-full space-x-4") as HTMLElement;
+			
+			const numberOfMatches = data.matches.length;
+			// TODO = Add 6-players tournament disposition ?
+			if (numberOfMatches == 3) // 4 players tournament
+			{
+				// Give 1 element from the list of matches results as a parameter
+				// Render from left to right
+				this.createRound2(1, data.matches[0]);
+				this.createFinal(3, data.matches[2]);
+				this.createRound2(2, data.matches[1]);
+			} else if (numberOfMatches == 7) // 8-players tournament
+			{
+				this.createRound1([1, 2], [data.matches[0], data.matches[1]]);/** match 1**//** round 2**/
+				this.createRound2(5, data.matches[4]/** match 5**/);
+				this.createFinal(7, data.matches[6]/** match 7**/);
+				this.createRound2(4, data.matches[5]/** match 6**/);
+				this.createRound1([3, 4], [data.matches[2], data.matches[3]]);/** match 3**//** match 4**/
+			}
 			append(this.Page, [this.BracketDiv]);
 			this.findNextRound();
 		} catch (error) {
@@ -55,55 +86,68 @@ export class TournamentPage {
 		}
 	}
 
-	// private createRound1(Matchs: [MatchA: number, MatchB: number]) {
-	// 	const Round1Div = createDiv("round1", "flex flex-col justify-around h-full w-[20%] space-y-4");
-	// 	for (let i = 0; i < 2; i++) 
-	// 		append(Round1Div, [(this.createMatch(Matchs[i], "flex flex-col items-center justify-around h-[50%] w-full bg-orange-400 rounded-full space-y-4") as HTMLElement)]);
+	// Create 2 matches in 1 vertical div
+	private createRound1(Matchs: number[], data: GameInfos[]) {
+		const Round1Div = createDiv("round1", "flex flex-col justify-around h-full w-[20%] space-y-4");
+		for (let i = 0; i < 2; i++) 
+			append(Round1Div, [(this.createMatch(Matchs[i], "flex flex-col items-center justify-around h-[50%] w-full bg-orange-400 rounded-full space-y-4", data[i], true) as HTMLElement)]);
 
-	// 	append(this.BracketDiv, [Round1Div]);
-	// }
+		append(this.BracketDiv, [Round1Div]);
+	}
 	
-	private createRound2(Match: number) {
+	// Create div match for round
+	private createRound2(Match: number, data: GameInfos) {
 		const Round2Div = createDiv("round2", "flex flex-col justify-around h-full w-[20%] space-y-4");
-		append(Round2Div, [(this.createMatch(Match, "flex flex-col items-center justify-around h-[75%] w-full bg-orange-400 rounded-full space-y-4") as HTMLElement)]);
+		append(Round2Div, [(this.createMatch(Match, "flex flex-col items-center justify-around h-[75%] w-full bg-orange-400 rounded-full space-y-4", data, false) as HTMLElement)]);
 		append(this.BracketDiv, [Round2Div]);
 	}
 
-	private createFinal(Match: number) {
+	// Create the final match 
+	private createFinal(Match: number, data: GameInfos) {
 		const Round2Div = createDiv("round2", "flex flex-col justify-around h-full w-[20%] space-y-4");
-		append(Round2Div, [(this.createMatch(Match, "flex flex-col items-center justify-around h-[50%] w-full bg-orange-400 rounded-full space-y-4") as HTMLElement)]);
+		append(Round2Div, [(this.createMatch(Match, "flex flex-col items-center justify-around h-[50%] w-full bg-orange-400 rounded-full space-y-4", data, true) as HTMLElement)]);
 		append(this.BracketDiv, [Round2Div]);
 	}
 
-	private createMatch(Match: number, ClassName :string): HTMLElement {
+	private createMatch(Match: number, ClassName :string, data: GameInfos, final: boolean): HTMLElement {
 		const MatchDiv =  createDiv(`match-${Match}`, ClassName) as HTMLElement;
-	
-		try {
-			/************Call API for round with this.tournament and Match*************/
-			const TabPlayer: [Player1: string, Player2: string] = ["Player A"/**replace by player A Name or "Winner" if there is no player name***/, "Player B"/**replace by player B Name or "Winner" if there is no player name***/];
-			for (let i = 0; i < 2; i++) {
-				const PlayerDiv = createDiv(`player-${i + i}`, "border rounded-xl w-[50%] text-center") as HTMLElement;
-				append(PlayerDiv, [createElement('p', `player-${i + i}`, TabPlayer[i],  "text-emerald-600") as HTMLElement]);
-				append(MatchDiv, [PlayerDiv]);
-				if (i == 0 && Match != 2) 
-					append(MatchDiv, [createElement('p', `match-${Match}`, `Round ${Match}`, "text-emerald-600 font-bold")]);
-				else if (i == 0 && Match == 2)
+		const MatchRound = data.round + 1;
+		const MatchNumber = data.match + 1;
+
+		const TabPlayer: [Player1: string, Player2: string] = [data.player_a/**replace by player A Name or "Winner" if there is no player name***/, data.player_b/**replace by player B Name or "Winner" if there is no player name***/];
+		
+		for (let i = 0; i < 2; i++) {
+			const PlayerDiv = createDiv(`player-${i + i}`, "border rounded-xl w-[50%] text-center") as HTMLElement;
+			append(PlayerDiv, [createElement('p', `player-${i + i}`, TabPlayer[i],  "text-emerald-600") as HTMLElement]);
+			append(MatchDiv, [PlayerDiv]);
+			if (i == 0) {
+				if (final) {
 					append(MatchDiv, [createElement('p', `match-${Match}`, `Final`, "text-emerald-600 font-bold")]);
+				} else {
+					append(MatchDiv, [createElement('p', `match-${Match}`, `Round ${MatchRound}`, "text-emerald-600 font-bold")]);
+				}
 			}
 		}
-		catch (error) {}
-	
 		return MatchDiv
 	}
 
-	private findNextRound(): number {
-		// if (!this.Tournament)
-		// 	return ;
-		/****************find next round with this.Tournament***********/
+	// Identifies next game to play in a tournament
+	private async findNextRound() {
 		let NextRound: number = 0;
-		let idRound: number = 0;
+		try {
+			if (!this.TournamentId)
+				throw new Error("No tournament ID defined in class"); // Debug, to remove ?
+			const data = await getTournamentNextMatch(this.TournamentId);
+			if (!data.ok)
+				throw new Error("Error getting next match: " + data.error);
+			this.NextGameId = data.next_match.game_id;
+			if (!this.TournamentMatches.has(this.NextGameId))
+				throw new Error("Next tournament id not found in matches");
+			NextRound = this.TournamentMatches.get(this.NextGameId)!;
+		} catch (error) {
+			alert(error);
+		}
 		(document.getElementById(`match-${NextRound}-div`) as HTMLElement)?.classList.add('bg-orange-500');
-		return idRound; // not necessary to return something because if you have to call API you can juste put in private variable and do some get for Event.ts accessibility
 	}
 
 	private async createTournamentPageDiv() {
@@ -114,6 +158,7 @@ export class TournamentPage {
 		append(this.Page, [Div]);
 	}
 	
+	// Title
 	private createNewTournamentText(Div: HTMLElement) {
 		const TextDiv: HTMLElement =  createDiv("TournamentPage-title", "flex items-center justify-center");
 		const TournamentModText: HTMLElement = createElement('h1', "TournamentPage-title", "Create New Tournament",  "text-emerald-600 text-center underline");
@@ -123,6 +168,7 @@ export class TournamentPage {
 			append(Div, [TextDiv]);
 	}
 	
+	// "New "button
 	private createNewTournamentBtn(Div: HTMLElement) {
 		const BtnDiv: HTMLElement = createDiv("New", "flex items-center justify-center text-center p-4 bg-transparent py-3 px-4 w-full space-x-24");
 	
@@ -140,6 +186,7 @@ export class TournamentPage {
 		this.renderTournamentFormDiv();
 	}
 
+	// Form content to create a tournament
 	private async renderTournamentFormDiv() {
 		const FormsDiv: HTMLFormElement = this.createNewTournamentFormDiv();
 		this.addPlayersNameForm(FormsDiv, "Player1", "player_a_me", "Player 1 Name");
@@ -148,6 +195,7 @@ export class TournamentPage {
 		this.addPlayersNameForm(FormsDiv, "Player4", "player_d_me", "Player 4 Name");
 	}
 
+	// form element for 1 player and his checkbox 
 	private addPlayersNameForm(Div: HTMLElement, IdForm: string, idCheckBox: string, TextContent: string) {
 		const Player: HTMLElement = createFormDiv(["text", IdForm, TextContent , true]
 										,IdForm
@@ -163,6 +211,7 @@ export class TournamentPage {
 		append(Div, [Player]);
 	}
 
+	// Form for tournament name
 	private createNewTournamentFormDiv() : HTMLFormElement {
 		const FormsDiv: HTMLFormElement = document.createElement('form');
 		FormsDiv.id = "new-tournament-form";
@@ -175,9 +224,10 @@ export class TournamentPage {
 											,"w-full border bg-orange-200 border-emerald-600 rounded-lg focus:ring-2 focus:ring-emerald-800focus:border-emerald-8 00 transition-colors duration-200 placeholder-emerald-600 text-center"
 											,"block text-sm text-center font-medium text-emerald-500 mb-2"]) as HTMLElement ),FormsDiv]);
 
-		return FormsDiv
+		return FormsDiv;
 	}
 
+	// check for me checkboc function
 	private openTournamentForm() {
 		this.FormMap.forEach((value: HTMLInputElement, key: HTMLElement) => {
 			value.addEventListener('change', () => {
@@ -195,6 +245,7 @@ export class TournamentPage {
 		}) 
 	}
 
+	// function to call refresh tournament
 	async refreshAvailableTournament() {
 		this.AvailableGames.refreshAvailableTournament();
 	}
@@ -216,5 +267,9 @@ export class TournamentPage {
 			return this.Tournament;
 		else
 			return null;
+	}
+
+	get _NextGameId(): number {
+		return this.NextGameId;
 	}
 }

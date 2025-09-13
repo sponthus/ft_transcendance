@@ -3,11 +3,12 @@ import { navigate } from "../core/router.js";
 import { BasePage } from "./BasePage.js";
 import { getUserInfo } from "../api/user-service/user-info/getUserInfo.js";
 import { updateUsername } from "../api/user-service/user-info/updateUsername.js";
-import { acceptRequest, addFriend, getAllFriends, refuseRequest, removeFriend} from "../api/user-service/menu/friendsList/friendsList.js";
+import { acceptRequest, addFriend, getAllFriends, refuseRequest, removeFriend} from "../api/user-service/menu/friendsList/friendRequest.js";
 
 import { getAllUsers } from "../api/user-service/menu/getAllUsers.js";
 import { append, createAnchorElement, createDiv, createImage } from "../Utils/elementMaker.js";
 import { updatePassword } from "../api/user-service/user-info/updatePassword.js";
+import { getSentRequests, getReceivedRequests} from "../api/user-service/menu/friendsList/requestHandlers.js";
 
 export class HomePage extends BasePage {
 
@@ -42,7 +43,7 @@ export class HomePage extends BasePage {
 	
 		let req = await addFriend("Pedro");
 		if (req.ok) {
-			console.log('update pass');
+			console.log('addFriend');
 		}
 		else
 			alert(req.error);
