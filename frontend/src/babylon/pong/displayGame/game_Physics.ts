@@ -53,7 +53,6 @@ export class GamePhysics {
 		this._crab2 = crab2;
 		this._menuPause = menuPause;
 		this._light = light;
-		
 		this._score = new Score(this._scene, this._scoreValue1, this._scoreValue2);
 
 		this._ball.speed = 0;
@@ -112,6 +111,9 @@ export class GamePhysics {
 				this.updateFrontend();
 			}
 			if (data.type === "endGame") {
+				this._scoreValue1 = 0;
+				this._scoreValue2 = 0;
+				this._score.updateScore(this._scoreValue1, this._scoreValue2);
 				this._Win = true;
 			}
 		};
@@ -138,11 +140,6 @@ export class GamePhysics {
 				this._scoreValue1 = this._serverState.score.s1;
 				this._scoreValue2 = this._serverState.score.s2;
 				this._score.updateScore(this._scoreValue1, this._scoreValue2);
-				// if (this._scoreValue1 >= this._MaxScore || this._scoreValue2 >= this._MaxScore) {
-				// 	this._scoreValue1 = 0;
-				// 	this._scoreValue2 = 0;
-				// 	this._Win = true;
-				// }
 				this._timeBobSpeak = 10;
 			}
 			this._spell1 = new Vector3(this._serverState.spell1.x , 1, this._serverState.spell1.z);
