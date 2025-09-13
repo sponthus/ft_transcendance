@@ -1,12 +1,32 @@
-import { Scene, AbstractMesh, AnimationGroup, Vector3 } from "@babylonjs/core";
-import { ImportMeshAsync } from "@babylonjs/core/Loading/sceneLoader";
+// Core
+import { Scene, AbstractMesh, AnimationGroup, Vector3, Mesh, MeshBuilder, Vector2, Color3 } from "@babylonjs/core";
+
+// Loaders pour glTF/GLB
 import "@babylonjs/loaders/glTF";
+
+// Textures et cube textures
+import { Texture } from "@babylonjs/core/Materials/Textures/texture";
+import { CubeTexture } from "@babylonjs/core/Materials/Textures/cubeTexture";
+
+// Matériaux
+import { StandardMaterial } from "@babylonjs/core/Materials/standardMaterial";
+
+// Water Material
+import { WaterMaterial } from "@babylonjs/materials/water/waterMaterial";
+
+// SceneLoader
+import { SceneLoader, ImportMeshAsync } from "@babylonjs/core/Loading/sceneLoader";
+
+import { TransformNode } from "@babylonjs/core/Meshes/transformNode";
+import { Quaternion } from "@babylonjs/core/Maths/math.vector";
+
 
 export class DisplayAssets {
 	private _scene: Scene;
 	private _crab1: AbstractMesh | null = null;
 	private _crab2: AbstractMesh | null = null;
 	private _caste: AbstractMesh | null = null;
+	private _casteAnimation: AnimationGroup[] | null = null;
 	private _crab1Walk: AnimationGroup[] | null = null;
 
 	private _patrick: AbstractMesh | null = null;
@@ -14,7 +34,15 @@ export class DisplayAssets {
 
 	private _ananas: AbstractMesh | null = null;
 	private _gary: AbstractMesh | null = null;
-	private _menuPause: AbstractMesh | null = null;
+
+	private _MenuPause: AbstractMesh | null = null;
+
+	//private _skybox: AbstractMesh | null = null;
+
+	private _ground?: Mesh;
+	private _waterMaterial?: WaterMaterial;
+	private _skybox?: Mesh;
+	private _skyboxMaterial?: StandardMaterial;
 
 	constructor(scene: Scene) {
 		this._scene = scene;
@@ -41,7 +69,7 @@ export class DisplayAssets {
 		const result3 = await ImportMeshAsync("/assets/chateauSable.glb", this._scene);
 		this._caste = result3.meshes[0];
 		this._caste.position = new Vector3(0, -2, 0);
-
+		result3.animationGroups.forEach(anim => anim.start(true, 1.0));
 		// const result4 = await ImportMeshAsync("/assets/bobAnime.glb", this._scene);
 		// this._bob = result4.meshes[0];
 		// this._bob.scaling = new Vector3(2, 2, 2);
@@ -82,20 +110,32 @@ export class DisplayAssets {
 		//this._ananas.rotation = new Vector3(0, 4.7, 0);
 
 		const result8 = await ImportMeshAsync("/assets/MenuPause.glb", this._scene);
-		this._menuPause = result8.meshes[0];
-		this._menuPause.position.x = 0.5;
-		this._menuPause.position.y = 5;
-		this._menuPause.position.z = 0;
-		this._menuPause.scaling = new Vector3(0.3, 0.3, 0.3);
-		this._menuPause.rotation = new Vector3(1.57, 0, 4.71);
-		// this._MenuPause.setEnabled(false);
+        this._MenuPause = result8.meshes[0];
+        // this._test.position.x = 8;
+        // this._test.position.y = -2;
+        // this._test.position.z = 8;
+        //this._test.billboardMode = Mesh.BILLBOARDMODE_ALL;
+        this._MenuPause.scaling = new Vector3(0.035, 0.035, 0.035);
+        // créer le parent et l'attacher à la caméra
+        const hudParent = new TransformNode("hudParent", this._scene);
+        hudParent.parent = this._scene.activeCamera!;        // le parent suit la caméra
+        hudParent.position = new Vector3(0, 0, 2);           // 3 unités devant en espace local caméra
 
-		// this._caste.freezeWorldMatrix(); // plus de recalculs de position/rotation/scale
-		// this._caste.doNotSyncBoundingInfo = true; // plus de bounding box à recalculer
-		// this._caste.isPickable = false; // si t'as pas besoin de clic dessus
-		// this._caste.receiveShadows = false; // si pas de shadow nécessaire
+        // attacher ton mesh au parent
+        this._MenuPause.parent = hudParent;
+        this._MenuPause.billboardMode = Mesh.BILLBOARDMODE_ALL;   // si tu veux garder le billboard
+        // appliquer l'offset 180°
+        this._MenuPause.rotationQuaternion = Quaternion.RotationAxis(new Vector3(0, 1, 0), Math.PI);
+
+		this._caste.freezeWorldMatrix(); // plus de recalculs de position/rotation/scale
+		this._caste.doNotSyncBoundingInfo = true; // plus de bounding box à recalculer
+		this._caste.isPickable = false; // si t'as pas besoin de clic dessus
+		this._caste.receiveShadows = false; // si pas de shadow nécessaire
 
 		this.playWalk1();
+
+		await this._makingSkybox();
+		await this._renderWater();
 	}
 
 	public playWalk1()
@@ -124,10 +164,45 @@ export class DisplayAssets {
 	{
 		return this._crab2;
 	}
-
-	public get menuPause(): AbstractMesh | null
-	{
-		return this._menuPause;
-	}
 	
+	private async _makingSkybox(): Promise<void>
+	{
+		this._skybox = MeshBuilder.CreateBox("skyBox", { size: 1000 }, this._scene);
+
+		this._skyboxMaterial = new StandardMaterial("skybox_material", this._scene);
+		this._skyboxMaterial.backFaceCulling = false;
+		this._skyboxMaterial.disableLighting = true;
+
+		// Charge la texture d'environnement pré-filtrée
+		// Assure-toi que le fichier env est dans /assets/skybox/env.env
+		this._skyboxMaterial.reflectionTexture = CubeTexture.CreateFromPrefilteredData("/assets/textures/moon.env", this._scene);
+
+		this._skybox.material = this._skyboxMaterial;
+		this._skybox.infiniteDistance = true;
+	}
+
+	private async _renderWater(): Promise<void>
+	{
+		// Crée le plan d'eau
+		this._ground = MeshBuilder.CreateGround("ground", {width: screen.width, height: screen.height, subdivisions: 64},this._scene);
+		this._ground.position = new Vector3(5, -8, 5);
+
+		// Crée le matériau eau
+		this._waterMaterial = new WaterMaterial("water_material", this._scene, new Vector2(512, 512));
+
+		this._waterMaterial.bumpTexture = new Texture("/asset/pic/26672.jpg", this._scene);
+		this._waterMaterial.bumpHeight = 1;
+		this._waterMaterial.windForce = 1;
+		
+		this._waterMaterial.waveHeight = 0.5;
+		this._waterMaterial.waveLength = 0.05;
+		this._waterMaterial.waterColor = new Color3(0.1, 0.4, 1.4);
+		this._waterMaterial.colorBlendFactor = 0.1;
+
+		// Pour les reflets, on ajoute simplement les objets visibles à la liste de rendu
+		if (this._skybox) this._waterMaterial.addToRenderList(this._skybox);
+
+		// Assigne le matériau à ton plan d'eau
+		this._ground.material = this._waterMaterial;
+	}
 }
