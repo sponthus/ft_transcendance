@@ -18,10 +18,9 @@ export class PongGame {
 		this.input1 = {};
 		this.dt = 0.16666; // 1/60
 		this.ispaused = true;
-
-		this.spell1 = { x: 0, z : -10};
+		this.spell1 = { x: -0.22, y: 1.9, z : -10.56};
 		this.isSpellGo1 = false;
-		this.spell2 = { x: 0, z : 10};
+		this.spell2 = { x: 0.22, y: 1.9, z : 10.56};
 		this.isSpellGo2 = false;
 		this.specialCooldown1 = 3;
 		this.specialCooldown2 = 3;
@@ -44,6 +43,9 @@ export class PongGame {
 
 		this.die1 = false;
 		this.die2 = false;
+
+		this.groundLimitePositif = 5.8;
+		this.groundLimiteNegatif = -5.8;
 
 	}
 
@@ -83,8 +85,8 @@ export class PongGame {
 			paddle2: { x: this.paddle2.x},
 			ball: { x: this.ball.x, z: this.ball.z },
 			score: {s1: this.score.s1 ,s2: this.score.s2},
-			spell1: {x: this.spell1.x, z: this.spell1.z},
-			spell2: {x: this.spell2.x, z: this.spell2.z},
+			spell1: {x: this.spell1.x, y: this.spell1.y, z: this.spell1.z},
+			spell2: {x: this.spell2.x, y: this.spell2.y, z: this.spell2.z},
 			specialCooldown1: this.specialCooldown1,
 			specialCooldown2: this.specialCooldown2,
 			die1: this.die1,
@@ -103,9 +105,9 @@ export class PongGame {
 
 	movePlayer1()
 	{
-		if (this.input1.q && this.paddle1.x > -4.5)
+		if (this.input1.q && this.paddle1.x > this.groundLimiteNegatif + 0.5)
 			this.paddle1.x -= this.speedPaddle;
-		if (this.input1.e && this.paddle1.x < 4.5)
+		if (this.input1.e && this.paddle1.x < this.groundLimitePositif - 0.5)
 			this.paddle1.x += this.speedPaddle;
 	}
 
@@ -113,9 +115,9 @@ export class PongGame {
 	{
 		if (this.gameMode === 1)
 		{
-			if (this.input1['7'] && this.paddle2.x > -4.5)
+			if (this.input1['7'] && this.paddle2.x > this.groundLimiteNegatif + 0.5)
 				this.paddle2.x -= this.speedPaddle;
-			if (this.input1['9'] && this.paddle2.x < 4.5)
+			if (this.input1['9'] && this.paddle2.x < this.groundLimitePositif - 0.5)
 				this.paddle2.x += this.speedPaddle;
 		}
 		else
@@ -139,14 +141,14 @@ export class PongGame {
 
 	checkCollisionWall()
 	{
-		if (this.ball.x < -5.8 )
+		if (this.ball.x < this.groundLimiteNegatif )
 		{
-			this.ball.x = -5.7;
+			this.ball.x = this.groundLimiteNegatif + 0.1;
 			this.ball.dirX *= -1;
 		}
-		if (this.ball.x > 5.8)
+		if (this.ball.x > this.groundLimitePositif)
 		{
-			this.ball.x = 5.7;
+			this.ball.x = this.groundLimitePositif - 0.1;
 			this.ball.dirX *= -1;
 		}
 	}
@@ -213,10 +215,9 @@ export class PongGame {
 		this.ball.dirZ /= length;
 		this.die1 = false;
 		this.die2 = false;
-
-		this.spell1 = { x: 0, z : -10};
+		this.spell1 = { x: -0.22, y: 1.8, z: -10.56};
 		this.isSpellGo1 = false;
-		this.spell2 = { x: 0, z : 10};
+		this.spell2 = { x: 0.22, y: 1.8, z: 10.56};
 		this.isSpellGo2 = false;
 		this.specialCooldown1 = 3;
 		this.specialCooldown2 = 3;
@@ -257,13 +258,15 @@ export class PongGame {
 			if (this.spell1.z < -9)
 			{
 				this.spell1.x = this.paddle1.x;
+				this.spell1.y = 0.4;
 				this.spell1.z = -7;//this.paddle.z + 1;
 			}
 			if (this.spell1.z > 9)
 			{
 				this.isSpellGo1 = false;
-				this.spell1.x = 0;
-				this.spell1.z = -10;
+				this.spell1.x = -0.22;
+				this.spell1.y = 1.8;
+				this.spell1.z = -10.56;
 			}
 			this.impactCrabmehameha(this.spell1, -10, this.paddle2, 8);
 			this.spell1.z += this.dt;
@@ -273,13 +276,15 @@ export class PongGame {
 			if (this.spell2.z > 9)
 			{
 				this.spell2.x = this.paddle2.x;
+				this.spell2.y = 0.4;
 				this.spell2.z = 7;//this.paddle.z + 1;
 			}
 			if (this.spell2.z < -9)
 			{
 				this.isSpellGo2 = false;
-				this.spell2.x = 0;
-				this.spell2.z = 10;
+				this.spell2.x = 0.22;
+				this.spell2.y = 1.9;
+				this.spell2.z = 10.56;
 			}
 			this.impactCrabmehameha(this.spell2, 10, this.paddle1, -8);
 			this.spell2.z -= this.dt;

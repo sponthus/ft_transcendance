@@ -142,10 +142,10 @@ export class GamePhysics {
 				this._score.updateScore(this._scoreValue1, this._scoreValue2);
 				this._timeBobSpeak = 10;
 			}
-			this._spell1 = new Vector3(this._serverState.spell1.x , 1, this._serverState.spell1.z);
+			this._spell1 = new Vector3(this._serverState.spell1.x , this._serverState.spell1.y, this._serverState.spell1.z);
 			if (this._spell1.z > -9 || (this._spell1.z < -9 && this._serverState.specialCooldown1 < 0))
 				crabmehamehaFX(this._scene, this._spell1);
-			this._spell2 = new Vector3(this._serverState.spell2.x , 1, this._serverState.spell2.z);
+			this._spell2 = new Vector3(this._serverState.spell2.x , this._serverState.spell2.y, this._serverState.spell2.z);
 			if (this._spell2.z < 9 || (this._spell2.z > 9 && this._serverState.specialCooldown2 < 0))
 				crabmehamehaFX(this._scene, this._spell2);
 
