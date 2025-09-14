@@ -33,8 +33,8 @@ export class PongGame {
 		this.ball = {
 			x: 0,
 			z: 0,
-			dirX: (Math.random() * (0.5 - (0)) + (0)),
-			dirZ: (Math.random() * 2 - 1),
+			dirX: Math.random() -0.5,
+			dirZ: Math.random() < 0.5 ? -1 : 1,
 			speed: 1 // unité par seconde
 		};
 		const length = Math.sqrt(this.ball.dirX ** 2 + this.ball.dirZ ** 2);
@@ -203,10 +203,11 @@ export class PongGame {
 		this.ball = {
 			x: 0,
 			z: 0,
-			dirX: Math.random() * (0.5 - (0)) + (0),
-			dirZ: (Math.random() * 2 - 1),
+			dirX: Math.random() -0.5,
+			dirZ: Math.random() < 0.51 ? -1 : 1,
 			speed: 1
 		};
+		this.ball.dirX *= 1.5;
 		const length = Math.sqrt(this.ball.dirX ** 2 + this.ball.dirZ ** 2);
 		this.ball.dirX /= length;
 		this.ball.dirZ /= length;
