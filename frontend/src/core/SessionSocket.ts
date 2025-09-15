@@ -10,8 +10,7 @@ export class SessionSocket {
     private pongInterval: number = 5000; // 5s to recieve back pong
     private userId: number = 0;
 
-    constructor(userId: number) {
-        this.userId = userId;
+    constructor() {
 		try {
 			console.log("Creating new WebSocket connection");
 			this.ws = new WebSocket(this.getGameWsUrl());
@@ -24,14 +23,14 @@ export class SessionSocket {
 		}
     }
 
-    static getInstance(userId: number = -1): SessionSocket {
+    static getInstance(): SessionSocket {
         // console.log("=== Socket.getInstance DEBUG ===");
         // console.log("Current Socket.instance:", !!Socket.instance);
         // console.log("Global instance exists:", !!(window as any).GLOBAL_WEBSOCKET);
 
         if (!SessionSocket.instance) {
             console.log("Creating new Socket instance");
-            SessionSocket.instance = new SessionSocket(userId);
+            SessionSocket.instance = new SessionSocket();
             // (window as any).GLOBAL_WEBSOCKET = Socket.instance;
         }
 
