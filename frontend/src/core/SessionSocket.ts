@@ -1,7 +1,7 @@
 /// <reference types="vite/client" />
 
-export class Socket {
-    static instance: null | Socket = null;
+export class SessionSocket {
+    static instance: null | SessionSocket = null;
     public ws: WebSocket;
     public sWS: WebSocket;
     private heartbeatInterval: number | null = null;
@@ -15,8 +15,8 @@ export class Socket {
 		try {
 			console.log("Creating new WebSocket connection");
 			this.ws = new WebSocket(this.getGameWsUrl());
-			this.setupEventListeners();
             this.sWS = new WebSocket(this.getStatusWsUrl());
+			this.setupEventListeners();
 
 		} catch (error) {
 			console.error("Failed to create socket", error);
@@ -24,34 +24,34 @@ export class Socket {
 		}
     }
 
-    static getInstance(userId: number = -1): Socket {
+    static getInstance(userId: number = -1): SessionSocket {
         // console.log("=== Socket.getInstance DEBUG ===");
         // console.log("Current Socket.instance:", !!Socket.instance);
         // console.log("Global instance exists:", !!(window as any).GLOBAL_WEBSOCKET);
 
-        if (!Socket.instance) {
+        if (!SessionSocket.instance) {
             console.log("Creating new Socket instance");
-            Socket.instance = new Socket(userId);
+            SessionSocket.instance = new SessionSocket(userId);
             // (window as any).GLOBAL_WEBSOCKET = Socket.instance;
         }
 
         // console.log("=== END Socket.getInstance DEBUG ===");
-        return Socket.instance;
+        return SessionSocket.instance;
     }
 
     private setupEventListeners() {
-        if (!this.ws) {
+        if (!this.sWS) {
             console.error("No socket connection found to configurate");
             return;
         }
 
-        this.ws.onopen = () => {
+        this.sWS.onopen = () => {
             console.log("Connected to WebSocket server, sending auth with id " + this.userId);
             this.authenticate();
             this.startHeartbeat();
         };
 
-        this.ws.onmessage = (event) => {
+        this.sWS.onmessage = (event) => {
             try {
                 const data = JSON.parse(event.data);
 				console.log(data);
@@ -67,11 +67,11 @@ export class Socket {
             }
         };
 
-        this.ws.onerror = (error) => {
+        this.sWS.onerror = (error) => {
             console.error("Error WebSocket:", error);
         };
 
-        this.ws.onclose = () => {
+        this.sWS.onclose = () => {
             console.log("Connexion WebSocket closed");
             this.stopHeartbeat();
             // delete (window as any).GLOBAL_WEBSOCKET;
@@ -99,12 +99,12 @@ export class Socket {
     private startHeartbeat(): void {
         console.log("Starting heartbeat");
         this.heartbeatInterval = window.setInterval(() => {
-            if (this.ws?.readyState === WebSocket.OPEN) {
+            if (this.sWS?.readyState === WebSocket.OPEN) {
                 console.log("Ping sent to server");
                 this.send(JSON.stringify({type: 'ping'}));
                 this.heartbeatTimeout = window.setTimeout(() => {
                     console.error("No pong recieved, closing connection");
-                    this.ws?.close(1000, 'No pong recieved');
+                    this.sWS?.close(1000, 'No pong recieved');
                 }, this.pongInterval)
             }
         }, this.pingInterval);
@@ -126,46 +126,47 @@ export class Socket {
     }
 
     private authenticate() {
+        const token = localStorage.getItem("token");
         this.send(JSON.stringify({
             type: "auth",
-            userId: this.userId
+            token: token
         }));
     }
 
     public  send(data: string) {
-        if (this.ws && this.isOpen())
-            this.ws.send(data);
+        if (this.sWS && this.isOpen())
+            this.sWS.send(data);
         else
             console.error("WebSocket is not open to send data", data);
     }
 
     private handleMessage(data: any) {
         console.log('Received message:', data);
-        // TODO Add logic here
+        // TODO Emma Add logic here, when recieving a friend request message
     }
 
     public  addEventListener(type: string, listener: (event: any) => void) {
-        if (!this.ws)
+        if (!this.sWS)
             return;
-        this.ws.addEventListener(type as any, listener);
+        this.sWS.addEventListener(type as any, listener);
     }
 
     public  removeEventListener(type: string, listener: (event: any) => void) {
-        if (!this.ws)
+        if (!this.sWS)
             return;
-        this.ws.removeEventListener(type as any, listener);
+        this.sWS.removeEventListener(type as any, listener);
     }
 
     public isOpen(): boolean {
-        if (!this.ws)
+        if (!this.sWS)
             return false;
-        return this.ws.readyState === WebSocket.OPEN;
+        return this.sWS.readyState === WebSocket.OPEN;
     }
 
     close(): void {
         this.stopHeartbeat();
-        if (!this.ws)
+        if (!this.sWS)
             return;
-        this.ws.close(1000, 'Manual close');
+        this.sWS.close(1000, 'Manual close');
     }
 }

@@ -8,6 +8,7 @@ import fs from "fs";
 
 import logger from "../config/logger.js";
 import env from "../config/env.js";
+import WebSocketManager from "./WebSocketManager.js";
 
 // import routes from "./routes.js";
 // import WebSocketManager from "./WebSocketManager.js";
@@ -25,10 +26,15 @@ function getSecret(name) {
 		const key = fs.readFileSync(`/run/secrets/${name}`, 'utf8').trim();
 		return (key);
 	} catch (error) {
-		console.log("❌ Critical error : Unable to read secret ", name);
+		console.error("❌ Error reading secret ", name);
 		process.exit(1);
 	}
 }
+
+// Register JWT plugin in fastify
+fastify.register(fastifyJwt, {
+	secret: getSecret('hash_key'),
+});
 
 fastify.decorate("authenticate", async function (request, reply)
 {
@@ -45,15 +51,9 @@ fastify.decorate("authenticate", async function (request, reply)
 	} 
 	catch (err)
 	{
-		console.log("❌ Error : ", err.message);
+		console.error("❌ Error decorating fastify: ", err.message);
 		return reply.code(401).send({error : err.message});
 	}
-});
-
-
-// Register JWT plugin in fastify
-fastify.register(fastifyJwt, {
-	secret: getSecret('hash_key'),
 });
 
 // await fastify.register(routes);
@@ -66,7 +66,7 @@ fastify.setNotFoundHandler((req, reply) => {
 // Launch Fastify HTTP REST API on port ${env.session_port}
 fastify.listen({ port: env.session_port, host: `${env.ip}` }, (err, address) => {
 	if (err) {
-		fastify.log.error(err);
+		console.error("❌ Error launching fastify: ", err);
 		process.exit(1);
 	}
 	fastify.log.info(`Session API running at ${address}`);
@@ -77,8 +77,10 @@ const server = createServer();
 const wss = new WebSocketServer({ server, path: "/s-ws/" });
 console.log("Ws server created");
 
+const WSManager = new WebSocketManager(wss, fastify);
+
 // const WSManager = new WebSocketManager(wss);
 server.listen(env.session_ws_port, () => {
-	console.log('WebSocket server listening on port ', env.session_ws_port);
+	console.info('WebSocket server listening on port ', env.session_ws_port);
 });
 

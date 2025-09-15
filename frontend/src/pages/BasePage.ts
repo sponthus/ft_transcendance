@@ -3,7 +3,7 @@
 import { renderBaseBanner, renderLoggedInBanner, renderLoggedOutBanner } from "./Banner";
 import { checkLog } from "../api/user-service/connection/check-log";
 import { getUserInfo } from "../api/user-service/user-info/getUserInfo";
-import { Socket } from "../core/Socket";
+import { SessionSocket } from "../core/SessionSocket";
 
 export abstract class BasePage {
     protected app: HTMLElement;
@@ -34,7 +34,7 @@ export abstract class BasePage {
                 return; // Afficher une erreur ??
             }
             const userData = req.userInfo;
-            const socket = Socket.getInstance(userData.id); //Creation du socket du user
+            const socket = SessionSocket.getInstance(userData.id); //Creation du socket du user
             await renderLoggedInBanner(this.banner, userData);
         }
         else {

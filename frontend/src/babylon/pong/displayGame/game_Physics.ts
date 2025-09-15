@@ -3,7 +3,7 @@ import { spawnImpactFX} from "./impactFX";
 import { spawnExplosionFX } from "./impactFX";
 import { crabmehamehaFX } from "./impactFX";
 import { Score } from "./score";
-import { Socket } from "../../../core/Socket";
+import { Socket } from "../../../core/SessionSocket";
 
 interface BallMesh extends Mesh {
 	direction: Vector3;

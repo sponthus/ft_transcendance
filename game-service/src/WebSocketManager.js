@@ -57,7 +57,7 @@ export default class WebSocketManager {
             ws.send(JSON.stringify({ type: 'pong' }));
             console.log('Sent pong response');
         } else
-			console.log(" ❌ - Pong not sent");
+			console.log(" ❌ Pong not sent");
     }
     //
     // broadcastToGame(gameId, message) {
