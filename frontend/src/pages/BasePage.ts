@@ -3,7 +3,7 @@
 import { renderBaseBanner, renderLoggedInBanner, renderLoggedOutBanner } from "./Banner";
 import { checkLog } from "../api/user-service/connection/check-log";
 import { getUserInfo } from "../api/user-service/user-info/getUserInfo";
-import { SessionSocket } from "../core/SessionSocket";
+import { SessionSocket } from "../core/SessionSocket.js";
 
 export abstract class BasePage {
     protected app: HTMLElement;
