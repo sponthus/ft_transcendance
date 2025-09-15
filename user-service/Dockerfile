@@ -10,6 +10,4 @@ RUN apk add --no-cache sqlite sqlite-libs bash vim curl
 
 WORKDIR /app
 
-EXPOSE 3001
-
 ENTRYPOINT ["entrypoint.sh"]

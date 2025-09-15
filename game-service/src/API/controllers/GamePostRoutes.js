@@ -27,6 +27,8 @@ export async function startGame(request, reply) {
     let status = '';
     let maxScore = 7;
 	let tournament = -1;
+	let	ai = -1;
+	let option = -1;
     try {
         // console.log("Trying to find games with gameId " + gameId);
         const game = await db.getGame(gameId);
@@ -37,7 +39,12 @@ export async function startGame(request, reply) {
         player_b = game.player_b;
         status = game.status;
         maxScore = game.score;
-		tournament = game.tournament;
+		if (game.tournament_id == null)
+			tournament = 0;
+		else
+			tournament = game.tournament_id;
+		ai = game.ai;
+		option = game.option;
 	}
     catch (error) {
 		console.error('❌ Error fetching games: ');
@@ -58,7 +65,7 @@ export async function startGame(request, reply) {
 			console.error('❌ Error : No GameMaster found while fetching games');
             return reply.status(500).send({error: 'Internal server error while fetching users'});
         }
-        gameMaster.createServer(gameId, userId, maxScore, tournament);
+        gameMaster.createServer(gameId, userId, maxScore, tournament, ai, option);
         // console.log("sending data : " + gameId + status + player_a + player_b);
         return reply.status(201).send({
             gameId: gameId, 
@@ -66,7 +73,8 @@ export async function startGame(request, reply) {
             player_a: player_a, 
             player_b: player_b,
             maxScore: maxScore,
-			tournament_id: tournament
+			tournament_id: tournament,
+			ai: ai
         });
     }
     catch (error) {
@@ -83,7 +91,7 @@ export async function createGame(request, reply) {
 	console.log('➡️ User accessed POST /game');
 
 	const { idUser } = request.user;
-	const { player_a, player_b, maxScore } = request.body;
+	const { player_a, player_b, requestedMaxScore, requestedAi, requestedOption } = request.body;
 	const { db } = request.server;
 
 	const userId = idUser;
@@ -97,13 +105,41 @@ export async function createGame(request, reply) {
 		return reply.status(500).send({error: 'No database connection found.'});
 	}
 
+	if ((requestedMaxScore && (requestedMaxScore < 1 && requestedMaxScore > 50))
+		|| (requestedAi && (requestedAi != 0 && requestedAi != 1 && requestedAi != 2)) 
+		|| (requestedOption && (requestedOption != 0 && requestedOption != 1))) {
+		console.log("Bad options");
+		return reply.status(400).send({error: 'Invalid options, expected : ai(0 | 1 | 2), option(0, 1), 1 <= maxScore <= 50 '});
+	}
+
+	let finalMaxScore = 7;
+	let finalAi = 0;
+	let finalOption = 1;
+	if (requestedMaxScore) {
+		if (requestedMaxScore < 1 && requestedMaxScore > 50) {
+			console.log("Bad options");
+			return reply.status(400).send({error: 'Invalid option, expected : 1 <= maxScore <= 50'});
+		}
+		finalMaxScore = requestedMaxScore;
+	}
+	if (requestedAi) {
+		if (requestedAi != 0 && requestedAi != 1 && requestedAi != 2) {
+			console.log("Bad options");
+			return reply.status(400).send({error: 'Invalid option, expected : ai(0 | 1 | 2)'});
+		}
+		finalAi = requestedAi;
+	}
+	if (requestedOption) {
+		if (requestedOption != 0 && requestedOption != 1) {
+			console.log("Bad options");
+			return reply.status(400).send({error: 'Invalid options, expected : option(0, 1)'});
+		}
+		finalOption = requestedOption;
+	}
+	console.log("Options taken into account = ", finalMaxScore, finalAi, finalOption);
+
     try {
-        let result;
-        if (maxScore) {
-            result = await db.createGame(userId, player_a, player_b, maxScore);
-        } else {
-            result = await db.createGame(userId, player_a, player_b);
-        }
+        const result = await db.createGame(userId, player_a, player_b, finalMaxScore, finalAi, finalOption);
         return reply.status(201).send(result);
     }
     catch (error) {

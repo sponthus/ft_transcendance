@@ -13,6 +13,7 @@ class DatabaseEventHandler {
         gameEventEmitter.on('player:disconnected', this.handlePlayerDisconnected.bind(this));
         gameEventEmitter.on('player:scored', this.handlePlayerScored.bind(this));
         gameEventEmitter.on('game:ended', this.handleGameEnded.bind(this));
+		gameEventEmitter.on('tournament:endgame', this.handleTournamentGameEnded.bind(this));
 
         console.log('📊 Database event service listening');
     }
@@ -22,7 +23,10 @@ class DatabaseEventHandler {
 
         try {
             this.DatabaseHandler.updateGameStatus(eventData.gameId, 'ongoing');
-            // await this.DatabaseHandler.recordGameEvent(eventData.gameId, 'game_started', eventData);
+            if (eventData.tournamentId != null && eventData.tournamentId != 0) {
+				this.DatabaseHandler.updateTournamentStatus(eventData.tournamentId, 'ongoing_game');
+			}
+			// await this.DatabaseHandler.recordGameEvent(eventData.gameId, 'game_started', eventData);
         } catch (error) {
             console.log("❌ Error while handling game start: ")
 			console.log(error);
@@ -34,6 +38,9 @@ class DatabaseEventHandler {
 
         try {
 			this.DatabaseHandler.updateGameStatus(eventData.gameId, 'canceled');
+			if (eventData.tournamentId != null && eventData.tournamentId != 0) {
+				this.DatabaseHandler.cancelTournament(eventData.tournamentId);
+			}
 			// await this.DatabaseHandler.recordPlayerEvent(eventData.gameId, eventData.playerId, 'disconnected');
 		} catch (error) {
 			console.log("❌ Error while handling player disconnection: ")
@@ -63,9 +70,19 @@ class DatabaseEventHandler {
 		} catch (error) {
 			console.log("❌ Error while handling end of game: ")
 			console.log(error);
-		}
-		
+		}	
     }
+
+	async handleTournamentGameEnded(eventData) {
+		console.log('🔄 End of a tournament game in DatabaseHandler:', eventData.tournamentId);
+	
+		try {
+			this.DatabaseHandler.endTournamentGame(eventData.tournamentId, eventData.gameId)
+		} catch (error) {
+			console.log("❌ Error while handling end of tournament game: ")
+			console.log(error);
+		}	
+	}
 }
 
 export default DatabaseEventHandler;

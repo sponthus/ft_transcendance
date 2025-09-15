@@ -1,7 +1,7 @@
 import * as BABYLON from "@babylonjs/core";
 import * as GUI from "@babylonjs/gui";
-import {Color} from "../Color";
-import {windowMenu} from "./windowMenu";
+import {Color} from "../Color.js";
+import {windowMenu} from "./windowMenu.js";
 import { getUserInfo, modifyUserAvatar, modifyUserInfo } from "../../api/user.js";
 
 export class profileMenu {

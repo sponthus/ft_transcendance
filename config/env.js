@@ -6,8 +6,16 @@ import envSchema from "env-schema"; // Allows change and validation of variables
 // properties defines expected types and default values if absent
 const schema = {
     type: "object",
-    required: ["API_PORT", "USER_PORT", "GAME_PORT", "UPLOAD_PORT", "LOG_LEVEL", "NODE_ENV", "USERS_DB_FILE", "GAMES_DB_FILE"],
+    required: ["DOMAIN_NAME", "IP","API_PORT", "USER_PORT", "GAME_PORT", "UPLOAD_PORT", "SESSION_PORT","STATUS_WS_PORT", "LOG_LEVEL", "NODE_ENV", "USERS_DB_FILE", "GAMES_DB_FILE"],
     properties: {
+		DOMAIN_NAME: {
+			type: "string",
+			default: "localhost"
+		},
+		IP: {
+			type:"string",
+			default: "0.0.0.0"
+		},
         API_PORT: {
             type: "number",
             default: 3000,
@@ -24,7 +32,15 @@ const schema = {
 			type: "number",
 			default: 3003
 		},
-		WS_PORT: {
+		SESSION_PORT: {
+			type: "number",
+			default: 3004
+		},
+		STATUS_WS_PORT: {
+			type: "number",
+			default: 5000
+		},
+		GAME_WS_PORT: {
 			type: "number",
 			default: 4000
 		},
@@ -61,11 +77,15 @@ const config = envSchema({
 
 // Transforms config object to give variable names more coherent to camelCase JS convention
 const envConfig = {
+	ip: config.IP,
+	domain_name: config.DOMAIN_NAME,
     api_port: config.API_PORT,
 	user_port: config.USER_PORT,
 	game_port: config.GAME_PORT,
 	upload_port: config.UPLOAD_PORT,
-	ws_port: config.WS_PORT,
+	session_port: config.SESSION_PORT,
+	session_ws_port: config.SESSION_WS_PORT,
+	game_ws_port: config.GAME_WS_PORT,
     logLevel: config.LOG_LEVEL,
     nodeEnv: config.NODE_ENV,
     usersDbFile: config.USERS_DB_FILE,

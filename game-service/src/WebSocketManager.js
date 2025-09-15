@@ -56,7 +56,8 @@ export default class WebSocketManager {
         if (ws.readyState === 1) {
             ws.send(JSON.stringify({ type: 'pong' }));
             console.log('Sent pong response');
-        }
+        } else
+			console.log(" ❌ - Pong not sent");
     }
     //
     // broadcastToGame(gameId, message) {
@@ -92,7 +93,8 @@ export default class WebSocketManager {
 
         gameMaster.addUser(ws, userId);
         // console.log("Authenticated user = " + userId);
-        this.sendToUser(userId, {
+        
+		this.sendToUser(userId, {
             type: 'auth_success',
             userId: userId,
             timestamp: Date.now()

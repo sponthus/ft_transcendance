@@ -2,16 +2,16 @@ import "@babylonjs/core/Debug/debugLayer";
 import * as BABYLON from "@babylonjs/core";
 import * as ADDONS from "@babylonjs/addons"
 import "@babylonjs/loaders/glTF";
-import	{DropDownMenu } from "./menu/dropDownMenu";
+import	{DropDownMenu } from "./menu/dropDownMenu.js";
 import { BasePage } from "../pages/BasePage.js";
-import { renderScene } from "./displaying/renderScene";
-import { renderMap } from "./displaying/renderMap";
-import { renderAnimation } from "./displaying/animations";	
-import { PlayerInput } from "./displaying/inputController";
+import { renderScene } from "./displaying/renderScene.js";
+import { renderMap } from "./displaying/renderMap.js";
+import { renderAnimation } from "./displaying/animations.js";	
+import { PlayerInput } from "./displaying/inputController.js";
 import { renderGround } from "./displaying/renderGround.js";
-import { renderAsset } from "./displaying/renderAsset";
-import { sleep } from "./displaying/dialogueBox";
-import { renderBaseBanner, renderLoggedInBanner} from "../pages/Banner";
+import { renderAsset } from "./displaying/renderAsset.js";
+import { sleep } from "./displaying/dialogueBox.js";
+import { renderBaseBanner, renderLoggedInBanner} from "../pages/Banner.js";
 
 export class Game extends BasePage {
 
