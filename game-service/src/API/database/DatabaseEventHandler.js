@@ -23,9 +23,9 @@ class DatabaseEventHandler {
 
         try {
             this.DatabaseHandler.updateGameStatus(eventData.gameId, 'ongoing');
-                        if (eventData.tournamentId != null && eventData.tournamentId != 0) {
-				this.DatabaseHandler.updateTournamentStatus(eventData.tournamentId, 'ongoing_game');
-			}
+            if (eventData.tournamentId != null && eventData.tournamentId != 0) {
+				      this.DatabaseHandler.updateTournamentStatus(eventData.tournamentId, 'ongoing_game');
+			      }
 			// await this.DatabaseHandler.recordGameEvent(eventData.gameId, 'game_started', eventData);
         } catch (error) {
             console.log("❌ Error while handling game start: ")

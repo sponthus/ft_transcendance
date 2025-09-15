@@ -36,12 +36,12 @@ export default class GameServer {
 				this.ws.send(stateMsg);
 			} else {
 				console.log("❌ Unable to send game state");
-            }
-                if ((this.scoreA >= this.maxScore || this.scoreB >= this.maxScore) && this.end === false) {
-                this.end = true;
-				this.endGame();
-            }
-        }, 16); // 60fps
+			}
+			if ((this.scoreA >= this.maxScore || this.scoreB >= this.maxScore) && this.end === false) {
+        this.end = true;
+        this.endGame();
+      }
+     }, 16); // 60fps
 			
 		this.setHandlers(game);
     }
@@ -114,7 +114,7 @@ export default class GameServer {
 				scoreA: this.scoreA,
 				scoreB: this.scoreB
             }));
-        } else {
+		} else {
 			console.log(" ❌ Unable to send endGame");
 		}
         this.state = 'finished';

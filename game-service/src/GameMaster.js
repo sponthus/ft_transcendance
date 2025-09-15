@@ -104,14 +104,14 @@ export default class GameMaster {
 
     sendListOfMessagesToUser(userId, messages) {
         console.log(`messages to send ${messages.length}`);
-       try {
-			for (const message of messages) {
-				let trMessage = JSON.parse(message);
-				this.sendMessageToUser(userId, trMessage.sender, trMessage.message);
-			}
-		} catch (error) {
+        try {
+			    for (const message of messages) {
+				    let trMessage = JSON.parse(message);
+				    this.sendMessageToUser(userId, trMessage.sender, trMessage.message);
+			    }
+		    } catch (error) {
 			console.log("❌ Unable to send message because ", error);
-		}
+		    }
     }
 
     sendStoredMessagesToUser(userId) {
