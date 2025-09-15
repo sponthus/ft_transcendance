@@ -7,12 +7,6 @@ import { ImportMeshAsync } from "@babylonjs/core/Loading/sceneLoader";
 import { getCharacterAsset } from "../../api/user-service/menu/characterAsset";
 import { getNpcAsset } from "../../api/user-service/menu/npcAsset";
 
-type AssetData = {
-	menu_asset_character: number;
-};
-
-type AssetSuccess = { ok: true; asset: number };
-
 export class renderAsset {
 
 	private _scene: BABYLON.Scene;
@@ -55,14 +49,13 @@ export class renderAsset {
 		try {
 			const req = await getCharacterAsset();
 			if (req.ok) {
-				const AssetData  = req.asset;
-				AssetNumber = AssetData;
-				console.log("AssetData = ", AssetNumber);
+				AssetNumber  = req.asset.menu_asset_character; //
+				// console.log("AssetData = ", req.asset.menu_asset_character as number);
 			}
 		} catch(error) {
 			alert(error);
 		}
-		const result = await ImportMeshAsync(`/asset/Characters/Models/GLBformat/character-0.glb`, this._scene);
+		const result = await ImportMeshAsync(`/asset/Characters/Models/GLBformat/character-${AssetNumber}.glb`, this._scene);
 		if (result)
 			console.log("Meshes Player import succesfully", result.meshes);
 		this._setUpMesh(result, new BABYLON.Vector3(5, 0, 5), 1.5);
@@ -74,7 +67,17 @@ export class renderAsset {
 
 	private async _loadNpc() {
 		/******************************load npc******************************/
-		const result = await ImportMeshAsync("/asset/Characters/Models/GLBformat1/character-0.glb", this._scene);
+		let AssetNumber: number = 0;
+		try {
+			const req = await getNpcAsset();
+			if (req.ok) {
+				AssetNumber = req.asset.menu_asset_npc;
+				// console.log("AssetNumber NPC = " , AssetNumber);
+			}
+		} catch (error) {
+			alert(error);
+		}
+		const result = await ImportMeshAsync(`/asset/Characters/Models/GLBformat1/character-${AssetNumber}.glb`, this._scene);
 		if (result)
 			console.log("mesh npc import successfully");
 		this._catAnimationGroupName(result, "npc_");
