@@ -6,6 +6,9 @@ RUN		chmod +x /usr/local/bin/entrypoint.sh
 WORKDIR /app
 #COPY ./src/index.js ./
 
-EXPOSE 3000
+ARG API_PORT
+ENV API_PORT=${API_PORT}
+
+EXPOSE $API_PORT
 
 ENTRYPOINT ["entrypoint.sh"]

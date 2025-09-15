@@ -1,18 +1,25 @@
 import { defineConfig } from 'vite';
 
+// const API_SERVICE = process.env.VITE_API_SERVICE;
+const DOMAIN_NAME = process.env.VITE_DOMAIN_NAME;
+const API_SERVICE = process.env.VITE_API_SERVICE;
+const API_PORT = process.env.VITE_API_PORT;
+const VITE_PORT = process.env.VITE_PORT;
+const IP = process.env.VITE_IP;
+
 // For dev mode
 export default defineConfig({
     server: {
-        port: 5173,
-        host: '0.0.0.0',
+        port: VITE_PORT,
+        host: `${IP}`,
         proxy: {
             '/api': {
-                target: 'http://api-gateway:3000',  // adresse de ton backend user-service ou api-gateway
+                target: `http://${API_SERVICE}:${API_PORT}`,
                 changeOrigin: true,
-                rewrite: (path) => path.replace(/^\/api/, '/api'),  // si tu veux garder /api, sinon adapte
+                rewrite: (path) => path.replace(/^\/api/, '/api'),
             },
             '/ws': {
-                target: 'ws://localhost:4443/ws',
+                target: `ws://${DOMAIN_NAME}:4443/ws`,
                 ws: true,
                 changeOrigin: true,
                 secure: false,

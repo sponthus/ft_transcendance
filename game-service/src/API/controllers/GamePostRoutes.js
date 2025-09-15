@@ -39,7 +39,10 @@ export async function startGame(request, reply) {
         player_b = game.player_b;
         status = game.status;
         maxScore = game.score;
-		tournament = game.tournament_id;
+		if (game.tournament_id == null)
+			tournament = 0;
+		else
+			tournament = game.tournament_id;
 		ai = game.ai;
 		option = game.option;
 	}
