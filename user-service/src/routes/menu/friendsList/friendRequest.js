@@ -48,7 +48,7 @@ export async function   addFriend(request, reply)
                                             users \
                                         WHERE \
                                             id = ?").get(idUser);
-        const req = await sendRequestToUser(idUser, username.username, friendUsername);
+        const req = await sendRequestToUser(idFriend.id, username.username, friendUsername);
         statement.run(idUser, idFriend.id);
         return reply.code(200).send();
     }
