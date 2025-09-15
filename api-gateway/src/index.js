@@ -65,14 +65,14 @@ app.register(proxy, {
 });
 
 app.register(proxy, {
-    upstream: `http://upload-service:${env.upload_port}`,
+    upstream: `http://upload_service:${env.upload_port}`,
     prefix: '/api/avatars',
     rewritePrefix: '/',
     http2: false,
 });
 
 app.register(proxy, {
-    upstream: `http://session-service:${env.session_port}`,
+    upstream: `http://session_service:${env.session_port}`,
     prefix: '/api/session',
     rewritePrefix: '/',
     http2: false,

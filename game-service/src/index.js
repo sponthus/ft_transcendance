@@ -77,7 +77,7 @@ app.listen({ port: env.game_port, host: `${env.ip}` }, (err, address) => {
 
 // WebSocket server on port ${env.game_ws_port}
 const server = createServer();
-const wss = new WebSocketServer({ server, path: "/ws/" });
+const wss = new WebSocketServer({ server, path: "/g-ws/" });
 console.log("Ws server created");
 
 const WSManager = new WebSocketManager(wss);

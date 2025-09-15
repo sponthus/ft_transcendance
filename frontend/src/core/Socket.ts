@@ -13,7 +13,7 @@ export class Socket {
         this.userId = userId;
 		try {
 			console.log("Creating new WebSocket connection");
-			this.ws = new WebSocket(this.getWsUrl());
+			this.ws = new WebSocket(this.getGameWsUrl());
 			this.setupEventListeners();
 		} catch (error) {
 			console.error("Failed to create socket", error);
@@ -74,13 +74,23 @@ export class Socket {
             // delete (window as any).GLOBAL_WEBSOCKET;
         };
     }
-    private getWsUrl(): string {
+
+    private getGameWsUrl(): string {
         console.log(import.meta.env?.MODE);
         const status = import.meta.env?.MODE;
         if (status === "development")
-            return `ws://${import.meta.env.VITE_DOMAIN_NAME}:8080/ws/`;
+            return `ws://${import.meta.env.VITE_DOMAIN_NAME}:8080/g-ws/`;
         else
-            return `wss://${import.meta.env.VITE_DOMAIN_NAME}/ws/`;
+            return `wss://${import.meta.env.VITE_DOMAIN_NAME}/g-ws/`;
+    }
+
+    private getStatusWsUrl(): string {
+        console.log(import.meta.env?.MODE);
+        const status = import.meta.env?.MODE;
+        if (status === "development")
+            return `ws://${import.meta.env.VITE_DOMAIN_NAME}:8080/s-ws/`;
+        else
+            return `wss://${import.meta.env.VITE_DOMAIN_NAME}/s-ws/`;
     }
 
     private startHeartbeat(): void {

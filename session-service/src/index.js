@@ -2,7 +2,7 @@ import Fastify from "fastify";
 import fastifyJwt from '@fastify/jwt';
 import { createServer } from "http";
 import { fileURLToPath } from "url";
-// import { WebSocketServer } from "ws";
+import { WebSocketServer } from "ws";
 import path from "path";
 import fs from "fs";
 
@@ -73,9 +73,9 @@ fastify.listen({ port: env.session_port, host: `${env.ip}` }, (err, address) => 
 });
 
 // WebSocket server on port ${env.session_ws_port}
-// const server = createServer();
-// const wss = new WebSocketServer({ server, path: "/ws/" });
-// console.log("Ws server created");
+const server = createServer();
+const wss = new WebSocketServer({ server, path: "/s-ws/" });
+console.log("Ws server created");
 
 // const WSManager = new WebSocketManager(wss);
 
