@@ -6,7 +6,6 @@ import { RegisterPage } from '../pages/RegisterPage.js';
 import { SettingPage } from "../pages/setting-page/SettingPage.js";
 import { UserPage } from '../pages/User-Pages/UserPage.js';
 import { getUserInfo } from "../api/user-service/user-info/getUserInfo.js";
-import { NotFoundPage } from "../pages/404ErrorPage.js";
 
 let currentPage: BasePage | null = null;
 
@@ -79,8 +78,6 @@ export async function renderRoute(path: string) {
 			currentPage = new SettingPage();
 			break;
 		default:
-			console.log('404 not found');
-			currentPage = new NotFoundPage();
 			break;
 	}
 
