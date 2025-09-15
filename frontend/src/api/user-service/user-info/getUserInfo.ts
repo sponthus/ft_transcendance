@@ -33,6 +33,8 @@ export async function   getUserInfo() : Promise<GetUserInfoResult>
     return ({ ok: false, error: data.error });
 }
 
+
+//PROBLEME avec cette requete, ne marche pas bien
 export async function   getUserInfoByUsername(username: string) : Promise<GetUserInfoResult>
 {
     const token = localStorage.getItem("token");

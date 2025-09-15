@@ -27,7 +27,7 @@ export async function   changeCharacterAsset (request, reply)
     }
     catch (err)
     {
-        return reply.code(500).send ({ error: "Internal Server Error" });
+        return reply.code(500).send ({ error: "Internal Server Error" + err.message });
     }
     
 }
@@ -45,7 +45,7 @@ export async function   getCharacterAsset (request, reply)
                                         menu_state \
                                     WHERE \
                                         menu_user_id = ?").get(idUser);
-        return reply.code(200).send({ ok: true, asset: asset });
+        return reply.code(200).send({ ok: true, asset: asset.menu_asset_character });
     }
     catch (err)
     {

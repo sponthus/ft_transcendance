@@ -37,7 +37,7 @@ async function dbConnector(fastify, options)
             menu_color_g INTEGER DEFAULT 0 CHECK(menu_color_g BETWEEN 0 AND 255),
             menu_color_b INTEGER DEFAULT 0 CHECK(menu_color_b BETWEEN 0 AND 255),
             menu_asset_character INTEGER DEFAULT 0 CHECK(menu_asset_character BETWEEN 0 AND 18),
-            menu_asset_npc INTERGER DEFAULT 0 CHECK(menu_asset_character BETWEEN 0 AND 11),
+            menu_asset_npc INTERGER DEFAULT 0 CHECK(menu_asset_npc BETWEEN 0 AND 11),
             FOREIGN KEY (menu_user_id) REFERENCES users(id)
         );
     `); //status : 0 = en attente, 1 = accepté, 2 = refusé

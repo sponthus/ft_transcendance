@@ -1,14 +1,7 @@
-import { checkLog } from "../api/user-service/connection/check-log.js";
 import { navigate } from "../core/router.js";
 import { BasePage } from "./BasePage.js";
-import { getUserInfo, getUserInfoByUsername } from "../api/user-service/user-info/getUserInfo.js";
-import { updateUsername } from "../api/user-service/user-info/updateUsername.js";
-import { acceptRequest, addFriend, getAllFriends, refuseRequest, removeFriend} from "../api/user-service/menu/friendsList/friendRequest.js";
-
-import { getAllUsers } from "../api/user-service/menu/getAllUsers.js";
 import { append, createAnchorElement, createDiv, createImage } from "../Utils/elementMaker.js";
-import { updatePassword } from "../api/user-service/user-info/updatePassword.js";
-import { getSentRequests, getReceivedRequests} from "../api/user-service/menu/friendsList/requestHandlers.js";
+import { checkLog } from "../api/user-service/connection/check-log.js";
 
 export class HomePage extends BasePage {
 
@@ -21,7 +14,6 @@ export class HomePage extends BasePage {
 		super();
 	}
 
-	//ou mettre le check log ? 
 	async render(): Promise<void> {
 
 
@@ -29,10 +21,6 @@ export class HomePage extends BasePage {
 		await this.InitDivs();
 		await this.createLogo();
 
-		/*if (state.isLoggedIn()) 
-			await this.renderLogInHome();*/
-		//verifier que ca marche 
-		console.log("Check si token existe dans home page");
 		const res = await checkLog();
 		if (res.ok) {
 			await this.renderLogInHome();
@@ -40,14 +28,7 @@ export class HomePage extends BasePage {
 		else {
 			await this.rengerLogoutHome();
 		}
-	
-		/*let req = await getUserInfoByUsername("Pedro");
-		if (req.ok) {
-			console.log('USER: ', req.userInfo);
-		}
-		else
-			alert(req.error);
-*/
+		
 	await this.addInApp();
 	}
 

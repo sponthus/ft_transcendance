@@ -23,7 +23,6 @@ export async function   getUserInfoByUsername (request, reply)
 	const   db = request.server.db;
     const   username= request.params.username;
 
-    console.log("PARRRRRR LLAAAAA\n");
     try
     {
        const user = db.prepare("   SELECT \
