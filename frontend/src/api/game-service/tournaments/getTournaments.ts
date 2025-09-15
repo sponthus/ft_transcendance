@@ -5,7 +5,7 @@ type SimpleResult = Success | Failure;
 
 type TournamentsInfos = {
 	id: number;
-	status: 'pending' | 'ongoing_game' | 'between-games' | 'canceled' | 'done';
+	status: 'pending' | 'ongoing_game' | 'between_games' | 'canceled' | 'done';
 	name: string;
 	next_game: number;
 	created_at: string;
@@ -18,7 +18,7 @@ type TournamentsList = { ok: true; tournaments: TournamentsInfos[] }
 export type TournamentsResult = TournamentsList | Failure;
 
 export type GameInfos = {
-	id: number;
+	id: number; // game_id
     round: number;
 	match: number;
 	status: 'pending' | 'ongoing' | 'finished' | 'canceled';
@@ -30,6 +30,7 @@ export type GameInfos = {
     finished_at: string;
     winner: string;
 	score: number;
+	option: number
 }
 
 type TournamentMatches = { ok: true; matches: GameInfos[] }
@@ -78,7 +79,7 @@ export async function getAllTournaments(userId: number):  Promise<TournamentsRes
 }
 
 // GET /:userId/tournaments
-// All available tournaments for a user, filtered = 
+// All available tournaments for a user, filtered = pending, between_games
 // Security : Accessible for every logged-in user
 export async function getAvailableTournaments(userId: number): Promise<TournamentsResult> {
 	try {
@@ -87,7 +88,7 @@ export async function getAvailableTournaments(userId: number): Promise<Tournamen
 			return { ok: false, error: allTournamentsResult.error };
 		}
 		const pendingTournaments: TournamentsInfos[] = allTournamentsResult.tournaments
-			.filter(tournament => tournament.status === 'pending' || tournament.status === 'between-games')
+			.filter(tournament => tournament.status === 'pending' || tournament.status === 'between_games')
 			.map(tournament => ({
 				id: tournament.id,
 				status: tournament.status,

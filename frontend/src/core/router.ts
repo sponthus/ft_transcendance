@@ -33,6 +33,7 @@ export async function renderRoute(path: string) {
         dynamicPart = path.slice('/user/'.length);
 		path = '/user';
     }
+
     console.log("before navigation" + userData?.username);
 	// Static routes
 	switch (path) {
@@ -40,21 +41,41 @@ export async function renderRoute(path: string) {
 			currentPage = new HomePage();
 			break;
 		case '/login':
+			if (userData) {
+				await navigate('/');
+				return ;
+			}
 			currentPage = new LoginPage();
 			break;
 		case '/register':
+			if (userData) {
+				await navigate('/');
+				return ;
+			}
 			currentPage = new RegisterPage();
 			break;
 		case '/game':
+			if (!userData) {
+				await navigate('/login');
+				return ;
+			}
 			console.log("state user :", userData)
 			console.log("user slug :", userData?.slug);
 			currentPage = new Game(userData!.slug);
 			// currentPage = new LocalGamePage();
 			break;
 		case '/user':
+			if (!userData) {
+				await navigate('/login');
+				return ;
+			}
 			currentPage = new UserPage(dynamicPart);
 			break;
 		case '/setting':
+			if (!userData) {
+				await navigate('/login');
+				return ;
+			}
 			currentPage = new SettingPage();
 			break;
 		default:

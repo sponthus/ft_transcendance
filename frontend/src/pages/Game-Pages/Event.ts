@@ -223,11 +223,9 @@ export class Event {
 	private PlayRound() {
 		/******************Find Next Round with this.tournamentPage._tournament*************/
 		try {
-			// find round id
-			// TODO = Add API call 
 			//start round
-			this.renderGame(); //to delete
-			// this.launchGame(/**id**/);
+			// this.renderGame(); //to delete
+			this.launchGame(this.TournamentPage._NextGameId);
 		} catch (error) {
 			alert('error : ' + error);
 		}

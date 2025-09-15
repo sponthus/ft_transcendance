@@ -11,18 +11,21 @@
 #  C (country)
 # -nodes = no passphrase
 
+
 if env | grep -q "^NODE_ENV=development"; then
-	mv /etc/nginx/nginx.development.conf /etc/nginx/nginx.conf && \
-	rm /etc/nginx/nginx.production.conf
+	envsubst '${GAME_WS_PORT} ${API_PORT} ${DOMAIN_NAME} ${GAME_SERVICE} ${API_SERVICE}' < /etc/nginx/nginx.development.conf.template > /etc/nginx/nginx.conf
+	rm /etc/nginx/nginx.production.conf.template
 else
-	mv /etc/nginx/nginx.production.conf /etc/nginx/nginx.conf  && \
-	rm /etc/nginx/nginx.development.conf
+	envsubst '${GAME_WS_PORT} ${API_PORT} ${DOMAIN_NAME} ${GAME_SERVICE} ${API_SERVICE}' < /etc/nginx/nginx.production.conf.template > /etc/nginx/nginx.conf
+	rm /etc/nginx/nginx.development.conf.template
 fi
+
+# tail -f
 
 mkdir -p /etc/nginx/sites-enabled
 
-if [ ! -f /etc/ssl/localhost.key ]; then
-    openssl genpkey -algorithm RSA -out /etc/ssl/localhost.key
+if [ ! -f /etc/ssl/$DOMAIN_NAME.key ]; then
+    openssl genpkey -algorithm RSA -out /etc/ssl/$DOMAIN_NAME.key
 	echo "Key generated"
 fi
 
@@ -30,11 +33,11 @@ if [ ! -f /etc/ssl/transcendance.crt ]; then
     openssl req -newkey rsa:4096 \
 	-nodes \
 	-x509 \
-	-key /etc/ssl/localhost.key \
-	-out /etc/ssl/localhost.crt \
-	-subj "/C=FR/ST=Lyon/O=42/UID=transcendance/CN=localhost"
+	-key /etc/ssl/$DOMAIN_NAME.key \
+	-out /etc/ssl/$DOMAIN_NAME.crt \
+	-subj "/C=FR/ST=Lyon/O=42/UID=transcendance/CN=$DOMAIN_NAME"
 	echo "Self-signed certificate generated"
-	echo "include /etc/nginx/sites-available/localhost.conf;" > /etc/nginx/sites-enabled/localhost.conf
+	echo "include /etc/nginx/sites-available/$DOMAIN_NAME.conf;" > /etc/nginx/sites-enabled/$DOMAIN_NAME.conf
 fi
 
 # Daemon : Nginx would launch in daemon mode, in the background
