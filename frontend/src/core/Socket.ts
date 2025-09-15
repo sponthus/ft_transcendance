@@ -78,9 +78,9 @@ export class Socket {
         console.log(import.meta.env?.MODE);
         const status = import.meta.env?.MODE;
         if (status === "development")
-            return 'ws://localhost:8080/ws/';
+            return `ws://${import.meta.env.VITE_DOMAIN_NAME}:8080/ws/`;
         else
-            return `wss://${window.location.host}/ws/`;
+            return `wss://${import.meta.env.VITE_DOMAIN_NAME}/ws/`;
     }
 
     private startHeartbeat(): void {

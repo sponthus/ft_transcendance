@@ -5,8 +5,9 @@ import GameMaster from "./GameMaster.js";
 // Handles game logic for one game actually running
 export default class GameServer {
     
-    constructor(gameId, userId, ws, maxScore) {
+    constructor(gameId, tournamentId, userId, ws, maxScore, ai, option) {
         this.gameId = gameId;
+		this.tournamentId = tournamentId;
         this.userId = userId;
         this.ws = ws;
         this.state = 'paused';
@@ -17,10 +18,9 @@ export default class GameServer {
         this.scoreB = 0;
         this.end = false;
 
-        // TODO : Don't forget to start game when player launches the game (press space ?)
         this.startGame();
         // à chaque tick du serveur
-        const game = new PongGame();
+        const game = new PongGame(this.gameId, ai, option);
         this.intervalId = setInterval(() => {
             // Appliquer les inputs pour déplacer le paddle
             game.update();
@@ -34,59 +34,66 @@ export default class GameServer {
             // balance le message a tout les players connecté
             if (this.ws.readyState === 1) {
 				this.ws.send(stateMsg);
+			} else {
+				console.log("❌ Unable to send game state");
 			}
 			if ((this.scoreA >= this.maxScore || this.scoreB >= this.maxScore) && this.end === false) {
                 this.end = true;
 				this.endGame();
             }
         }, 16); // 60fps
-
-        // quand un client se connecte
-        //this.ws.on("connection", (ws) => {
-            this.ws.on("message", (msg) => {
-                let data;
-
-                try
-                {
-                    data = JSON.parse(msg);
-                }
-				catch (err)
-                {
-                    console.error("ERR: JSON :", msg);
-                    return;
-                }
-
-                switch (data.type) {
-                    case "input":
-                        game.setInputs(data.playerId, data.input);
-                        break;
-
-                    case "gameMode":
-                        game.setGameMode(data.mode, data.option);
-                        break;
-
-                    case "ping":
-                        ws.send(JSON.stringify({ type: 'pong' }));
-                        break;
-
-                    default:
-                        console.warn("ERR: Type inconnu :", data.type);
-                }
-        //    });
-        });
+			
+		this.setHandlers(game);
     }
 
-    setHandlers() {
+    setHandlers(game) {
         this.ws.on('close', () => {
-            gameEventEmitter.emitGameEvent('player:disconnected', this.gameId);
+            gameEventEmitter.emitGameEvent('player:disconnected', this.gameId, {
+				tournamentId: this.tournamentId
+			});
             this.destroy();
         });
-        // Add handler for incoming message with paddle-move
+
+		this.ws.on("message", (msg) => {
+			let data;
+
+			try
+			{
+				data = JSON.parse(msg);
+			}
+			catch (err)
+			{
+				console.error("ERR: JSON :", msg);
+				return;
+			}
+
+			switch (data.type) {
+				case "input":
+					game.setInputs(data.playerId, data.input);
+					break;
+
+				case "gameMode":
+					game.setGameMode(data.mode, data.option);
+					break;
+
+				case "ping":
+					if (this.ws.readyState === 1)
+						this.ws.send(JSON.stringify({ type: 'pong' }));
+					else
+						console.log(" ❌ Websocket not available for pong");
+					break;
+
+				default:
+					console.warn("ERR: Type inconnu :", data.type);
+			}
+		});
     }
 
     startGame() {
         this.state = 'playing';
-        gameEventEmitter.emitGameEvent('game:started', this.gameId);
+        gameEventEmitter.emitGameEvent('game:started', this.gameId, {
+			tournamentId: this.tournamentId
+		});
     }
 
     endGame() {
@@ -107,6 +114,8 @@ export default class GameServer {
 				scoreA: this.scoreA,
 				scoreB: this.scoreB
             }));
+		} else {
+			console.log(" ❌ Unable to send endGame");
 		}
         this.state = 'finished';
         gameEventEmitter.emitGameEvent('game:ended', this.gameId, {

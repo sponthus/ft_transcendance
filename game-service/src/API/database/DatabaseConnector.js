@@ -1,5 +1,5 @@
 import fp from "fastify-plugin";
-import env from "../config/env.js";
+import env from "../../../config/env.js";
 import DatabaseEventHandler from "./DatabaseEventHandler.js";
 import DatabaseHandler from "./DatabaseHandler.js";
 
@@ -16,9 +16,7 @@ async function DatabaseConnector(fastify, options) {
         done();
     });
 
-    console.log("Database and games / tournaments tables created successfully");
-
-    // All this = constructor, then methods = updateGameStatus, updatePlayerScore, recordFinalScores
+    console.log("✅ Database and games / tournaments tables created successfully");
 }
 
 export default fp(DatabaseConnector);

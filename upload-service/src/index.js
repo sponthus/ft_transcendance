@@ -4,6 +4,7 @@ import fastifyJwt from '@fastify/jwt';
 import { fileURLToPath } from "url"; // Transforms ESM paths to system paths
 import path from 'path'; // utilities for working with file and directory paths
 import env from "../config/env.js";
+import fs from "fs";
 import logger from "../config/logger.js";
 import routes from "./routes.js";
 
@@ -28,8 +29,19 @@ fastify.decorate("authenticate", async function (request, reply) {
     }
 });
 
+function getSecret(name) {
+	try {
+		const key = fs.readFileSync(`/run/secrets/${name}`, 'utf8').trim();
+		return (key);
+	} catch (error) {
+		console.log("❌ Critical error : Unable to read secret ", name);
+		process.exit(1);
+	}
+}
+
+//enregistre le plugin JWT dans fastify
 fastify.register(fastifyJwt, {
-    secret: env.hashKey,
+	secret: getSecret('hash_key'),
 });
 
 // TODO implement routes
@@ -46,7 +58,7 @@ fastify.setNotFoundHandler((req, reply) => {
 
 // Fastify listens
 // TODO : Set port in env
-fastify.listen({ port: 3003, host: "0.0.0.0" }, (err, address) => {
+fastify.listen({ port: env.upload_port, host: `${env.ip}` }, (err, address) => {
     if (err) {
         fastify.log.error(err);
         process.exit(1);
