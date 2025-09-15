@@ -78,8 +78,7 @@ const wss = new WebSocketServer({ server, path: "/s-ws/" });
 console.log("Ws server created");
 
 // const WSManager = new WebSocketManager(wss);
-
-// server.listen(env.session_ws_port, () => {
-// 	console.log('WebSocket server listening on port ', env.session_ws_port);
-// });
+server.listen(env.session_ws_port, () => {
+	console.log('WebSocket server listening on port ', env.session_ws_port);
+});
 

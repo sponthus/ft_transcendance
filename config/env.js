@@ -6,7 +6,7 @@ import envSchema from "env-schema"; // Allows change and validation of variables
 // properties defines expected types and default values if absent
 const schema = {
     type: "object",
-    required: ["DOMAIN_NAME", "IP", "API_PORT", "USER_PORT", "GAME_PORT", "UPLOAD_PORT", "SESSION_PORT", "STATUS_WS_PORT", "LOG_LEVEL", "NODE_ENV", "USERS_DB_FILE", "GAMES_DB_FILE"],
+    required: ["DOMAIN_NAME", "IP", "API_PORT", "USER_PORT", "GAME_PORT", "UPLOAD_PORT", "SESSION_PORT", "SESSION_WS_PORT", "LOG_LEVEL", "NODE_ENV", "USERS_DB_FILE", "GAMES_DB_FILE"],
     properties: {
 		DOMAIN_NAME: {
 			type: "string",
@@ -36,7 +36,7 @@ const schema = {
 			type: "number",
 			default: 3004
 		},
-		STATUS_WS_PORT: {
+		SESSION_WS_PORT: {
 			type: "number",
 			default: 5000
 		},

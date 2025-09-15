@@ -3,6 +3,7 @@
 export class Socket {
     static instance: null | Socket = null;
     public ws: WebSocket;
+    public sWS: WebSocket;
     private heartbeatInterval: number | null = null;
     private heartbeatTimeout: number | null = null;
     private pingInterval: number = 30000; // every 30s sends a ping
@@ -15,6 +16,8 @@ export class Socket {
 			console.log("Creating new WebSocket connection");
 			this.ws = new WebSocket(this.getGameWsUrl());
 			this.setupEventListeners();
+            this.sWS = new WebSocket(this.getStatusWsUrl());
+
 		} catch (error) {
 			console.error("Failed to create socket", error);
 			throw error;
