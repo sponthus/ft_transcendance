@@ -13,8 +13,8 @@ RUN apt update -y \
 #COPY    ./static/index.html /usr/share/nginx/html/index.html
 #COPY    ./static/favicon.ico /usr/share/nginx/html/favicon.ico
 #COPY    --from=build /app/dist/index.js /usr/share/nginx/html/dist/index.js
-COPY    ./config/nginx.development.conf /etc/nginx/nginx.development.conf
-COPY    ./config/nginx.production.conf /etc/nginx/nginx.production.conf
+COPY    ./config/nginx.development.conf.template /etc/nginx/nginx.development.conf.template
+COPY    ./config/nginx.production.conf.template /etc/nginx/nginx.production.conf.template
 COPY    ./config/entrypoint.sh /usr/local/bin/
 RUN		chmod +x /usr/local/bin/entrypoint.sh
 
