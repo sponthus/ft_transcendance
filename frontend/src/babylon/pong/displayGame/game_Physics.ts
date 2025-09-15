@@ -3,7 +3,7 @@ import { spawnImpactFX} from "./impactFX";
 import { spawnExplosionFX } from "./impactFX";
 import { crabmehamehaFX } from "./impactFX";
 import { Score } from "./score";
-import { Socket } from "../../../core/SessionSocket";
+import { GameSocket } from "../../../core/GameSocket.js";
 
 interface BallMesh extends Mesh {
 	direction: Vector3;
@@ -65,7 +65,7 @@ export class GamePhysics {
 	{
 		const	playerId = "player1"; // prompt("t ki ? player1 ou player2 ?") || "player1";
 		const	inputMap: Record<string, boolean> = {};
-		const	socket = Socket.getInstance();
+		const	socket = GameSocket.getInstance();
 		if (!socket || !socket.ws)
 			return;
 		//const	socket = new WebSocket("ws://192.168.1.30:8080");
