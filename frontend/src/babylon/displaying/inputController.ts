@@ -128,9 +128,9 @@ export class PlayerInput {
 					this._inputMap['e'] = false;
 					this._inputMap['E'] = false;
 					this._renderscene.setState = 1;
-					this._scene?.getEngine().displayLoadingUI();
-					await sleep(500);
-					this._scene?.getEngine().hideLoadingUI();
+					// this._scene?.getEngine().displayLoadingUI();
+					// await sleep(500);
+					// this._scene?.getEngine().hideLoadingUI();
 				}
 			}
 		}
