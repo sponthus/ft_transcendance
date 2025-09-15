@@ -6,7 +6,7 @@ import { BasePage } from "../BasePage.js";
 import { popUp } from '../../Utils/popUp.js';
 import { sleep } from '../../babylon/displaying/dialogueBox.js';
 import { createDiv, createElement, createButton, createDropdownDiv, createFormDiv, createCheckBoxLabel, append, createImage, createInput} from '../../Utils/elementMaker.js';
-import { getAllGames } from '../../api/game.js';
+import { getAllGames } from '../../api/game-service/games/game.js';
 import { DisplayHistoryPage } from './HistoryPage.js';
 import { UserBanner } from './UserBannerPage.js';
 

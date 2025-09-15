@@ -1,4 +1,4 @@
-import { Scene, Engine, Mesh, AbstractMesh, Vector3, ActionManager, ExecuteCodeAction } from "@babylonjs/core";
+import { Scene, Engine, Mesh, AbstractMesh, Vector3, ActionManager, ExecuteCodeAction, HemisphericLight } from "@babylonjs/core";
 import { spawnImpactFX} from "./impactFX";
 import { spawnExplosionFX } from "./impactFX";
 import { crabmehamehaFX } from "./impactFX";
@@ -19,6 +19,8 @@ export class GamePhysics {
 	private _engine: Engine;
 	private _crab1: AbstractMesh | null;
 	private _crab2: AbstractMesh | null;
+	private _menuPause: AbstractMesh | null;
+	private _light: HemisphericLight;
 
 	private _score!: Score;
 	private _scoreValue1 = 0;
@@ -40,13 +42,17 @@ export class GamePhysics {
 		scene: Scene,
 		engine: Engine,
 		crab1: AbstractMesh | null,
-		crab2: AbstractMesh | null
+		crab2: AbstractMesh | null,
+		menuPause: AbstractMesh | null,
+		light: HemisphericLight
 	) {
 		this._ball = ball;
 		this._scene = scene;
 		this._engine = engine;
 		this._crab1 = crab1;
 		this._crab2 = crab2;
+		this._menuPause = menuPause;
+		this._light = light;
 		
 		this._score = new Score(this._scene, this._scoreValue1, this._scoreValue2);
 
@@ -116,42 +122,11 @@ export class GamePhysics {
 		//  Si y’a un état reçu du serveur
 		if (this._serverState)
 		{
+			this.pauseManager();
 			this._ball.position.x = this._serverState.ball.x;
 			this._ball.position.z = this._serverState.ball.z;
-
-			if (this._crab1)
-			{
-				const targetPaddle1Pos = new Vector3(
-				this._serverState.paddle1.x,
-				this._crab1.position.y,
-				this._crab1.position.z
-				);
-				this._crab1.position = Vector3.Lerp(this._crab1.position, targetPaddle1Pos, 0.3);
-
-				if (this._serverState.die1 === true)
-				{
-					spawnExplosionFX(this._scene, this._crab1.position);
-					this._crab1.position.y = -4;
-				}
-				else
-					this._crab1.position.y = 0;
-			}
-			if (this._crab2)
-			{
-				const targetPaddle2Pos = new Vector3(
-				this._serverState.paddle2.x,
-				this._crab2.position.y,
-				this._crab2.position.z
-				);
-				this._crab2.position = Vector3.Lerp(this._crab2.position, targetPaddle2Pos, 0.3);
-				if (this._serverState.die2 === true)
-				{
-					spawnExplosionFX(this._scene, this._crab2.position);
-					this._crab2.position.y = -4;
-				}
-				else
-					this._crab2.position.y = 0;
-			}
+			this.moveCrab();
+			
 			this._timeBobSpeak -= this._dt;
 			if (this._timeBobSpeak < 0)
 			{
@@ -177,6 +152,60 @@ export class GamePhysics {
 			if (this._spell2.z < 9 || (this._spell2.z > 9 && this._serverState.specialCooldown2 < 0))
 				crabmehamehaFX(this._scene, this._spell2);
 
+		}
+	}
+
+	private pauseManager()
+	{
+		if (this._menuPause)
+		{
+			if (this._serverState.ispaused === true)
+			{
+				this._light.intensity = 0.5;
+				this._menuPause.setEnabled(true);
+			}
+			else
+			{
+				this._light.intensity = 1;
+				this._menuPause.setEnabled(false);
+			}
+		}
+	}
+
+	private moveCrab()
+	{
+		if (this._crab1)
+		{
+			const targetPaddle1Pos = new Vector3(
+			this._serverState.paddle1.x,
+			this._crab1.position.y,
+			this._crab1.position.z
+			);
+			this._crab1.position = Vector3.Lerp(this._crab1.position, targetPaddle1Pos, 0.3);
+
+			if (this._serverState.die1 === true)
+			{
+				spawnExplosionFX(this._scene, this._crab1.position);
+				this._crab1.position.y = -4;
+			}
+			else
+				this._crab1.position.y = 0;
+		}
+		if (this._crab2)
+		{
+			const targetPaddle2Pos = new Vector3(
+			this._serverState.paddle2.x,
+			this._crab2.position.y,
+			this._crab2.position.z
+			);
+			this._crab2.position = Vector3.Lerp(this._crab2.position, targetPaddle2Pos, 0.3);
+			if (this._serverState.die2 === true)
+			{
+				spawnExplosionFX(this._scene, this._crab2.position);
+				this._crab2.position.y = -4;
+			}
+			else
+				this._crab2.position.y = 0;
 		}
 	}
 

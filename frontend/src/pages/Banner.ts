@@ -1,5 +1,5 @@
 import { navigate } from '../core/router.js';
-import { modifyUserAvatar , modifyUserInfo } from "../api/user.js";
+// import { modifyUserAvatar , modifyUserInfo } from "../api/user.js";
 import { getUserInfo } from '../api/user-service/user-info/getUserInfo.js';
 import { Socket } from '../core/Socket.js';
 import { append, createAnchorElement, createButton, createDiv, createImage, createInput, createElement } from '../Utils/elementMaker.js';

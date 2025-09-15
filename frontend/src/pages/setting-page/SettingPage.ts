@@ -45,7 +45,7 @@ export class SettingPage extends BasePage {
 	}
 
 	private createFrontSettting() {
-		this.front = createDiv("grid Setting_front", "rounded-xl shadow-2xl p-12 max-w-md w-full text-center space-y-4");
+		this.front = createDiv("grid-Setting-front", "rounded-xl shadow-2xl p-12 max-w-md w-full text-center space-y-4");
 	}
 
 	private createSettingText() {
@@ -69,7 +69,7 @@ export class SettingPage extends BasePage {
 	}
 
 	private createGameSettingButton() {
-		const gameSettingButton = createButton("Game-Setting", "bg-orange-300 hover:bg-orange-400 text-emerald-600 font-bold py-3 px-6 rounded-lg", "Game-Setting");
+		const gameSettingButton = createButton("Game-Setting", "bg-orange-300 hover:bg-orange-400 text-emerald-600 font-bold py-3 px-6 rounded-xl shadow-md hover:shadow-lg transition-all duration-200 transform hover:scale-105", "Game-Setting");
 		gameSettingButton.addEventListener('click', async(e) => {
 			await renderGameSetting(this.SettingText, this.ButtonDiv, this.SettingDiv, this.ReturnDiv);
 		});
@@ -77,7 +77,7 @@ export class SettingPage extends BasePage {
 	}
 
 	private createProfileSettingButton() {
-		const ProfileSettingButton = createButton("profile-setting", "bg-orange-300 hover:bg-orange-400 text-emerald-600 font-bold py-3 px-6 rounded-lg", "Profile Setting");
+		const ProfileSettingButton = createButton("profile-setting", "bg-orange-300 hover:bg-orange-400 text-emerald-600 font-bold py-3 px-6 rounded-xl shadow-md hover:shadow-lg transition-all duration-200 transform hover:scale-105", "Profile Setting");
 		ProfileSettingButton.addEventListener('click', async(e) => {
 			await renderProfileSetting(this.SettingText, this.ButtonDiv, this.SettingDiv, this.ReturnDiv);
 		});
@@ -103,13 +103,13 @@ export class SettingPage extends BasePage {
 	}
 
 	private createReturnBtn() {
-		const ReturnButton: HTMLButtonElement = createButton("return", "bg-orange-300 hover:bg-orange-400 text-emerald-600 font-bold rounded-lg transition-colors duration-200transform", "return");
+		const ReturnButton: HTMLButtonElement = createButton("return", "bg-orange-300 hover:bg-orange-400 text-emerald-600 font-bold rounded-xl shadow-md hover:shadow-lg transition-all duration-200 transform hover:scale-105", "return");
 
 		this.ReturnDiv.appendChild(ReturnButton);
 	}
 
 	private createSaveBtn() {
-		const DoneButton: HTMLButtonElement = createButton("done", "bg-orange-300 hover:bg-orange-400 text-emerald-600 font-bold rounded-lg transition-colors duration-200transform", "Done");
+		const DoneButton: HTMLButtonElement = createButton("done", "bg-orange-300 hover:bg-orange-400 text-emerald-600 font-bold rounded-xl transition-colors shadow-md hover:shadow-lg transition-all duration-200 transform hover:scale-105", "Done");
 
 		this.ReturnDiv.appendChild(DoneButton);
 	}

@@ -1,5 +1,5 @@
 import { createDiv, createElement, createButton, createDropdownDiv, createFormDiv, createCheckBoxLabel, append} from '../../Utils/elementMaker.js';
-import { getAllGames } from '../../api/game.js';
+import { getAllGames } from '../../api/game-service/games/game.js';
 import { UserPage } from './UserPage.js';
 
 
