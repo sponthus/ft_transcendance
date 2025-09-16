@@ -3,7 +3,6 @@ type Failure = { ok: false; error: string };
 
 export type UsersResult = Success | Failure;
 
-//marche mais beaucoup de cas pas gérer (doublon par exemple), faire attention
 export async function   getAllUsers(): Promise<UsersResult>
 {
     const token = localStorage.getItem("token");
@@ -17,7 +16,7 @@ export async function   getAllUsers(): Promise<UsersResult>
     const data = await res.json();    
     if (res.ok) 
     {
-        return { ok: true, users: data };
+        return { ok: true, users: data.users };
     }
     return { ok: false, error: data.error};
 }

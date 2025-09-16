@@ -2,6 +2,13 @@ import { navigate } from "../core/router.js";
 import { BasePage } from "./BasePage.js";
 import { append, createAnchorElement, createDiv, createImage } from "../Utils/elementMaker.js";
 import { checkLog } from "../api/user-service/connection/check-log.js";
+import { getUserInfoBySlug } from "../api/user-service/user-info/getUserInfo.js";
+import { getCharacterAsset } from "../api/user-service/menu/characterAsset.js";
+import { getAllFriends } from "../api/user-service/menu/friendsList/friendRequest.js";
+import { getAllUsers } from "../api/user-service/menu/getAllUsers.js";
+import { getBackgroundColor } from "../api/user-service/menu/backgroundColor.js";
+import { getNpcAsset } from "../api/user-service/menu/npcAsset.js";
+import { getReceivedRequests } from "../api/user-service/menu/friendsList/requestHandlers.js";
 
 export class HomePage extends BasePage {
 
@@ -27,6 +34,14 @@ export class HomePage extends BasePage {
 		}
 		else {
 			await this.rengerLogoutHome();
+		}
+
+		let req = await getReceivedRequests();
+		{
+			if (req.ok)
+			{
+				console.log('Info : ', req.requests);
+			}
 		}
 		
 	await this.addInApp();

@@ -17,6 +17,7 @@ export async function   getAllFriends(request, reply)
                                             friends.frie_status = 1 \
                                         AND \
                                             friends.frie_user_id = ?").all(idUser);
+        console.log('Friends = ', friends);
         return reply.code(200).send({ friends: friends });
     }
     catch (err)

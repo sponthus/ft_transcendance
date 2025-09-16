@@ -57,7 +57,7 @@ export async function   getAllFriends(): Promise<FriendsResult>
     const data = await res.json();    
     if (res.ok) 
     {
-        return { ok: true,  friends: data};
+        return { ok: true,  friends: data.friends};
     }
     return { ok: false, error: data.error};
 }

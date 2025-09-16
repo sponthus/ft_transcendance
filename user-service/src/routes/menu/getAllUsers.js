@@ -8,7 +8,7 @@ export async function   getAllUsers(request, reply)
                                         username \
                                     FROM \
                                         users \ ").all(); 
-        return reply.code(200).send( {users: users} );
+        return reply.code(200).send({ users: users });
     }
     catch (err)
     {

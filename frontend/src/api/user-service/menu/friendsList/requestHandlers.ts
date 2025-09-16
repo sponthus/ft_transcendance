@@ -54,7 +54,7 @@ export async function   getSentRequests(): Promise<RequestResult>
     const data = await res.json();    
     if (res.ok) 
     {
-        return { ok: true,  requests: data};
+        return { ok: true,  requests: data.requests};
     }
     return { ok: false, error: data.error};
 }
@@ -72,7 +72,7 @@ export async function   getReceivedRequests(): Promise<RequestResult>
     const data = await res.json();    
     if (res.ok) 
     {
-        return { ok: true,  requests: data};
+        return { ok: true,  requests: data.requests};
     }
     return { ok: false, error: data.error};
 }
