@@ -8,7 +8,6 @@ export class SessionSocket {
     private heartbeatTimeout: number | null = null;
     private pingInterval: number = 30000; // every 30s sends a ping
     private pongInterval: number = 5000; // 5s to recieve back pong
-    private userId: number = 0;
 
     constructor() {
 		try {
@@ -45,7 +44,7 @@ export class SessionSocket {
         }
 
         this.sWS.onopen = () => {
-            console.log("Connected to WebSocket server, sending auth with id " + this.userId);
+            console.log("Connected to WebSocket server");
             this.authenticate();
             this.startHeartbeat();
         };
@@ -53,13 +52,7 @@ export class SessionSocket {
         this.sWS.onmessage = (event) => {
             try {
                 const data = JSON.parse(event.data);
-				console.log(data);
-                if (data.type === 'pong') {
-                    console.log('Received pong from server');
-                    this.clearHeartbeatTimeout();
-                    return;
-                }
-
+				// TODO Check data contains "type"
                 this.handleMessage(data);
             } catch (error) {
                 console.error('Error parsing message:', error);
@@ -126,6 +119,10 @@ export class SessionSocket {
 
     private authenticate() {
         const token = localStorage.getItem("token");
+		if (!token) {
+			console.error("Impossible to authenticate for the session websocket, no token.");
+			return ;
+		}
         this.send(JSON.stringify({
             type: "auth",
             token: token
@@ -141,6 +138,11 @@ export class SessionSocket {
 
     private handleMessage(data: any) {
         console.log('Received message:', data);
+		if (data.type === 'pong') {
+			console.log('Received pong from server');
+			this.clearHeartbeatTimeout();
+			return;
+		}
         // TODO Emma Add logic here, when recieving a friend request message
     }
 
