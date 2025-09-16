@@ -1,4 +1,4 @@
-# **Proof of concept** : Transcendance
+# **Project** : Transcendance
 
 ## Description
 <table>
