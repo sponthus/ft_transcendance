@@ -17,11 +17,10 @@
 ## :memo: Status
 <p align="center">
   <strong>Ongoing :</strong> <br>
-  :star: Complete the game in backend<br>
+  :star: Complete the status service in backend<br>
   :star: Complete frontend style<br>
-  :star: Complete IA opponent<br>
-  :star: Complete user authentication (2 tokens) <br>
-  :star: Finish needed REST API
+  :star: Complete AI opponent<br>
+  :star: Complete user authentication (2 FA) <br>
 </p>
 
 ## :orange_book: Features (WIP)
@@ -36,8 +35,8 @@
 ## :cyclone: Clone
 Clone the repository and enter it :
 ```shell
-git clone https://github.com/sponthus/POC_Transcendance
-cd Inception
+git clone https://github.com/sponthus/ft_transcendance
+cd ft_transcendance
 ```
 
 ## 	:runner: Run
