@@ -75,8 +75,7 @@ export default class WebSocketManager {
 
 	pong(ws) {
         if (ws.readyState === 1) {
-            ws.send(JSON.stringify({ type: 'pong' }));
-            console.log('Sent pong response');
+            this.sendToWs(ws, { type: 'pong' });
         } else
 			console.error("❌ Unable to send pong back");
     }
@@ -91,11 +90,14 @@ export default class WebSocketManager {
 				return;
 			}
 			const client = this.clients.get(Number(userId));
-			client.status = 'disconnected';
 			client.currentGame = 0;
-			client.ws = null;
+			client.ws = client.ws.filter(wss => wss !== ws);
+			if (client.ws.length == 0) {
+				client.status = 'disconnected';
+				console.log(`🔴 User ${userId} is disconnected`)
+			}
         } else {
-			console.log("Disconnexion of a non-logged-in user");
+			console.log("🔴 Disconnexion of a non-logged-in user");
 		}
     }
 
@@ -121,7 +123,7 @@ export default class WebSocketManager {
     registerUser(ws, userId, username, slug, status) {
 		if (this.clients.has(Number(userId))) {
 			const client = this.clients.get(Number(userId));
-			client.ws = ws;
+			client.ws.push(ws);
 			client.status = status;
 			client.currentGame = 0;
 			client.username = username;
@@ -130,7 +132,7 @@ export default class WebSocketManager {
 		} 
 		else {
 			this.clients.set(Number(userId), {
-				ws,
+				ws: new Array(ws),
 				username: username,
 				status: status,
 				currentGame: 0,
@@ -151,18 +153,12 @@ export default class WebSocketManager {
 			return ;
 		}
 		
-		// TODO : Ugly code,refactorize me please
 		const { idUser, username, slug } = data;
 		let oldMessages = [];
 		try {
 			const client = this.getClientByUserId(idUser);
 			if (client !== undefined) {
 				console.log(`User ${idUser} already known`);
-				// console.log(oldClient);
-				if (client.ws) {
-					// TODO = Add a list of sockets to take into account
-					client.ws.close(1000, 'New session started');
-				}
 				oldMessages = client.messages;
 			}
 		} catch (error) {
@@ -170,11 +166,13 @@ export default class WebSocketManager {
 		}
 
 		this.registerUser(ws, idUser, username, slug, "online");
-		this.sendToUserId(idUser, {
-            type: 'auth_success',
-            userId: idUser,
-            timestamp: Date.now()
-        });
+
+		this.sendToWs(ws, {
+			type: 'auth_success',
+			userId: idUser,
+			timestamp: Date.now()
+		});
+		
 
 		if (oldMessages.length > 0) {
             this.sendStoredMessagesToUser(idUser);
@@ -222,9 +220,11 @@ export default class WebSocketManager {
 
 	getUserIdByWs(targetWs) {
         for (const [userId, client] of this.clients.entries()) {
-            if (client.ws === targetWs) {
-                return userId;
-            }
+			for (const wss of client.ws) {
+				if (wss === targetWs) {
+					return userId;
+				}
+			}
         }
         return null;
     }
@@ -267,34 +267,50 @@ export default class WebSocketManager {
 			console.warn(`Unknown user when send message `, message);
 			return false;
 		}
-        const ws = client.ws;
-        if (ws && ws.readyState === 1) // WS open
-		{
-			try {
-				ws.send(JSON.stringify(message));
-				console.log(`Message sent to user ${userId}:`, message);
-				return true;
-			} catch (error) {
-				console.warn(`❌ Cannot send message to connected user ${userId}: `, error);
-				return false;
-			}
-        } else {
+		if (client.ws.length == 0) {
 			console.warn(`User not connected while trying to send message `, message);
             return false;
-        }
+		}
+		let sent = false;
+		for (const wss of client.ws) {
+			try {
+				if (wss.readyState === 1) {
+					wss.send(JSON.stringify(message));
+					console.log(`Message sent to user ${userId}:`, message);
+					sent = true;
+				} else {
+					throw new Error("Socket not connected");
+				}
+			} catch (error) {
+				console.warn(`❌ Cannot send message to one socket of user ${userId}:`, error);
+			}
+		}
+		if (!sent) {
+			console.warn(`⚠️ No active sockets for user ${userId} while trying to send`, message);
+		}
+		return sent;
     }
 
-	sendToWs(ws, message) {
-		if (ws && ws.readyState === 1) { // WebSocket.OPEN
-            ws.send(JSON.stringify(message));
-            console.log(`Message sent to ws:`, message);
-            return true;
-        } else {
-            console.warn(`❌ Cannot send message to ws : not connected`);
-            return false;
-        }
-	}
+	// sendToWs(ws, message) {
+	// 	if (ws && ws.readyState === 1) { // WebSocket.OPEN
+    //         ws.send(JSON.stringify(message));
+    //         console.log(`Message sent to ws:`, message);
+    //         return true;
+    //     } else {
+    //         console.warn(`❌ Cannot send message to ws : not connected`);
+    //         return false;
+    //     }
+	// }
 	
+	sendToWs(ws, message) {
+		if (ws.readyState == 1) {
+			ws.send(JSON.stringify(message));
+			console.log(`Message sent to socket:`, message);
+		} else {
+			console.warn(`❌ Cannot send message to socket: disconnected`);
+		}
+	}
+
 	sendMessageToUser(userId, sender, message) {
         const client = this.getClientByUserId(userId);
         if (!client) {
