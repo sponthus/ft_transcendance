@@ -1,10 +1,10 @@
-import Ajv from "ajv"
+import { checkRegistrationFormat } from "../tools/checkFormat.js";
 import bcrypt from "bcrypt";
 import slugify from "slugify";
 
 export default async function registerUser(request, reply) 
 {
-     if (checkFormat(request) == false)
+     if (checkRegistrationFormat(request) == false)
         return reply.code(400).send( {error : "Invalid format for username or password"} );
     
     const db = request.server.db;
@@ -39,27 +39,6 @@ export default async function registerUser(request, reply)
         //plus besoin de delete, db.transaction fait un rollback automatique si code sql echoue
         return (reply.code(500).send( {error : "Internal Server Error" + err.message} ));
     }
-}
-
-function    checkFormat(request)
-{
-    const schema = 
-    {
-        type: "object",
-        properties:
-        {
-            username: { type: "string", minLength: 3, maxLength: 15, pattern: "^(?=.*[a-zA-Z]).+$"},
-            password: { type: "string", minLength: 6, maxLength: 15, pattern: "^(?=.*[a-zA-Z]).+$"},
-        },
-        required: ["username", "password"],
-        additionalProperties: false
-    };
-    const ajv = new Ajv();
-    const contract = ajv.compile(schema);
-    const valid = contract(request.body);
-    if (!valid)
-        return (false);
-    return (true);
 }
 
 function generateUniqueSlug(baseSlug, db)

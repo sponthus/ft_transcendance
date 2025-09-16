@@ -15,7 +15,7 @@ export async function   changeNpcAsset (request, reply)
                                     WHERE \
                                         menu_user_id = ?").get(idUser);
         if (State.menu_asset === newAsset)
-            return reply.code(400).send( { error : "NPC asset is already at this value" } );
+            return reply.code(409).send( { error : "NPC asset is already at this value" } );
         const statement = db.prepare("  UPDATE \
                                             menu_state \
                                         SET \

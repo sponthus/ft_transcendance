@@ -26,7 +26,13 @@ fastify.decorate("authenticate", async function (request, reply)
     } 
     catch (err)
     {
-        return reply.code(401).send({error : err.message});
+        console.log('err.code : ', err.message)
+        if (err.message === "Authorization token expired")
+        {
+            return reply.code(401).send({error : err.message});
+        }
+        else
+            return reply.code(400).send({error : err.message});
     }
     /*try
     {
@@ -49,7 +55,7 @@ fastify.decorate("authenticate", async function (request, reply)
     
 });
 
-function getSecret(name) {
+export function getSecret(name) {
 	try {
 		const key = fs.readFileSync(`/run/secrets/${name}`, 'utf8').trim();
 		return (key);

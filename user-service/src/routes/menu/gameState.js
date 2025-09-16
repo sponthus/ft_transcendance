@@ -15,7 +15,7 @@ export async function   changeGameState (request, reply)
                                     WHERE \
                                         menu_user_id = ?").get(idUser);
         if (State.menu_game_state === newState)
-            return reply.code(400).send( { error : "Game State is already at this value" } );
+            return reply.code(409).send( { error : "Game State is already at this value" } );
         const statement = db.prepare("  UPDATE \
                                             menu_state \
                                         SET \

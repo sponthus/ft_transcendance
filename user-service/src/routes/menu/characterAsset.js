@@ -15,7 +15,7 @@ export async function   changeCharacterAsset (request, reply)
                                     WHERE \
                                         menu_user_id = ?").get(idUser);
         if (State.menu_asset === newAsset)
-            return reply.code(400).send( { error : "Character asset is already at this value" } );
+            return reply.code(409).send( { error : "Character asset is already at this value" } );
         const statement = db.prepare("  UPDATE \
                                             menu_state \
                                         SET \
@@ -27,7 +27,7 @@ export async function   changeCharacterAsset (request, reply)
     }
     catch (err)
     {
-        return reply.code(500).send ({ error: "Internal Server Error" });
+        return reply.code(500).send ({ error: "Internal Server Error" + err.message });
     }
     
 }
@@ -45,7 +45,7 @@ export async function   getCharacterAsset (request, reply)
                                         menu_state \
                                     WHERE \
                                         menu_user_id = ?").get(idUser);
-        return reply.code(200).send({ ok: true, asset: asset });
+        return reply.code(200).send({ ok: true, asset: asset.menu_asset_character });
     }
     catch (err)
     {

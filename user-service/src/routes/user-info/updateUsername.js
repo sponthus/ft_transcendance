@@ -1,9 +1,8 @@
-import Ajv from "ajv"
-import { normalize } from "path";
+import { checkUsernameFormat } from "../tools/checkFormat.js";
 
 export default async function updateUsername (request, reply)
 {
-    if (checkFormat(request) == false)
+    if (checkUsernameFormat(request) == false)
         return reply.code(400).send( {error : "Invalid format for username"} );
 
     const db = request.server.db;
@@ -38,27 +37,6 @@ export default async function updateUsername (request, reply)
     {
         return reply.code(500).send( {error : "Internal Server Error" + err.message} );
     }
-}
-
-function    checkFormat(request)
-{
-    const schema = 
-    {
-        type: "object",
-        properties:
-        {
-            username: { type: "string", minLength: 3, maxLength: 15, pattern: "^(?=.*[a-zA-Z]).+$"},
-
-        },
-        required: ["username"],
-        additionalProperties: false
-    };
-    const ajv = new Ajv();
-    const contract = ajv.compile(schema);
-    const valid = contract(request.body);
-    if (!valid)
-        return (false);
-    return (true);
 }
 
 function checkIfUserCanUpdateUsername (db, idUser)

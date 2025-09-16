@@ -23,6 +23,6 @@ export async function   registerUser(username: string, password: string): Promis
         localStorage.setItem("token", data.token);
         return { ok: true, token: data.token, user: { username: data.username, slug: data.slug } };
     }
-    //alert("Error : " + error?.error || "Account creation impossible"); //enlever alert ?
+    alert("Error : " + data.error); //enlever alert ?
     return { ok: false, error: data.error};
 }
