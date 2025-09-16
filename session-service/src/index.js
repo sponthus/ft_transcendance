@@ -10,7 +10,7 @@ import logger from "../config/logger.js";
 import env from "../config/env.js";
 import WebSocketManager from "./WebSocketManager.js";
 
-// import routes from "./routes.js";
+import routes from "./API/routes.js";
 // import WebSocketManager from "./WebSocketManager.js";
 
 const __filename = fileURLToPath(import.meta.url);
@@ -51,12 +51,29 @@ fastify.decorate("authenticate", async function (request, reply)
 	} 
 	catch (err)
 	{
-		console.error("❌ Error decorating fastify: ", err.message);
+		console.error("Auth refused: ", err.message);
 		return reply.code(401).send({error : err.message});
 	}
 });
 
-// await fastify.register(routes);
+fastify.decorate("int_authenticate", async function (request, reply)
+{
+	try 
+	{
+		// Check internal API key only
+		const internalApiKey = request.headers['x-internal-api-key'];
+		if (internalApiKey && internalApiKey === getSecret('api_key')) {
+			return;
+		}
+	} 
+	catch (err)
+	{
+		console.error("Auth refused: ", err.message);
+		return reply.code(401).send({error : err.message});
+	}
+});
+
+await fastify.register(routes);
 
 // Default handler for undefined routes
 fastify.setNotFoundHandler((req, reply) => {
@@ -78,6 +95,7 @@ const wss = new WebSocketServer({ server, path: "/s-ws/" });
 console.log("Ws server created");
 
 const WSManager = new WebSocketManager(wss, fastify);
+fastify.decorate('WebSocketManager', WSManager);
 
 // const WSManager = new WebSocketManager(wss);
 server.listen(env.session_ws_port, () => {

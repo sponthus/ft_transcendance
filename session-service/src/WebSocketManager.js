@@ -117,13 +117,14 @@ export default class WebSocketManager {
 	}
 
 	// Once auth is ok, register the ws in the clients map
-    registerUser(ws, userId, username, status) {
+    registerUser(ws, userId, username, slug, status) {
 		if (this.clients.has(Number(userId))) {
 			const client = this.clients.get(userId);
 			client.ws = ws;
 			client.status = status;
 			client.currentGame = 0;
 			client.username = username;
+			client.slug = slug;
 			console.log(`✅ Known user authenticated: ${userId} (${username})`);
 		} 
 		else {
@@ -142,11 +143,31 @@ export default class WebSocketManager {
 	authenticateUser(ws, token) {
 		try {
             const data = this.fastify.jwt.verify(token);
-            const { idUser, username } = data;
-            this.registerUser(ws, idUser, username, "online");
+            const { idUser, username, slug } = data;
+            this.registerUser(ws, idUser, username, slug, "online");
         } catch (err) {
             console.error("❌ Invalid token:", err.message);
             ws.close(4002, "Invalid authentication");
         }
+	}
+
+	getUserStatusBySlug(slug) {
+		for (const [userId, client] of this.clients.entries()) {
+            if (client.slug === slug) {
+                return client.status;
+            }
+        }
+		console.log(`User ${slug} is not found`);
+        return 'not found';
+    }
+
+	getUserStatusByUserId(userId) {
+		const client = this.clients.get(Number(userId));
+        if (!client) {
+            console.log(`User ${userId} is not found`);
+            return 'not found';
+        }
+        console.log(`User ${userId} is ${client.status}`);
+        return client.status;
 	}
 }
