@@ -5,7 +5,7 @@ export async function   getAllUsers(request, reply)
     try
     {
         const users = db.prepare( " SELECT \
-                                        username \
+                                        username, slug \
                                     FROM \
                                         users \ ").all(); 
         return reply.code(200).send({ users: users });

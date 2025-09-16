@@ -49,6 +49,6 @@ export async function   getNpcAsset (request, reply)
     }
     catch (err)
     {
-        return reply.code(500).send({ error: "Internal Server Error" + err.message});
+        return reply.code(500).send({ error: "Internal Server Error" });
     }
 }

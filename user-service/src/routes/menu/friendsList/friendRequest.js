@@ -1,4 +1,4 @@
-import { sendRequestToUser } from "../../../request.js";
+import { sendFriendRequestToUser } from "../../internal-service/sendFriendRequestToUser.js";
 import { checkUsernameFormat } from "../../tools/checkFormat.js";
 
 export async function   addFriend(request, reply)
@@ -48,7 +48,7 @@ export async function   addFriend(request, reply)
                                             users \
                                         WHERE \
                                             id = ?").get(idUser);
-        const req = await sendRequestToUser(idFriend.id, username.username, friendUsername);
+        const req = await sendFriendRequestToUser(idFriend.id, username.username, friendUsername);
         statement.run(idUser, idFriend.id);
         return reply.code(200).send();
     }

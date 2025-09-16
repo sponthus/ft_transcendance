@@ -13,6 +13,7 @@ import { getAllFriends } from "./menu/friendsList/getAllFriends.js";
 import { getAllUsers } from "./menu/getAllUsers.js";
 import { acceptRequest, getReceivedRequests, getSentRequests, refuseRequest } from "./menu/friendsList/requestHandlers.js";
 import updatePassword from "./user-info/updatePassword.js";
+import getBasicInfoOnUsers from "./internal-service/getBasicInfoOnUsers.js";
 
 //TODO
 // Faire la verif de username et du pass dans register
@@ -52,10 +53,12 @@ export default async function newRoutes(fastify, options)
 
     fastify.post("/menu/friendslist", { preHandler: [fastify.authenticate] }, addFriend);
     fastify.delete("/menu/friendslist", { preHandler: [fastify.authenticate] }, removeFriend);
-    //fastify.get("/menu/friendslist", { preHandler: [fastify.authenticate] }, addFriend);
     fastify.get("/menu/friendslist/", { preHandler: [fastify.authenticate] }, getAllFriends);
     fastify.get("/menu/friendslist/request/sent", { preHandler: [fastify.authenticate] }, getSentRequests);
     fastify.get("/menu/friendslist/request/received", { preHandler: [fastify.authenticate] }, getReceivedRequests);
     fastify.post("/menu/friendslist/request", { preHandler: [fastify.authenticate] }, acceptRequest);
     fastify.delete("/menu/friendslist/request", { preHandler: [fastify.authenticate] }, refuseRequest);
+
+    //game service
+    fastify.get("/internal-service/users-info", { preHandler: [fastify.verifyApiKey] }, getBasicInfoOnUsers);
 }

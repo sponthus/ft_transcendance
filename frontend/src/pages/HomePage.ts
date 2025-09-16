@@ -36,11 +36,11 @@ export class HomePage extends BasePage {
 			await this.rengerLogoutHome();
 		}
 
-		let req = await getReceivedRequests();
+		let req = await getAllUsers();
 		{
 			if (req.ok)
 			{
-				console.log('Info : ', req.requests);
+				console.log('Info : ', req.users);
 			}
 		}
 		

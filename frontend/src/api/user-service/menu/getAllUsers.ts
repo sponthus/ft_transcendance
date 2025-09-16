@@ -1,5 +1,11 @@
-type Success = {ok: true, users: string[]}
+type Success = {ok: true, users: AllUsers}
 type Failure = { ok: false; error: string };
+
+type AllUsers =
+{
+    username: string[];
+    slug: string[];
+}
 
 export type UsersResult = Success | Failure;
 
