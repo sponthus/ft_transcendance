@@ -21,7 +21,7 @@ const fastify = Fastify({
 	logger: logger,
 });
 
-function getSecret(name) {
+export function getSecret(name) {
 	try {
 		const key = fs.readFileSync(`/run/secrets/${name}`, 'utf8').trim();
 		return (key);
@@ -95,6 +95,14 @@ const wss = new WebSocketServer({ server, path: "/s-ws/" });
 console.log("Ws server created");
 
 const WSManager = new WebSocketManager(wss, fastify);
+WSManager.initializeWebSocket();
+try {
+	await WSManager.getBaseInfos();
+} catch (error) {
+	console.error("❌ Error launching fastify: ", error);
+	process.exit(1);
+}
+
 fastify.decorate('WebSocketManager', WSManager);
 
 // const WSManager = new WebSocketManager(wss);

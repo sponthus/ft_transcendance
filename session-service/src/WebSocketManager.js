@@ -1,14 +1,26 @@
 // TODO: Add messages handling
 
+import { getAllUsers } from "./GetUsers.js";
+
 export default class WebSocketManager {
     constructor(wss, fastify) {
         this.ws = wss;
 		this.fastify = fastify;
 		this.clients = new Map();
 		this.unknownClients = [];
-		// TODO : Request for all registered users
-        this.initializeWebSocket();
     }
+
+	// Get existing users at the launch of the manager and register them
+	async getBaseInfos() {
+		const result = await getAllUsers();
+		if (!result.ok) {
+			throw new Error("Unable to get existing users");
+		}
+		const users = result.data;
+		for (const user of users) {
+			this.registerUser(null, user.userId, user.username, user.slug, "disconnected");
+		}
+	}
 
 	async initializeWebSocket() {
 		this.ws.on('connection', (ws, request) => {
