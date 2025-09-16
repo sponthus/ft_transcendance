@@ -1,6 +1,6 @@
 import { navigate } from '../../core/router.js';
 import { updateUsername } from "../../api/user-service/user-info/updateUsername.js";
-import { getUserInfo } from '../../api/user-service/user-info/getUserInfo.js';
+import { getUserInfo, getUserInfoByUsername } from '../../api/user-service/user-info/getUserInfo.js';
 import { uploadAvatar } from "../../api/avatar.js";
 import { BasePage } from "../BasePage.js";
 import { popUp } from '../../Utils/popUp.js';
@@ -62,11 +62,14 @@ export class UserPage extends BasePage {
 			const req = await getUserInfo();
 			if (req.ok) {
 				this.UserData = req.userInfo;
+				if (this.slug != this.UserData.slug)
+					this.fillUserData()
 				this.UserBanner = new UserBanner(this.UserData);
 				console.log(`user data = ` + JSON.stringify(this.UserData));
 				this.StateBody = this.UserBanner._ProfileState;
-				if (this.slug === this.UserData.slug)
-					await this.showUserPage();
+				await this.showUserPage();
+				// else
+				// 	await this.s
 			}
 			else {
 				alert('Error While loading Profile' + req.error);
@@ -78,6 +81,18 @@ export class UserPage extends BasePage {
 		}
 	}
 
+	private async fillUserData() {
+		console.log('fille userDAta called');
+		try {
+			const req = await getUserInfoByUsername("sponthus");
+			if (req.ok) {
+				this.UserData = req.userInfo;
+			}
+
+		} catch (error) {
+			alert(error);
+		}
+	}
 	async showUserPage() {
 		await this.renderProfileBanner();
 		await this.renderBodyProfile();

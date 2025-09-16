@@ -26,6 +26,7 @@ export abstract class BasePage {
     abstract render(): Promise<void>;
 
     protected async renderBanner(): Promise<void> {
+		this.banner.innerHTML = '';
         renderBaseBanner(this.banner);
 
         const req = await checkLog();
@@ -54,7 +55,7 @@ export abstract class BasePage {
 	}
     // Optional : does nothing, can be overloaded if needed, to destroy listeners
     destroy(): void { 
-		// console.log("destroy function called");
+		// this.banner.innerHTML = '';
 		while(this.banner.firstChild) {
 			while (this.banner.firstChild.firstChild)
 				this.banner.firstChild.firstChild.removeChild(this.banner.firstChild.firstChild);

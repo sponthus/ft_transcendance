@@ -96,6 +96,7 @@ export async function renderRoute(path: string) {
 
 export async function navigate(path: string) {
     history.pushState(null, '', path);
+	location.reload();
     await renderRoute(path);
 }
 
