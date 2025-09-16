@@ -1,4 +1,5 @@
 import { getStatusForSlug } from "./StatusGetRoutes.js"
+import { changeUserInfos, changeUserStatus } from "./StatusPatchRoutes.js"
 
 export default async function routes (fastify, options) {
 	console.log(`Registering routes`);
@@ -19,6 +20,16 @@ export default async function routes (fastify, options) {
 		}
 	);
 
+	fastify.register(
+		async function (patchRoutes) {
+			patchRoutes.patch(`/data/:userId`,
+				{onRequest: [fastify.int_authenticate]},
+				changeUserInfos);
+			patchRoutes.patch(`/status/:userId`,
+				{onRequest: [fastify.int_authenticate]},
+				changeUserStatus);
+		}
+	);
 	// fastify.register(
 	// 	async function (deleteRoutes) {
 	// 		deleteRoutes.delete("/:gameId",

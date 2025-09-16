@@ -128,16 +128,51 @@ export default class WebSocketManager {
 		}, 10000);
 	}
 
+	// Useful when a user changes his username or slug
+	updateUserInfos(userId, username, slug) {
+		console.log("launching with ", userId, username, slug);
+		if (this.clients.has(Number(userId))) {
+			const client = this.clients.get(Number(userId));
+			client.username = username;
+			client.slug = slug;
+			console.log(`✅ User data modification : ${userId} (${username}) / slug=${slug}`);
+			return {
+				userId: userId,
+				username: username,
+				slug: slug
+			};
+		} 
+		else {
+			return null;
+		}
+	}
+
+	updateUserStatus(userId, status) {
+		console.log("launching with ", userId, status);
+		if (this.clients.has(Number(userId))) {
+			const client = this.clients.get(Number(userId));
+			client.status = status;
+			console.log(`✅ User status modification : ${userId} (${status})`);
+			return {
+				userId: userId,
+				status: status
+			};
+		} 
+		else {
+			return null;
+		}
+	}
+
 	// Once auth is ok, register the ws in the clients map
     registerUser(ws, userId, username, slug, status) {
 		if (this.clients.has(Number(userId))) {
-			const client = this.clients.get(userId);
+			const client = this.clients.get(Number(userId));
 			client.ws = ws;
 			client.status = status;
 			client.currentGame = 0;
 			client.username = username;
 			client.slug = slug;
-			console.log(`✅ Known user authenticated: ${userId} (${username})`);
+			console.log(`✅ Known user authenticated: ${userId} (${username}) / slug=${slug} / status=${status}`);
 		} 
 		else {
 			this.clients.set(Number(userId), {
@@ -147,7 +182,7 @@ export default class WebSocketManager {
 				currentGame: 0,
 				messages: []
 			});
-			console.log(`✅ New user authenticated: ${userId} (${username})`);
+			console.log(`✅ New user authenticated: ${userId} (${username}) / slug=${slug} / status=${status}`);
 		}
     }
 
