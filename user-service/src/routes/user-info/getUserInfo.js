@@ -1,4 +1,4 @@
-export default async function   getUserInfo (request, reply)
+export async function   getUserInfo (request, reply)
 {
 	const   db = request.server.db;
     const   idUser = request.user.idUser;
@@ -14,7 +14,27 @@ export default async function   getUserInfo (request, reply)
     }
     catch (err)
     {
-		console.log("returning 500");
+        return reply.code(500).send({ error: "Internal Server Error" });
+    }
+}
+
+export async function   getUserInfoByUsername (request, reply)
+{
+	const   db = request.server.db;
+    const   username= request.params.username;
+
+    try
+    {
+       const user = db.prepare("   SELECT \
+                                        username, nickname, avatar, slug, created_at \
+                                    FROM \
+                                        users \
+                                    WHERE \
+                                        username = ?").get(username);
+       return reply.code(200).send({ userInfo: user }) 
+    }
+    catch (err)
+    {
         return reply.code(500).send({ error: "Internal Server Error" });
     }
 }

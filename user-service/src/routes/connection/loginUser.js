@@ -1,17 +1,17 @@
 import bcrypt from "bcrypt";
+import { checkRegistrationFormat } from "../tools/checkFormat.js";
 
 export default async function loginUser (request, reply)
 {
-    console.log("\nREQUEST :\n");
-    console.log("URL : " + request.url + "\n");
-    console.log("username : " + request.body.username + "\n");
-    console.log("password : " + request.body.password + "\n");
-
     const db = request.server.db;
     const { username, password } = request.body;
 
     if (!username || !password)
         return (reply.code(400).send({error : "Username and password are required"}));
+
+    if (checkRegistrationFormat(request) == false)
+        return reply.code(400).send( {error : "Invalid format for username or password"} );
+
     try 
     {
         const userData = db.prepare("   SELECT \
@@ -22,7 +22,7 @@ export default async function loginUser (request, reply)
                                             username = ?").get(username);
         if (!userData)
             return (reply.code(401).send({error : "Username or password invalid"}));
-         if ((bcrypt.compareSync(password, userData.pw_hash) == false))
+        if ((bcrypt.compareSync(password, userData.pw_hash) == false))
             return(reply.code(401).send({error : "Username or password invalid"})); //message generique pour les attaques
         const idUser = userData.id;
         const slug = userData.slug;
@@ -31,6 +31,6 @@ export default async function loginUser (request, reply)
     }
     catch (err)
     {
-        return (reply.code(500).send( {error : "Internal Server Error"} ));
+        return (reply.code(500).send( {error : "Internal Server Error" + err.message} ));
     }
 }

@@ -10,8 +10,14 @@ export async function sendMessageToUser(request, reply) {
 	// 	return reply.status(401).send({ error: "Unauthorized"});
 	
 	const { userId } = request.params;
-	
+
+
     const { sender, message } = request.body;
+
+    console.log('UserId = ', userId);
+    console.log('sender = ', sender);
+    console.log('message = ', message);
+
     if (!sender || !message) {
         return reply.status(400).send({
             error: 'Incomplete message : No sender or message found in request.' });
