@@ -51,7 +51,7 @@ export class SettingPage extends BasePage {
 	}
 
 	private createFrontSettting() {
-		this.front = createDiv("grid-Setting-front", "flex flex-wrap items-center  justify-center w-full h-full text-center space-y-4");
+		this.front = createDiv("grid-Setting-front", "flex flex-wrap items-center  justify-center w-full h-[95%] text-center space-y-4");
 	}
 
 	// private createSettingText() {
@@ -102,7 +102,7 @@ export class SettingPage extends BasePage {
 
 	/*********************************************function utils**********************************************/
 	private async createReturnDiv() {
-		this.ReturnDiv = createDiv("return", "grid grid-cols-2 items-center justify-between bg-transparent space-x-4 hidden");
+		this.ReturnDiv = createDiv("return", "flex items-center justify-between bg-transparent space-x-4 h-[5%] hidden text-4xl");
 		
 		this.createReturnBtn();
 		this.createSaveBtn();
@@ -111,7 +111,7 @@ export class SettingPage extends BasePage {
 	}
 
 	private createReturnBtn() {
-		const ReturnButton: HTMLButtonElement = createButton("return", "bg-orange-300 hover:bg-orange-400 text-emerald-600 font-bold rounded-xl shadow-md hover:shadow-lg transition-all duration-200 transform hover:scale-105 w-full h-full", "return");
+		const ReturnButton: HTMLButtonElement = createButton("return", "bg-orange-300 hover:bg-orange-400 text-emerald-600 font-bold rounded-xl shadow-md hover:shadow-lg transition-all duration-200 transform hover:scale-105 w-[80%] h-full", "return");
 
 		this.ReturnDiv.appendChild(ReturnButton);
 	}
@@ -148,28 +148,35 @@ export class SettingPage extends BasePage {
 
 	private async Done(): Promise<void> {
 		if (this.statePage == PageState.GAME) {
-			let CurrentAvatarAsset: number = getAvatarAsset();
-			let CurrentNpcAsset: number = getCurrentNpcAsset();
-			try {
-				console.log("change the assets " ,CurrentAvatarAsset);
-				const reqAvatar = await changeCharacterAsset(CurrentAvatarAsset);
-				if (reqAvatar.ok) {
-					alert("change avatar " + CurrentAvatarAsset)
-				}
-
-			} catch (error) {
-				alert(error);
-			}
-			try {
-				const reqNpc = await changeNpcAsset(CurrentNpcAsset)
-				if (reqNpc.ok) {
-					alert("change NPC " + CurrentNpcAsset);
-				}
-			} catch (error) {
-				alert(error);
-			}
+			await this.callApiForChangeAvatar(); // don't work hover 12
+			await this.CallApiForChangeNpc();
 		}
 		this.Return();
 		return ;
+	}
+	private async CallApiForChangeNpc() {
+			let CurrentNpcAsset: number = getCurrentNpcAsset();
+
+		try {
+			const reqNpc = await changeNpcAsset(CurrentNpcAsset)
+			if (reqNpc.ok) {
+				alert("change NPC " + CurrentNpcAsset);
+			}
+		} catch (error) {
+			alert(error);
+		}
+	}
+	private async callApiForChangeAvatar() {
+		let CurrentAvatarAsset: number = getAvatarAsset();
+		try {
+			console.log("change the assets " ,CurrentAvatarAsset);
+			const reqAvatar = await changeCharacterAsset(CurrentAvatarAsset);
+			if (reqAvatar.ok) {
+				alert("change avatar " + CurrentAvatarAsset)
+			}
+ 
+		} catch (error) {
+			alert(error);
+		}
 	}
 }

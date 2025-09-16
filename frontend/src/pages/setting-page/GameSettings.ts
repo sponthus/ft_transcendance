@@ -16,11 +16,11 @@ export async function  renderGameSetting(ButtonDiv: HTMLElement, SettingDiv: HTM
 	// SettingText.textContent = "Game Settings";
 	ButtonDiv.classList.add('hidden');
 	append(SettingDiv, [createAvatarBtn("Lobby-user-avatar", 18, "/asset/Characters/Previews/Previews/", "change Lobby user Avatar :", true)
-							,createAvatarBtn("Lobby-png-avatar", 11, "/asset/Characters/Previews/Previews1/", "change Lobby png Avatar :", false)]);
+							,createAvatarBtn("Lobby-npc-avatar", 11, "/asset/Characters/Previews/Previews1/", "change Lobby npc Avatar :", false)]);
 	
 	manageEventAvatar("Lobby-user-avatar-btn", "Lobby-user-avatar-btn-div");
 	manageClicAvatarkEvent(AvatarMap, true);
-	manageEventAvatar("Lobby-png-avatar-btn", "Lobby-png-avatar-btn-div");
+	manageEventAvatar("Lobby-npc-avatar-btn", "Lobby-npc-avatar-btn-div");
 	manageClicAvatarkEvent(NPCMap, false);
 	ReturnDiv.classList.remove('hidden');
 }
@@ -28,7 +28,7 @@ export async function  renderGameSetting(ButtonDiv: HTMLElement, SettingDiv: HTM
 
 function createAvatarBtn(Id: string, MaxI: number, Folder: string, TextContent: string, Avatar: boolean) : HTMLElement {
 	const Div: HTMLElement = createDiv(Id, "flex flex-col items-center justify-center space-y-8");
-	append(Div, [createButton(Id, "text-emerald-600 text-center bg-orange-300 hover:bg-orange-400 hover:font-bold py-3 px-6 rounded-xl shadow-md hover:shadow-lg transition-all duration-200 transform hover:scale-105", TextContent)
+	append(Div, [createButton(Id, "text-emerald-600 text-center bg-orange-300 hover:bg-orange-400 hover:font-bold py-3 px-6 rounded-xl shadow-md hover:shadow-lg transition-all duration-200 transform hover:scale-105 w-full", TextContent)
 							, createDropdownAvatar(Id, MaxI, Folder, Avatar)]);
 	return Div;
 }
@@ -36,7 +36,7 @@ function createAvatarBtn(Id: string, MaxI: number, Folder: string, TextContent: 
 async function setCurrentAvatar() {
 	try {
 		const req = await  getCharacterAsset();
-		CurrentAvatarAsset = req.asset.menu_asset_character;
+		CurrentAvatarAsset = req.asset;
 	} catch(error) {
 		alert(error);
 	}
@@ -59,11 +59,11 @@ function createDropdownAvatar(Id: string, MaxI: number, Folder: string, Avatar: 
 
 function AddAvatarBtns(parent: HTMLElement ,Id: string, MaxI: number, Folder: string, Avatar: boolean) {
 		for (let i = 0; i < MaxI; i++) {
-			const btn: HTMLButtonElement = createButton(`${Id}${i.toString()}`, "h-16 aspect-square border-2 border-orange-300 hover:bg-orange-400 shadow-md hover:shadow-lg transition-all duration-200 transform hover:scale-105", "")
+			const btn: HTMLButtonElement = createButton(`${Id}${i.toString()}`, "h-26 aspect-square border-2 border-orange-300 hover:bg-orange-400 shadow-md hover:shadow-lg transition-all duration-200 transform hover:scale-105", "")
 
 			const src = `${Folder}character-${i.toString()}.png`;
 			// console.log('src = ', src);
-			const img: HTMLImageElement = createImage(`${Id}${i.toString()}`, "h-14 aspect-square", src);
+			const img: HTMLImageElement = createImage(`${Id}${i.toString()}`, "h-24 aspect-square", src);
 			btn.appendChild(img);
 			if (Avatar) {
 				AvatarMap.set(i, btn);

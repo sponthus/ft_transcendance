@@ -49,8 +49,8 @@ export class renderAsset {
 		try {
 			const req = await getCharacterAsset();
 			if (req.ok) {
-				AssetNumber  = req.asset.menu_asset_character; //
-				// console.log("AssetData = ", req.asset.menu_asset_character as number);
+				AssetNumber  = req.asset;
+				console.log("AssetData = ", req.asset as number);
 			}
 		} catch(error) {
 			alert(error);
