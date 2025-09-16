@@ -45,7 +45,7 @@ export async function   getNpcAsset (request, reply)
                                         menu_state \
                                     WHERE \
                                         menu_user_id = ?").get(idUser);
-        return reply.code(200).send({ ok:true, asset: asset });
+        return reply.code(200).send({ ok:true, asset: asset.menu_asset_npc});
     }
     catch (err)
     {

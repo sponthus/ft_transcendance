@@ -53,7 +53,16 @@ export abstract class BasePage {
 		return BackgroundHome;
 	}
     // Optional : does nothing, can be overloaded if needed, to destroy listeners
-    destroy(): void { }
+    destroy(): void { 
+		// console.log("destroy function called");
+		while(this.banner.firstChild) {
+			while (this.banner.firstChild.firstChild)
+				this.banner.firstChild.firstChild.removeChild(this.banner.firstChild.firstChild);
+			this.banner.removeChild(this.banner.firstChild);
+		}
+		while (this.app.firstChild)
+			this.app.removeChild(this.app.firstChild);
+	}
 }
 
 

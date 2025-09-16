@@ -1,10 +1,12 @@
 import { createDiv, append, createInput, createButton, createElement, createAnchorElement } from "./elementMaker";
 import { navigate } from "../core/router";
+import { getAllUsers } from "../api/user-service/menu/getAllUsers";
 
 let isSearchOpen: boolean = false;
 const searchWrapper: HTMLElement = createDiv("search-wrapper", 'relative flex items-center');
 const searchPanel : HTMLElement = createDiv('search-panel', 'flex flex-col items-center space-y-4 absolute right-0 top-16 w-0 h-0 overflow-y-auto transition-all duration-300 ease-in-out bg-orange-100 rounded-xl shadow-lg border-2 border-emerald-300 opacity-0');
 let isOpen :boolean = false;
+let UserTab: string[] = [];
 
 /*************************************functions for creating search button*************************************/
 export function createSearchBarDiv(parent :HTMLElement) {
@@ -54,8 +56,6 @@ function manageSearchBarEvent() {
 	eventCloseSearch();
 }
 
-const UserTab: string[] = ['endoliam', 'mbogey', 'echabrier', 'sponthus', 'ebompard', 'jlmelanchon', 'endoliar', 'endolpos', 'endoqsdqd'];
-
 function handleSearchEnter() {
 	(document.getElementById("search-input") as HTMLInputElement).addEventListener('keydown', (e) => {
 		const searchInput = document.getElementById('search-input') as HTMLInputElement;
@@ -67,6 +67,7 @@ function handleSearchEnter() {
 		// console.log(e.key);
 		if (searchTerm.length >= 3) {
 			console.log(searchTerm);
+			console.log(UserTab);
 			openSearchPanel();
 			removeAllChild(searchPanel);
 			UserTab.forEach(value => {
@@ -105,6 +106,7 @@ function toggleSearch() {
 }
 
 function openSearch() {
+	fillUserTab();
 	isSearchOpen = true;
 	(document.getElementById("sliding-search-bar-div") as HTMLElement).className = 'absolute right-0 top-0 w-72 overflow-hidden transition-all duration-300 ease-in-out bg-orange-100 rounded-full shadow-lg border-2 border-emerald-600';
 	
@@ -117,6 +119,20 @@ function openSearch() {
 	}, 150);
 }
 
+async function fillUserTab() {
+	try {
+		const req = await getAllUsers();
+		if (req.ok){
+			const UsersData = req.users.users
+			UsersData.forEach( user => {
+				UserTab.push(user.username);
+			})
+			console.log(UserTab);
+		}
+	} catch (error){
+		console.log(Error);
+	}
+}
 function closeSearch() {
 	isSearchOpen = false;
 

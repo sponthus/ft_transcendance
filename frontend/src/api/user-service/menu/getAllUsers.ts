@@ -1,4 +1,4 @@
-type Success = {ok: true, users: string[]}
+type Success = {ok: true, users: any};
 type Failure = { ok: false; error: string };
 
 export type UsersResult = Success | Failure;

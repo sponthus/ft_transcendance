@@ -71,7 +71,7 @@ export class renderAsset {
 		try {
 			const req = await getNpcAsset();
 			if (req.ok) {
-				AssetNumber = req.asset.menu_asset_npc;
+				AssetNumber = req.asset;
 				// console.log("AssetNumber NPC = " , AssetNumber);
 			}
 		} catch (error) {
