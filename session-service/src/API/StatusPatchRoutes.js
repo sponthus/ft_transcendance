@@ -28,8 +28,8 @@ export async function changeUserInfos(request, reply) {
 }
 
 
-// Updates the infos of a user (in case of a change of username/slug)
-// Expecting in the body: username, slug
+// Updates the status of a user (playing | online | disconnected)
+// Expecting in the body: status
 // Security : Road is protected to service-only
 export async function changeUserStatus(request, reply) {
 	console.log('➡️ User accessed PATCH /status/:userId');
