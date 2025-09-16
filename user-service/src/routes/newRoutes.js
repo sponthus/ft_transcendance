@@ -1,19 +1,19 @@
-import registerUser from "./connection/registerUser.js";
-import loginUser from "./connection/loginUser.js";
-import loginThroughToken from "./connection/loginThroughToken.js";
-import updateUsername from "./user-info/updateUsername.js";
-import updateNickname from "./user-info/updateNickname.js";
-import { changeGameState, getGameState } from "./menu/gameState.js";
-import { getUserInfo, getUserInfoBySlug } from "./user-info/getUserInfo.js";
-import { getCharacterAsset, changeCharacterAsset } from "./menu/characterAsset.js";
-import { getNpcAsset, changeNpcAsset } from "./menu/npcAsset.js";
-import { changeBackgroundColor, getBackgroundColor } from "./menu/backgroundColor.js";
-import { addFriend, removeFriend } from "./menu/friendsList/friendRequest.js";
-import { getAllFriends } from "./menu/friendsList/getAllFriends.js";
-import { getAllUsers } from "./menu/getAllUsers.js";
-import { acceptRequest, getReceivedRequests, getSentRequests, refuseRequest } from "./menu/friendsList/requestHandlers.js";
-import updatePassword from "./user-info/updatePassword.js";
-import getBasicInfoOnUsers from "./internal-service/getBasicInfoOnUsers.js";
+import registerUser from "../connection/registerUser.js";
+import loginUser from "../connection/loginUser.js";
+import loginThroughToken from "../connection/loginThroughToken.js";
+import updateUsername from "../user-info/updateUsername.js";
+import updateNickname from "../user-info/updateNickname.js";
+import { changeGameState, getGameState } from "../menu/gameState.js";
+import { getUserInfo, getUserInfoBySlug } from "../user-info/getUserInfo.js";
+import { getCharacterAsset, changeCharacterAsset } from "../menu/characterAsset.js";
+import { getNpcAsset, changeNpcAsset } from "../menu/npcAsset.js";
+import { changeBackgroundColor, getBackgroundColor } from "../menu/backgroundColor.js";
+import { addFriend, removeFriend } from "../menu/friendsList/friendRequest.js";
+import { getAllFriends } from "../menu/friendsList/getAllFriends.js";
+import { getAllUsers } from "../menu/getAllUsers.js";
+import { acceptRequest, getReceivedRequests, getSentRequests, refuseRequest } from "../menu/friendsList/requestHandlers.js";
+import updatePassword from "../user-info/updatePassword.js";
+import getBasicInfoOnUsers from "../internal-service/getBasicInfoOnUsers.js";
 
 //TODO
 // Faire la verif de username et du pass dans register

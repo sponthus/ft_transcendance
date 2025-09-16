@@ -6,7 +6,7 @@ import env from "../config/env.js";
 import fs from "fs";
 import dbConnector from "./db.js";
 import logger from "../config/logger.js";
-import routes from "./routes/newRoutes.js";
+import routes from "./routes/index.js";
 
 const __filename = fileURLToPath(import.meta.url); // This filename, from ESM expression to classic path
 export const __dirname = path.dirname(__filename); // Parent folder to this file

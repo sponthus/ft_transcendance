@@ -1,4 +1,4 @@
-import { getSecret } from "../../index.js";
+import { getSecret } from "../index.js";
 
 export async function sendFriendRequestToUser(idSender, sender, receiver) 
 {
