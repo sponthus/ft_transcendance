@@ -5,46 +5,29 @@ import GameMaster from "./GameMaster.js";
 // Handles game logic for one game actually running
 export default class GameServer {
     
-    constructor(gameId, tournamentId, userId, ws, maxScore, ai, option) {
+    constructor(gameId, tournamentId, userId, maxScore, ai, option) {
         this.gameId = gameId;
 		this.tournamentId = tournamentId;
         this.userId = userId;
-        this.ws = ws;
+        this.ws = null;
         this.state = 'paused';
         this.maxScore = maxScore;
+		this.ai = ai;
+		this.option = option;
         console.log("Game server up");
 
         this.scoreA = 0;
         this.scoreB = 0;
         this.end = false;
-
-        this.startGame();
-        // à chaque tick du serveur
-        const game = new PongGame(this.gameId, ai, option);
-        this.intervalId = setInterval(() => {
-            // Appliquer les inputs pour déplacer le paddle
-            game.update();
-            // broadcast du nouvel état
-            const stateMsg = JSON.stringify({
-                type: "stateUpdate",
-                gameState: game.getState()
-            });
-            this.scoreA = game.getState().score.s1;
-			this.scoreB = game.getState().score.s2;
-            // balance le message a tout les players connecté
-            if (this.ws.readyState === 1) {
-				this.ws.send(stateMsg);
-			} else {
-				console.log("❌ Unable to send game state");
-			}
-			if ((this.scoreA >= this.maxScore || this.scoreB >= this.maxScore) && this.end === false) {
-                this.end = true;
-				this.endGame();
-            }
-        }, 16); // 60fps
-			
-		this.setHandlers(game);
     }
+
+	addWs(ws) {
+		if (this.ws) {
+			console.error(`Game already has a ws`);
+			return;
+		}
+		this.ws = ws;
+	}
 
     setHandlers(game) {
         this.ws.on('close', () => {
@@ -94,6 +77,32 @@ export default class GameServer {
         gameEventEmitter.emitGameEvent('game:started', this.gameId, {
 			tournamentId: this.tournamentId
 		});
+
+        // à chaque tick du serveur
+        this.game = new PongGame(this.gameId, this.ai, this.option);
+        this.intervalId = setInterval(() => {
+            // Appliquer les inputs pour déplacer le paddle
+            this.game.update();
+            // broadcast du nouvel état
+            const stateMsg = JSON.stringify({
+                type: "stateUpdate",
+                gameState: this.game.getState()
+            });
+            this.scoreA = this.game.getState().score.s1;
+			this.scoreB = this.game.getState().score.s2;
+            // balance le message a tout les players connecté
+            if (this.ws.readyState === 1) {
+				this.ws.send(stateMsg);
+			} else {
+				console.log("❌ Unable to send game state");
+			}
+			if ((this.scoreA >= this.maxScore || this.scoreB >= this.maxScore) && this.end === false) {
+                this.end = true;
+				this.endGame();
+            }
+        }, 16); // 60fps
+			
+		this.setHandlers(game);
     }
 
     endGame() {

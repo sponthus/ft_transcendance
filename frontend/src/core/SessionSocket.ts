@@ -2,7 +2,7 @@
 
 export class SessionSocket {
     static instance: null | SessionSocket = null;
-    public ws: WebSocket;
+    // public ws: WebSocket;
     public sWS: WebSocket;
     private heartbeatInterval: number | null = null;
     private heartbeatTimeout: number | null = null;
@@ -12,7 +12,7 @@ export class SessionSocket {
     constructor() {
 		try {
 			console.log("Creating new WebSocket connection");
-			this.ws = new WebSocket(this.getGameWsUrl());
+			// this.ws = new WebSocket(this.getGameWsUrl());
             this.sWS = new WebSocket(this.getStatusWsUrl());
 			this.setupEventListeners();
 
@@ -70,14 +70,14 @@ export class SessionSocket {
         };
     }
 
-    private getGameWsUrl(): string {
-        console.log(import.meta.env?.MODE);
-        const status = import.meta.env?.MODE;
-        if (status === "development")
-            return `ws://${import.meta.env.VITE_DOMAIN_NAME}:8080/g-ws/`;
-        else
-            return `wss://${import.meta.env.VITE_DOMAIN_NAME}/g-ws/`;
-    }
+    // private getGameWsUrl(): string {
+    //     console.log(import.meta.env?.MODE);
+    //     const status = import.meta.env?.MODE;
+    //     if (status === "development")
+    //         return `ws://${import.meta.env.VITE_DOMAIN_NAME}:8080/g-ws/`;
+    //     else
+    //         return `wss://${import.meta.env.VITE_DOMAIN_NAME}/g-ws/`;
+    // }
 
     private getStatusWsUrl(): string {
         console.log(import.meta.env?.MODE);

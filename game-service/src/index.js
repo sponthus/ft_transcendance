@@ -80,7 +80,7 @@ const server = createServer();
 const wss = new WebSocketServer({ server, path: "/g-ws/" });
 console.log("Ws server created");
 
-const WSManager = new WebSocketManager(wss);
+const WSManager = new WebSocketManager(wss, app);
 
 server.listen(env.game_ws_port, () => {
     console.log('WebSocket server listening on port ', env.game_ws_port);

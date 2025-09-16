@@ -3,23 +3,36 @@ import GameMaster from './GameMaster.js';
 const gameMaster = GameMaster.getInstance();
 
 export default class WebSocketManager {
-    constructor(wss) {
+    constructor(wss, fastify) {
         this.ws = wss;
-        this.initializeWebSocket();
+        this.fastify = fastify;
+        this.unknownClients = [];
+        // this.initializeWebSocket();
     }
 
     initializeWebSocket() {
         this.ws.on('connection', (ws, request) => {
             console.log('🟢 New WebSocket connection');
 
+            this.handleDisconnection(ws);
+
             ws.on('message', (data) => {
+                let message;
                 try {
-                    const message = JSON.parse(data);
+                    message = JSON.parse(data);
+                    // TODO: Add a handler for messages that do not contain "type" 
+                    // = 1007 error, do not print token in logs
+                    // console.log('Message received :', message);
                     if (message.type !== 'input')
                         console.log('Message received :', message);
+                } catch (error) {
+                    console.error('❌ Invalid JSON recieved:', error);
+                }
+
+                try {
                     this.handleMessage(ws, message);
                 } catch (error) {
-                    console.error('❌ Invalid JSON:', error);
+                    console.error('❌ Error treating message:', error);
                 }
             });
 
@@ -41,8 +54,11 @@ export default class WebSocketManager {
                 this.pong(ws);
                 break;
             case 'auth':
-                this.authenticateUser(ws, message.userId);
+                // TODO : Add content check
+                this.authenticateUser(ws, message.token, message.gameId);
                 break;
+            default:
+                console.warn("⚠️ Type not recognized");
             // case 'join_game':
             //     this.handleJoinGame(ws, message.gameId);
             //     break;
@@ -54,11 +70,33 @@ export default class WebSocketManager {
 
     pong(ws) {
         if (ws.readyState === 1) {
-            ws.send(JSON.stringify({ type: 'pong' }));
-            console.log('Sent pong response');
+            this.sendToWs(ws, { type: 'pong' });
         } else
-			console.log(" ❌ Pong not sent");
+			console.error("❌ Unable to send pong back");
     }
+
+    sendToWs(ws, message) {
+		if (ws.readyState == 1) {
+			ws.send(JSON.stringify(message));
+			console.log(`Message sent to socket:`, message);
+		} else {
+			console.warn(`❌ Cannot send message to socket: disconnected`);
+		}
+	}
+
+    handleConnexion(ws) {
+        this.unknownClients.push(ws);
+		
+		// Execute once after 10s: check if ws has auth
+		setTimeout(() => {
+			if (gameMaster.getUserIdByWs(ws) == null) {
+				ws.close(4001, "Authentication timeout");
+			} else {
+				this.unknownClients = this.unknownClients.filter(c => c !== ws);
+			}
+		}, 10000);
+    }
+
     //
     // broadcastToGame(gameId, message) {
     //     const game = this.games.get(gameId);
@@ -72,44 +110,41 @@ export default class WebSocketManager {
     //     }
     // }
 
-    authenticateUser(ws, userId) {
-        if (!userId) {
-            console.warn('Authentication failed: no userId provided');
+    authenticateUser(ws, token, gameId) {
+        if (!token) {
+            console.warn('Authentication failed: no token provided');
+            return;
+        }
+        if (!gameId) {
+            console.warn('Authentication failed: no gameId provided');
             return;
         }
 
-        let oldMessages = [];
-        const oldClient = gameMaster.getClientByUserId(userId);
-        if (oldClient !== undefined) {
-            console.log(`User ${userId} already connected, closing old connection`);
-            // console.log(oldClient);
-            if (oldClient.ws) {
-                oldClient.ws.close(1000, 'New session started');
-                oldClient.ws = null;
-            }
-            oldMessages = oldClient.messages;
-            // console.log(oldMessages);
-        }
+        let data = {};
+		try {
+            data = this.fastify.jwt.verify(token);
+		} catch (err) {
+			console.error("❌ Invalid token:", err.message);
+			ws.close(4002, "Invalid authentication");
+			return ;
+		}
 
-        gameMaster.addUser(ws, userId);
+        gameMaster.addUserToGame(ws, data.userId, gameId);
         // console.log("Authenticated user = " + userId);
         
-		this.sendToUser(userId, {
+		this.sendToWs(ws, {
             type: 'auth_success',
             userId: userId,
+            gameId: gameId,
             timestamp: Date.now()
         });
-
-        // TODO = Check this part : socket is refreshed (page refresh) after msg has been sent
-        if (oldMessages.length > 0) {
-            gameMaster.sendListOfMessagesToUser(userId, oldMessages);
-        }
     }
 
     handleDisconnection(ws) {
-        const userId = gameMaster.getUserIdByWs(ws);
-        if (userId) {
-            gameMaster.disconnectUser(userId);
+        try {
+            gameMaster.disconnectUser(ws);
+        } catch (error) {
+            console.error(`❌ Unable to disconnect game properly`);
         }
     }
 
