@@ -71,7 +71,7 @@ function handleSearchEnter() {
 			removeAllChild(searchPanel);
 			UserTab.forEach(value => {
 				if (value.toLocaleLowerCase().substring(0, searchTerm.length) === searchTerm) {
-					const UserText: HTMLAnchorElement = createAnchorElement(`${value}`, `${value}`, `user/${value}`, 'text-emerald-600 hover:bg-orange-400 hover:font-bold text-xl w-full text-center transition-all duration-200 hover:scale-105 shadow-xl');
+					const UserText: HTMLAnchorElement = createAnchorElement(`${value}`, `${value}`, `/user/${value}`, 'text-emerald-600 hover:bg-orange-400 hover:font-bold text-xl w-full text-center transition-all duration-200 hover:scale-105 shadow-xl');
 					searchPanel.appendChild(UserText);
 					console.log(value);
 				}
