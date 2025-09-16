@@ -27,7 +27,7 @@ export default class WebSocketManager {
 		this.ws.on('connection', (ws, request) => {
             console.log('🟢 New WebSocket connection');
 
-			this.handleConnection(ws);
+			this.handleConnexion(ws);
 
 			ws.on('message', (data) => {
                 let message;
@@ -106,7 +106,7 @@ export default class WebSocketManager {
 	}
 
 	// At connexion, ws is registered, if not authenticated after 10s it is closed
-	handleConnection(ws) {
+	handleConnexion(ws) {
 		this.unknownClients.push(ws);
 		
 		// Execute once after 10s: check if ws has auth
@@ -144,6 +144,11 @@ export default class WebSocketManager {
 
 	// Decode JWT token from auth message
 	authenticateUser(ws, token) {
+		if (!token) {
+            console.warn('Authentication failed: no token provided');
+            return;
+        }
+		
 		let data = {};
 		try {
             data = this.fastify.jwt.verify(token);
