@@ -15,7 +15,7 @@ export async function   changeBackgroundColor(request, reply)
                                         WHERE \
                                             menu_user_id = ?").get(idUser);
         if (rgbColor.menu_color_r === red && rgbColor.menu_color_g === green && rgbColor.menu_color_b === blue)
-            return reply.code(400).send( {error : "Rgb color already set to this value"} );
+            return reply.code(409).send( {error : "Rgb color already set to this value"} );
         db.prepare("    UPDATE \
                             menu_state \
                         SET \
