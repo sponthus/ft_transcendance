@@ -27,6 +27,7 @@ export class UserPage extends BasePage {
 
 	private Background!: HTMLElement;
 	private UserBanner!: UserBanner;
+	private slug!: string;
 	protected BodyDiv!: HTMLElement;
 
 	private UserData?: any;
@@ -39,6 +40,7 @@ export class UserPage extends BasePage {
 		// 	navigate('/');
 		super();
 		console.log('Constructor');
+		this.slug = slug;
 		// this.slug = state!.user?.slug;
 	}
 	
@@ -63,7 +65,8 @@ export class UserPage extends BasePage {
 				this.UserBanner = new UserBanner(this.UserData);
 				console.log(`user data = ` + JSON.stringify(this.UserData));
 				this.StateBody = this.UserBanner._ProfileState;
-				await this.showUserPage();
+				if (this.slug === this.UserData.slug)
+					await this.showUserPage();
 			}
 			else {
 				alert('Error While loading Profile' + req.error);

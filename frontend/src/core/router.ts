@@ -68,6 +68,11 @@ export async function renderRoute(path: string) {
 				await navigate('/login');
 				return ;
 			}
+			if (!dynamicPart) {
+				await navigate(`/user/${userData.slug}`);
+				return ;
+			}
+			console.log('dynamiquepart' , dynamicPart);
 			currentPage = new UserPage(dynamicPart);
 			break;
 		case '/setting':

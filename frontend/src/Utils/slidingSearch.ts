@@ -1,8 +1,10 @@
-import { createDiv, append, createInput, createButton } from "./elementMaker";
+import { createDiv, append, createInput, createButton, createElement, createAnchorElement } from "./elementMaker";
 import { navigate } from "../core/router";
 
 let isSearchOpen: boolean = false;
 const searchWrapper: HTMLElement = createDiv("search-wrapper", 'relative flex items-center');
+const searchPanel : HTMLElement = createDiv('search-panel', 'flex flex-col items-center space-y-4 absolute right-0 top-16 w-0 h-0 overflow-y-auto transition-all duration-300 ease-in-out bg-orange-100 rounded-xl shadow-lg border-2 border-emerald-300 opacity-0');
+let isOpen :boolean = false;
 
 /*************************************functions for creating search button*************************************/
 export function createSearchBarDiv(parent :HTMLElement) {
@@ -10,6 +12,7 @@ export function createSearchBarDiv(parent :HTMLElement) {
 	append(searchWrapper, [createSearchToggle(), createSlidingSearchBar()]);
 
 	parent.appendChild(searchWrapper);
+	searchWrapper.appendChild(searchPanel);
 	manageSearchBarEvent();
 }
 
@@ -51,17 +54,45 @@ function manageSearchBarEvent() {
 	eventCloseSearch();
 }
 
+const UserTab: string[] = ['endoliam', 'mbogey', 'echabrier', 'sponthus', 'ebompard', 'jlmelanchon', 'endoliar', 'endolpos', 'endoqsdqd'];
+
 function handleSearchEnter() {
-	(document.getElementById("search-input") as HTMLInputElement).addEventListener('keypress', (e) => {
-		if (e.key === 'Enter')
-			handleSearch();
+	(document.getElementById("search-input") as HTMLInputElement).addEventListener('keydown', (e) => {
+		const searchInput = document.getElementById('search-input') as HTMLInputElement;
+		if (!searchInput) return;
+
+		const searchTerm = searchInput.value.trim().toLowerCase();
+		// if (e.keyCode === 8)
+		// 	console.log("coucou");
+		// console.log(e.key);
+		if (searchTerm.length >= 3) {
+			console.log(searchTerm);
+			openSearchPanel();
+			removeAllChild(searchPanel);
+			UserTab.forEach(value => {
+				if (value.toLocaleLowerCase().substring(0, searchTerm.length) === searchTerm) {
+					const UserText: HTMLAnchorElement = createAnchorElement(`${value}`, `${value}`, `user/${value}`, 'text-emerald-600 hover:bg-orange-400 hover:font-bold text-xl w-full text-center transition-all duration-200 hover:scale-105 shadow-xl');
+					searchPanel.appendChild(UserText);
+					console.log(value);
+				}
+			})
+		}
+		console.log("search panel children = ", searchPanel.children.length);
+		if (searchPanel.children.length === 0 && isOpen)
+			closeSearchPanel();
+		else if (searchTerm.length < 3)
+			removeAllChild(searchPanel);
+		else if (searchTerm.length < 3 && isOpen)
+			closeSearchPanel();
 	});
 }
 
 function eventCloseSearch() {
 	document.addEventListener('click', (e) => {
-		if (isSearchOpen && !searchWrapper.contains(e.target as Node)) {
-			closeSearch();
+			if (isSearchOpen && !searchWrapper.contains(e.target as Node)) {
+				closeSearch();
+			if (isOpen)
+				closeSearchPanel();
 		}
 	});
 }
@@ -101,6 +132,22 @@ function closeSearch() {
 	}, 150);
 }
 
+function removeAllChild(parent: HTMLElement) {
+	while (parent.firstChild)
+		parent.removeChild(parent.firstChild);
+}
+
+function openSearchPanel() {
+	isOpen = true;
+	searchPanel.className = 'flex flex-col items-center space-y-4 absolute right-0 top-16 w-80 h-72 overflow-y-auto transition-all duration-300 ease-in-out bg-orange-100 rounded-xl shadow-lg border-2 border-emerald-500 opacity-100';
+}
+
+function closeSearchPanel() {
+	removeAllChild(searchPanel);
+	isOpen = false;
+	searchPanel.className = 'flex flex-col items-center space-y-4 absolute right-0 top-16 w-0 h-0 overflow-y-auto transition-all duration-300 ease-in-out bg-orange-100 rounded-xl shadow-lg border-2 border-emerald-300 opacity-0';
+}
+
 function handleSearch() {
 	const searchInput = document.getElementById('search-input') as HTMLInputElement;
 	if (!searchInput) return;
@@ -108,10 +155,7 @@ function handleSearch() {
 	const searchTerm = searchInput.value.trim();
 	if (searchTerm) {
 		console.log('Recherche:', searchTerm);
-		// Ici vous pouvez ajouter votre logique de recherche
-		// Par exemple : navigate(`/search?q=${encodeURIComponent(searchTerm)}`);
-		
-		// Exemple de navigation vers une page de recherche
+
 		navigate(`/search?q=${encodeURIComponent(searchTerm)}`);
 	}
 }
