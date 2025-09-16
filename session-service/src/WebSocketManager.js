@@ -142,13 +142,42 @@ export default class WebSocketManager {
 
 	// Decode JWT token from auth message
 	authenticateUser(ws, token) {
+		let data = {};
 		try {
-            const data = this.fastify.jwt.verify(token);
-            const { idUser, username, slug } = data;
-            this.registerUser(ws, idUser, username, slug, "online");
-        } catch (err) {
-            console.error("❌ Invalid token:", err.message);
-            ws.close(4002, "Invalid authentication");
+            data = this.fastify.jwt.verify(token);
+		} catch (err) {
+			console.error("❌ Invalid token:", err.message);
+			ws.close(4002, "Invalid authentication");
+			return ;
+		}
+		
+		// TODO : Ugly code,refactorize me please
+		const { idUser, username, slug } = data;
+		let oldMessages = [];
+		try {
+			const client = this.getClientByUserId(idUser);
+			if (client !== undefined) {
+				console.log(`User ${idUser} already known`);
+				// console.log(oldClient);
+				if (client.ws) {
+					// TODO = Add a list of sockets to take into account
+					client.ws.close(1000, 'New session started');
+				}
+				oldMessages = client.messages;
+			}
+		} catch (error) {
+			console.error("Error fetching old messages", error);
+		}
+
+		this.registerUser(ws, idUser, username, slug, "online");
+		this.sendToUserId(idUser, {
+            type: 'auth_success',
+            userId: idUser,
+            timestamp: Date.now()
+        });
+
+		if (oldMessages.length > 0) {
+            this.sendStoredMessagesToUser(idUser);
         }
 	}
 
@@ -289,5 +318,19 @@ export default class WebSocketManager {
             }));
             return 1;
         }
+    }
+
+    sendStoredMessagesToUser(userId) {
+        const client = this.getClientByUserId(userId);
+        const messages = client.messages;
+		client.messages = [];
+
+		let count = 0;
+        console.log(`messages to send ${messages.length}`);
+        for (const message of messages) {
+			let trMessage = JSON.parse(message);
+			count += this.sendMessageToUser(userId, trMessage.sender, trMessage.message);
+		}
+		console.log(`Sent ${count} stored messages`);
     }
 }
