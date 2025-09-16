@@ -11,7 +11,7 @@ export async function getStatusForSlug(request, reply) {
 	const { WebSocketManager } = request.server;
 	if (!WebSocketManager) {
 		console.error('❌ Error while getting sessions: connexion not found');
-		return reply.status(500).send({ error: 'No database connection found.'});
+		return reply.status(500).send({ error: 'No sessions connection found.'});
 	}
 
 	const status = WebSocketManager.getUserStatusBySlug(slug);

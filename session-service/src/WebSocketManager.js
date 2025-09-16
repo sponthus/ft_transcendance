@@ -10,6 +10,7 @@ export default class WebSocketManager {
 		this.unknownClients = [];
     }
 
+	/********************************************* INITIALIZATION **************************************/
 	// Get existing users at the launch of the manager and register them
 	async getBaseInfos() {
 		const result = await getAllUsers();
@@ -80,20 +81,8 @@ export default class WebSocketManager {
 			console.error("❌ Unable to send pong back");
     }
 
-	getUserIdByWs(targetWs) {
-        for (const [userId, client] of this.clients.entries()) {
-            if (client.ws === targetWs) {
-                return userId;
-            }
-        }
-        return null;
-    }
-
-	isUserConnected(userId) {
-        const client = this.clients.get(Number(userId));
-        return client && client.status !== 'disconnected';
-    }
-
+	/*************************** CONNECT / DISCONNECT ************************/
+	
 	handleDisconnexion(ws) {
         const userId = this.getUserIdByWs(ws);
         if (userId) {
@@ -126,41 +115,6 @@ export default class WebSocketManager {
 				this.unknownClients = this.unknownClients.filter(c => c !== ws);
 			}
 		}, 10000);
-	}
-
-	// Useful when a user changes his username or slug
-	updateUserInfos(userId, username, slug) {
-		console.log("launching with ", userId, username, slug);
-		if (this.clients.has(Number(userId))) {
-			const client = this.clients.get(Number(userId));
-			client.username = username;
-			client.slug = slug;
-			console.log(`✅ User data modification : ${userId} (${username}) / slug=${slug}`);
-			return {
-				userId: userId,
-				username: username,
-				slug: slug
-			};
-		} 
-		else {
-			return null;
-		}
-	}
-
-	updateUserStatus(userId, status) {
-		console.log("launching with ", userId, status);
-		if (this.clients.has(Number(userId))) {
-			const client = this.clients.get(Number(userId));
-			client.status = status;
-			console.log(`✅ User status modification : ${userId} (${status})`);
-			return {
-				userId: userId,
-				status: status
-			};
-		} 
-		else {
-			return null;
-		}
 	}
 
 	// Once auth is ok, register the ws in the clients map
@@ -198,6 +152,59 @@ export default class WebSocketManager {
         }
 	}
 
+	/************************** SETTERS **********************************/
+
+	// Useful when a user changes his username or slug
+	updateUserInfos(userId, username, slug) {
+		console.log("launching with ", userId, username, slug);
+		if (this.clients.has(Number(userId))) {
+			const client = this.clients.get(Number(userId));
+			client.username = username;
+			client.slug = slug;
+			console.log(`✅ User data modification : ${userId} (${username}) / slug=${slug}`);
+			return {
+				userId: userId,
+				username: username,
+				slug: slug
+			};
+		} 
+		else {
+			return null;
+		}
+	}
+
+	updateUserStatus(userId, status) {
+		console.log("launching with ", userId, status);
+		if (this.clients.has(Number(userId))) {
+			const client = this.clients.get(Number(userId));
+			client.status = status;
+			console.log(`✅ User status modification : ${userId} (${status})`);
+			return {
+				userId: userId,
+				status: status
+			};
+		} 
+		else {
+			return null;
+		}
+	}
+
+	/******************************* GETTERS ********************************/
+
+	getUserIdByWs(targetWs) {
+        for (const [userId, client] of this.clients.entries()) {
+            if (client.ws === targetWs) {
+                return userId;
+            }
+        }
+        return null;
+    }
+
+	isUserConnected(userId) {
+        const client = this.clients.get(Number(userId));
+        return client && client.status !== 'disconnected';
+    }
+
 	getUserStatusBySlug(slug) {
 		for (const [userId, client] of this.clients.entries()) {
             if (client.slug === slug) {
@@ -217,4 +224,70 @@ export default class WebSocketManager {
         console.log(`User ${userId} is ${client.status}`);
         return client.status;
 	}
+
+	getClientByUserId(userId) {
+        return this.clients.get(Number(userId));
+    }
+
+	/*************************************** MESSAGES LOGIC ***********************************/
+
+	
+    sendToUserId(userId, message) {
+		const client = this.getClientByUserId(Number(userId));
+		if (!client) {
+			console.warn(`Unknown user when send message `, message);
+			return false;
+		}
+        const ws = client.ws;
+        if (ws && ws.readyState === 1) // WS open
+		{
+			try {
+				ws.send(JSON.stringify(message));
+				console.log(`Message sent to user ${userId}:`, message);
+				return true;
+			} catch (error) {
+				console.warn(`❌ Cannot send message to connected user ${userId}: `, error);
+				return false;
+			}
+        } else {
+			console.warn(`User not connected while trying to send message `, message);
+            return false;
+        }
+    }
+
+	sendToWs(ws, message) {
+		if (ws && ws.readyState === 1) { // WebSocket.OPEN
+            ws.send(JSON.stringify(message));
+            console.log(`Message sent to ws:`, message);
+            return true;
+        } else {
+            console.warn(`❌ Cannot send message to ws : not connected`);
+            return false;
+        }
+	}
+	
+	sendMessageToUser(userId, sender, message) {
+        const client = this.getClientByUserId(userId);
+        if (!client) {
+            return 2;
+        }
+        if (this.isUserConnected(Number(userId))) {
+            if (this.sendToUserId(userId, JSON.stringify({
+					type: 'message',
+					sender: sender,
+					message: message})) == true) {
+				console.log(`Message sent to user ${userId}:`, message);
+				return 0;
+			} else {
+				return 3; // Error sending, impossible without error because user is connected
+			}
+        } else {
+            console.log(`User ${userId} is not connected or playing, storing the message`);
+            client.messages.push(JSON.stringify({
+                sender: sender,
+                message: message,
+            }));
+            return 1;
+        }
+    }
 }
