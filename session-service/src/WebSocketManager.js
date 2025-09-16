@@ -132,7 +132,7 @@ export default class WebSocketManager {
 		} 
 		else {
 			this.clients.set(Number(userId), {
-				ws: new Array(ws),
+				ws: [ws],
 				username: username,
 				status: status,
 				currentGame: 0,
@@ -148,7 +148,7 @@ export default class WebSocketManager {
             console.warn('Authentication failed: no token provided');
             return;
         }
-		
+
 		let data = {};
 		try {
             data = this.fastify.jwt.verify(token);
