@@ -1,5 +1,5 @@
 import { createDiv, createElement, createButton, createDropdownDiv, createFormDiv, createCheckBoxLabel, append} from '../../Utils/elementMaker.js';
-import { getAllGames } from '../../api/game-service/games/game.js';
+import { getAllGames, getFinishedGames } from '../../api/game-service/games/game.js';
 import { UserPage } from './UserPage.js';
 
 
@@ -8,7 +8,8 @@ export async function DisplayHistoryPage(Body: HTMLElement, UserData: any) {
 	// Body.textContent = "i'm in the History body";
 	Body.className = "flex flex-col items-center bg-orange-300  bg-opacity-50 w-full h-[60%] flex overflow-auto";
 	try {
-		const res = await getAllGames(UserData.id);
+		const res = await getFinishedGames(UserData.slug);
+		// const res = await  (UserData.id);
 		if (!res.ok) {
 			Body.textContent = "Error loading games... please retry ";
 			return ;

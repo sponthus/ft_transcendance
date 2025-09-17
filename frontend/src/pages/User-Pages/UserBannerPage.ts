@@ -1,3 +1,4 @@
+import { addFriend } from '../../api/user-service/menu/friendsList/friendRequest.js';
 import { createDiv, createElement, createButton, append, createImage} from '../../Utils/elementMaker.js';
 import { EditProfile } from './EditProfile.js';
 
@@ -11,9 +12,9 @@ export class UserBanner {
 	private isOwnProfile!: boolean;
 	private EditProfile: EditProfile
 
-	constructor(UserData: any) {
+	constructor(UserData: any, isOwnProfile: boolean) {
 		this.UserData = UserData;
-		this.isOwnProfile = true;
+		this.isOwnProfile = isOwnProfile;
 		this.StateBody = BodyState.PROFILE;
 		this.ProfileBanner = createDiv('profile-banner', "flex flex-col w-full h-[40%]");
 		this.EditProfile = new EditProfile(this.UserData);
@@ -46,13 +47,16 @@ export class UserBanner {
 		let userNameStr: string = "undifined";
 		if (this.UserData)
 			userNameStr = this.UserData.username;
-		const userNameDiv: HTMLElement = createDiv("user-text", "flex items-center space-x-4");
+		const userNameDiv: HTMLElement = createDiv("user-text", "flex items-center justify-between space-x-4");
 		append(userNameDiv, [(createElement('h1', 'user-name', userNameStr, "text-2xl font-bold text-emerald-700" ) as HTMLElement)]);
 
 		const ActionDiv: HTMLElement = createDiv("avatar-action", ""); // document.createElement('div');
 		if (this.isOwnProfile) {
-			append(ActionDiv, [(createButton('edit-profile', "text-emerald-600 hover:font-bold border-2 border-sky-500 hover:border-sky-600 rounded-lg w-32", "Edit profile") as HTMLButtonElement)])
+			append(ActionDiv, [(createButton('edit-profile', "text-emerald-600 hover:font-bold border-2 border-sky-500 hover:border-sky-600 rounded-lg w-32 ", "Edit profile") as HTMLButtonElement)])
 			this.EditProfile.render(userNameDiv, "edit-username")
+		}
+		else {
+			append(userNameDiv, [(createButton('friend-request', "text-emerald-600 hover:font-bold border-2 border-sky-500 hover:border-sky-600 rounded-lg p-4", "friend request") as HTMLButtonElement)]);
 		}
 		UserTextDiv.appendChild(userNameDiv);
 		if (this.isOwnProfile)
@@ -74,7 +78,7 @@ export class UserBanner {
 		}
 		append(AvatarDiv, [AvatarCircle]);
 		if (this.isOwnProfile) 
-			this.EditProfile.render(AvatarDiv, "edit-avatar")
+			this.EditProfile.render(AvatarDiv, "edit-avatar");
 		
 		return AvatarDiv;
 	}
@@ -107,6 +111,21 @@ export class UserBanner {
 				console.log("activ button ? = ", btn);
 				console.log("state content : ", this.StateBody); })
 		})
+	}
+
+	async managefriendrequest() {
+		console.log('manage friend request function called');
+		(document.getElementById('friend-request-btn')?.addEventListener('click', async() => {
+			console.log('send a friend request');
+			try {
+				const req = await addFriend(this.UserData.username);
+				if (req.ok) {
+					console.log("succesfully add friend request")
+				}
+			}catch (error) {
+				alert(error);
+			}
+		}))
 	}
 
 	private activateButton(btn: HTMLButtonElement) {

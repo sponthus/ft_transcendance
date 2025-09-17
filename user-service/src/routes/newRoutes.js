@@ -33,7 +33,8 @@ export default async function newRoutes(fastify, options)
     //pas de page de profil, fonction tester avec curl --> MARCHE :)))))))
     //faudra juste verifier qu'il prend bien le nouveau token
     fastify.get("/user-info", { preHandler: [fastify.authenticate] }, getUserInfo);
-    fastify.get("/api/user/user-info/other/:username", { preHandler: [fastify.authenticate] }, getUserInfoByUsername);
+    // fastify.get("/api/user/user-info/other/:username", { preHandler: [fastify.authenticate] }, getUserInfoByUsername);
+	fastify.get("/user-info/other/:username", { preHandler: [fastify.authenticate] }, getUserInfoByUsername);
     fastify.patch("/user-info/username", { preHandler: [fastify.authenticate] } , updateUsername);
     fastify.patch("/user-info/nickname", { preHandler: [fastify.authenticate] } , updateNickname);
     fastify.patch("/user-info/password", { preHandler: [fastify.authenticate] } , updatePassword);

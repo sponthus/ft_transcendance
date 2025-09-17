@@ -56,11 +56,12 @@ export abstract class BasePage {
     // Optional : does nothing, can be overloaded if needed, to destroy listeners
     destroy(): void { 
 		// this.banner.innerHTML = '';
-		while(this.banner.firstChild) {
-			while (this.banner.firstChild.firstChild)
-				this.banner.firstChild.firstChild.removeChild(this.banner.firstChild.firstChild);
-			this.banner.removeChild(this.banner.firstChild);
-		}
+		Array.from(this.banner.children).forEach(child => {
+			Array.from(child.children).forEach(children => {
+				child.removeChild(children);
+			})
+			this.banner.removeChild(child);
+		})
 		while (this.app.firstChild)
 			this.app.removeChild(this.app.firstChild);
 	}

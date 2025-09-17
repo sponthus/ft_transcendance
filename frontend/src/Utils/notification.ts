@@ -1,3 +1,4 @@
+import { getReceivedRequests } from "../api/user-service/menu/friendsList/requestHandlers";
 import { append, createDiv, createButton, createImage, createAnchorElement } from "./elementMaker";
 
 
@@ -83,8 +84,27 @@ function createSlidingNotificationPan(): HTMLElement {
 		append(slidingotificationPan,[addInvitation(i)]);
 	}
 
+	fillReceiveRequest(slidingotificationPan);
 	// append(slidingotificationPan, [notificationPannel]);
 	return slidingotificationPan;
+}
+
+async function fillReceiveRequest(parent: HTMLElement) {
+	try {
+		const req = await getReceivedRequests();
+		if (req.ok) {
+			// const RequestResult = req.requests;
+			// // RequestResult?.forEach()
+			// console.log("res request = ", RequestResult);
+			// RequestResult?.forEach(value => {
+			// 	console.log("res request = ", value);
+			// })
+			
+		}
+
+	} catch(error) {
+		alert(error)
+	}
 }
 
 function addInvitation(index: number) : HTMLAnchorElement {

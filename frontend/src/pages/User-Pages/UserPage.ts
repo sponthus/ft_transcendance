@@ -34,6 +34,7 @@ export class UserPage extends BasePage {
 
 	private StateBody!: number;
 
+	private isOwnProfile: boolean = true;
 
 	constructor(slug: string) {
 		// if (!state.isLoggedIn())
@@ -63,13 +64,11 @@ export class UserPage extends BasePage {
 			if (req.ok) {
 				this.UserData = req.userInfo;
 				if (this.slug != this.UserData.slug)
-					this.fillUserData()
-				this.UserBanner = new UserBanner(this.UserData);
+					await this.fillUserData()
+				this.UserBanner = new UserBanner(this.UserData, this.isOwnProfile);
 				console.log(`user data = ` + JSON.stringify(this.UserData));
 				this.StateBody = this.UserBanner._ProfileState;
 				await this.showUserPage();
-				// else
-				// 	await this.s
 			}
 			else {
 				alert('Error While loading Profile' + req.error);
@@ -83,10 +82,12 @@ export class UserPage extends BasePage {
 
 	private async fillUserData() {
 		console.log('fille userDAta called');
+		this.isOwnProfile = false;
 		try {
 			const req = await getUserInfoByUsername("sponthus");
 			if (req.ok) {
 				this.UserData = req.userInfo;
+				console.log("new userdata = ", this.UserData);
 			}
 
 		} catch (error) {
@@ -134,7 +135,10 @@ export class UserPage extends BasePage {
 	/*************************************Functions for Event Management*************************************/
 	private async addEvents() {
 		await this.BannerEvents();
-		await this.editingEvents()
+		if (this.isOwnProfile)
+			await this.editingEvents();
+		else
+			await this.UserBanner.managefriendrequest();
 	}
 
 	private async BannerEvents() {
