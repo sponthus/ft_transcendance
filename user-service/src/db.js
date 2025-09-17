@@ -16,7 +16,7 @@ async function dbConnector(fastify, options)
         db.exec(`
         CREATE TABLE IF NOT EXISTS users (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            username TEXT UNIQUE NOT NULL,
+            username TEXT UNIQUE NOT NULL COLLATE BINARY,
             slug TEXT UNIQUE NOT NULL,
             avatar TEXT NOT NULL,
             pw_hash TEXT NOT NULL,

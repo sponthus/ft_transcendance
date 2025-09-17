@@ -1,4 +1,6 @@
+import slugify from "slugify";
 import { checkUsernameFormat } from "../tools/checkFormat.js";
+import generateUniqueSlug from "../tools/generateUniqueSlug.js";
 
 export default async function updateUsername (request, reply)
 {
@@ -8,34 +10,50 @@ export default async function updateUsername (request, reply)
     const db = request.server.db;
     const newUsername = request.body.username;
     const idUser = request.user.idUser;
-    const slug = request.user.slug;
-    console.log("idUser  = " + idUser);
-
-    //TODO : - Changerle slug par rapport au nouveau username
-    //       - Voir si je remet le :slug dans l'url pour la lisibilité
     try 
     {
         /*if (checkIfUserCanUpdateUsername(db, idUser) == false) //recuperer travail ecole
             return reply.code(400).send( { error: "Username can be change only once a day" } );*/
 
-       const existingUsername = db.prepare('   SELECT \
+        const existingUsername = db.prepare('   SELECT \
                                                     1 \
                                                 FROM \
                                                     users \
                                                 WHERE \
                                                     username = ?').get(newUsername);
         if (existingUsername)
-             return reply.code(409).send({error: "Username already exist"});
+            return reply.code(409).send({error: "Username already exist ICIC"});
 
-        db.prepare("UPDATE users SET username = ? WHERE id = ?").run(newUsername, idUser);
-        db.prepare("UPDATE users SET last_username_change = CURRENT_TIMESTAMP WHERE id = ?").run(idUser);
-        //mise a jour du token avec le nouveau username
+        const baseSlug = slugify(newUsername, { lower: true, strict: true });
+        const slug = generateUniqueSlug(baseSlug, db);
+        const updateSlugAndUsername = db.transaction( (newUsername, idUser, slug) =>
+        {
+            db.prepare ("    UPDATE \
+                                users \
+                            SET \
+                                username = ? \
+                            WHERE \
+                                id = ?").run(newUsername, idUser);
+            db.prepare ("    UPDATE \
+                                users \
+                            SET \
+                                last_username_change = CURRENT_TIMESTAMP \
+                            WHERE \
+                                id = ?").run(idUser);
+            db.prepare ("  UPDATE \
+                                users \
+                            SET \
+                                slug = ? \
+                            WHERE \
+                                id = ?").run(slug, idUser);
+        });
+        updateSlugAndUsername(newUsername, idUser, slug);
         const token = await reply.jwtSign({ idUser, newUsername, slug}, {expiresIn: '1h'});
-        return reply.code(200).send( { user: { newUsername, slug }, token : token } );
+        return reply.code(200).send({ token : token });
     }
     catch (err)
     {
-        return reply.code(500).send( {error : "Internal Server Error" + err.message} );
+        return reply.code(500).send({ error : "Internal Server Error" + err.message });
     }
 }
 

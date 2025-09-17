@@ -4,11 +4,12 @@ import { append, createAnchorElement, createDiv, createImage } from "../Utils/el
 import { checkLog } from "../api/user-service/connection/check-log.js";
 import { getUserInfoBySlug } from "../api/user-service/user-info/getUserInfo.js";
 import { getCharacterAsset } from "../api/user-service/menu/characterAsset.js";
-import { getAllFriends } from "../api/user-service/menu/friendsList/friendRequest.js";
+import { addFriend, getAllFriends } from "../api/user-service/menu/friendsList/friendRequest.js";
 import { getAllUsers } from "../api/user-service/menu/getAllUsers.js";
 import { getBackgroundColor } from "../api/user-service/menu/backgroundColor.js";
 import { getNpcAsset } from "../api/user-service/menu/npcAsset.js";
-import { getReceivedRequests } from "../api/user-service/menu/friendsList/requestHandlers.js";
+import { getReceivedRequests, getSentRequests } from "../api/user-service/menu/friendsList/requestHandlers.js";
+import { updateUsername } from "../api/user-service/user-info/updateUsername.js";
 
 export class HomePage extends BasePage {
 
@@ -36,12 +37,14 @@ export class HomePage extends BasePage {
 			await this.rengerLogoutHome();
 		}
 
-		let req = await getAllUsers();
+		let req = await getAllFriends();
 		{
 			if (req.ok)
 			{
-				console.log('Info : ', req.users);
+				console.log('la :', req.friends);
 			}
+			else
+				alert (req.error);
 		}
 		
 	await this.addInApp();

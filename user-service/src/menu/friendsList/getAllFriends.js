@@ -6,7 +6,7 @@ export async function   getAllFriends(request, reply)
     try
     {
        const friends = db.prepare("    SELECT \
-                                            users.username  \
+                                            users.username, users.slug, users.avatar \
                                         FROM \
                                             friends \
                                         INNER JOIN \
@@ -17,7 +17,6 @@ export async function   getAllFriends(request, reply)
                                             friends.frie_status = 1 \
                                         AND \
                                             friends.frie_user_id = ?").all(idUser);
-        console.log('Friends = ', friends);
         return reply.code(200).send({ friends: friends });
     }
     catch (err)
