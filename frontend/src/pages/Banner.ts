@@ -175,7 +175,6 @@ function SetLogOutEvent() {
 		e.preventDefault();
 		localStorage.removeItem("token");
 	//	socket.close();
-	// TODO = Logout correctly
 		navigate('/');
 		location.reload();
 	});

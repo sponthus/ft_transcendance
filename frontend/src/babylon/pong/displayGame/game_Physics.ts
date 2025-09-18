@@ -66,13 +66,11 @@ export class GamePhysics {
 	}
 
 	public launchSocket(gameId: number) {
-		// TODO Test me
 		this.socket = new GameSocket(gameId);
 		if (!this.socket) {
 			throw new Error("Error creating socket");
 			return ;
 		}
-		alert("Socket is ok");
 
 		// this.socket.send(JSON.stringify({
 		// 	type: "gameMode",

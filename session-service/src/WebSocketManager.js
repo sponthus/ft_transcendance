@@ -1,5 +1,3 @@
-// TODO: Add messages handling
-
 import { getAllUsers } from "./GetUsers.js";
 
 export default class WebSocketManager {

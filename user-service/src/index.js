@@ -86,7 +86,6 @@ fastify.setNotFoundHandler((req, reply) => {
 });
 
 // Fastify listens
-// TODO : Set port in env
 fastify.listen({ port: env.user_port, host: `${env.ip}` }, (err, address) => {
     if (err) {
         fastify.log.error(err);
