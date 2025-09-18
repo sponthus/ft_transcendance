@@ -1,4 +1,5 @@
 /// <reference types="vite/client" />
+import { refreshNotification } from "../Utils/notification";
 
 export class Socket {
     static instance: null | Socket = null;
@@ -128,6 +129,10 @@ export class Socket {
 
     private handleMessage(data: any) {
         console.log('Received message:', data);
+		if (data.type === "message") {
+			console.log("receive message");
+			refreshNotification();
+		}
         // TODO Add logic here
     }
 

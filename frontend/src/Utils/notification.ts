@@ -192,7 +192,7 @@ async function addNumberInvitation() {
 	append(NotificationToggle, [numberNotification]);
 }
 
-function refreshNotification() {
+export function refreshNotification() {
 	Array.from(notificationWrapper.children).forEach(child => {
 		notificationWrapper.removeChild(child);
 	})

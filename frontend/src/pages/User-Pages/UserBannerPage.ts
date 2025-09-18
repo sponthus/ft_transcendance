@@ -125,7 +125,7 @@ export class UserBanner {
 			if (req.ok) {
 				const friendsList = req.friends;
 				friendsList?.forEach(friend => {
-					console.log("username of frien : ", friend.username)
+					console.log("username of friend : ", friend.username)
 					if (friend.username === this.UserData.username) {
 						this.isFriend = true;
 					}

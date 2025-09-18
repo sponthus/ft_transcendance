@@ -8,6 +8,7 @@ import { sleep } from '../../babylon/displaying/dialogueBox.js';
 import { createDiv, createElement, createButton, createDropdownDiv, createFormDiv, createCheckBoxLabel, append, createImage, createInput} from '../../Utils/elementMaker.js';
 import { getAllGames } from '../../api/game-service/games/game.js';
 import { DisplayHistoryPage } from './HistoryPage.js';
+import { displayFriendlist } from './FriendListPage.js';
 import { UserBanner } from './UserBannerPage.js';
 
 enum BodyState {PROFILE = 0, FRIENDS = 1, HISTORY = 2};
@@ -48,7 +49,7 @@ export class UserPage extends BasePage {
 	async render(): Promise<void> {
 		await this.renderBanner();
 		await this.initDivs();
-		this.TryGetUserInfo();
+		await this.TryGetUserInfo();
 	}
 
 	/*************************************Functions for render Page*************************************/
@@ -114,16 +115,16 @@ export class UserPage extends BasePage {
 
 		this.BodyDiv = document.createElement('div');
 		this.BodyDiv.className = "bg-orange-300  bg-opacity-50 w-full h-[60%] flex items-center justify-center overflow-auto";
-
 		switch(this.StateBody){
 			case BodyState.PROFILE:
 				this.BodyDiv.textContent = "i'm in the profile body";
 				break;
 			case BodyState.FRIENDS:
-				this.BodyDiv.textContent = "i'm in the Friendlist body";
+				await displayFriendlist(this.BodyDiv,this.UserData!, this.isOwnProfile);
+				// this.BodyDiv.textContent = "i'm in the Friendlist body";
 				break;
 			case BodyState.HISTORY:
-				DisplayHistoryPage(this.BodyDiv, this.UserData!);
+				await DisplayHistoryPage(this.BodyDiv, this.UserData!);
 				break;
 			default:break;
 		}
