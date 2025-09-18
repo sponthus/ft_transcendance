@@ -23,7 +23,7 @@ export async function   changeGameState (request, reply)
                                         WHERE \
                                             menu_user_id = ?");
         statement.run (newState, idUser);
-        return reply.code(200).send({ gameState: newState });
+        return reply.code(200).send();
     }
     catch (err)
     {
