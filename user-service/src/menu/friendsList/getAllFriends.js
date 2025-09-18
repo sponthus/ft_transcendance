@@ -6,7 +6,7 @@ export async function   getAllFriends(request, reply)
     try
     {
        const friends = db.prepare("    SELECT \
-                                            users.username  \
+                                            users.username, users.slug, users.avatar \
                                         FROM \
                                             friends \
                                         INNER JOIN \

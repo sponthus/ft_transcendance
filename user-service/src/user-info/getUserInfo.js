@@ -18,10 +18,10 @@ export async function   getUserInfo (request, reply)
     }
 }
 
-export async function   getUserInfoByUsername (request, reply)
+export async function   getUserInfoBySlug (request, reply)
 {
 	const   db = request.server.db;
-    const   username= request.params.username;
+    const   slug = request.params.slug;
 
     try
     {
@@ -30,7 +30,7 @@ export async function   getUserInfoByUsername (request, reply)
                                     FROM \
                                         users \
                                     WHERE \
-                                        username = ?").get(username);
+                                        slug = ?").get(slug);
        return reply.code(200).send({ userInfo: user }) 
     }
     catch (err)

@@ -1,4 +1,4 @@
-type GameStateSuccess = { ok: true; gameState: number };
+type GameStateSuccess = { ok: true; gameState?: number };
 type Failure = { ok: false; error: string };
 
 export type GameStateResult = GameStateSuccess | Failure;
@@ -14,11 +14,11 @@ export async function   changeGameState(gameState: number): Promise<GameStateRes
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
         body: JSON.stringify({ gameState }),
     });
-    const data = await res.json();    
     if (res.ok) 
     {
-        return { ok: true, gameState: data.gameState};
+        return { ok: true };
     }
+    const data = await res.json();    
     return { ok: false, error: data.error};
 }
 
