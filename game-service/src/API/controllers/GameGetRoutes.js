@@ -2,7 +2,7 @@ import { getUserIdFromSlug } from "../requests/GetUserIdFromSlug.js"
 
 // Gives the full history of a user
 // Security : Road is protected to logged-in users
-export async function getGamesForUserId(request, reply) {
+export async function getGamesForSlug(request, reply) {
 	console.log('➡️ User accessed GET /:slug/games');
 
 	const { slug } = request.params;

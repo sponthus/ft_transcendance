@@ -45,7 +45,7 @@ type NextMatchData = {
 type TournamentNextMatch = { ok: true; next_match: NextMatchData }
 type TournamentNextMatchResult = TournamentNextMatch | Failure;
 
-// GET /:userId/tournaments
+// GET /:slug/tournaments
 // All available tournaments for a user, no filter
 // Security : Accessible for every logged-in user
 export async function getAllTournaments(slug: string):  Promise<TournamentsResult> {
@@ -78,7 +78,7 @@ export async function getAllTournaments(slug: string):  Promise<TournamentsResul
     }
 }
 
-// GET /:userId/tournaments
+// GET /:slug/tournaments
 // All available tournaments for a user, filtered = pending, between_games
 // Security : Accessible for every logged-in user
 export async function getAvailableTournaments(slug: string): Promise<TournamentsResult> {

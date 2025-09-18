@@ -17,7 +17,6 @@ export async function getTournamentsForSlug(request, reply) {
 		return reply.status(500).send({ error: "Unable to get userId"});
 	} else {
 		userId = req.userId;
-		console.log("Got userId :", userId);
 	}
 
 	const { db } = request.server;

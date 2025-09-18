@@ -130,7 +130,7 @@ export async function startGame(gameId: number): Promise<GameInfoResult> {
     }
 }
 
-// GET /:userId/games
+// GET /:slug/games
 // All available PENDING non-tournament games for a user, gives only useful infos
 // Security : Accessible for every logged-in user
 export async function getAvailableGames(slug: string): Promise<AvailableGamesResult> {
@@ -160,7 +160,7 @@ export async function getAvailableGames(slug: string): Promise<AvailableGamesRes
     }
 }
 
-// GET /:userId/games
+// GET /:slug/games
 // All available FINISHED games for a user, gives only useful infos
 // Security : Accessible for every logged-in user
 export async function getFinishedGames(slug: string): Promise<AvailableGamesResult> {
@@ -190,7 +190,7 @@ export async function getFinishedGames(slug: string): Promise<AvailableGamesResu
 }
 
 
-// GET /:userId/games
+// GET /:slug/games
 // Gives all games for a user (useful for history, gives you every info available on each game)
 // Security : Accessible for every logged-in user
 export async function getAllGames(slug: string): Promise<AllGamesResult> {
