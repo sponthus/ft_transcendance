@@ -39,12 +39,12 @@ export async function changeUserStatus(request, reply) {
 		return reply.status(400).send({error: 'No userId found in request.'});
 	}
 
-	const { status } = request.body;
+	let { status } = request.body;
 	if (!status) {
 		return reply.status(400).send({error: 'No status found in request.'});
 	}
-	if (status !== 'playing' && status !== 'disconnected' && status !== 'online') {
-		return reply.status(400).send({error: 'Wrong status (playing | online | disconnected).'});
+	if (status !== 'playing' && status !== 'not_playing') {
+		return reply.status(400).send({error: 'Wrong status sent for update (playing | not_playing).'});
 	}
 
 	const { WebSocketManager } = request.server;
@@ -53,6 +53,25 @@ export async function changeUserStatus(request, reply) {
 		return reply.status(500).send({ error: 'No database connection found.'});
 	}
 
+	const actualStatus = WebSocketManager.getUserStatusByUserId(userId);
+	if (!actualStatus == "not found") {
+		return reply.status(404).send({error: 'Requested user doesn\'t exist'});
+	}
+	if (status == "not_playing") {
+		if (actualStatus == "playing")
+			status = "online";
+		else if (actualStatus == "disconnected")
+			return reply.status(200).send({ userId: userId, status: actualStatus });
+		else if (actualStatus == "connected")
+			return reply.status(200).send({ userId: userId, status: actualStatus });
+	} else if (status == "playing") {
+		if (actualStatus == "online")
+			status = "playing";
+		else if (actualStatus == "online")
+			return reply.status(200).send({ userId: userId, status: actualStatus });
+		else if (actualStatus == "disconnected")
+			return reply.status(500).send({ error: 'Player is disconnected, he cannot play'});
+	}
 	const data = WebSocketManager.updateUserStatus(userId, status);
 	if (data == null) {
 		return reply.status(404).send({error: 'Requested user doesn\'t exist'});

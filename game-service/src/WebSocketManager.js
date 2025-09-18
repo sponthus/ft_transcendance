@@ -43,14 +43,14 @@ export default class WebSocketManager {
         });
     }
 
-    handleMessage(ws, message) {
+    async handleMessage(ws, message) {
         switch(message.type) {
             case 'ping':
                 this.pong(ws);
                 break;
             case 'auth':
                 // TODO : Add content check
-                this.authenticateUser(ws, message.token, message.gameId);
+                await this.authenticateUser(ws, message.token, message.gameId);
                 break;
             case 'input':
                 break;
@@ -92,20 +92,7 @@ export default class WebSocketManager {
 		}, 10000);
     }
 
-    //
-    // broadcastToGame(gameId, message) {
-    //     const game = this.games.get(gameId);
-    //     if (game) {
-    //         game.players.forEach(playerId => {
-    //             const client = this.clients.get(playerId);
-    //             if (client?.ws.readyState === 1) { // WebSocket.OPEN
-    //                 client.ws.send(JSON.stringify(message));
-    //             }
-    //         });
-    //     }
-    // }
-
-    authenticateUser(ws, token, gameId) {
+    async authenticateUser(ws, token, gameId) {
         if (!token) {
             console.warn('Authentication failed: no token provided');
             return;
@@ -126,34 +113,13 @@ export default class WebSocketManager {
 
         console.log(data);
         gameMaster.addUserToGame(ws, data.idUser, gameId);
-        
+
 		this.sendToWs(ws, {
             type: 'auth_success',
             gameId: gameId,
             timestamp: Date.now()
         });
-    }
 
-    sendToUser(userId, message) {
-        const ws = gameMaster.getWsByUserId(userId);
-        if (ws && ws.readyState === 1) { // WebSocket.OPEN
-            ws.send(JSON.stringify(message));
-            console.log(`Message sent to user ${userId}:`, message);
-            return true;
-        } else {
-            console.warn(`Cannot send message to user ${userId}: not connected`);
-            return false;
-        }
-    }
-
-    sendToUsers(userIds, message) {
-        let sentCount = 0;
-        userIds.forEach(userId => {
-            if (this.sendToUser(userId, message)) {
-                sentCount++;
-            }
-        });
-        console.log(`Message sent to ${sentCount}/${userIds.length} users`);
-        return sentCount;
+        await gameMaster.updateUserStatus(data.idUser);
     }
 }

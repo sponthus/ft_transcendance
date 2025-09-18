@@ -23,7 +23,7 @@ const app = Fastify({
 
 app.register(DatabaseConnector);
 
-function getSecret(name) {
+export function getSecret(name) {
 	try {
 		const key = fs.readFileSync(`/run/secrets/${name}`, 'utf8').trim();
 		return (key);

@@ -1,5 +1,5 @@
 import GameServer from "./GameServer.js";
-import { gameEventEmitter } from "./GameEventEmitter.js";
+import { updateUserStatus } from "./API/requests/UpdateUserStatus.js";
 
 // Handles every GameServer
 export default class GameMaster {
@@ -10,7 +10,6 @@ export default class GameMaster {
             throw new Error("GameMaster instance already exists");
         }
         GameMaster.instance = this;
-        this.clients = new Map();
         this.games = new Map();
     }
 
@@ -21,7 +20,7 @@ export default class GameMaster {
         return GameMaster.instance;
     }
 
-    addUserToGame(ws, userId, gameId) {
+    async addUserToGame(ws, userId, gameId) {
         if (this.games.has(Number(gameId))) {
 			const game = this.games.get(Number(gameId));
             if (!game)
@@ -31,33 +30,37 @@ export default class GameMaster {
             game.ws = ws;
             game.server.addWs(ws);
 			console.log(`✅ User ${userId} authenticated to game ${gameId}`);
+            await updateUserStatus(userId);
 		} 
 		else {
 			console.log(`❌ No game server available for user ${userId}`);
 		}
     }
 
-    // deleteUser(userId) {
-    //     const deleted = this.clients.delete(Number(userId));
-    //     if (deleted) {
-    //         console.log(`User ${userId} removed. Remaining clients: ${this.clients.size}`);
-    //     }
-    //     return deleted;
-    // }
+    isUserPlaying(userId) {
+        for (const [gameId, game] of this.games.entries()) {
+            if (game.userId === userId) {
+                return true;
+            }
+        }
+        return false;
+    }
 
-    // getClientByUserId(userId) {
-    //     return this.clients.get(Number(userId));
-    // }
-
-    // getWsByUserId(userId) {
-    //     const client = this.clients.get(Number(userId));
-    //     return client ? client.ws : null;
-    // }
+    async updateUserStatus(userId) {
+        let status;
+        if (this.isUserPlaying(userId))
+            status = "playing";
+        else
+            status = "not_playing";
+        const res = await updateUserStatus(userId, status);
+        if (!res.ok)
+            console.error("Unable to update user status : ", res.error);
+    }
 
     getUserIdByWs(targetWs) {
-        for (const [gameId, client] of this.games.entries()) {
-            if (client.ws === targetWs) {
-                return client.userId;
+        for (const [gameId, game] of this.games.entries()) {
+            if (game.ws === targetWs) {
+                return game.userId;
             }
         }
         return null;
@@ -92,8 +95,10 @@ export default class GameMaster {
             return ;
         }
         if (this.games.has(Number(gameId))) {
+            const user = this.games.get(Number(gameId)).userId;
             this.games.delete(Number(gameId));
             console.log("🔴 GameServer stopped");
+            this.updateUserStatus(user);
         } else {
             console.debug(`No server associated with gameId ${gameId}`);
         }

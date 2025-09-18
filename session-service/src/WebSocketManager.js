@@ -209,6 +209,9 @@ export default class WebSocketManager {
 		console.log("launching with ", userId, status);
 		if (this.clients.has(Number(userId))) {
 			const client = this.clients.get(Number(userId));
+			if (client.status == "playing" && status == "online") {
+				status = "playing";
+			}
 			client.status = status;
 			console.log(`✅ User status modification : ${userId} (${status})`);
 			return {
