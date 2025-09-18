@@ -23,7 +23,7 @@ export async function   changeNpcAsset (request, reply)
                                         WHERE \
                                             menu_user_id = ?");
         statement.run (newAsset, idUser);
-        return reply.code(200).send({ asset: newAsset });
+        return reply.code(200).send();
     }
     catch (err)
     {
@@ -49,6 +49,6 @@ export async function   getNpcAsset (request, reply)
     }
     catch (err)
     {
-        return reply.code(500).send({ error: "Internal Server Error" + err.message});
+        return reply.code(500).send({ error: "Internal Server Error" });
     }
 }

@@ -1,4 +1,5 @@
 import { checkRegistrationFormat } from "../tools/checkFormat.js";
+import generateUniqueSlug from "../tools/generateUniqueSlug.js";
 import bcrypt from "bcrypt";
 import slugify from "slugify";
 
@@ -22,37 +23,22 @@ export default async function registerUser(request, reply)
     if (existingUser) ////get renvoie soit un objet sur la cmd au dessus ou un undefined
         return reply.code(409).send({error: "Username already exist"});
 
-    const baseSlug = slugify(username, { lower: true, strict: true });
-    const slug = generateUniqueSlug(baseSlug, db); //verifier pas doublon
-    
-    let saltRounds = 10;//nombre de tour de calcul
-    const pw_hash = bcrypt.hashSync(password, saltRounds);
-    let idUser = -1;
     try 
     {
-        idUser = fillInfoUserInDb(db, username, slug, avatar, pw_hash);
+        const baseSlug = slugify(username, { lower: true, strict: true });
+        const slug = generateUniqueSlug(baseSlug, db); //verifier pas doublon
+    
+        let saltRounds = 10;//nombre de tour de calcul
+        const pw_hash = bcrypt.hashSync(password, saltRounds);
+
+        const idUser = fillInfoUserInDb(db, username, slug, avatar, pw_hash);
         const token = await reply.jwtSign({ idUser, username, slug }, {expiresIn: '1h'});
         return reply.code(200).send({ token: token, username: username, slug: slug });
     }
     catch (err)
     {
-        //plus besoin de delete, db.transaction fait un rollback automatique si code sql echoue
         return (reply.code(500).send( {error : "Internal Server Error" + err.message} ));
     }
-}
-
-function generateUniqueSlug(baseSlug, db)
-{
-    let slug = baseSlug;
-    let counter = 1;
-
-    const dbFindings = db.prepare("SELECT COUNT(*) AS count FROM users WHERE slug = ?");
-    while (dbFindings.get(slug).count > 0)
-    {
-        slug = `${baseSlug}-${counter}`;
-        counter++;
-    }
-    return slug;
 }
 
 function fillInfoUserInDb(db, username, slug, avatar, pw_hash)

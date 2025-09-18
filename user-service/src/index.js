@@ -6,7 +6,7 @@ import env from "../config/env.js";
 import fs from "fs";
 import dbConnector from "./db.js";
 import logger from "../config/logger.js";
-import routes from "./routes/newRoutes.js";
+import routes from "./routes/index.js";
 
 const __filename = fileURLToPath(import.meta.url); // This filename, from ESM expression to classic path
 export const __dirname = path.dirname(__filename); // Parent folder to this file
@@ -16,6 +16,23 @@ const fastify = Fastify({
 });
 
 console.log(`\nFastify user-service listen on port ${env.user_port}\n`); // debug
+
+export function getSecret(name) {
+	try {
+		const key = fs.readFileSync(`/run/secrets/${name}`, 'utf8').trim();
+		return (key);
+	} catch (error) {
+		console.log("❌ Critical error : Unable to read secret ", name);
+		process.exit(1);
+	}
+}
+
+fastify.decorate("verifyApiKey", async function (request, reply)
+{
+    const   apiKey = request.headers['x-internal-api-key'];
+    if (!apiKey || apiKey !== getSecret('api_key'))
+		return reply.code(401).send({ error: 'Unauthorized: Invalid API Key' });
+});
 
 fastify.decorate("authenticate", async function (request, reply)
 {
@@ -55,15 +72,7 @@ fastify.decorate("authenticate", async function (request, reply)
     
 });
 
-export function getSecret(name) {
-	try {
-		const key = fs.readFileSync(`/run/secrets/${name}`, 'utf8').trim();
-		return (key);
-	} catch (error) {
-		console.log("❌ Critical error : Unable to read secret ", name);
-		process.exit(1);
-	}
-}
+
 
 //enregistre le plugin JWT dans fastify
 fastify.register(fastifyJwt, {

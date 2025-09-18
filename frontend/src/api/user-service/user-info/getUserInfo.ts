@@ -35,14 +35,14 @@ export async function   getUserInfo() : Promise<GetUserInfoResult>
 
 
 //PROBLEME avec cette requete, ne marche pas bien
-export async function   getUserInfoByUsername(username: string) : Promise<GetUserInfoResult>
+export async function   getUserInfoBySlug(slug: string) : Promise<GetUserInfoResult>
 {
     const token = localStorage.getItem("token");
     if (!token) {
         console.log("getUserInfo : no token found");
 		return { ok: false };
 	}
-    const res = await fetch(`/api/user/user-info/other/${username}`, 
+    const res = await fetch(`/api/user/user-info/other/${slug}`, 
     {
         method: 'GET',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }, 

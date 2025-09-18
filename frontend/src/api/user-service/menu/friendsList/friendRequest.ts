@@ -1,6 +1,14 @@
 
-type FriendsSuccess = {ok: true, friends?: string[] }
+type FriendsSuccess = {ok: true, friends?: AllFriends }
 type Failure = { ok: false; error: string };
+
+type AllFriends = 
+{
+    username: string;
+    slug: string;
+    avatar: string;
+}[];
+
 
 export type FriendsResult = FriendsSuccess | Failure;
 
@@ -57,7 +65,7 @@ export async function   getAllFriends(): Promise<FriendsResult>
     const data = await res.json();    
     if (res.ok) 
     {
-        return { ok: true,  friends: data};
+        return { ok: true,  friends: data.friends};
     }
     return { ok: false, error: data.error};
 }
