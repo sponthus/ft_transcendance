@@ -73,22 +73,6 @@ fastify.decorate("int_authenticate", async function (request, reply)
 	}
 });
 
-await fastify.register(routes);
-
-// Default handler for undefined routes
-fastify.setNotFoundHandler((req, reply) => {
-	reply.status(404).send("Not found");
-});
-
-// Launch Fastify HTTP REST API on port ${env.session_port}
-fastify.listen({ port: env.session_port, host: `${env.ip}` }, (err, address) => {
-	if (err) {
-		console.error("❌ Error launching fastify: ", err);
-		process.exit(1);
-	}
-	fastify.log.info(`Session API running at ${address}`);
-});
-
 // WebSocket server on port ${env.session_ws_port}
 const server = createServer();
 const wss = new WebSocketServer({ server, path: "/s-ws/" });
@@ -105,7 +89,22 @@ try {
 
 fastify.decorate('WebSocketManager', WSManager);
 
-// const WSManager = new WebSocketManager(wss);
+await fastify.register(routes);
+
+// Default handler for undefined routes
+fastify.setNotFoundHandler((req, reply) => {
+	reply.status(404).send("Not found");
+});
+
+// Launch Fastify HTTP REST API on port ${env.session_port}
+fastify.listen({ port: env.session_port, host: `${env.ip}` }, (err, address) => {
+	if (err) {
+		console.error("❌ Error launching fastify: ", err);
+		process.exit(1);
+	}
+	fastify.log.info(`Session API running at ${address}`);
+});
+
 server.listen(env.session_ws_port, () => {
 	console.info('WebSocket server listening on port ', env.session_ws_port);
 });

@@ -17,7 +17,7 @@ export default class WebSocketManager {
 		}
 		const users = result.data;
 		for (const user of users) {
-			this.registerUser(null, user.userId, user.username, user.slug, "disconnected");
+			this.registerUser(null, user.id, user.username, user.slug, "disconnected");
 		}
 	}
 
