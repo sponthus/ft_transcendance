@@ -1,4 +1,4 @@
-type RequestSuccess = {ok: true, requests?: string[] }
+type RequestSuccess = {ok: true, requests?: any[]}
 type Failure = { ok: false; error: string };
 
 export type RequestResult = RequestSuccess | Failure;

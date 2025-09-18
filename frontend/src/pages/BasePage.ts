@@ -31,11 +31,12 @@ export abstract class BasePage {
 
         const req = await checkLog();
         if (req.ok) {
-            const req = await getUserInfo();
+			const req = await getUserInfo();
             if (!req.ok) {
-                return; // Afficher une erreur ??
+				return; // Afficher une erreur ??
             }
             const userData = req.userInfo;
+			// console.log(userData);
             const socket = Socket.getInstance(userData.id); //Creation du socket du user
             await renderLoggedInBanner(this.banner, userData);
         }

@@ -1,6 +1,6 @@
 import { navigate } from '../../core/router.js';
 import { updateUsername } from "../../api/user-service/user-info/updateUsername.js";
-import { getUserInfo, getUserInfoByUsername } from '../../api/user-service/user-info/getUserInfo.js';
+import { getUserInfo, getUserInfoBySlug } from '../../api/user-service/user-info/getUserInfo.js';
 import { uploadAvatar } from "../../api/avatar.js";
 import { BasePage } from "../BasePage.js";
 import { popUp } from '../../Utils/popUp.js';
@@ -84,7 +84,7 @@ export class UserPage extends BasePage {
 		console.log('fille userDAta called');
 		this.isOwnProfile = false;
 		try {
-			const req = await getUserInfoByUsername("sponthus");
+			const req = await getUserInfoBySlug(this.slug);
 			if (req.ok) {
 				this.UserData = req.userInfo;
 				console.log("new userdata = ", this.UserData);

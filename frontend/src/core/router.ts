@@ -11,7 +11,6 @@ let currentPage: BasePage | null = null;
 
 export async function renderRoute(path: string) {
     currentPage?.destroy();
-
     let userData;
     const req = await getUserInfo(); //Est-ce que je peux y mettre en appel en amont pour eviter une surchage de call API ?
     if (req.ok)
@@ -20,7 +19,6 @@ export async function renderRoute(path: string) {
 		if (req.error === "No token found")
 			userData = null;
 	}
-
     /*else {
         alert("PAS DE USER INFO DANS ROUTER, PAS POSSIBLE NORMALEMENT");//a enlever
     }*/ //router est appeler a chaque fois du coup le message s'affiche a chaque page

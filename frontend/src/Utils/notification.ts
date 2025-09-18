@@ -1,11 +1,12 @@
-import { getReceivedRequests } from "../api/user-service/menu/friendsList/requestHandlers";
+import { acceptRequest, getReceivedRequests, refuseRequest } from "../api/user-service/menu/friendsList/requestHandlers";
+import { getUserInfoBySlug, UserInfo } from "../api/user-service/user-info/getUserInfo";
 import { append, createDiv, createButton, createImage, createAnchorElement } from "./elementMaker";
 
 
 const notificationWrapper: HTMLElement = createDiv('notif-wrapper','relative flex items-center');
 let isNotificationOpen: boolean = false;
-const AcceptMap: Map<any, HTMLButtonElement> = new Map<any, HTMLButtonElement>();
-const declineMap: Map<any, HTMLButtonElement> = new Map<any, HTMLButtonElement>();
+let ReceiveRequest: any[];
+let userData: UserInfo;
 
 export function createNotificationDiv(parent: HTMLElement) {
 
@@ -14,8 +15,6 @@ export function createNotificationDiv(parent: HTMLElement) {
 
 	toggleNotification();
 	eventCloseSearch();
-	acceptInvitation();
-	declineInvitation();
 }
 
 function toggleNotification() {
@@ -35,22 +34,36 @@ function eventCloseSearch() {
 	});
 }
 
-function acceptInvitation() {
-	for (let i = 0; i < 3; i++) {
-		(document.getElementById(`accept-${i}-btn`) as HTMLButtonElement).addEventListener('click', (e) => {
-			e.stopPropagation();
-			e.preventDefault();
-		})
-	}
+function acceptInvitation(acceptBtn: HTMLButtonElement, userData: UserInfo) {
+	console.log("acctp invitation of called for ", userData.username);
+	acceptBtn.addEventListener('click', async(e) => {
+		e.stopPropagation();
+		e.preventDefault();	
+		try {
+			const req = await acceptRequest(userData.username);
+			if (req.ok)
+				console.log("acctp invitation of ", userData.username);
+
+		}catch(error) {
+			alert(error);
+		}
+	})
 }
 
-function declineInvitation() {
-	for (let i = 0; i < 3; i++) {
-		(document.getElementById(`decline-${i}-btn`) as HTMLButtonElement).addEventListener('click', (e) => {
-			e.stopPropagation();
-			e.preventDefault();
-		})
-	}
+function declineInvitation(declineBtn: HTMLButtonElement, userData: UserInfo) {
+	console.log("acctp invitation of called for ", userData.username);
+	declineBtn.addEventListener('click', async(e) => {
+		e.stopPropagation();
+		e.preventDefault();	
+		try {
+			const req = await refuseRequest(userData.username);
+			if (req.ok)
+				console.log("acctp invitation of ", userData.username);
+
+		}catch(error) {
+			alert(error);
+		}
+	})
 }
 
 function openNotification() {
@@ -80,27 +93,35 @@ function closeNotification() {
 function createSlidingNotificationPan(): HTMLElement {
 	const slidingotificationPan = createDiv('sliding-notification-bar', 'absolute left-0 top-16 w-0 h-0 overflow-auto transition-all duration-300 ease-in-out bg-orange-100 rounded-xl shadow-lg border-2 border-emerald-300 opacity-0')
 
-	// const notificationPannel = createDiv('notification-panel', 'w-64 px-4 text-sm border-0 rounded-xl bg-transparent focus:outline-none opacity-0 transition-opacity duration-300');
-
-	for (let i = 0; i < 4; i++) {
-		append(slidingotificationPan,[addInvitation(i)]);
-	}
-
 	fillReceiveRequest(slidingotificationPan);
-	// append(slidingotificationPan, [notificationPannel]);
+
 	return slidingotificationPan;
+}
+
+async function fillUSerInfo(slug: any, parent: HTMLElement){
+	try {
+		const req = await getUserInfoBySlug(slug);
+		if (req.ok) {
+			userData = req.userInfo;
+			// console.log("userdata = ", userData);
+			append(parent ,[addInvitation(userData)]);
+		}
+	} catch (error) {
+		alert(error);
+	}
+	addNumberInvitation();
 }
 
 async function fillReceiveRequest(parent: HTMLElement) {
 	try {
 		const req = await getReceivedRequests();
 		if (req.ok) {
-			const RequestResult = req.requests;
-			// RequestResult?.forEach()
-			console.log("res request = ", RequestResult);
-			// RequestResult?.forEach(value => {
-			// 	console.log("res request = ", value);
-			// })
+			ReceiveRequest = req.requests!;
+			// console.log("res request = ", ReceiveRequest);
+			ReceiveRequest.forEach(value => {
+				fillUSerInfo(value.username, parent)
+				console.log("value :", value.username);
+			})
 		}
 
 	} catch(error) {
@@ -108,27 +129,27 @@ async function fillReceiveRequest(parent: HTMLElement) {
 	}
 }
 
-function addInvitation(index: number) : HTMLAnchorElement {
-	const InvitationDiv: HTMLAnchorElement = createAnchorElement(`notification-${index}`, '', '/', 'group flex items-center justify between w-full h-24 hover:bg-orange-200 space-x-4 shadow-xl w-14 h-14 group-hover:shadow-lg transition-all duration-200 transform') 
+function addInvitation(userdata: UserInfo) : HTMLAnchorElement {
+	const InvitationDiv: HTMLAnchorElement = createAnchorElement(`notification-${userdata.slug}`, '', `/user/${userData.slug}`, 'group flex items-center justify between w-full h-24 hover:bg-orange-200 space-x-4 shadow-xl w-14 h-14 group-hover:shadow-lg transition-all duration-200 transform');
 
-	const userIcon: HTMLElement = createDiv(`user-notification-icon-${index}`, 'flex items-center justify-center bg-orange-300 group-hover:bg-orange-400 rounded-full relative shadow-xl w-14 h-14 group-hover:shadow-lg transition-all duration-200 transform');
+	const userIcon: HTMLElement = createDiv(`user-notification-icon-${userdata.slug}`, 'flex items-center justify-center bg-orange-300 group-hover:bg-orange-400 rounded-full relative shadow-xl w-14 h-14 group-hover:shadow-lg transition-all duration-200 transform');
 
-	append(userIcon, [(createImage(`user-notification-${index}`, 'w-12 h-12 rounded-full object-cover object-center',  `https://localhost:4443/uploads/default.jpg`) as HTMLImageElement)]);
+	append(userIcon, [(createImage(`user-notification-${userdata.slug}`, 'w-12 h-12 rounded-full object-cover object-center',  `https://localhost:4443/uploads/${userdata.avatar}`) as HTMLImageElement)]);
 
-	const invitationTextDiv = createDiv(`invitation-text-${index}`, 'flex flex-col items-center');
-	invitationTextDiv.innerHTML = `<P class="text-emerald-600 group-hover:font-bold">user ${index} has send you an invitation</p>`;
+	const invitationTextDiv = createDiv(`invitation-text-${userdata.slug}`, 'flex flex-col items-center');
+	invitationTextDiv.innerHTML = `<P class="text-emerald-600 group-hover:font-bold">user ${userdata.username} has send you an invitation</p>`;
 
-	const btnDiv = createDiv(`btn-invitation-${index}`, 'fles items-center justify-between space-x-8') as HTMLElement;
+	const btnDiv = createDiv(`btn-invitation-${userdata.slug}`, 'fles items-center justify-between space-x-8') as HTMLElement;
 
-	let accept: HTMLButtonElement;
-	let decline: HTMLButtonElement;
-	append(btnDiv, [accept = (createButton(`accept-${index}`, 'px-4 text-orange-100 bg-emerald-600 rounded-xl group-hover:text-orange-200 hover:font-bold hover:bg-emerald-700 transition-all duration-200', 'accept') as HTMLButtonElement)
-								, decline = (createButton(`decline-${index}`, 'px-4 text-orange-100 bg-red-500 rounded-xl group-hover:text-orange-200 hover:font-bold hover:bg-red-600 transition-all duration-200', 'decline') as HTMLButtonElement)]);
-	AcceptMap.set(index, accept);
-	declineMap.set(index, decline);
+	let accept: HTMLButtonElement= (createButton(`accept-${userdata.slug}`, 'px-4 text-orange-100 bg-emerald-600 rounded-xl group-hover:text-orange-200 hover:font-bold hover:bg-emerald-700 transition-all duration-200', 'accept') as HTMLButtonElement);
+	let decline: HTMLButtonElement = (createButton(`decline-${userdata.slug}`, 'px-4 text-orange-100 bg-red-500 rounded-xl group-hover:text-orange-200 hover:font-bold hover:bg-red-600 transition-all duration-200', 'decline') as HTMLButtonElement);
+	append(btnDiv, [accept, decline]);
 	append(invitationTextDiv, [btnDiv]);
-
+	
 	append(InvitationDiv, [userIcon, invitationTextDiv]);
+
+	acceptInvitation(accept, userData);
+	declineInvitation(decline, userData);
 
 	return InvitationDiv;
 }
@@ -149,11 +170,18 @@ function createNotificationToggle(): HTMLElement {
 		</svg>
 	`;
 
-	// if notifictaion
+	return NotificationToggle;
+}
+
+async function addNumberInvitation() {
+	console.log("res request = ", ReceiveRequest);
+	if (!ReceiveRequest || ReceiveRequest.length === 0)
+			return ;
+	const NotificationToggle: HTMLButtonElement = (document.getElementById('notification-toggle-btn') as HTMLButtonElement);
+
 	const numberNotification = createDiv('', 'flex items-center justify-center rounded-full h-8 w-8 border-2 border-orange-200 absolute top-6 left-6 bg-emerald-600 group-hover:bg-emerald-700 text-orange-200 group-hover:text-orange-300 animate-bounce duration-100') as HTMLElement;
 	numberNotification.innerHTML = `
-	<h1>4</h1>`; // add real number of notification
+	<h1>${ReceiveRequest.length}</h1>`;
 
 	append(NotificationToggle, [numberNotification]);
-	return NotificationToggle;
 }

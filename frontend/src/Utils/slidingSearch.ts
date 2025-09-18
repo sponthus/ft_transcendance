@@ -1,12 +1,12 @@
 import { createDiv, append, createInput, createButton, createElement, createAnchorElement } from "./elementMaker";
 import { navigate } from "../core/router";
-import { getAllUsers } from "../api/user-service/menu/getAllUsers";
+import { getAllUsers, AllUsers } from "../api/user-service/menu/getAllUsers";
 
 let isSearchOpen: boolean = false;
 const searchWrapper: HTMLElement = createDiv("search-wrapper", 'relative flex items-center');
 const searchPanel : HTMLElement = createDiv('search-panel', 'flex flex-col items-center space-y-4 absolute right-0 top-16 w-0 h-0 overflow-y-auto transition-all duration-300 ease-in-out bg-orange-100 rounded-xl shadow-lg border-2 border-emerald-300 opacity-0');
 let isOpen :boolean = false;
-let UserTab: string[] = [];
+let UserTab: AllUsers[] = [];
 
 /*************************************functions for creating search button*************************************/
 export function createSearchBarDiv(parent :HTMLElement) {
@@ -71,8 +71,9 @@ function handleSearchEnter() {
 			openSearchPanel();
 			removeAllChild(searchPanel);
 			UserTab.forEach(value => {
-				if (value.toLocaleLowerCase().substring(0, searchTerm.length) === searchTerm) {
-					const UserText: HTMLAnchorElement = createAnchorElement(`${value}`, `${value}`, `/user/${value}`, 'text-emerald-600 hover:bg-orange-400 hover:font-bold text-xl w-full text-center transition-all duration-200 hover:scale-105 shadow-xl');
+				console.log("value foreach", value.username);
+				if (value.username.toLocaleLowerCase().substring(0, searchTerm.length) === searchTerm) {
+					const UserText: HTMLAnchorElement = createAnchorElement(`${value.username}`, `${value.username}`, `/user/${value.slug}`, 'text-emerald-600 hover:bg-orange-400 hover:font-bold text-xl w-full text-center transition-all duration-200 hover:scale-105 shadow-xl');
 					searchPanel.appendChild(UserText);
 					console.log(value);
 				}
@@ -123,11 +124,11 @@ async function fillUserTab() {
 	try {
 		const req = await getAllUsers();
 		if (req.ok){
-			const UsersData = req.users.users
-			UsersData.forEach( user => {
-				UserTab.push(user.username);
-			})
-			console.log(UserTab);
+			UserTab = req.users;
+			// UsersData.forEach( user => {
+			// 	UserTab.push(user);
+			// })
+			console.log("all user =", UserTab);
 		}
 	} catch (error){
 		console.log(Error);

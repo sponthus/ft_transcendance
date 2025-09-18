@@ -49,7 +49,7 @@ export class renderAsset {
 		try {
 			const req = await getCharacterAsset();
 			if (req.ok) {
-				AssetNumber  = req.asset;
+				AssetNumber  = req.asset!;
 				console.log("AssetData = ", req.asset as number);
 			}
 		} catch(error) {
@@ -71,7 +71,7 @@ export class renderAsset {
 		try {
 			const req = await getNpcAsset();
 			if (req.ok) {
-				AssetNumber = req.asset;
+				AssetNumber = req.asset!;
 				// console.log("AssetNumber NPC = " , AssetNumber);
 			}
 		} catch (error) {
