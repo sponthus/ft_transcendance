@@ -18,7 +18,9 @@ export async function getBasicInfoOnUsers(request, reply)
 
 export async function getIdUserFromSlug(request, reply)
 {
-    const   slug = request.params.slug;    
+    const { slug } = request.params;
+    const   db = request.server.db;
+
     try
     {
         const idUser = db.prepare(  "SELECT \
