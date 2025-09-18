@@ -16,6 +16,8 @@ export default class WebSocketManager {
 			throw new Error("Unable to get existing users");
 		}
 		const users = result.data;
+		if (users.length == 0)
+			return ; 
 		for (const user of users) {
 			this.registerUser(null, user.id, user.username, user.slug, "disconnected");
 		}
@@ -89,7 +91,7 @@ export default class WebSocketManager {
 			}
 			const client = this.clients.get(Number(userId));
 			client.currentGame = 0;
-			client.ws = client.ws.filter(wss => wss !== ws);
+			client.ws = client.ws.filter(sock => sock && sock.readyState === 1);
 			if (client.ws.length == 0) {
 				client.status = 'disconnected';
 				console.log(`🔴 User ${userId} is disconnected`)
@@ -121,7 +123,8 @@ export default class WebSocketManager {
     registerUser(ws, userId, username, slug, status) {
 		if (this.clients.has(Number(userId))) {
 			const client = this.clients.get(Number(userId));
-			client.ws.push(ws);
+			if (ws)
+				client.ws.push(ws);
 			client.status = status;
 			client.currentGame = 0;
 			client.username = username;
@@ -186,7 +189,6 @@ export default class WebSocketManager {
 
 	// Useful when a user changes his username or slug
 	updateUserInfos(userId, username, slug) {
-		console.log("launching with ", userId, username, slug);
 		if (this.clients.has(Number(userId))) {
 			const client = this.clients.get(Number(userId));
 			client.username = username;
@@ -204,7 +206,7 @@ export default class WebSocketManager {
 	}
 
 	updateUserStatus(userId, status) {
-		console.log("launching with ", userId, status);
+		console.log("Updating status of ", userId, "with", status);
 		if (this.clients.has(Number(userId))) {
 			const client = this.clients.get(Number(userId));
 			if (client.status == "playing" && status == "online") {
@@ -280,7 +282,7 @@ export default class WebSocketManager {
 		let sent = false;
 		for (const wss of client.ws) {
 			try {
-				if (wss.readyState === 1) {
+				if (wss && wss.readyState === 1) {
 					wss.send(JSON.stringify(message));
 					console.log(`Message sent to user ${userId}:`, message);
 					sent = true;
