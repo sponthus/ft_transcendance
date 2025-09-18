@@ -14,12 +14,26 @@ export default class GameServer {
         this.maxScore = maxScore;
 		this.ai = ai;
 		this.option = option;
-        console.log("Game server up");
+        console.log("🟢 Game server up");
 
         this.scoreA = 0;
         this.scoreB = 0;
         this.end = false;
+
+		// this.statusId = setInterval(() => {
+        //     console.log("I exist");
+        // }, 600); // 60fps
     }
+
+	sendToWs(ws, message, log) {
+		if (ws.readyState == 1) {
+			ws.send(JSON.stringify(message));
+			if (log)
+				console.log(`Message sent to socket:`, message);
+		} else {
+			console.warn(`❌ Cannot send message to socket: disconnected`);
+		}
+	}
 
 	addWs(ws) {
 		if (this.ws) {
@@ -27,14 +41,19 @@ export default class GameServer {
 			return;
 		}
 		this.ws = ws;
+		this.game = new PongGame(this.gameId, this.ai, this.option);
+		this.setHandlers(this.game);
 	}
 
     setHandlers(game) {
+		console.log("Handlers are set");
         this.ws.on('close', () => {
-            gameEventEmitter.emitGameEvent('player:disconnected', this.gameId, {
-				tournamentId: this.tournamentId
-			});
-            this.destroy();
+            if (this.end == false) {
+				gameEventEmitter.emitGameEvent('player:disconnected', this.gameId, {
+					tournamentId: this.tournamentId
+				});
+				this.destroy();
+			}
         });
 
 		this.ws.on("message", (msg) => {
@@ -52,22 +71,24 @@ export default class GameServer {
 
 			switch (data.type) {
 				case "input":
-					game.setInputs(data.playerId, data.input);
+					game.setInputs(data.input);
 					break;
 
-				case "gameMode":
-					game.setGameMode(data.mode, data.option);
-					break;
-
-				case "ping":
-					if (this.ws.readyState === 1)
-						this.ws.send(JSON.stringify({ type: 'pong' }));
-					else
-						console.log(" ❌ Websocket not available for pong");
+				case "start":
+					this.startGame();
 					break;
 
 				default:
 					console.warn("ERR: Type inconnu :", data.type);
+			}
+		});
+
+		this.ws.on('error', (error) => {
+			if (this.end == false) {
+				gameEventEmitter.emitGameEvent('player:disconnected', this.gameId, {
+					tournamentId: this.tournamentId
+				});
+				this.destroy();
 			}
 		});
     }
@@ -79,7 +100,6 @@ export default class GameServer {
 		});
 
         // à chaque tick du serveur
-        this.game = new PongGame(this.gameId, this.ai, this.option);
         this.intervalId = setInterval(() => {
             // Appliquer les inputs pour déplacer le paddle
             this.game.update();
@@ -98,11 +118,10 @@ export default class GameServer {
 			}
 			if ((this.scoreA >= this.maxScore || this.scoreB >= this.maxScore) && this.end === false) {
                 this.end = true;
+				this.state == "finished";
 				this.endGame();
             }
         }, 16); // 60fps
-			
-		this.setHandlers(game);
     }
 
     endGame() {
@@ -126,16 +145,20 @@ export default class GameServer {
 		} else {
 			console.log(" ❌ Unable to send endGame");
 		}
-        this.state = 'finished';
         gameEventEmitter.emitGameEvent('game:ended', this.gameId, {
             scoreA: this.scoreA,
             scoreB: this.scoreB
         });
+		if (this.tournamentId != 0) {
+			gameEventEmitter.emitTournamentEvent('tournament:endgame', this.tournamentId, {
+				gameId: this.gameId
+			});
+		}
         this.destroy();
     }
 
     destroy() {
         clearInterval(this.intervalId);
-        GameMaster.getInstance().endServer(this.userId);
+        GameMaster.getInstance().endServer(this.gameId);
     }
 }

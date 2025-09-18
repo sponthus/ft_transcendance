@@ -23,11 +23,13 @@ export default class GameMaster {
 
     addUserToGame(ws, userId, gameId) {
         if (this.games.has(Number(gameId))) {
-			const game = this.games.get(Number(userId));
+			const game = this.games.get(Number(gameId));
+            if (!game)
+                throw new Error("No game found for this id");
 			if (game.userId !== userId)
                 throw new Error("This game is not yours");
             game.ws = ws;
-            game.GameServer.addWs(ws);
+            game.server.addWs(ws);
 			console.log(`✅ User ${userId} authenticated to game ${gameId}`);
 		} 
 		else {
@@ -42,11 +44,6 @@ export default class GameMaster {
     //     }
     //     return deleted;
     // }
-
-    disconnectUser(ws) {
-        const gameId = this.getGameIdByWs(ws)
-        this.endServer(gameId);
-    }
 
     // getClientByUserId(userId) {
     //     return this.clients.get(Number(userId));
@@ -94,15 +91,8 @@ export default class GameMaster {
             console.debug(`No gameId given`);
             return ;
         }
-        if (this.games.has(gameId)) {
-            const gameObj = this.games.get(gameId);
-            const tournament = gameObj.tournament;
-            if (tournament != 0) {
-                gameEventEmitter.emitTournamentEvent('tournament:endgame', tournament, {
-                    gameId: gameId
-                });
-            }
-            this.games.delete(gameId);
+        if (this.games.has(Number(gameId))) {
+            this.games.delete(Number(gameId));
             console.log("🔴 GameServer stopped");
         } else {
             console.debug(`No server associated with gameId ${gameId}`);

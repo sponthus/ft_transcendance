@@ -25,7 +25,7 @@ export async function getTournamentsForUserId(request, reply) {
 			return reply.status(200).send([]);
 		}
 		console.log(`Found ${tournaments.length} tournaments for user ${userId}`);
-		console.log(tournaments);
+		// console.log(tournaments);
 		return reply.status(200).send(tournaments);
 	}
 	catch (error) {

@@ -129,4 +129,9 @@ export class GameSocket {
             return false;
         return this.ws.readyState === WebSocket.OPEN;
     }
+
+    public close() {
+        if (this.ws)
+            this.ws.close();
+    }
 }

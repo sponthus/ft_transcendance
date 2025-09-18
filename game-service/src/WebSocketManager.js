@@ -7,14 +7,11 @@ export default class WebSocketManager {
         this.ws = wss;
         this.fastify = fastify;
         this.unknownClients = [];
-        // this.initializeWebSocket();
     }
 
     initializeWebSocket() {
         this.ws.on('connection', (ws, request) => {
             console.log('🟢 New WebSocket connection');
-
-            this.handleDisconnection(ws);
 
             ws.on('message', (data) => {
                 let message;
@@ -38,12 +35,10 @@ export default class WebSocketManager {
 
             ws.on('close', () => {
                 console.log('🔴 Connection closed');
-                this.handleDisconnection(ws);
             });
 
             ws.on('error', (error) => {
                 console.error('❌ WebSocket error:', error);
-                this.handleDisconnection(ws);
             });
         });
     }
@@ -57,14 +52,14 @@ export default class WebSocketManager {
                 // TODO : Add content check
                 this.authenticateUser(ws, message.token, message.gameId);
                 break;
+            case 'input':
+                break;
             default:
                 console.warn("⚠️ Type not recognized");
             // case 'join_game':
             //     this.handleJoinGame(ws, message.gameId);
             //     break;
-            // case 'input':
-            //     this.handlePlayerInput(ws, message);
-            //     break;
+
         }
     }
 
@@ -129,23 +124,14 @@ export default class WebSocketManager {
 			return ;
 		}
 
-        gameMaster.addUserToGame(ws, data.userId, gameId);
-        // console.log("Authenticated user = " + userId);
+        console.log(data);
+        gameMaster.addUserToGame(ws, data.idUser, gameId);
         
 		this.sendToWs(ws, {
             type: 'auth_success',
-            userId: userId,
             gameId: gameId,
             timestamp: Date.now()
         });
-    }
-
-    handleDisconnection(ws) {
-        try {
-            gameMaster.disconnectUser(ws);
-        } catch (error) {
-            console.error(`❌ Unable to disconnect game properly`);
-        }
     }
 
     sendToUser(userId, message) {
