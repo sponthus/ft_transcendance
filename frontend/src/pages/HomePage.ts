@@ -8,7 +8,7 @@ import { addFriend, getAllFriends } from "../api/user-service/menu/friendsList/f
 import { getAllUsers } from "../api/user-service/menu/getAllUsers.js";
 import { getBackgroundColor } from "../api/user-service/menu/backgroundColor.js";
 import { getNpcAsset } from "../api/user-service/menu/npcAsset.js";
-import { getReceivedRequests, getSentRequests } from "../api/user-service/menu/friendsList/requestHandlers.js";
+import { acceptRequest, getReceivedRequests, getSentRequests, rejectRequest } from "../api/user-service/menu/friendsList/requestHandlers.js";
 import { updateUsername } from "../api/user-service/user-info/updateUsername.js";
 
 export class HomePage extends BasePage {
@@ -37,11 +37,11 @@ export class HomePage extends BasePage {
 			await this.rengerLogoutHome();
 		}
 
-		let req = await getAllFriends();
+		let req = await rejectRequest("ebriere");
 		{
 			if (req.ok)
 			{
-				console.log('la :', req.friends);
+				console.log('la :');
 			}
 			else
 				alert (req.error);

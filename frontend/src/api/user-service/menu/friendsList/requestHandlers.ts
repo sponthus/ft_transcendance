@@ -22,7 +22,7 @@ export async function   acceptRequest(username :string): Promise<RequestResult>
     return { ok: false, error: data.error};
 }
 
-export async function   refuseRequest(username :string): Promise<RequestResult>
+export async function   rejectRequest(username :string): Promise<RequestResult>
 {
     const token = localStorage.getItem("token");
     if (!token)

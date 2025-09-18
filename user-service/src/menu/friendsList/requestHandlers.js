@@ -1,4 +1,5 @@
 import { checkUsernameFormat } from "../../tools/checkFormat.js";
+import { addNotification, deleteNotification } from "../notifications/notificationHandlers.js";
 
 export async function   acceptRequest(request, reply)
 {
@@ -33,6 +34,8 @@ export async function   acceptRequest(request, reply)
             return reply.code(404).send({ error: "There is no pending request from " + senderUsername });
         if (existingRequest.frie_status === 1)
             return reply.code(409).send({ error: "You're already friend with " + senderUsername });
+        addNotification(db, idSender.id, idUser, "friend_accept");
+        deleteNotification(db, idUser, idSender.id, "friend_request");
         const acceptFriendship = db.transaction( (idUser, idSender) =>
         {
             db.prepare("    INSERT INTO \
@@ -52,11 +55,11 @@ export async function   acceptRequest(request, reply)
     }
     catch (err)
     {
-        return reply.code(500).send({ error: "Internal Server Error"});
+        return reply.code(500).send({ error: "Internal Server Error" + err.message});
     }
 }
 
-export async function   refuseRequest(request, reply)
+export async function   rejectRequest(request, reply)
 {
     const   db = request.server.db;
     const   idUser = request.user.idUser;
@@ -87,6 +90,8 @@ export async function   refuseRequest(request, reply)
         if (existingRequest.frie_status === 1)
             return reply.code(409).send({ error: "You're already friend with " + senderUsername });
 
+        deleteNotification(db, idUser, idSender.id, "friend_request");
+        addNotification(db, idSender.id, idUser, "friend_reject");
         db.prepare("    DELETE FROM \
                             friends \
                         WHERE \
@@ -107,7 +112,7 @@ export async function   getSentRequests(request, reply)
     try
     {
        const requests = db.prepare("    SELECT \
-                                            users.username  \
+                                            users.slug  \
                                         FROM \
                                             friends \
                                         INNER JOIN \
@@ -134,7 +139,7 @@ export async function   getReceivedRequests(request, reply)
     try
     {
        const requests = db.prepare("    SELECT \
-                                            users.username  \
+                                            users.slug  \
                                         FROM \
                                             friends \
                                         INNER JOIN \

@@ -1,5 +1,6 @@
 import { sendFriendRequestToUser } from "../../internal-service/sendFriendRequestToUser.js";
 import { checkUsernameFormat } from "../../tools/checkFormat.js";
+import { addNotification } from "../notifications/notificationHandlers.js";
 
 export async function   addFriend(request, reply)
 {
@@ -38,6 +39,7 @@ export async function   addFriend(request, reply)
             else if (status.frie_status === 1)
                 return reply.code(409).send({ error: "You're already friend with " + friendUsername });
         }
+        addNotification(db, idFriend.id, idUser, "friend_request");
         const statement = db.prepare("  INSERT INTO \
                                             friends (frie_user_id, frie_friend_user_id, frie_status) \
                                         VALUES \
