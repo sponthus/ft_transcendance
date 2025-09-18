@@ -1,4 +1,5 @@
 import { getSecret } from "../../index.js";
+import env from "../../../config/env.js";
 
 export async function updateUserStatus(userId, status) {
     if (!userId) {
@@ -10,7 +11,7 @@ export async function updateUserStatus(userId, status) {
 	
 	const api_key = getSecret('api_key');
 
-    const res = await fetch(`http://api-gateway:3000/api/session/status/${userId}`, {
+    const res = await fetch(`http://session-service:${env.session_port}/status/${userId}`, {
         method: 'PATCH',
         headers: { 
             'Content-Type': 'application/json',

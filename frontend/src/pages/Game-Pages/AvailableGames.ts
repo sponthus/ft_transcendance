@@ -67,7 +67,7 @@ export class availableGames {
 		}
 
 		try {
-			const result = await getAvailableGames(this.UserData?.id);
+			const result = await getAvailableGames(this.UserData?.slug);
 			if (!result.ok) {
 				availableGamesDiv.innerHTML = 'Error loading games.';
 				return;

@@ -25,7 +25,7 @@ export default async function routes (fastify, options) {
 
     fastify.register(
         async function (getRoutes) {
-            getRoutes.get(`/:userId/games`,
+            getRoutes.get(`/:slug/games`,
 				{onRequest: [fastify.authenticate]},
                 getGamesForUserId);
 			getRoutes.get(`/:userId/tournaments`, 
