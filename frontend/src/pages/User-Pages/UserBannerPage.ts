@@ -1,6 +1,8 @@
 import { addFriend } from '../../api/user-service/menu/friendsList/friendRequest.js';
+import { getSentRequests } from '../../api/user-service/menu/friendsList/requestHandlers.js';
 import { createDiv, createElement, createButton, append, createImage} from '../../Utils/elementMaker.js';
 import { EditProfile } from './EditProfile.js';
+import { getAllFriends } from '../../api/user-service/menu/friendsList/friendRequest.js';
 
 enum BodyState {PROFILE = 0, FRIENDS = 1, HISTORY = 2};
 
@@ -10,32 +12,43 @@ export class UserBanner {
 	private ProfileBanner!: HTMLElement;
 	private UserData: any;
 	private isOwnProfile!: boolean;
-	private EditProfile: EditProfile
+	private isRequestSent!: boolean;
+	private isFriend!: boolean;
+	private EditProfile: EditProfile;
 
 	constructor(UserData: any, isOwnProfile: boolean) {
+		this.isFriend = false;
+		this.isRequestSent = false;
 		this.UserData = UserData;
 		this.isOwnProfile = isOwnProfile;
 		this.StateBody = BodyState.PROFILE;
 		this.ProfileBanner = createDiv('profile-banner', "flex flex-col w-full h-[40%]");
 		this.EditProfile = new EditProfile(this.UserData);
+		console.log("is already friend ? ", this.isFriend);
 	}
 
-	render() {
+	async render() {
+		if (!this.isOwnProfile)
+			await this.isAlreadyFriend();
 		this.createProfileHighBanner();
 		this.createProfileBotBanner();
 	}
 		/*************************************Functions for creating Profile Banner*************************************/
 	private createProfileHighBanner() {
-		const HighBanner: HTMLElement = createDiv("HighBanner", "flex flex-col w-full h-[80%] justify-between p-4 bg-sky-400 bg-opacity-50 shadow-md h-64");
+		const HighBanner: HTMLElement = createDiv("HighBanner", "flex w-full h-[80%] justify-between p-4 bg-sky-400 bg-opacity-50 shadow-md");
 		append(HighBanner, [(this.setUserInfo() as HTMLElement)]);
+		if (!this.isOwnProfile && this.isFriend == false) {
+			append(HighBanner, [this.setFriendRequestBtn()]);
+		}
 		append(this.ProfileBanner, [HighBanner]);
 	}
 
 	private createProfileBotBanner() {
 		append(this.ProfileBanner, [this.setButtonsBanner()]);
 	}
-		private setUserInfo(): HTMLElement {
-		const UserInfo: HTMLElement = createDiv("user-info", 'flex items-end order-1 order-1 text-sm h-full w-[20%]');
+
+	private setUserInfo(): HTMLElement {
+		const UserInfo: HTMLElement = createDiv("user-info", 'flex items-end text-sm h-full w-[20%]');
 		append(UserInfo, [(this.setAvatar() as HTMLElement), (this.setTexUser() as HTMLElement)])
 	
 		return UserInfo;
@@ -54,9 +67,6 @@ export class UserBanner {
 		if (this.isOwnProfile) {
 			append(ActionDiv, [(createButton('edit-profile', "text-emerald-600 hover:font-bold border-2 border-sky-500 hover:border-sky-600 rounded-lg w-32 ", "Edit profile") as HTMLButtonElement)])
 			this.EditProfile.render(userNameDiv, "edit-username")
-		}
-		else {
-			append(userNameDiv, [(createButton('friend-request', "text-emerald-600 hover:font-bold border-2 border-sky-500 hover:border-sky-600 rounded-lg p-4", "friend request") as HTMLButtonElement)]);
 		}
 		UserTextDiv.appendChild(userNameDiv);
 		if (this.isOwnProfile)
@@ -83,6 +93,48 @@ export class UserBanner {
 		return AvatarDiv;
 	}
 
+	private setFriendRequestBtn(): HTMLButtonElement {
+		const friendRequestBtn: HTMLButtonElement =(createButton('friend-request', "self-end text-emerald-600 hover:font-bold border-2 border-sky-500 hover:border-sky-600 rounded-lg p-4 h-[20%]", "friend request") as HTMLButtonElement);
+
+		this.isRequestAlreadysent(friendRequestBtn);
+
+		return friendRequestBtn;
+	}
+
+	private async isRequestAlreadysent(requestBtn: HTMLButtonElement) {
+		try {
+			const req = await getSentRequests();
+			if (req.ok) {
+				const requestSent = req.requests;
+				requestSent?.forEach(value => {
+					if (value.username === this.UserData.username) {
+						this.isRequestSent = true;
+						requestBtn.textContent = "friend request sent...";
+					}
+				})
+
+			}
+		} catch (error){
+			alert(error);
+		}
+	}
+
+	private async isAlreadyFriend() {
+		try {
+			const req = await getAllFriends();
+			if (req.ok) {
+				const friendsList = req.friends;
+				friendsList?.forEach(friend => {
+					console.log("username of frien : ", friend.username)
+					if (friend.username === this.UserData.username) {
+						this.isFriend = true;
+					}
+				})
+			}
+		} catch(error) {
+			alert(error)
+		}
+	}
 	/*************************************Functions for creating Profile botBanner*************************************/
 	private  setButtonsBanner() : HTMLElement {
 		const BotBanner: HTMLElement = createDiv('BotBanner', "flex items-center justify-center bg-sky-500 bg-opacity-50 shadow-md w-full h-[20%] font-sans");
@@ -114,12 +166,16 @@ export class UserBanner {
 	}
 
 	async managefriendrequest() {
+		if (this.isRequestSent === true)
+			return ;
 		console.log('manage friend request function called');
 		(document.getElementById('friend-request-btn')?.addEventListener('click', async() => {
 			console.log('send a friend request');
 			try {
 				const req = await addFriend(this.UserData.username);
 				if (req.ok) {
+					this.isRequestSent = true;
+					document.getElementById('friend-request-btn')!.textContent = "friend request sent...";
 					console.log("succesfully add friend request")
 				}
 			}catch (error) {

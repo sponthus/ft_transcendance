@@ -1,6 +1,6 @@
 import { navigate } from '../../core/router.js';
 import { updateUsername } from "../../api/user-service/user-info/updateUsername.js";
-import { getUserInfo, getUserInfoBySlug } from '../../api/user-service/user-info/getUserInfo.js';
+import { getUserInfo, getUserInfoBySlug, UserInfo } from '../../api/user-service/user-info/getUserInfo.js';
 import { uploadAvatar } from "../../api/avatar.js";
 import { BasePage } from "../BasePage.js";
 import { popUp } from '../../Utils/popUp.js';
@@ -30,7 +30,7 @@ export class UserPage extends BasePage {
 	private slug!: string;
 	protected BodyDiv!: HTMLElement;
 
-	private UserData?: any;
+	private UserData?: UserInfo;
 
 	private StateBody!: number;
 
@@ -103,7 +103,7 @@ export class UserPage extends BasePage {
 
 
 	private async renderProfileBanner() {
-		this.UserBanner.render();
+		await this.UserBanner.render();
 		this.Background.appendChild(this.UserBanner._ProfileBanner);
 	}
 
@@ -123,7 +123,7 @@ export class UserPage extends BasePage {
 				this.BodyDiv.textContent = "i'm in the Friendlist body";
 				break;
 			case BodyState.HISTORY:
-				DisplayHistoryPage(this.BodyDiv, this.UserData);
+				DisplayHistoryPage(this.BodyDiv, this.UserData!);
 				break;
 			default:break;
 		}

@@ -41,8 +41,11 @@ function acceptInvitation(acceptBtn: HTMLButtonElement, userData: UserInfo) {
 		e.preventDefault();	
 		try {
 			const req = await acceptRequest(userData.username);
-			if (req.ok)
+			if (req.ok) {
+				alert("accept invitation of " + userData.username);
 				console.log("acctp invitation of ", userData.username);
+				refreshNotification();
+			}
 
 		}catch(error) {
 			alert(error);
@@ -57,8 +60,11 @@ function declineInvitation(declineBtn: HTMLButtonElement, userData: UserInfo) {
 		e.preventDefault();	
 		try {
 			const req = await refuseRequest(userData.username);
-			if (req.ok)
+			if (req.ok) {
+				alert("decline invitation of " + userData.username);
 				console.log("acctp invitation of ", userData.username);
+				refreshNotification();
+			}
 
 		}catch(error) {
 			alert(error);
@@ -184,4 +190,13 @@ async function addNumberInvitation() {
 	<h1>${ReceiveRequest.length}</h1>`;
 
 	append(NotificationToggle, [numberNotification]);
+}
+
+function refreshNotification() {
+	Array.from(notificationWrapper.children).forEach(child => {
+		notificationWrapper.removeChild(child);
+	})
+	append(notificationWrapper, [createNotificationToggle(), createSlidingNotificationPan()]);
+	toggleNotification();
+	eventCloseSearch();
 }

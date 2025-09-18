@@ -52,7 +52,7 @@ export async function   getSentRequests(): Promise<RequestResult>
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
     });
     const data = await res.json();    
-    if (res.ok) 
+    if (res.ok)
     {
         return { ok: true,  requests: data.requests};
     }
@@ -69,7 +69,7 @@ export async function   getReceivedRequests(): Promise<RequestResult>
         method: 'GET',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
     });
-    const data = await res.json();    
+    const data = await res.json();
     if (res.ok) 
     {
         return { ok: true,  requests: data.requests};
