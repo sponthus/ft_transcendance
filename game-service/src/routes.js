@@ -3,7 +3,7 @@ import { createGame, startGame } from "./API/controllers/GamePostRoutes.js"
 import { createTournament } from "./API/controllers/TournamentPostRoutes.js"
 import { getGamesForUserId } from "./API/controllers/GameGetRoutes.js"
 import { deleteGame } from "./API/controllers/GameDeleteRoutes.js"
-import { getTournamentsForUserId, getTournamentMatches, getTournamentNextMatch } from "./API/controllers/TournamentGetRoutes.js"
+import { getTournamentsForSlug, getTournamentMatches, getTournamentNextMatch } from "./API/controllers/TournamentGetRoutes.js"
 import { deleteTournament } from "./API/controllers/TournamentDeleteRoutes.js"
 
 export default async function routes (fastify, options) {
@@ -28,9 +28,9 @@ export default async function routes (fastify, options) {
             getRoutes.get(`/:slug/games`,
 				{onRequest: [fastify.authenticate]},
                 getGamesForUserId);
-			getRoutes.get(`/:userId/tournaments`, 
+			getRoutes.get(`/:slug/tournaments`, 
 				{onRequest: [fastify.authenticate]},
-				getTournamentsForUserId);
+				getTournamentsForSlug);
 			getRoutes.get(`/:tournamentId`,
 				{onRequest: [fastify.authenticate]},
 				getTournamentMatches);

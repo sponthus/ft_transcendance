@@ -1,15 +1,23 @@
+import { getUserIdFromSlug } from "../requests/GetUserIdFromSlug.js"
+
 // Gives the list of tournaments linked to a player
 // Security : Road is protected to logged-in users
-export async function getTournamentsForUserId(request, reply) {
-	console.log('➡️ User accessed GET /:userId/tournaments');
+export async function getTournamentsForSlug(request, reply) {
+	console.log('➡️ User accessed GET /:slug/tournaments');
 
-	const requestingUserId = request.user.idUser;
-	if (!requestingUserId)
-		return reply.status(401).send({ error: "Unauthorized"});
+	const { slug } = request.params;
+	if (!slug) {
+		return reply.status(400).send({ error: 'No slug found in request.'});
+	}
 
-	const { userId } = request.params;
-	if (!userId) {
-		return reply.status(400).send({ error: 'No userId found in request.'});
+	let userId = 0; 
+	const req = await getUserIdFromSlug(slug);
+	if (!req.ok) {
+		console.log("❌ Unable to get userId from slug");
+		return reply.status(500).send({ error: "Unable to get userId"});
+	} else {
+		userId = req.userId;
+		console.log("Got userId :", userId);
 	}
 
 	const { db } = request.server;
