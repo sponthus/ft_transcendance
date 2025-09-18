@@ -30,6 +30,7 @@ export class launchPong {
 			this.returnLobby();
 			}
 		});
+		// init game physic
 		this.Render.engine?.runRenderLoop(() => {
 			now = performance.now();
 			delta = now - lastTime;

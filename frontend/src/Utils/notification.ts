@@ -4,6 +4,8 @@ import { append, createDiv, createButton, createImage, createAnchorElement } fro
 
 const notificationWrapper: HTMLElement = createDiv('notif-wrapper','relative flex items-center');
 let isNotificationOpen: boolean = false;
+const AcceptMap: Map<any, HTMLButtonElement> = new Map<any, HTMLButtonElement>();
+const declineMap: Map<any, HTMLButtonElement> = new Map<any, HTMLButtonElement>();
 
 export function createNotificationDiv(parent: HTMLElement) {
 
@@ -93,13 +95,12 @@ async function fillReceiveRequest(parent: HTMLElement) {
 	try {
 		const req = await getReceivedRequests();
 		if (req.ok) {
-			// const RequestResult = req.requests;
-			// // RequestResult?.forEach()
-			// console.log("res request = ", RequestResult);
+			const RequestResult = req.requests;
+			// RequestResult?.forEach()
+			console.log("res request = ", RequestResult);
 			// RequestResult?.forEach(value => {
 			// 	console.log("res request = ", value);
 			// })
-			
 		}
 
 	} catch(error) {
@@ -119,8 +120,12 @@ function addInvitation(index: number) : HTMLAnchorElement {
 
 	const btnDiv = createDiv(`btn-invitation-${index}`, 'fles items-center justify-between space-x-8') as HTMLElement;
 
-	append(btnDiv, [(createButton(`accept-${index}`, 'px-4 text-orange-100 bg-emerald-600 rounded-xl group-hover:text-orange-200 hover:font-bold hover:bg-emerald-700 transition-all duration-200', 'accept') as HTMLButtonElement)
-								, (createButton(`decline-${index}`, 'px-4 text-orange-100 bg-red-500 rounded-xl group-hover:text-orange-200 hover:font-bold hover:bg-red-600 transition-all duration-200', 'decline') as HTMLButtonElement)	]);
+	let accept: HTMLButtonElement;
+	let decline: HTMLButtonElement;
+	append(btnDiv, [accept = (createButton(`accept-${index}`, 'px-4 text-orange-100 bg-emerald-600 rounded-xl group-hover:text-orange-200 hover:font-bold hover:bg-emerald-700 transition-all duration-200', 'accept') as HTMLButtonElement)
+								, decline = (createButton(`decline-${index}`, 'px-4 text-orange-100 bg-red-500 rounded-xl group-hover:text-orange-200 hover:font-bold hover:bg-red-600 transition-all duration-200', 'decline') as HTMLButtonElement)]);
+	AcceptMap.set(index, accept);
+	declineMap.set(index, decline);
 	append(invitationTextDiv, [btnDiv]);
 
 	append(InvitationDiv, [userIcon, invitationTextDiv]);
