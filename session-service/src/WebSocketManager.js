@@ -125,6 +125,7 @@ export default class WebSocketManager {
 			const client = this.clients.get(Number(userId));
 			if (ws)
 				client.ws.push(ws);
+			client.ws = client.ws.filter(sock => sock && sock.readyState === 1);
 			client.status = status;
 			client.currentGame = 0;
 			client.username = username;
@@ -325,10 +326,10 @@ export default class WebSocketManager {
             return 2;
         }
         if (this.isUserConnected(Number(userId))) {
-            if (this.sendToUserId(userId, JSON.stringify({
+            if (this.sendToUserId(userId, {
 					type: 'message',
 					sender: sender,
-					message: message})) == true) {
+					message: message}) == true) {
 				console.log(`Message sent to user ${userId}:`, message);
 				return 0;
 			} else {
