@@ -140,15 +140,17 @@ export class SessionSocket {
     }
 
     private handleMessage(data: any) {
-        // console.log('Received message:', data);
+        console.log('Received message:', data);
+		console.log('data.type = :', data.type);
 		if (data.type === 'pong') {
 			// console.log('Received pong from server');
 			this.clearHeartbeatTimeout();
 			return;
 		}
-		if (data.type == "message") {
-			console.log("receive friend request");
+		else if (data.type === "message") {
+			console.log("receive friend request frome data.type message");
 			refreshNotification();
+			return ;
 			// TODO Emma Add logic here, when recieving a friend request message
 		}
     }

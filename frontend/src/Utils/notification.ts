@@ -194,8 +194,9 @@ async function addNumberInvitation() {
 
 export function refreshNotification() {
 	Array.from(notificationWrapper.children).forEach(child => {
-		notificationWrapper.removeChild(child);
-	})
+		Array.from(child.children).forEach(children => {child.removeChild(children);});
+		notificationWrapper.removeChild(child);});
+
 	append(notificationWrapper, [createNotificationToggle(), createSlidingNotificationPan()]);
 	toggleNotification();
 	eventCloseSearch();

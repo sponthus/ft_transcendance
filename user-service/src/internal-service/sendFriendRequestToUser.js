@@ -12,7 +12,7 @@ export async function sendFriendRequestToUser(idSender, sender, receiver)
             'Content-Type': 'application/json',
             'x-internal-api-key': api_key
         },
-        body: JSON.stringify({ sender, receiver }),
+        body: JSON.stringify({ sender: sender, message: receiver }),
     });
     if (res.ok) {
         return { ok: true };
