@@ -1,5 +1,5 @@
 import { checkUsernameFormat } from "../../tools/checkFormat.js";
-import { addNotification, deleteNotification } from "../notifications/notificationHandlers.js";
+import { addNotification, deleteNotification } from "../notifications/notificationsManager.js";
 
 export async function   acceptRequest(request, reply)
 {

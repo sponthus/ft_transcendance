@@ -1,6 +1,6 @@
 import { sendFriendRequestToUser } from "../../internal-service/sendFriendRequestToUser.js";
 import { checkUsernameFormat } from "../../tools/checkFormat.js";
-import { addNotification } from "../notifications/notificationHandlers.js";
+import { addNotification } from "../notifications/notificationsManager.js";
 
 export async function   addFriend(request, reply)
 {

@@ -10,6 +10,7 @@ import { getBackgroundColor } from "../api/user-service/menu/backgroundColor.js"
 import { getNpcAsset } from "../api/user-service/menu/npcAsset.js";
 import { acceptRequest, getReceivedRequests, getSentRequests, rejectRequest } from "../api/user-service/menu/friendsList/requestHandlers.js";
 import { updateUsername } from "../api/user-service/user-info/updateUsername.js";
+import { countUnreadNotifications } from "../api/user-service/menu/notifications/ countUnreadNotifications.js";
 
 export class HomePage extends BasePage {
 
@@ -37,11 +38,11 @@ export class HomePage extends BasePage {
 			await this.rengerLogoutHome();
 		}
 
-		let req = await rejectRequest("ebriere");
+		let req = await countUnreadNotifications();
 		{
 			if (req.ok)
 			{
-				console.log('la :');
+				console.log('notif: ', req.count);
 			}
 			else
 				alert (req.error);
