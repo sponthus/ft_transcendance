@@ -125,6 +125,7 @@ export default class WebSocketManager {
 			const client = this.clients.get(Number(userId));
 			if (ws)
 				client.ws.push(ws);
+			client.ws = client.ws.filter(sock => sock && sock.readyState === 1);
 			client.status = status;
 			client.currentGame = 0;
 			client.username = username;
