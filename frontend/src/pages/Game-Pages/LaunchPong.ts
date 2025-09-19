@@ -15,7 +15,7 @@ export class launchPong {
 		this.tournament = false;
 	}
 
-	render(/*******add IdParty: number or Party: any*********/) {
+	render(gameId: number) {
 		this.GamePage.cleanPage();
 		this.GamePage.removeOverlayToWindow();
 		let lastTime = 0;
@@ -30,6 +30,12 @@ export class launchPong {
 			this.returnLobby();
 			}
 		});
+		try {
+			this.Render.PongGame?.GamePhysics?.launchSocket(gameId);
+		} catch(error) {
+			alert("Error launching pong websocket");
+			this.returnLobby();
+		}
 		this.Render.engine?.runRenderLoop(() => {
 			now = performance.now();
 			delta = now - lastTime;
@@ -54,6 +60,7 @@ export class launchPong {
 
 	private EndGame() {
 		this.Render.engine?.stopRenderLoop();
+		this.Render.PongGame!.GamePhysics!.stopGame();
 		this.Render.PongGame!.GamePhysics!.SetWin = false;
 		this.GamePage.addOverlayToWindow();
 		if (/**tournament */this.tournament)

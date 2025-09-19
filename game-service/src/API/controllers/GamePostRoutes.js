@@ -66,7 +66,6 @@ export async function startGame(request, reply) {
             return reply.status(500).send({error: 'Internal server error while fetching users'});
         }
         gameMaster.createServer(gameId, userId, maxScore, tournament, ai, option);
-        // console.log("sending data : " + gameId + status + player_a + player_b);
         return reply.status(201).send({
             gameId: gameId, 
             status: status, 

@@ -1,7 +1,6 @@
 import { navigate } from '../core/router.js';
 import { modifyUserAvatar , modifyUserInfo } from "../api/user.js";
 import { getUserInfo } from '../api/user-service/user-info/getUserInfo.js';
-import { Socket } from '../core/Socket.js';
 
 type UserData = //VA ETRE CHANGER, le token renvoie le username et l'id du user
 {
@@ -176,7 +175,6 @@ function SetLogOutEvent() {
 		e.preventDefault();
 		localStorage.removeItem("token");
 	//	socket.close();
-	// TODO = Logout correctly
 		navigate('/');
 		location.reload();
 	});

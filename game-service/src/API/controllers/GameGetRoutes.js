@@ -1,15 +1,23 @@
+import { getUserIdFromSlug } from "../requests/GetUserIdFromSlug.js"
+
 // Gives the full history of a user
 // Security : Road is protected to logged-in users
-export async function getGamesForUserId(request, reply) {
-	console.log('➡️ User accessed GET /:userId/games');
+export async function getGamesForSlug(request, reply) {
+	console.log('➡️ User accessed GET /:slug/games');
 
-	const requestingUserId = request.user.idUser;
-	if (!requestingUserId)
-		return reply.status(401).send({ error: "Unauthorized"});
-
-	const { userId } = request.params;
-	if (!userId) {
-		return reply.status(400).send({ error: 'No userId found in request.'});
+	const { slug } = request.params;
+	if (!slug) {
+		return reply.status(400).send({ error: 'No slug found in request.'});
+	}
+	
+	let userId = 0; 
+	const req = await getUserIdFromSlug(slug);
+	if (!req.ok) {
+		console.log("❌ Unable to get userId from slug");
+		return reply.status(500).send({ error: "Unable to get userId"});
+	} else {
+		userId = req.userId;
+		console.log("Got userId :", userId);
 	}
 
 	const { db } = request.server;

@@ -253,7 +253,7 @@ export class Event {
 			}
 			// state.launchGame(gameId);
 			this.StatePage = PageState.MOD;
-			this.renderGame();
+			this.renderGame(gameId);
 		} 
 		catch (error) {
 			alert(error);
@@ -261,10 +261,10 @@ export class Event {
 		}
 	}
 
-	private renderGame() {
+	private renderGame(gameId: number) {
 		this.StatePage = PageState.WIN;
 		this.removeDeleteButton();
-		this.LaunchPong.render();
+		this.LaunchPong.render(gameId);
 		console.log("pagestate = ", this.StatePage);
 	}
 

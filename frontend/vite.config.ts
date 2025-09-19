@@ -1,8 +1,6 @@
 import { defineConfig } from 'vite';
 
-// const API_SERVICE = process.env.VITE_API_SERVICE;
 const DOMAIN_NAME = process.env.VITE_DOMAIN_NAME;
-const API_SERVICE = process.env.VITE_API_SERVICE;
 const API_PORT = process.env.VITE_API_PORT;
 const VITE_PORT = process.env.VITE_PORT;
 const IP = process.env.VITE_IP;
@@ -14,7 +12,7 @@ export default defineConfig({
         host: `${IP}`,
         proxy: {
             '/api': {
-                target: `http://${API_SERVICE}:${API_PORT}`,
+                target: `http://api-gateway:${API_PORT}`,
                 changeOrigin: true,
                 rewrite: (path) => path.replace(/^\/api/, '/api'),
             },
