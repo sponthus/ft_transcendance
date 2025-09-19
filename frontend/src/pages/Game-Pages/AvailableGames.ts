@@ -67,7 +67,7 @@ export class availableGames {
 		}
 
 		try {
-			const result = await getAvailableGames(this.UserData?.id);
+			const result = await getAvailableGames(this.UserData?.slug);
 			if (!result.ok) {
 				availableGamesDiv.innerHTML = 'Error loading games.';
 				return;
@@ -97,7 +97,7 @@ export class availableGames {
 		}
 	
 		try {
-			const result = await getAvailableTournaments(this.UserData?.id); // change for Available Tournament
+			const result = await getAvailableTournaments(this.UserData?.slug); // change for Available Tournament
 			if (!result.ok) {
 				availableGamesDiv.innerHTML = 'Error loading games.';
 				return;

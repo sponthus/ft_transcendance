@@ -176,7 +176,7 @@ export class UserBanner {
 				if (req.ok) {
 					this.isRequestSent = true;
 					document.getElementById('friend-request-btn')!.textContent = "friend request sent...";
-					console.log("succesfully add friend request")
+					console.log("succesfully add friend request");
 				}
 			}catch (error) {
 				alert(error);

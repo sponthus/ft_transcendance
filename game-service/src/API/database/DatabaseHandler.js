@@ -601,7 +601,7 @@ export default class DatabaseHandler {
 		return (result);
 	}
 
-	// TODO = Test me please ...
+	// Test is ok / 4 players
 	endTournamentGame(tournamentId, gameId) {
 		const transaction = this.db.transaction((tournamentId, gameId) => {
 			// Find current match round & number

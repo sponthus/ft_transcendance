@@ -4,7 +4,7 @@ export async function sendFriendRequestToUser(idSender, sender, receiver)
 {
     const api_key = getSecret('api_key');
 
-    const res = await fetch(`http://api-gateway:3000/api/games/message/${idSender}`, 
+    const res = await fetch(`http://api-gateway:3000/api/session/message/${idSender}`, 
     {
         method: 'POST',
         headers: 

@@ -11,16 +11,11 @@
 #  C (country)
 # -nodes = no passphrase
 
-
 if env | grep -q "^NODE_ENV=development"; then
-	envsubst '${GAME_WS_PORT} ${API_PORT} ${DOMAIN_NAME} ${GAME_SERVICE} ${API_SERVICE}' < /etc/nginx/nginx.development.conf.template > /etc/nginx/nginx.conf
-	rm /etc/nginx/nginx.production.conf.template
+	envsubst '${GAME_WS_PORT} ${SESSION_WS_PORT} ${API_PORT} ${DOMAIN_NAME}' < /etc/nginx/nginx.development.conf.template > /etc/nginx/nginx.conf
 else
-	envsubst '${GAME_WS_PORT} ${API_PORT} ${DOMAIN_NAME} ${GAME_SERVICE} ${API_SERVICE}' < /etc/nginx/nginx.production.conf.template > /etc/nginx/nginx.conf
-	rm /etc/nginx/nginx.development.conf.template
+	envsubst '${GAME_WS_PORT} ${SESSION_WS_PORT} ${API_PORT} ${DOMAIN_NAME}' < /etc/nginx/nginx.production.conf.template > /etc/nginx/nginx.conf
 fi
-
-# tail -f
 
 mkdir -p /etc/nginx/sites-enabled
 
