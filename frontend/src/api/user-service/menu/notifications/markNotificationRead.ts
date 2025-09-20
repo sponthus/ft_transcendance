@@ -1,9 +1,9 @@
-type NotifSuccess = {ok: true, count: number }
+type NotifSuccess = { ok: true }
 type Failure = { ok: false; error: string };
 
 type NotifResult = NotifSuccess | Failure;
 
-export async function   countUnreadNotifications(): Promise<NotifResult>
+export async function   markNotificationsRead(): Promise<NotifResult>
 {
     const token = localStorage.getItem("token");
     if (!token)
@@ -11,16 +11,16 @@ export async function   countUnreadNotifications(): Promise<NotifResult>
     
     try 
     {
-        const res = await fetch('/api/user/notifications/mark', 
+        const res = await fetch("/api/user/notifications/mark", 
         {
-            method: 'GET',
+            method: 'POST',
             headers: { 'Authorization': `Bearer ${token}` },
         });
-        const data = await res.json();    
         if (res.ok) 
         {
-            return { ok: true, count: data.count};
+            return { ok: true };
         }
+        const data = await res.json();    
         return { ok: false, error: data.error};
     }
     catch (err)

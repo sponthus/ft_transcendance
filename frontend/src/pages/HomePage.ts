@@ -3,14 +3,8 @@ import { BasePage } from "./BasePage.js";
 import { append, createAnchorElement, createDiv, createImage } from "../Utils/elementMaker.js";
 import { checkLog } from "../api/user-service/connection/check-log.js";
 import { getUserInfoBySlug } from "../api/user-service/user-info/getUserInfo.js";
-import { getCharacterAsset } from "../api/user-service/menu/characterAsset.js";
-import { addFriend, getAllFriends } from "../api/user-service/menu/friendsList/friendRequest.js";
-import { getAllUsers } from "../api/user-service/menu/getAllUsers.js";
-import { getBackgroundColor } from "../api/user-service/menu/backgroundColor.js";
-import { getNpcAsset } from "../api/user-service/menu/npcAsset.js";
-import { acceptRequest, getReceivedRequests, getSentRequests, rejectRequest } from "../api/user-service/menu/friendsList/requestHandlers.js";
-import { updateUsername } from "../api/user-service/user-info/updateUsername.js";
-import { countUnreadNotifications } from "../api/user-service/menu/notifications/ countUnreadNotifications.js";
+import { markNotificationsRead } from "../api/user-service/menu/notifications/markNotificationRead.js";
+import { getAllNotifications } from "../api/user-service/menu/notifications/getNotifications.js";
 
 export class HomePage extends BasePage {
 
@@ -38,11 +32,11 @@ export class HomePage extends BasePage {
 			await this.rengerLogoutHome();
 		}
 
-		let req = await countUnreadNotifications();
+		let req = await markNotificationsRead();
 		{
 			if (req.ok)
 			{
-				console.log('notif: ', req.count);
+				console.log("ds");
 			}
 			else
 				alert (req.error);

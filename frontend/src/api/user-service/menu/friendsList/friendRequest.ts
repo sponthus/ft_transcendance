@@ -60,7 +60,7 @@ export async function   getAllFriends(): Promise<FriendsResult>
     const res = await fetch('/api/user/menu/friendslist/', 
     {
         method: 'GET',
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        headers: { 'Authorization': `Bearer ${token}` },
     });
     const data = await res.json();    
     if (res.ok) 

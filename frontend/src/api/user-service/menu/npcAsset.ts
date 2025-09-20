@@ -30,7 +30,7 @@ export async function   getNpcAsset(): Promise<AssetResult>
     const res = await fetch('/api/user/menu/npc/asset', 
     {
         method: 'GET',
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        headers: { 'Authorization': `Bearer ${token}` },
     });
     const data = await res.json();    
     if (res.ok) 

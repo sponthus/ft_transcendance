@@ -26,7 +26,7 @@ export async function   getNotifications(url: string): Promise<NotifResult>
         const res = await fetch(url, 
         {
             method: 'GET',
-            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+            headers: { 'Authorization': `Bearer ${token}` },
         });
         const data = await res.json();    
         if (res.ok) 

@@ -49,7 +49,7 @@ export async function   getSentRequests(): Promise<RequestResult>
     const res = await fetch('/api/user/menu/friendslist/request/sent', 
     {
         method: 'GET',
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        headers: { 'Authorization': `Bearer ${token}` },
     });
     const data = await res.json();    
     if (res.ok) 
@@ -67,7 +67,7 @@ export async function   getReceivedRequests(): Promise<RequestResult>
     const res = await fetch('/api/user/menu/friendslist/request/received', 
     {
         method: 'GET',
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        headers: { 'Authorization': `Bearer ${token}` },
     });
     const data = await res.json();    
     if (res.ok) 
