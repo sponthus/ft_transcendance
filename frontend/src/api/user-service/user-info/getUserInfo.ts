@@ -6,6 +6,7 @@ type UserInfo = //VA ETRE CHANGER, le token renvoie le username et l'id du user
     avatar: string;
     slug: string;
     created_at: string;
+    friendship_status: string;
 };
 
 type getUserInfoSuccess = {ok: true; userInfo: UserInfo}
