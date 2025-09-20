@@ -39,6 +39,11 @@ services:
     secrets:
       - hash_key
       - api_key
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:${USER_PORT}/health || exit 1"]
+      interval: 5s
+      timeout: 2s
+      retries: 20
     restart: always
 
   game-service:
@@ -65,7 +70,14 @@ services:
       context: ./session-service
       args: 
         WS_PORT: ${SESSION_WS_PORT}
-
+    depends_on:
+      user-service:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:${SESSION_PORT}/health || exit 1"]
+      interval: 5s
+      timeout: 2s
+      retries: 20
     env_file:
       - ".env"
     volumes:
@@ -87,9 +99,7 @@ services:
       - "8080:80"
       - "4443:443"
     depends_on:
-      - api-gateway
       - frontend
-      - upload-service
     volumes:
       - frontend_dist:/usr/share/nginx/html # necessary in prod
       - avatar_uploads:/app/uploads #share with upload service
@@ -104,7 +114,7 @@ services:
       dockerfile: Dockerfile
     env_file: ".env"
     depends_on:
-      - api-gateway
+      - session-service
     ports:
       - "5173:5173" # Dev only for vite server, in prod = build, nginx serves it
     volumes:

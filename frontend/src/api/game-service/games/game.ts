@@ -46,7 +46,6 @@ export type AllGamesResult = AllGamesList | Failure;
 // POST /game
 // Creates a new game for the user, taking names for players
 // Security : Accessible for every logged-in user
-// TODO = Add AI registration
 export async function createLocalGame(player_a: string, player_b: string, maxScore: number = 7, ai: number = 0, option: number = 1): Promise<GameInfoResult> {
     const token = localStorage.getItem("token");
     if (!token)
@@ -131,12 +130,12 @@ export async function startGame(gameId: number): Promise<GameInfoResult> {
     }
 }
 
-// GET /:userId/games
+// GET /:slug/games
 // All available PENDING non-tournament games for a user, gives only useful infos
 // Security : Accessible for every logged-in user
-export async function getAvailableGames(userId: number): Promise<AvailableGamesResult> {
+export async function getAvailableGames(slug: string): Promise<AvailableGamesResult> {
     try {
-        const allGamesResult = await getAllGames(userId);
+        const allGamesResult = await getAllGames(slug);
         if (!allGamesResult.ok) {
             return { ok: false, error: allGamesResult.error };
         }
@@ -161,12 +160,12 @@ export async function getAvailableGames(userId: number): Promise<AvailableGamesR
     }
 }
 
-// GET /:userId/games
+// GET /:slug/games
 // All available FINISHED games for a user, gives only useful infos
 // Security : Accessible for every logged-in user
-export async function getFinishedGames(userId: number): Promise<AvailableGamesResult> {
+export async function getFinishedGames(slug: string): Promise<AvailableGamesResult> {
     try {
-        const allGamesResult = await getAllGames(userId);
+        const allGamesResult = await getAllGames(slug);
         if (!allGamesResult.ok) {
             return { ok: false, error: allGamesResult.error };
         }
@@ -191,18 +190,18 @@ export async function getFinishedGames(userId: number): Promise<AvailableGamesRe
 }
 
 
-// GET /:userId/games
+// GET /:slug/games
 // Gives all games for a user (useful for history, gives you every info available on each game)
 // Security : Accessible for every logged-in user
-export async function getAllGames(userId: number): Promise<AllGamesResult> {
+export async function getAllGames(slug: string): Promise<AllGamesResult> {
     const token = localStorage.getItem("token");
     if (!token)
         return { ok: false, error: "No token"};
-    if (!userId) {
-        return { ok: false, error: 'User ID is required' };
+    if (!slug) {
+        return { ok: false, error: 'Slugis required' };
     }
     try {
-        const response = await fetch(`/api/games/${userId}/games`, {
+        const response = await fetch(`/api/games/${slug}/games`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',

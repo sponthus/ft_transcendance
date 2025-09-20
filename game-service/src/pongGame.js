@@ -47,17 +47,17 @@ export class PongGame {
 
 	}
 
-	setInputs(playerId, input)
+	setInputs(input)
 	{
-		this.inputs[playerId] = input;
-		this.input1 = this.inputs['player1'] || {};
+		this.inputs = input;
+		this.input1 = this.inputs || {};
 	}
 
-	setGameMode(mode, option)
-	{
-		this.gameMode = mode;
-		this.gameOption = option;
-	}
+	// setGameMode(mode, option)
+	// {
+	// 	this.gameMode = mode;
+	// 	this.gameOption = option;
+	// }
 
 	update()
 	{

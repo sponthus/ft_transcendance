@@ -84,9 +84,14 @@ fastify.register(dbConnector);
 
 await fastify.register(routes);
 
- fastify.get('/', async (req, reply) => {
+// Health check to synchronize initialization of session service
+fastify.get("/health", async (request, reply) => {
+    return { status: "ok" };
+});
+
+fastify.get('/', async (req, reply) => {
      return { message: 'User service received your request!' };
- });
+});
 
 // Default handler for undefined routes
 fastify.setNotFoundHandler((req, reply) => {
@@ -96,7 +101,6 @@ fastify.setNotFoundHandler((req, reply) => {
 });
 
 // Fastify listens
-// TODO : Set port in env
 fastify.listen({ port: env.user_port, host: `${env.ip}` }, (err, address) => {
     if (err) {
         fastify.log.error(err);

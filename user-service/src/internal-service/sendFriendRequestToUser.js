@@ -1,10 +1,11 @@
 import { getSecret } from "../index.js";
+import env from "../../config/env.js";
 
-export async function notifyRefresh(idSender, sender, receiver) 
+export async function notifyRefresh(idReceiver, sender, message) 
 {
     const api_key = getSecret('api_key');
 
-    const res = await fetch(`http://api-gateway:3000/api/games/message/${idSender}`, 
+    const res = await fetch(`http://session-service:${env.session_port}/message/${idReceiver}`, 
     {
         method: 'POST',
         headers: 
@@ -12,7 +13,7 @@ export async function notifyRefresh(idSender, sender, receiver)
             'Content-Type': 'application/json',
             'x-internal-api-key': api_key
         },
-        body: JSON.stringify({ sender, receiver }),
+        body: JSON.stringify({ sender: sender, message: message }),
     });
     if (res.ok) {
         return { ok: true };
