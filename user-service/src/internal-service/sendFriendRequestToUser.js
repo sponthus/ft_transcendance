@@ -1,6 +1,6 @@
 import { getSecret } from "../index.js";
 
-export async function sendFriendRequestToUser(idSender, sender, receiver) 
+export async function notifyRefresh(idSender, sender, receiver) 
 {
     const api_key = getSecret('api_key');
 

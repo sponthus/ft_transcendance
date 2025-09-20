@@ -1,15 +1,15 @@
-import { sendFriendRequestToUser } from "../../internal-service/sendFriendRequestToUser.js";
-import { checkUsernameFormat } from "../../tools/checkFormat.js";
+import { notifyRefresh } from "../../internal-service/sendFriendRequestToUser.js";
+import { checkSlugFormat } from "../../tools/checkFormat.js";
 import { addNotification } from "../notifications/notificationsManager.js";
 
 export async function   addFriend(request, reply)
 {
     const   db = request.server.db;
     const   idUser = request.user.idUser;
-    const   friendUsername = request.body.username;
+    const   friendSlug = request.body.slug;
 
-    if (checkUsernameFormat(request) == false)
-        return reply.code(400).send( {error : "Invalid format for the friend's username"} );
+    if (checkSlugFormat(request) == false)
+        return reply.code(400).send( {error : "Invalid format for the friend's slug"} );
     try
     {   
         const idFriend = db.prepare("   SELECT \
@@ -17,7 +17,7 @@ export async function   addFriend(request, reply)
                                         FROM \
                                             users \
                                         WHERE \
-                                            username = ?").get(friendUsername);
+                                            slug = ?").get(friendSlug);
         if (!idFriend)
             return reply.code(404).send({ error: "This user doesn't exist" });
         if (idUser === idFriend.id)
@@ -37,20 +37,20 @@ export async function   addFriend(request, reply)
             if (status.frie_status === 0)
                 return reply.code(409).send({ error: "A friend request is already pending" });
             else if (status.frie_status === 1)
-                return reply.code(409).send({ error: "You're already friend with " + friendUsername });
+                return reply.code(409).send({ error: "You're already friend with this user" });
         }
         addNotification(db, idFriend.id, idUser, "friend_request");
         const statement = db.prepare("  INSERT INTO \
                                             friends (frie_user_id, frie_friend_user_id, frie_status) \
                                         VALUES \
                                             (?, ?, 0)");
-        const username = db.prepare ("  SELECT \
-                                            username \
+        const slug = db.prepare ("  SELECT \
+                                            slug \
                                         FROM \
                                             users \
                                         WHERE \
                                             id = ?").get(idUser);
-        const req = await sendFriendRequestToUser(idFriend.id, username.username, friendUsername);
+        const req = await notifyRefresh(idFriend.id, slug.slug, friendSlug);
         statement.run(idUser, idFriend.id);
         return reply.code(200).send();
     }
@@ -64,10 +64,10 @@ export async function   removeFriend(request, reply)
 {
     const   db = request.server.db;
     const   idUser = request.user.idUser;
-    const   friendUsername = request.body.username;
+    const   friendSlug = request.body.slug;
 
-    if (checkUsernameFormat(request) == false)
-        return reply.code(400).send( {error : "Invalid format for the friend's username"} );
+    if (checkSlugFormat(request) == false)
+        return reply.code(400).send( {error : "Invalid format for the friend's slug"} );
     try
     {
         const idFriend = db.prepare("   SELECT \
@@ -75,7 +75,7 @@ export async function   removeFriend(request, reply)
                                         FROM \
                                             users \
                                         WHERE \
-                                            username = ?").get(friendUsername);
+                                            slug = ?").get(friendSlug);
         if (!idFriend)
             return reply.code(404).send({ error: "This user doesn't exist" });
         
