@@ -3,7 +3,7 @@ type Failure = { ok: false; error: string };
 
 export type RequestResult = RequestSuccess | Failure;
 
-export async function   acceptRequest(username :string): Promise<RequestResult>
+export async function   acceptRequest(slug :string): Promise<RequestResult>
 {
     const token = localStorage.getItem("token");
     if (!token)
@@ -12,7 +12,7 @@ export async function   acceptRequest(username :string): Promise<RequestResult>
     {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-        body: JSON.stringify({ username }),
+        body: JSON.stringify({ slug }),
     });
     if (res.ok) 
     {
@@ -22,7 +22,7 @@ export async function   acceptRequest(username :string): Promise<RequestResult>
     return { ok: false, error: data.error};
 }
 
-export async function   rejectRequest(username :string): Promise<RequestResult>
+export async function   rejectRequest(slug :string): Promise<RequestResult>
 {
     const token = localStorage.getItem("token");
     if (!token)
@@ -31,7 +31,7 @@ export async function   rejectRequest(username :string): Promise<RequestResult>
     {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-        body: JSON.stringify({ username }),
+        body: JSON.stringify({ slug }),
     });
     if (res.ok) 
     {
