@@ -5,7 +5,7 @@ export type AllUsers =
 {
     username: string;
     slug: string;
-}[];
+};
 
 export type UsersResult = Success | Failure;
 
