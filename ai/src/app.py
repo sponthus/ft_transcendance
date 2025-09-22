@@ -35,4 +35,6 @@ if __name__ == '__main__':
 	conf_from_json = parse_json("training_data")
 
 	network2 = Network(NB_HIDDEN_LAYERS, NB_NEURONS_PER_LAYER, conf_from_json)
-	print(network2.get_conf())
+
+	with open("test2", "w") as f:
+		json.dump(network2.get_conf(), f)

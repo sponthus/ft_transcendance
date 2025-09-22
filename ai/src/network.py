@@ -1,28 +1,32 @@
 import numpy as np
+from typing import Callable
 
 def ReLu(input_value: float) -> float :
 	value = max(0, input_value) # ReLU activation
 	return value
 
+# TODO make me kwargs
 class Neuron:
 	name: int = 0
 
-	def __init__(self, nb_input: int, activation_function: callable, weights: list[float] = None, bias: float = 0):
+	def __init__(self, nb_input: int, activation_function: Callable, weights: list[float] = [], bias: float = 0):
 		self.name: int = Neuron.name
 		Neuron.name += 1
 
 		self.weights: np.ndarray[float]
-		if (weights != None):
+		if (len(weights) != 0):
 			self.weights = np.array(weights)
 		else:
-			self.weights = np.random.randn(nb_input) # TODO Possibility to modify biais generation for better alignment
+			self.weights = np.random.randn(nb_input) 
+			# TODO Possibility to modify biais generation for better alignment
 
+		# TODO limit bias modification ? possibility to be neg ?
 		self.bias: float
 		if (bias == 0):
 			self.bias = np.random.rand() # TODO Limit biais to limit impact on neuron response
 		else:
 			self.bias = bias
-		self.activation_function: callable = activation_function
+		self.activation_function: Callable = activation_function
 
 	def get_weights(self) -> list[float] :
 		return self.weights.tolist()
@@ -52,7 +56,7 @@ class Neuron:
 		value = self.activation_function(result)
 		return value
 
-
+# TODO make me kwargs
 class Layer:
 	name: int = 0
 	def __init__(self, nb_input: int, nb_neurons: int, activation_function: callable, conf: dict[str, list[float] | list[list[float]]] = None):
@@ -87,23 +91,26 @@ class Layer:
 		return f"Layer(name={self.name}, neurons={len(self.neurons)})"
 	
 class Network:
-	def __init__(self, nb_hidden_layers: int, nb_neurons_per_layer: int, nb_inputs: int, nb_outputs: int, conf = None):
+	def __init__(self, **kwargs): 
+	#def __init__(self, nb_hidden_layers: int, nb_neurons_per_layer: int, nb_inputs: int, nb_outputs: int, conf = None):
 		self.input_layer: Layer
 		self.hidden_layers: list[Layer] = []
 		self.output_layer: Layer
-		self.nb_hidden_layers: int = nb_hidden_layers
-		self.nb_neurons_per_layer: int = nb_neurons_per_layer
+		self.nb_hidden_layers: int
+		self.nb_neurons_per_layer: int
 		
-		if (conf):
-			self.input_layer = Layer(nb_inputs, self.nb_neurons_per_layer, ReLu, conf["input_layer"])
-			for l in range(self.nb_hidden_layers):
-				self.hidden_layers.append(Layer(self.nb_neurons_per_layer, self.nb_neurons_per_layer, ReLu, conf[str(l)]))
-			self.output_layer = Layer(self.nb_neurons_per_layer, nb_outputs, ReLu, conf["output_layer"])
+		if ('conf' in kwargs):
+			self.set_conf(kwargs.get('conf'))
 		else:
-			self.input_layer = Layer(nb_inputs, self.nb_neurons_per_layer, ReLu)
+			self.nb_inputs = kwargs.get('nb_inputs', 7)
+			self.nb_outputs = kwargs.get('nb_outputs', 4)
+			self.nb_hidden_layers = kwargs.get('nb_hidden_layers', 3)
+			self.nb_neurons_per_layer = kwargs.get('nb_neurons_per_layer', 5)
+										  
+			self.input_layer = Layer(self.nb_inputs, self.nb_neurons_per_layer, ReLu)
 			for _ in range(self.nb_hidden_layers):
 				self.hidden_layers.append(Layer(self.nb_neurons_per_layer, self.nb_neurons_per_layer, ReLu))
-			self.output_layer = Layer(self.nb_neurons_per_layer, nb_outputs, ReLu)
+			self.output_layer = Layer(self.nb_neurons_per_layer, self.nb_outputs, ReLu)
 
 	def work(self, inputs: list[float]):
 		results: list[float] = []
@@ -138,5 +145,40 @@ class Network:
 		}
 		return results
 
+	def set_conf(self, conf: dict[str, dict[str, list[float] | list[list[float]]]]):
+		self.nb_inputs = len(conf['input_layer']['weights'][0])
+		self.nb_outputs = len(conf['output_layer']['biases'])
+		self.nb_hidden_layers = len(conf) - 2
+		self.nb_neurons_per_layer = len(conf['input_layer']['biases'])
+		self.hidden_layers = []
+
+		self.input_layer = Layer(self.nb_inputs, self.nb_neurons_per_layer, ReLu, conf['input_layer'])
+		for l in range(self.nb_hidden_layers):
+			self.hidden_layers.append(Layer(self.nb_neurons_per_layer, self.nb_neurons_per_layer, ReLu, conf[str(l)]))
+		self.output_layer = Layer(self.nb_neurons_per_layer, self.nb_outputs, ReLu, conf['output_layer'])
+
 	def __repr__(self):
 		return f"Network(layers={self.nb_hidden_layers})"
+
+# Testing
+# import json as json
+
+# def parse_json(file: str):
+# 	conf: list = []
+# 	with open(file, "r") as f:
+# 		conf = json.load(f)
+# 	return conf
+
+# if __name__ == '__main__':
+# 	network = Network(nb_inputs=4, nb_neurons_per_layer=5, nb_hidden_layers=2, nb_outputs=4)
+# 	conf = network.get_conf()
+# 	with open("data_training", "w") as f:
+# 		json.dump(conf, f)
+
+# 	# plus tard on aura une liste de dictionnaires
+# 	conf_from_json: dict[str, dict[str, list[float] | list[list[float]]]] = []
+# 	conf_from_json = parse_json("data_training")
+
+# 	network2 = Network(conf=conf_from_json)
+# 	with open("test2", "w") as f:
+# 		json.dump(network2.get_conf(), f)

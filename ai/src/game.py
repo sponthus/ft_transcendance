@@ -191,7 +191,10 @@ class PongGame:
 	
 	def get_ai_score(self):
 		return self.ai_score
-	
+
+	def get_crab_score(self):
+		return self.crab_score
+
 	def movePlayer1(self, action_nn):
 		if action_nn == 0 and self.paddle1['x'] > INFERIOR_PADDLE_LIMIT:
 			self.paddle1['x'] -= PLAYER_SPEED
@@ -269,7 +272,7 @@ class PongGame:
 			# self.reset() # To make game endless
 			self.ball['dirZ'] *= -1
 
-	def reset(self):
+	def reset(self, total: bool = False):
 		self.paddle1 = { 'x': 0 }
 		self.paddle2 = { 'x': 0 }
 		self.ball = {
@@ -288,6 +291,12 @@ class PongGame:
 		self.isSpellGo2 = False
 		self.specialCooldown1 = 3
 		self.specialCooldown2 = 3
+
+		# Reset scores
+		if (total):
+			self.score = { 's1': 0, 's2': 0 }
+			self.crab_score = 0
+			self.ai_score = 0
 
 	def crabmehameha(self, action_nn):
 		if (self.specialCooldown1 < 0):

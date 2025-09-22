@@ -135,7 +135,7 @@ def start_games(data):
 
 	def ai_thread(ai_id, results):
 		game = PongGame()
-		ai = Network(3, 5, 7, 4)
+		ai = Network(nb_input_layers=3, nb_neurons_per_layer=5, nb_inputs=7, nb_outputs=4)
 		print(ai.get_conf())
 
 		ticks_per_decision = int(1 / game.dt)
@@ -155,7 +155,7 @@ def start_games(data):
 				state['game_id'] = game_id
 				socketio.emit('state', state)
 				tick += 1
-				time.sleep(game.dt)
+				# time.sleep(game.dt)
 			results[ai_id].append(ai_score)
 			game = PongGame()
 
