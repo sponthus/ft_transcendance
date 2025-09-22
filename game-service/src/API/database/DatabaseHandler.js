@@ -125,6 +125,7 @@ export default class DatabaseHandler {
     }
 
     // Test ok
+	// Used internally only (gives userId)
     getGame(gameId) {
         const transaction = this.db.transaction((gameId) => {
 			const stmt = this.db.prepare(`

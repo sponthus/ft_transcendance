@@ -1,7 +1,8 @@
 import GameMaster from '../../GameMaster.js';
+import { checkIdFormat } from '../../tools/CheckFormat.js';
 
 // Starts a game server
-// Security : Road is protected to logged-in users, only a user can launch his own games
+// Security : Road is protected to logged-in users, only a user can launch his own games, protected versus SQLi
 export async function startGame(request, reply) {
 	console.log('➡️ User accessed POST /:gameId');
     
@@ -15,10 +16,14 @@ export async function startGame(request, reply) {
 		return reply.status(500).send({error: 'No database connection found.'});
 	}
 	
-	const { gameId } = request.params;
+	let { gameId } = request.params;
     if (!gameId) {
         return reply.status(400).send({error: 'No gameId found in request.'});
     }
+	if (checkIdFormat(gameId) === false) {
+		return reply.status(400).send({ error: "Bad gameId format"});
+	}
+	gameId = parseInt(gameId, 10);
 
     // Check if the game exists and is available to play and get its informations
     let userId = -1;
