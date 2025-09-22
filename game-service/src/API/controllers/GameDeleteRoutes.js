@@ -1,4 +1,8 @@
+import { checkGameIdFormat } from "../../tools/CheckFormat.js";
+
 // Tests ok
+// Secure with JWT and user ownership, input protected VS SQLi
+// Delete a game if it is pending and belongs to the requesting user
 export async function deleteGame(request, reply) {
 	console.log('➡️ User accessed DELETE /:gameId');
 
@@ -6,10 +10,14 @@ export async function deleteGame(request, reply) {
 	if (!requestingUserId)
 		return reply.status(401).send({ error: "Unauthorized"});
     
-	const { gameId } = request.params;
+	let { gameId } = request.params;
     if (!gameId) {
         return reply.status(400).send({error: 'No gameId found in request.'});
     }
+	if (checkGameIdFormat(gameId) === false) {
+		return reply.status(400).send({ error: 'Bad gameId format.'});
+	}
+	gameId = parseInt(gameId, 10);
 
     const { db } = request.server;
     if (!db) {
