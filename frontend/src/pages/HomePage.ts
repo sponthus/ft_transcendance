@@ -5,8 +5,6 @@ import { checkLog } from "../api/user-service/connection/check-log.js";
 import { getUserInfoBySlug } from "../api/user-service/user-info/getUserInfo.js";
 import { markNotificationsRead } from "../api/user-service/menu/notifications/markNotificationRead.js";
 import { getAllNotifications } from "../api/user-service/menu/notifications/getNotifications.js";
-import { addFriend, removeFriend } from "../api/user-service/menu/friendsList/friendRequest.js";
-import { acceptRequest } from "../api/user-service/menu/friendsList/requestHandlers.js";
 
 export class HomePage extends BasePage {
 
@@ -32,16 +30,6 @@ export class HomePage extends BasePage {
 		}
 		else {
 			await this.rengerLogoutHome();
-		}
-
-		let req = await addFriend('pedro');
-		{
-			if (req.ok)
-			{
-				console.log('CA AMERCHER');
-			}
-			else
-				alert (req.error);
 		}
 		
 	await this.addInApp();
