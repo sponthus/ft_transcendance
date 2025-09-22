@@ -10,7 +10,7 @@ import logger from "../config/logger.js";
 import env from "../config/env.js";
 
 import DatabaseConnector from "./API/database/DatabaseConnector.js";
-import routes from "./routes.js";
+import routes from "./API/routes.js";
 import WebSocketManager from "./WebSocketManager.js";
 
 const __filename = fileURLToPath(import.meta.url);
