@@ -17,6 +17,30 @@ export function    checkSlugFormat(slug)
     return (true);
 }
 
+export function	checkGameCreationFormat(request)
+{
+	const schema = 
+	{
+		type: "object",
+		properties:
+		{
+			player_a: { type: "string", minLength: 1, maxLength: 15, pattern: "^[a-z0-9]+(-[0-9]+)?$" },
+			player_b: { type: "string", minLength: 1, maxLength: 15, pattern: "^[a-z0-9]+(-[0-9]+)?$" },
+			requestedMaxScore: { type: "integer", minimum: 1, maximum: 21 },
+			requestedAi: { type: "string", enum: ["0", "1"] },
+			requestedOption: { type: "string", enum: ["0", "1"] }
+		},
+		required: [player_a, player_b],
+		additionalProperties: false
+	};
+	const ajv = new Ajv();
+	const BodyContract = ajv.compile(schema);
+	const valid = BodyContract(request.body);
+	if (!valid)
+		return (false);
+	return (true);
+}
+
 export function    checkUsernameFormat(request)
 {
     const schema = 
