@@ -3,7 +3,7 @@
 import { renderBaseBanner, renderLoggedInBanner, renderLoggedOutBanner } from "./Banner";
 import { checkLog } from "../api/user-service/connection/check-log";
 import { getUserInfo } from "../api/user-service/user-info/getUserInfo";
-import { Socket } from "../core/Socket";
+import { SessionSocket } from "../core/SessionSocket.js";
 
 export abstract class BasePage {
     protected app: HTMLElement;
@@ -34,7 +34,7 @@ export abstract class BasePage {
                 return; // Afficher une erreur ??
             }
             const userData = req.userInfo;
-            const socket = Socket.getInstance(userData.id); //Creation du socket du user
+            const socket = SessionSocket.getInstance(); //Creation du socket du user
             await renderLoggedInBanner(this.banner, userData);
         }
         else {
@@ -43,14 +43,14 @@ export abstract class BasePage {
         }
     }
 
-    protected initBackground(): HTMLElement {
-        const BackgroundHome = document.createElement('div');
-        BackgroundHome.className = "flex flex-col items-center min-h-screen p-8";
-        BackgroundHome.style.backgroundImage = "url('/background1.gif')";
-        BackgroundHome.style.backgroundSize = "cover";
-        BackgroundHome.style.backgroundPosition = "center";
-        return BackgroundHome;
-    }
+	protected initBackground(): HTMLElement {
+		const BackgroundHome = document.createElement('div');
+		BackgroundHome.className = "flex flex-col items-center h-screen min-h-[540px] w-screen min-w-[960px] p-8";
+		BackgroundHome.style.backgroundImage = "url('/background1.gif')";
+		BackgroundHome.style.backgroundSize = "cover";
+		BackgroundHome.style.backgroundPosition = "center";
+		return BackgroundHome;
+	}
     // Optional : does nothing, can be overloaded if needed, to destroy listeners
     destroy(): void { }
 }

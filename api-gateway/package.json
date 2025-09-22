@@ -10,11 +10,12 @@
   },
   "author": "sponthus",
   "dependencies": {
-	"fastify": "^5.3.3",
     "@fastify/http-proxy": "^11.2.0",
     "@fastify/jwt": "^9.1.0",
+    "@fastify/rate-limit": "^10.3.0",
     "env-schema": "^6.0.1",
-	"path": "^0.12.7",
-    "nodemon": "^3.1.10"
+    "fastify": "^5.3.3",
+    "nodemon": "^3.1.10",
+    "path": "^0.12.7"
   }
 }

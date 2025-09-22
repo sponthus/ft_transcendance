@@ -5,88 +5,123 @@ import GameMaster from "./GameMaster.js";
 // Handles game logic for one game actually running
 export default class GameServer {
     
-    constructor(gameId, userId, ws, maxScore) {
+    constructor(gameId, tournamentId, userId, maxScore, ai, option) {
         this.gameId = gameId;
+		this.tournamentId = tournamentId;
         this.userId = userId;
-        this.ws = ws;
+        this.ws = null;
         this.state = 'paused';
         this.maxScore = maxScore;
-        console.log("Game server up");
+		this.ai = ai;
+		this.option = option;
+        console.log("🟢 Game server up");
 
         this.scoreA = 0;
         this.scoreB = 0;
         this.end = false;
 
-        // TODO : Don't forget to start game when player launches the game (press space ?)
-        this.startGame();
-        // à chaque tick du serveur
-        const game = new PongGame();
-        this.intervalId = setInterval(() => {
-            // Appliquer les inputs pour déplacer le paddle
-            game.update();
-            // broadcast du nouvel état
-            const stateMsg = JSON.stringify({
-                type: "stateUpdate",
-                gameState: game.getState()
-            });
-            this.scoreA = game.getState().score.s1;
-			this.scoreB = game.getState().score.s2;
-            // balance le message a tout les players connecté
-            if (this.ws.readyState === 1) {
-				this.ws.send(stateMsg);
-			}
-			if ((this.scoreA >= this.maxScore || this.scoreB >= this.maxScore) && this.end === false) {
-                this.end = true;
-				this.endGame();
-            }
-        }, 16); // 60fps
-
-        // quand un client se connecte
-        //this.ws.on("connection", (ws) => {
-            this.ws.on("message", (msg) => {
-                let data;
-
-                try
-                {
-                    data = JSON.parse(msg);
-                }
-				catch (err)
-                {
-                    console.error("ERR: JSON :", msg);
-                    return;
-                }
-
-                switch (data.type) {
-                    case "input":
-                        game.setInputs(data.playerId, data.input);
-                        break;
-
-                    case "gameMode":
-                        game.setGameMode(data.mode, data.option);
-                        break;
-
-                    case "ping":
-                        ws.send(JSON.stringify({ type: 'pong' }));
-                        break;
-
-                    default:
-                        console.warn("ERR: Type inconnu :", data.type);
-                }
-        //    });
-        });
+		// this.statusId = setInterval(() => {
+        //     console.log("I exist");
+        // }, 600); // 60fps
     }
 
-    setHandlers() {
+	sendToWs(ws, message, log) {
+		if (ws.readyState == 1) {
+			ws.send(JSON.stringify(message));
+			if (log)
+				console.log(`Message sent to socket:`, message);
+		} else {
+			console.warn(`❌ Cannot send message to socket: disconnected`);
+		}
+	}
+
+	addWs(ws) {
+		if (this.ws) {
+			console.error(`Game already has a ws`);
+			return;
+		}
+		this.ws = ws;
+		this.game = new PongGame(this.gameId, this.ai, this.option);
+		this.setHandlers(this.game);
+	}
+
+    setHandlers(game) {
+		console.log("Handlers are set");
         this.ws.on('close', () => {
-            gameEventEmitter.emitGameEvent('player:disconnected', this.gameId);
-            this.destroy();
+            if (this.end == false) {
+				gameEventEmitter.emitGameEvent('player:disconnected', this.gameId, {
+					tournamentId: this.tournamentId
+				});
+				this.destroy();
+			}
         });
-        // Add handler for incoming message with paddle-move
+
+		this.ws.on("message", (msg) => {
+			let data;
+
+			try
+			{
+				data = JSON.parse(msg);
+			}
+			catch (err)
+			{
+				console.error("ERR: JSON :", msg);
+				return;
+			}
+
+			switch (data.type) {
+				case "input":
+					game.setInputs(data.input);
+					break;
+
+				case "start":
+					this.startGame();
+					break;
+
+				default:
+					console.warn("ERR: Type inconnu :", data.type);
+			}
+		});
+
+		this.ws.on('error', (error) => {
+			if (this.end == false) {
+				gameEventEmitter.emitGameEvent('player:disconnected', this.gameId, {
+					tournamentId: this.tournamentId
+				});
+				this.destroy();
+			}
+		});
     }
 
     startGame() {
         this.state = 'playing';
-        gameEventEmitter.emitGameEvent('game:started', this.gameId);
+        gameEventEmitter.emitGameEvent('game:started', this.gameId, {
+			tournamentId: this.tournamentId
+		});
+
+        // à chaque tick du serveur
+        this.intervalId = setInterval(() => {
+            // Appliquer les inputs pour déplacer le paddle
+            this.game.update();
+            // broadcast du nouvel état
+            const stateMsg = JSON.stringify({
+                type: "stateUpdate",
+                gameState: this.game.getState()
+            });
+            this.scoreA = this.game.getState().score.s1;
+			this.scoreB = this.game.getState().score.s2;
+            // balance le message a tout les players connecté
+            if (this.ws.readyState === 1) {
+				this.ws.send(stateMsg);
+			} else {
+				console.log("❌ Unable to send game state");
+			}
+			if ((this.scoreA >= this.maxScore || this.scoreB >= this.maxScore) && this.end === false) {
+                this.end = true;
+				this.state == "finished";
+				this.endGame();
+            }
+        }, 16); // 60fps
     }
 
     endGame() {
@@ -107,17 +142,23 @@ export default class GameServer {
 				scoreA: this.scoreA,
 				scoreB: this.scoreB
             }));
+		} else {
+			console.log(" ❌ Unable to send endGame");
 		}
-        this.state = 'finished';
         gameEventEmitter.emitGameEvent('game:ended', this.gameId, {
             scoreA: this.scoreA,
             scoreB: this.scoreB
         });
+		if (this.tournamentId != 0) {
+			gameEventEmitter.emitTournamentEvent('tournament:endgame', this.tournamentId, {
+				gameId: this.gameId
+			});
+		}
         this.destroy();
     }
 
     destroy() {
         clearInterval(this.intervalId);
-        GameMaster.getInstance().endServer(this.userId);
+        GameMaster.getInstance().endServer(this.gameId);
     }
 }

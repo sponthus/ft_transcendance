@@ -1,6 +1,6 @@
 // Possible results for request
 type AvatarUploadSuccess = { ok: true; avatar: string };
-type Failure = { ok: false; error: string };
+type Failure = { ok: false; error?: string };
 
 // Union of possibilities for the type of answer
 export type AvatarUploadResult = AvatarUploadSuccess | Failure;
@@ -10,7 +10,7 @@ export async function uploadAvatar(slug: string, formData: FormData): Promise<Av
     // TODO = Better log check
     const token = localStorage.getItem("token");
     if (!token) {
-        return { ok: false, error: "No token found" };
+        return { ok: false };
     }
 
     // TODO = Check the file here ?

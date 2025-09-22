@@ -1,6 +1,6 @@
 type UserInfo = //VA ETRE CHANGER, le token renvoie le username et l'id du user
 {
-    id: number
+    id?: number
     username: string;
     nickname: string;
     avatar: string;
@@ -9,7 +9,7 @@ type UserInfo = //VA ETRE CHANGER, le token renvoie le username et l'id du user
 };
 
 type getUserInfoSuccess = {ok: true; userInfo: UserInfo}
-type Failure = { ok: false; error: string };
+type Failure = { ok: false; error?: string };
 
 export type GetUserInfoResult = getUserInfoSuccess | Failure 
 
@@ -17,12 +17,35 @@ export async function   getUserInfo() : Promise<GetUserInfoResult>
 {
     const token = localStorage.getItem("token");
     if (!token) {
-		return { ok: false, error : "No token found" };
+        console.log("getUserInfo : no token found");
+		return { ok: false };
 	}
     const res = await fetch('/api/user/user-info', 
     {
         method: 'GET',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },    
+    });
+    const data = await res.json();
+    if (res.ok)
+    {
+        return ({ ok: true, userInfo: data.userInfo })   
+    }
+    return ({ ok: false, error: data.error });
+}
+
+
+//PROBLEME avec cette requete, ne marche pas bien
+export async function   getUserInfoBySlug(slug: string) : Promise<GetUserInfoResult>
+{
+    const token = localStorage.getItem("token");
+    if (!token) {
+        console.log("getUserInfo : no token found");
+		return { ok: false };
+	}
+    const res = await fetch(`/api/user/user-info/other/${slug}`, 
+    {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }, 
     });
     const data = await res.json();
     if (res.ok)

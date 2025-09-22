@@ -18,7 +18,7 @@ export class BabylonSceneBuilder
 	constructor(scene: Babylon.Scene, canvas: HTMLCanvasElement, engine: Babylon.Engine)
 	{
 		this._canvas = canvas;
-		this._scene = scene
+		this._scene = scene;
 		this._engine = engine;
 	
 		this.initializeCamera();
@@ -46,13 +46,9 @@ export class BabylonSceneBuilder
 	{
 		//this._ball = Babylon.MeshBuilder.CreateBox("ball", {width: 0.5, height: 0.5, depth:0.5}) as BallMesh;
 		this._ball = Babylon.MeshBuilder.CreateSphere("ball", { diameter: 0.5}, this._scene) as BallMesh;
-		this._ball.position.y = 0.4;
+		this._ball.position.y = 0;
 		//this._ball.direction = new Babylon.Vector3(0.1, 0, 0.5);
-		this._ball.direction = new Babylon.Vector3(
-						Math.random() * 0.2 - 0.1,
-						0,
-						Math.random() > 0.5 ? 0.15 : -0.15
-					).normalize();
+		this._ball.direction = Babylon.Vector3.Zero();
 		this._ball.speed = 0;
 	}
 
@@ -71,5 +67,10 @@ export class BabylonSceneBuilder
 	get engine(): Babylon.Engine
 	{
 		return this._engine;
+	}
+
+	get light(): Babylon.HemisphericLight
+	{
+		return this._light;
 	}
 }

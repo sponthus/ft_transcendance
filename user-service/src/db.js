@@ -7,7 +7,7 @@ import env from "../config/env.js"; //ou c'est ? sert a quoi ?
 // Initializes database from a file spec. in env variables, default = ./blog.db
 async function dbConnector(fastify, options)
 {
-    const dbFile = env.dbFile || "./users.db";
+    const dbFile = env.usersDbFile || "./users.db";
     const db = new Database(dbFile, { verbose: console.log });
    
     //FAIRE UNE TRANSACTION
@@ -16,7 +16,7 @@ async function dbConnector(fastify, options)
         db.exec(`
         CREATE TABLE IF NOT EXISTS users (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            username TEXT UNIQUE NOT NULL,
+            username TEXT UNIQUE NOT NULL COLLATE BINARY,
             slug TEXT UNIQUE NOT NULL,
             avatar TEXT NOT NULL,
             pw_hash TEXT NOT NULL,
@@ -37,7 +37,7 @@ async function dbConnector(fastify, options)
             menu_color_g INTEGER DEFAULT 0 CHECK(menu_color_g BETWEEN 0 AND 255),
             menu_color_b INTEGER DEFAULT 0 CHECK(menu_color_b BETWEEN 0 AND 255),
             menu_asset_character INTEGER DEFAULT 0 CHECK(menu_asset_character BETWEEN 0 AND 18),
-            menu_asset_npc INTERGER DEFAULT 0 CHECK(menu_asset_character BETWEEN 0 AND 11),
+            menu_asset_npc INTERGER DEFAULT 0 CHECK(menu_asset_npc BETWEEN 0 AND 11),
             FOREIGN KEY (menu_user_id) REFERENCES users(id)
         );
     `); //status : 0 = en attente, 1 = accepté, 2 = refusé
@@ -46,7 +46,7 @@ async function dbConnector(fastify, options)
             frie_id INTEGER PRIMARY KEY AUTOINCREMENT,
             frie_user_id INTEGER NOT NULL,
             frie_friend_user_id INTEGER NOT NULL,
-            frie_status INTEGER NOT NULL CHECK(frie_status BETWEEN 0 AND 2),
+            frie_status INTEGER NOT NULL CHECK(frie_status BETWEEN 0 AND 1),
             FOREIGN KEY (frie_user_id) REFERENCES users(id),
             FOREIGN KEY (frie_friend_user_id) REFERENCES users(id)
         );

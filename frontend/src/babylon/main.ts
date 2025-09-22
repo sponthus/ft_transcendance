@@ -1,17 +1,17 @@
 import "@babylonjs/core/Debug/debugLayer";
 import * as BABYLON from "@babylonjs/core";
+import * as ADDONS from "@babylonjs/addons"
 import "@babylonjs/loaders/glTF";
-import	{DropDownMenu } from "./menu/dropDownMenu";
+import	{DropDownMenu } from "./menu/dropDownMenu.js";
 import { BasePage } from "../pages/BasePage.js";
-import { renderScene } from "./displaying/renderScene";
-import { renderMap } from "./displaying/renderMap";
-import { renderAnimation } from "./displaying/animations";	
-import { PlayerInput } from "./displaying/inputController";
+import { renderScene } from "./displaying/renderScene.js";
+import { renderMap } from "./displaying/renderMap.js";
+import { renderAnimation } from "./displaying/animations.js";	
+import { PlayerInput } from "./displaying/inputController.js";
 import { renderGround } from "./displaying/renderGround.js";
-// import { Player } from "./displaying/characterController";
-import { renderAsset } from "./displaying/renderAsset";
-import { sleep } from "./displaying/dialogueBox";
-
+import { renderAsset } from "./displaying/renderAsset.js";
+import { sleep } from "./displaying/dialogueBox.js";
+import { renderBaseBanner, renderLoggedInBanner} from "../pages/Banner.js";
 
 export class Game extends BasePage {
 
@@ -35,13 +35,12 @@ export class Game extends BasePage {
 	}
 
 	async render(): Promise<void>  {
-		//document.body.innerHTML = "";
 		await this.renderBanner();
 		try {
-			this._renderScene = new renderScene();
+			this._renderScene = new renderScene(this.app);
 			if (this._renderScene.engine)
 				this._renderScene.engine.displayLoadingUI();
-
+			
 			if (this._renderScene.homeScene) {
 				this._renderAsset = new renderAsset(this._renderScene.homeScene);
 				await this._renderAsset._load();
@@ -54,6 +53,21 @@ export class Game extends BasePage {
 				await this._renderGround._loadground();
 		
 				this._input = new PlayerInput(this._renderScene.homeScene, this._renderAsset, this._animation, this._renderScene);
+
+				// /*******create HTMLMesh Banner**********/ /*****find way to use tqilwindcss with htmlmesh */
+				// const BannerMesh = new ADDONS.HtmlMeshRenderer(this._renderScene!.homeScene);
+				
+				// const BannerMeshDiv = new ADDONS.HtmlMesh(this._renderScene!.homeScene, "banner-div-mesh");
+				// BannerMeshDiv.billboardMode = BABYLON.Mesh.BILLBOARDMODE_ALL;
+				
+				// const DivBanner = document.createElement('div');
+				// DivBanner.className = 'h-full w-full';
+				// renderBaseBanner(DivBanner);
+				// await renderLoggedInBanner(DivBanner);
+
+				// console.log("DivBanner HTML:", DivBanner.innerHTML);
+				// BannerMeshDiv.setContent(DivBanner, window.innerWidth,  window.innerHeight / 400);
+				// BannerMeshDiv.position.y = 28;
 			}
 
 			await sleep(100);

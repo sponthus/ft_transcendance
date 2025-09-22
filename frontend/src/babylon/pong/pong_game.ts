@@ -26,9 +26,16 @@ export class PongGame  {
 				this._sceneBuilder!.scene,
 				this._sceneBuilder!.engine,
 				this._displayAssets.crab1,
-				this._displayAssets.crab2
+				this._displayAssets.crab2,
+				this._displayAssets.menuPause,
+				this._sceneBuilder!.light
 			);
 		}
 	}
 
+	get GamePhysics(): GamePhysics | null{
+		if (this._gamePhysics)
+			return this._gamePhysics;
+		return null;
+	}
 }

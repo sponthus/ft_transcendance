@@ -2,8 +2,8 @@
 
 import * as BABYLON from "@babylonjs/core";
 import * as GUI from "@babylonjs/gui";
-import { Color } from "../Color";
-import { state } from "../../ui/state";
+import { Color } from "../Color.js";
+import { state } from "../../ui/state.js";
 import { navigate } from '../../router.js';
 
 export function sleep(ms: number) {

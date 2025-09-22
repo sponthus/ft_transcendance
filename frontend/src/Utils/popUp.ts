@@ -16,7 +16,7 @@ export class popUp{
 	private initOverlay() {
 		this._Overlay = document.createElement('div');
 		this._Overlay.id = "PopUp";
-		this._Overlay.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+		this._Overlay.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 h-screen min-h-[540px] w-screen min-w-[960px] ';
 	}
 
 	private initBody() {
@@ -32,7 +32,7 @@ export class popUp{
 		this._Body.appendChild(this._Title);
 	}
 
-	cleanBody(Title: string) {
+	cleanBody() {
 		Array.from(this._Body.children).forEach((child, index)=>{
 			if (index == 0)
 				return ;
@@ -46,6 +46,12 @@ export class popUp{
 
 	appendToBody(content: any) {
 		this._Body.appendChild(content);
+	}
+
+	appendsToBody(contents: any[]) {
+		contents.forEach(content => {
+			this._Body.appendChild(content);
+		})
 	}
 
 	addOverlayToWindow() {
@@ -67,5 +73,4 @@ export class popUp{
 	get OverlayDiv() :HTMLElement {
 		return this.OverlayDiv;
 	}
-	
 }

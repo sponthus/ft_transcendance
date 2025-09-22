@@ -3,10 +3,8 @@ import { BasePage } from '../pages/BasePage.js';
 import { HomePage } from '../pages/HomePage.js';
 import { LoginPage } from '../pages/LoginPage.js';
 import { RegisterPage } from '../pages/RegisterPage.js';
-import { SettingPage } from "../pages/SettingPage.js";
-import { UserPage } from '../pages/UserPage.js';
-import { GamePage } from '../pages/GamePage.js';
-import { LocalGamePage } from "../pages/LocalGamePage.js";
+import { SettingPage } from "../pages/setting-page/SettingPage.js";
+import { UserPage } from '../pages/User-Pages/UserPage.js';
 import { getUserInfo } from "../api/user-service/user-info/getUserInfo.js";
 
 let currentPage: BasePage | null = null;
@@ -34,6 +32,7 @@ export async function renderRoute(path: string) {
         dynamicPart = path.slice('/user/'.length);
 		path = '/user';
     }
+
     console.log("before navigation" + userData?.username);
 	// Static routes
 	switch (path) {
@@ -41,26 +40,43 @@ export async function renderRoute(path: string) {
 			currentPage = new HomePage();
 			break;
 		case '/login':
+			if (userData) {
+				await navigate('/');
+				return ;
+			}
 			currentPage = new LoginPage();
 			break;
 		case '/register':
+			if (userData) {
+				await navigate('/');
+				return ;
+			}
 			currentPage = new RegisterPage();
 			break;
 		case '/game':
+			if (!userData) {
+				await navigate('/login');
+				return ;
+			}
 			console.log("state user :", userData)
 			console.log("user slug :", userData?.slug);
 			currentPage = new Game(userData!.slug);
 			// currentPage = new LocalGamePage();
 			break;
 		case '/user':
+			if (!userData) {
+				await navigate('/login');
+				return ;
+			}
 			currentPage = new UserPage(dynamicPart);
 			break;
 		case '/setting':
+			if (!userData) {
+				await navigate('/login');
+				return ;
+			}
 			currentPage = new SettingPage();
 			break;
-		// case '/tournament':
-		//     currentPage = new buttonClass(); // TODO = DEBUG only
-		//     break;
 		default:
 			currentPage = null;
 			break;

@@ -18,7 +18,6 @@ export class PlayerInput {
 	private	_animation: renderAnimation
 	private _previousAngle: number | null = null; //player angle state
 
-	private _inGame: boolean;
 	private _isOpen: boolean;
 
 	private _dialoguePong?: dialogueBox;
@@ -38,7 +37,6 @@ export class PlayerInput {
 		this._npc = assets.npc;
 	
 		this._renderscene = renderScene;
-		this._inGame = false;
 		this._isOpen = false;
 
 		this._dialoguePong = new dialogueBox("press 'E' to\n play pong", scene, this._sandCastle);
@@ -114,7 +112,7 @@ export class PlayerInput {
 		const proximityThreshold = 10;
 		if (this._player && this._sandCastle) {
 			const distance = BABYLON.Vector3.Distance(this._sandCastle.position, this._player.position);
-			if (distance < proximityThreshold && !this._dialoguePong?._isvisible() && !this._inGame) {
+			if (distance < proximityThreshold && !this._dialoguePong?._isvisible()) {
 				this._dialoguePong!.showDialogue();
 				console.log("showing dialogue", this._dialoguePong?._isvisible());
 			}
@@ -125,14 +123,10 @@ export class PlayerInput {
 			if (this._dialoguePong?._isvisible()) {
 				if (this._inputMap['e'] ||  this._inputMap['E']){
 					console.log("launch Game");
-					// if (this._scene && this._scene.activeCamera) {
-					// 	console.log("pos active camera", this._scene.activeCamera.position);
-					// 	// do animation cameras or loading scene for transition
-					// }
+
 					this._dialoguePong!.hideDialogue();
 					this._inputMap['e'] = false;
 					this._inputMap['E'] = false;
-					this._inGame = true;
 					this._renderscene.setState = 1;
 					this._scene?.getEngine().displayLoadingUI();
 					await sleep(500);
