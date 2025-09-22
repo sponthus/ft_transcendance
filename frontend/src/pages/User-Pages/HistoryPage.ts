@@ -9,7 +9,7 @@ export async function DisplayHistoryPage(Body: HTMLElement, UserData: UserInfo) 
 	// Body.textContent = "i'm in the History body";
 	Body.className = "flex flex-col items-center bg-orange-300  bg-opacity-50 w-full h-[60%] flex overflow-auto";
 	try {
-		const res = await getFinishedGames(UserData.id!); // replace by id
+		const res = await getFinishedGames(UserData.slug!); // replace by id
 		// const res = await  (UserData.id);
 		if (!res.ok) {
 			Body.textContent = "Error loading games... please retry ";

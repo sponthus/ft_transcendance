@@ -1,8 +1,9 @@
-import { addFriend } from '../../api/user-service/menu/friendsList/friendRequest.js';
-import { getSentRequests } from '../../api/user-service/menu/friendsList/requestHandlers.js';
+import { addFriend, removeFriend } from '../../api/user-service/menu/friendsList/friendRequest.js';
+import { acceptRequest, getSentRequests, rejectRequest } from '../../api/user-service/menu/friendsList/requestHandlers.js';
 import { createDiv, createElement, createButton, append, createImage} from '../../Utils/elementMaker.js';
 import { EditProfile } from './EditProfile.js';
 import { getAllFriends } from '../../api/user-service/menu/friendsList/friendRequest.js';
+import { UserInfo } from '../../api/user-service/user-info/getUserInfo.js';
 
 enum BodyState {PROFILE = 0, FRIENDS = 1, HISTORY = 2};
 
@@ -10,26 +11,24 @@ export class UserBanner {
 	
 	private StateBody!: number;
 	private ProfileBanner!: HTMLElement;
-	private UserData: any;
+	private UserData: UserInfo;
 	private isOwnProfile!: boolean;
-	private isRequestSent!: boolean;
-	private isFriend!: boolean;
+	// private isRequestSent!: boolean;
+	// private isFriend!: boolean;
 	private EditProfile: EditProfile;
 
-	constructor(UserData: any, isOwnProfile: boolean) {
-		this.isFriend = false;
-		this.isRequestSent = false;
+	constructor(UserData: UserInfo, isOwnProfile: boolean) {
+		// this.isFriend = false;
+		// this.isRequestSent = false;
 		this.UserData = UserData;
 		this.isOwnProfile = isOwnProfile;
 		this.StateBody = BodyState.PROFILE;
 		this.ProfileBanner = createDiv('profile-banner', "flex flex-col w-full h-[40%]");
 		this.EditProfile = new EditProfile(this.UserData);
-		console.log("is already friend ? ", this.isFriend);
+		// console.log("is already friend ? ", this.isFriend);
 	}
 
 	async render() {
-		if (!this.isOwnProfile)
-			await this.isAlreadyFriend();
 		this.createProfileHighBanner();
 		this.createProfileBotBanner();
 	}
@@ -37,9 +36,8 @@ export class UserBanner {
 	private createProfileHighBanner() {
 		const HighBanner: HTMLElement = createDiv("HighBanner", "flex w-full h-[80%] justify-between p-4 bg-sky-400 bg-opacity-50 shadow-md");
 		append(HighBanner, [(this.setUserInfo() as HTMLElement)]);
-		if (!this.isOwnProfile && this.isFriend == false) {
-			append(HighBanner, [this.setFriendRequestBtn()]);
-		}
+		if (!this.isOwnProfile) 
+			append(HighBanner, [this.setButtonUserProfile()!]);
 		append(this.ProfileBanner, [HighBanner]);
 	}
 
@@ -93,48 +91,27 @@ export class UserBanner {
 		return AvatarDiv;
 	}
 
-	private setFriendRequestBtn(): HTMLButtonElement {
-		const friendRequestBtn: HTMLButtonElement =(createButton('friend-request', "self-end text-emerald-600 hover:font-bold border-2 border-sky-500 hover:border-sky-600 rounded-lg p-4 h-[20%]", "friend request") as HTMLButtonElement);
-
-		this.isRequestAlreadysent(friendRequestBtn);
-
-		return friendRequestBtn;
+	private setButtonUserProfile() : HTMLElement | null{
+		if (this.UserData.friendship_status === "none")
+			return (createButton('friend-request', "self-end text-emerald-600 hover:font-bold border-2 border-sky-500 hover:border-sky-600 rounded-lg p-4 h-[20%]", "friend request") as HTMLElement);
+		else if (this.UserData.friendship_status === "request_sent")
+			return (createButton('request-sent', "self-end text-emerald-600 border-2 border-sky-500 rounded-lg p-4 h-[20%]", "friend request sent...") as HTMLElement);
+		else if (this.UserData.friendship_status === "request_received")
+			return this.addAcceptAndDeclineBtn();
+		else if (this.UserData.friendship_status === "friends")
+			return (createButton('remove-friend', "self-end text-emerald-600 hover:font-bold border-2 border-sky-500 hover:border-sky-600 rounded-lg p-4 h-[20%]", "remove friend") as HTMLElement);
+		return null;
 	}
 
-	private async isRequestAlreadysent(requestBtn: HTMLButtonElement) {
-		try {
-			const req = await getSentRequests();
-			if (req.ok) {
-				const requestSent = req.requests;
-				requestSent?.forEach(value => {
-					if (value.username === this.UserData.username) {
-						this.isRequestSent = true;
-						requestBtn.textContent = "friend request sent...";
-					}
-				})
+	private addAcceptAndDeclineBtn(): HTMLElement {
+		const btnDiv = createDiv(`btn-invitation`, 'self-end flex items-center h-[20%] justify-between space-x-8') as HTMLElement;
 
-			}
-		} catch (error){
-			alert(error);
-		}
+		let accept: HTMLButtonElement= (createButton(`accept`, 'px-4 text-orange-100 bg-emerald-600 rounded-xl group-hover:text-orange-200 hover:font-bold hover:bg-emerald-700 transition-all 	duration-200', 'accept') as HTMLButtonElement);
+		let decline: HTMLButtonElement = (createButton(`decline`, 'px-4 text-orange-100 bg-red-500 rounded-xl group-hover:text-orange-200 hover:font-bold hover:bg-red-600 transition-all duration-200', 	'decline') as HTMLButtonElement);
+		append(btnDiv, [accept, decline]);
+		return btnDiv;
 	}
 
-	private async isAlreadyFriend() {
-		try {
-			const req = await getAllFriends();
-			if (req.ok) {
-				const friendsList = req.friends;
-				friendsList?.forEach(friend => {
-					console.log("username of friend : ", friend.username)
-					if (friend.username === this.UserData.username) {
-						this.isFriend = true;
-					}
-				})
-			}
-		} catch(error) {
-			alert(error)
-		}
-	}
 	/*************************************Functions for creating Profile botBanner*************************************/
 	private  setButtonsBanner() : HTMLElement {
 		const BotBanner: HTMLElement = createDiv('BotBanner', "flex items-center justify-center bg-sky-500 bg-opacity-50 shadow-md w-full h-[20%] font-sans");
@@ -166,19 +143,53 @@ export class UserBanner {
 	}
 
 	async managefriendrequest() {
-		if (this.isRequestSent === true)
-			return ;
-		console.log('manage friend request function called');
 		(document.getElementById('friend-request-btn')?.addEventListener('click', async() => {
 			console.log('send a friend request');
 			try {
 				const req = await addFriend(this.UserData.username);
 				if (req.ok) {
-					this.isRequestSent = true;
 					document.getElementById('friend-request-btn')!.textContent = "friend request sent...";
 					console.log("succesfully add friend request");
+					location.reload();
 				}
 			}catch (error) {
+				alert(error);
+			}
+		}));
+		(document.getElementById('remove-friend-btn')?.addEventListener('click', async() => {
+			try {
+				const req = await removeFriend(this.UserData.slug);
+				if (req.ok) {
+					console.log("frien remove succesfuly");
+					location.reload();
+				}
+			} catch (error) {
+				alert(error);
+			}
+		}));
+		(document.getElementById('accept-btn')?.addEventListener('click', async() => {
+			try {
+				const req = await acceptRequest(this.UserData.username);
+				if (req.ok) {
+					alert("accept invitation of " + this.UserData.username);
+					console.log("acctp invitation of ", this.UserData.username);
+					location.reload();
+				}
+
+			} catch(error) {
+				alert(error);
+			}
+		}));
+		(document.getElementById('decline-btn')?.addEventListener('click', async() => {
+			try {
+				const req = await rejectRequest(this.UserData.username);
+				if (req.ok) {
+					alert("decline invitation of " + this.UserData.username);
+					console.log("acctp invitation of ", this.UserData.username);
+					location.reload();
+				}
+
+			} catch(error) {
 				alert(error);
 			}
 		}))

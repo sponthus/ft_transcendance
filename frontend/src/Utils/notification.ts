@@ -177,7 +177,7 @@ function addInvitation(userdata: UserInfo) : HTMLAnchorElement {
 	const invitationTextDiv = createDiv(`invitation-text-${userdata.slug}`, 'flex flex-col items-center');
 	invitationTextDiv.innerHTML = `<P class="text-emerald-600 group-hover:font-bold">user ${userdata.username} has send you an invitation</p>`;
 
-	const btnDiv = createDiv(`btn-invitation-${userdata.slug}`, 'fles items-center justify-between space-x-8') as HTMLElement;
+	const btnDiv = createDiv(`btn-invitation-${userdata.slug}`, 'flex items-center justify-between space-x-8') as HTMLElement;
 
 	let accept: HTMLButtonElement= (createButton(`accept-${userdata.slug}`, 'px-4 text-orange-100 bg-emerald-600 rounded-xl group-hover:text-orange-200 hover:font-bold hover:bg-emerald-700 transition-all duration-200', 'accept') as HTMLButtonElement);
 	let decline: HTMLButtonElement = (createButton(`decline-${userdata.slug}`, 'px-4 text-orange-100 bg-red-500 rounded-xl group-hover:text-orange-200 hover:font-bold hover:bg-red-600 transition-all duration-200', 'decline') as HTMLButtonElement);
