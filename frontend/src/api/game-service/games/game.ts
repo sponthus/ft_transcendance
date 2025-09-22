@@ -21,7 +21,6 @@ type PendingGamesInfos = {
 type AllGamesInfos = {
     id: number;
     status: 'pending' | 'ongoing' | 'finished' | 'canceled';
-    id_user: number,
     player_a: string;
     player_b: string;
     score_a: number;

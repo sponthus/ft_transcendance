@@ -94,7 +94,20 @@ export default class DatabaseHandler {
     getGamesForUserId(userId) {
         const transaction = this.db.transaction((userId) => {
 			const stmt = this.db.prepare(`
-	SELECT *
+	SELECT id, 
+		status, 
+		player_a, 
+		player_b, 
+		score_a, 
+		score_b, 
+		tournament_id, 
+		created_at, 
+		began_at, 
+		finished_at, 
+		winner, 
+		score, 
+		ai, 
+		option
 	FROM games
 	WHERE id_user = ?
 	ORDER BY created_at DESC
