@@ -1,12 +1,14 @@
-import { acceptRequest, getReceivedRequests, refuseRequest } from "../api/user-service/menu/friendsList/requestHandlers";
+import { acceptRequest, getReceivedRequests, rejectRequest } from "../api/user-service/menu/friendsList/requestHandlers";
 import { getUserInfoBySlug, UserInfo } from "../api/user-service/user-info/getUserInfo";
 import { append, createDiv, createButton, createImage, createAnchorElement } from "./elementMaker";
-
+import { getAllNotifications, AllNotifs, getReadNotifications, getUnreadNotifications } from "../api/user-service/menu/notifications/getNotifications";
+import { markNotificationsRead } from "../api/user-service/menu/notifications/markNotificationRead";
 
 const notificationWrapper: HTMLElement = createDiv('notif-wrapper','relative flex items-center');
 let isNotificationOpen: boolean = false;
-let ReceiveRequest: any[];
+let ReceiveRequest: AllNotifs[];
 let userData: UserInfo;
+let readNotification: number;
 
 export function createNotificationDiv(parent: HTMLElement) {
 
@@ -47,7 +49,7 @@ function acceptInvitation(acceptBtn: HTMLButtonElement, userData: UserInfo) {
 				refreshNotification();
 			}
 
-		}catch(error) {
+		} catch(error) {
 			alert(error);
 		}
 	})
@@ -59,7 +61,7 @@ function declineInvitation(declineBtn: HTMLButtonElement, userData: UserInfo) {
 		e.stopPropagation();
 		e.preventDefault();	
 		try {
-			const req = await refuseRequest(userData.username);
+			const req = await rejectRequest(userData.username);
 			if (req.ok) {
 				alert("decline invitation of " + userData.username);
 				console.log("acctp invitation of ", userData.username);
@@ -72,11 +74,18 @@ function declineInvitation(declineBtn: HTMLButtonElement, userData: UserInfo) {
 	})
 }
 
-function openNotification() {
+async function openNotification() {
 	isNotificationOpen = true;
-	
+
 	(document.getElementById('sliding-notification-bar-div') as HTMLElement).className = 'absolute left-0 top-16 w-80 h-72 overflow-auto transition-all duration-300 ease-in-out bg-orange-100 rounded-xl shadow-lg border-2 border-emerald-500 opacity-100';
 	
+	try {
+		const req = await markNotificationsRead();
+		if (req.ok)
+		return ; 
+	} catch(error) {
+		alert(error);
+	}
 	// const notificationPannel = document.getElementById('notification-panel-div') as HTMLElement;
 	// setTimeout(() => {
 	// 	notificationPannel.className = "w-64 px-4 text-sm border-0 rounded-xl bg-transparent focus:outline-none opacity-100 transition-opacity duration-300'";
@@ -84,11 +93,12 @@ function openNotification() {
 	// }, 150);
 }
 
-function closeNotification() {
+async function closeNotification() {
 	isNotificationOpen = false;
 
 	(document.getElementById('sliding-notification-bar-div') as HTMLElement).className = 'absolute left-0 top-16 w-0 h-0 overflow-auto transition-all duration-300 ease-in-out bg-orange-100 rounded-xl shadow-lg border-2 border-emerald-300 opacity-0';
 
+	refreshNotification() ; 
 	// const notificationPannel = document.getElementById('notification-panel-div') as HTMLElement;
 	// setTimeout(() => {
 	// 	notificationPannel.className = "w-64 px-4 text-sm border-0 rounded-xl bg-transparent focus:outline-none opacity-0 transition-opacity duration-300'";
@@ -104,13 +114,18 @@ function createSlidingNotificationPan(): HTMLElement {
 	return slidingotificationPan;
 }
 
-async function fillUSerInfo(slug: any, parent: HTMLElement){
+async function fillUSerInfo(request: AllNotifs, parent: HTMLElement){
 	try {
-		const req = await getUserInfoBySlug(slug);
+		const req = await getUserInfoBySlug(request.username); // replace by slug
 		if (req.ok) {
 			userData = req.userInfo;
-			// console.log("userdata = ", userData);
-			append(parent ,[addInvitation(userData)]);
+			console.log("request is  = ", request.notif_type);
+			if (request.notif_type === "friend_request")
+				append(parent ,[addInvitation(userData)]);
+			else if (request.notif_type === "friend_accept")
+				append(parent, [addAcceptRequest(userData)]);
+			else if (request.notif_type === "friend_reject")
+				append(parent, [addREjectRequest(userData)]);
 		}
 	} catch (error) {
 		alert(error);
@@ -120,22 +135,39 @@ async function fillUSerInfo(slug: any, parent: HTMLElement){
 
 async function fillReceiveRequest(parent: HTMLElement) {
 	try {
-		const req = await getReceivedRequests();
+		const reqRead = await getUnreadNotifications();
+		if (reqRead.ok) {
+			const read: AllNotifs[] = reqRead.notifs;
+			console.log("value of readrequest ", read);
+			readNotification = read.length;
+		}
+		const req = await getAllNotifications();
 		if (req.ok) {
-			ReceiveRequest = req.requests!;
-			// console.log("res request = ", ReceiveRequest);
-			ReceiveRequest.forEach(value => {
-				fillUSerInfo(value.username, parent)
-				console.log("value :", value.username);
+			ReceiveRequest = req.notifs;
+			ReceiveRequest.forEach(request => {
+				fillUSerInfo(request, parent);
+				console.log("value of request ", request);
 			})
 		}
-
-	} catch(error) {
-		alert(error)
+		
+	} catch (error) {
+		alert(error);
 	}
 }
 
+function addUSerData(userData: UserInfo, parent: HTMLAnchorElement, textContent: string) {
+	const userIcon: HTMLElement = createDiv(`user-notification-icon-${userData.slug}`, 'flex items-center justify-center bg-orange-300 group-hover:bg-orange-400 rounded-full relative shadow-xl w-14 h-14 group-hover:shadow-lg transition-all duration-200 transform');
+
+	append(userIcon, [(createImage(`user-notification-${userData.slug}`, 'w-12 h-12 rounded-full object-cover object-center',  `https://localhost:4443/uploads/${userData.avatar}`) as HTMLImageElement)]);
+
+	const invitationTextDiv = createDiv(`invitation-text-${userData.slug}`, 'flex flex-col items-center');
+	invitationTextDiv.innerHTML = `<P class="text-emerald-600 group-hover:font-bold">${textContent}</p>`;
+
+	append(parent, [userIcon, invitationTextDiv]);
+}
+
 function addInvitation(userdata: UserInfo) : HTMLAnchorElement {
+	console.log("add invitation fonction called");
 	const InvitationDiv: HTMLAnchorElement = createAnchorElement(`notification-${userdata.slug}`, '', `/user/${userData.slug}`, 'group flex items-center justify between w-full h-24 hover:bg-orange-200 space-x-4 shadow-xl w-14 h-14 group-hover:shadow-lg transition-all duration-200 transform');
 
 	const userIcon: HTMLElement = createDiv(`user-notification-icon-${userdata.slug}`, 'flex items-center justify-center bg-orange-300 group-hover:bg-orange-400 rounded-full relative shadow-xl w-14 h-14 group-hover:shadow-lg transition-all duration-200 transform');
@@ -160,6 +192,20 @@ function addInvitation(userdata: UserInfo) : HTMLAnchorElement {
 	return InvitationDiv;
 }
 
+function addAcceptRequest(userdata: UserInfo): HTMLAnchorElement {
+	const acceptDiv: HTMLAnchorElement = createAnchorElement(`notification-${userdata.slug}`, '', `/user/${userData.slug}`, 'group flex items-center justify between w-full h-24 hover:bg-orange-200 space-x-4 shadow-xl w-14 h-14 group-hover:shadow-lg transition-all duration-200 transform');;
+	
+	addUSerData(userData, acceptDiv, `user ${userData.username} accept your friend request`);
+	return acceptDiv;
+}
+
+function addREjectRequest(userdata: UserInfo): HTMLAnchorElement {
+	const rejectDiv :HTMLAnchorElement = createAnchorElement(`notification-${userdata.slug}`, '', `/user/${userData.slug}`, 'group flex items-center justify between w-full h-24 hover:bg-orange-200 space-x-4 shadow-xl w-14 h-14 group-hover:shadow-lg transition-all duration-200 transform');;
+	
+	addUSerData(userData, rejectDiv, `user ${userData.username} decline your friend request`);
+	return rejectDiv;
+}
+
 function createNotificationToggle(): HTMLElement {
 	const NotificationToggle: HTMLButtonElement = createButton('notification-toggle', 'group flex items-center justify-center w-10 h-10 bg-orange-200 hover:bg-orange-300 rounded-full shadow-md hover:shadow-lg transition-all duration-200 transform hover:scale-105', 'search');
 	// searchToggle.title = 'search';
@@ -181,13 +227,13 @@ function createNotificationToggle(): HTMLElement {
 
 async function addNumberInvitation() {
 	console.log("res request = ", ReceiveRequest);
-	if (!ReceiveRequest || ReceiveRequest.length === 0)
+	if (!readNotification || readNotification === 0)
 			return ;
 	const NotificationToggle: HTMLButtonElement = (document.getElementById('notification-toggle-btn') as HTMLButtonElement);
 
 	const numberNotification = createDiv('', 'flex items-center justify-center rounded-full h-8 w-8 border-2 border-orange-200 absolute top-6 left-6 bg-emerald-600 group-hover:bg-emerald-700 text-orange-200 group-hover:text-orange-300 animate-bounce duration-100') as HTMLElement;
 	numberNotification.innerHTML = `
-	<h1>${ReceiveRequest.length}</h1>`;
+	<h1>${readNotification}</h1>`;
 
 	append(NotificationToggle, [numberNotification]);
 }

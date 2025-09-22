@@ -1,10 +1,6 @@
-import { navigate } from "../core/router.js";
 import { BasePage } from "./BasePage.js";
 import { append, createAnchorElement, createDiv, createImage } from "../Utils/elementMaker.js";
 import { checkLog } from "../api/user-service/connection/check-log.js";
-import { getUserInfoBySlug } from "../api/user-service/user-info/getUserInfo.js";
-import { markNotificationsRead } from "../api/user-service/menu/notifications/markNotificationRead.js";
-import { getAllNotifications } from "../api/user-service/menu/notifications/getNotifications.js";
 
 export class HomePage extends BasePage {
 

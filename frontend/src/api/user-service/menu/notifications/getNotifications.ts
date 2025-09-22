@@ -1,13 +1,13 @@
-type NotifSuccess = {ok: true, notifs: AllNotifs }
+type NotifSuccess = {ok: true, notifs: AllNotifs[]};
 type Failure = { ok: false; error: string };
 
-type AllNotifs = 
+export type AllNotifs = 
 {
-    username: string;
+    username: string; // change for slug
     notif_type: string;
     notif_status: number;
     created_at: string;
-}[];
+};
 
 type NotifResult = NotifSuccess | Failure;
 
