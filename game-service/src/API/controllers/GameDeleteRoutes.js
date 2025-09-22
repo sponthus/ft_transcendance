@@ -1,4 +1,4 @@
-import { checkGameIdFormat } from "../../tools/CheckFormat.js";
+import { checkIdFormat } from "../../tools/CheckFormat.js";
 
 // Tests ok
 // Secure with JWT and user ownership, input protected VS SQLi
@@ -14,7 +14,7 @@ export async function deleteGame(request, reply) {
     if (!gameId) {
         return reply.status(400).send({error: 'No gameId found in request.'});
     }
-	if (checkGameIdFormat(gameId) === false) {
+	if (checkIdFormat(gameId) === false) {
 		return reply.status(400).send({ error: 'Bad gameId format.'});
 	}
 	gameId = parseInt(gameId, 10);
