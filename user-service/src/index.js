@@ -36,7 +36,6 @@ fastify.decorate("verifyApiKey", async function (request, reply)
 
 fastify.decorate("authenticate", async function (request, reply)
 {
-    console.log("FDPPPPP");
     try 
     {
         await request.jwtVerify(); //Décode et verifie le token et stock ses infos dans request
