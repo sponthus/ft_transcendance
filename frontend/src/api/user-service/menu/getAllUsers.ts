@@ -17,7 +17,7 @@ export async function   getAllUsers(): Promise<UsersResult>
     const res = await fetch('/api/user/menu/users', 
     {
         method: 'GET',
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        headers: { 'Authorization': `Bearer ${token}` },
     });
     const data = await res.json();    
     if (res.ok) 
