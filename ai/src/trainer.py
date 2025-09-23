@@ -43,34 +43,37 @@ class Trainer:
 			]
 
 		# Max value added or subtracted during mutation, * 0.2
-		self.weights_mutation_intensity: float = kwargs.get('weights_mutation_intensity', 0.1)
-		self.bias_mutation_intensity: float = kwargs.get('bias_mutation_intensity', 0.05)
+		self.weights_mutation_intensity: float = kwargs.get('weights_mutation_intensity', 0.25)
+		self.bias_mutation_intensity: float = kwargs.get('bias_mutation_intensity', 0.15)
 
 		# On average, % of the weights and biases will be mutated
 		self.weights_mutation_rate: float = kwargs.get('weights_mutation_rate', 0.1)
 		self.biases_mutation_rate: float = kwargs.get('biases_mutation_rate', 0.1)
 
-	def evaluate(self, network: Network, nb_games: int = 3):
+	def evaluate(self, network: Network, nb_games: int = 5):
 		action = 2  # STILL by default
 		total_score = 0
-		game = PongGame()
+		game = PongGame(gameOption=0)
 		ticks_per_decision = int(1 / game.dt)
-
+	
 		for i in range(nb_games):
 			# game_len / game.dt = max_ticks
 			max_ticks = int(60 / game.dt)
 			tick = 0
 			while tick < max_ticks :
+				last_action = action
 				if tick % ticks_per_decision == 0:
 					action = network.work(game.get_state_for_ai())
 				game.update(action)
 				tick += 1
 				# time.sleep(game.dt)
-			total_score += game.get_ai_score() + game.get_crab_score() #Doesn´t take crab score
+				if (action != last_action):
+					total_score += 100
+			total_score += game.get_ai_score() + game.get_crab_score()
 			game.reset(True)
-			print(f"Game {i} done - Total score: {total_score}")
+			# print(f"Game {i} done - Total score: {total_score}")
 		average_score = total_score / nb_games
-		print(f"------ Average score over {nb_games} games: {average_score}")
+		# print(f"------ Average score over {nb_games} games: {average_score}")
 		return average_score
 
 	# Mutate the network's weights and biases based on the mutation rate
@@ -84,31 +87,30 @@ class Trainer:
 			with concurrent.futures.ThreadPoolExecutor() as executor:
 				results = list(executor.map(self.evaluate, self.population))
 			scores: list[tuple[float, Network]] = [(score, network) for score, network in zip(results, self.population)]
-			# print(scores)
 			scores.sort(key=lambda x: x[0], reverse=True)
+			# print(scores)
 			print(f"Generation {self.generation} - Best score: {scores[0][0]}")
 			self.evolve(scores)
-			for i, network in enumerate(self.population):
-				conf = network.get_conf()
-				# Vérifie la structure
-				assert len(conf['input_layer']['weights']) == self.nb_neurons_per_layer
-				assert len(conf['input_layer']['weights'][0]) == self.nb_inputs
-				# ...idem pour hidden_layers et output_layer...
-				for j in range(self.nb_hidden_layers):
-					assert len(conf[f'{j + 1}']['weights']) == self.nb_neurons_per_layer
-					assert len(conf[f'{j + 1}']['weights'][0]) == self.nb_neurons_per_layer if j > 0 else self.nb_inputs
-				assert len(conf['output_layer']['weights']) == self.nb_outputs
-				assert len(conf['output_layer']['weights'][0]) == self.nb_neurons_per_layer
+			# for i, network in enumerate(self.population):
+			# 	conf = network.get_conf()
+			# 	# Vérifie la structure
+			# 	assert len(conf['input_layer']['weights']) == self.nb_neurons_per_layer
+			# 	assert len(conf['input_layer']['weights'][0]) == self.nb_inputs
+			# 	# ...idem pour hidden_layers et output_layer...
+			# 	for j in range(self.nb_hidden_layers):
+			# 		assert len(conf[f'{j + 1}']['weights']) == self.nb_neurons_per_layer
+			# 		assert len(conf[f'{j + 1}']['weights'][0]) == self.nb_neurons_per_layer if j > 0 else self.nb_inputs
+			# 	assert len(conf['output_layer']['weights']) == self.nb_outputs
+			# 	assert len(conf['output_layer']['weights'][0]) == self.nb_neurons_per_layer
 		self.save_config(best=True, population=True)
 	
-	def evolve(self, scores: list[tuple[float, Network]], best_untouched_rate: float = 0.05, retain_rate: float = 0.2, random_select: float = 0.05, random_network_rate: float = 0.05):
-		retain_length = int(self.population_size * retain_rate)
-		best_untouched_length = max(1, int(self.population_size * best_untouched_rate))
-
+	def evolve(self, scores: list[tuple[float, Network]], best_untouched_rate: float = 0.1, retain_rate: float = 0.3, random_select: float = 0.05, random_network_rate: float = 0.05):
 		# Select the best networks
+		retain_length = int(self.population_size * retain_rate)
 		parents = [network for _, network in scores[:retain_length]]
 
 		# Keep best network without any change
+		best_untouched_length = max(1, int(self.population_size * best_untouched_rate))
 		best_networks = [network for _, network in scores[:best_untouched_length]]
 
 		# Add some completely random individuals to promote genetic diversity
@@ -122,7 +124,7 @@ class Trainer:
 
 		# Crossover parents to create children, then mutate them
 		children = []
-		while len(children) + len(parents) < self.population_size - random_network_length - best_untouched_length:
+		while len(children) + len(parents) + best_untouched_length + random_network_length < self.population_size:
 			mother = random.choice(parents)
 			father = random.choice(parents)
 			if mother != father:
@@ -132,7 +134,7 @@ class Trainer:
 				self.mutate(child)
 				children.append(child)
 
-		self.population = random_networks + parents + children
+		self.population = best_networks + random_networks + parents + children
 		self.generation += 1
 
 	# Add some completely random individuals to promote genetic diversity
@@ -233,12 +235,12 @@ if __name__ == '__main__':
 	# with open("test2", "w") as f:
 	# 	json.dump(network2.get_conf(), f)
 
-	# trainer = Trainer(population_size=50, nb_inputs=7, nb_hidden_layers=3, nb_neurons_per_layer=5, nb_outputs=4)
-	
+	# trainer = Trainer(population_size=50, nb_inputs=6, nb_hidden_layers=3, nb_neurons_per_layer=5, nb_outputs=3)
+	# trainer.train(nb_generations=100, save_rate=10)
 	# trainer.print_networks()
 	# trainer.print_networks()
 	# trainer.save_config()
 
-	conf_from_json = parse_json("data_gen_101.json")
+	conf_from_json = parse_json("data_gen_100.json")
 	trainer2 = Trainer(config=conf_from_json)
-	trainer2.train(nb_generations=101, save_rate=10)
+	trainer2.train(nb_generations=100, save_rate=10)

@@ -135,8 +135,8 @@ def start_games(data):
 	nb_ais = int(data.get('nbAIs', 1))
 
 	def ai_thread(ai_id, results):
-		game = PongGame()
-		ai = Network(conf=parse_json("data_gen_50_best.json"))
+		game = PongGame(gameOption=0)
+		ai = Network(conf=parse_json("data_gen_60_best.json"))
 		print(ai.get_conf())
 
 		ticks_per_decision = int(1 / game.dt)
@@ -149,6 +149,8 @@ def start_games(data):
 			while tick < max_ticks :
 				if tick % ticks_per_decision == 0:
 					action = ai.work(game.get_state_for_ai())
+					# if (action != 2):
+					# 	ai_score += 10
 				game.update(action)
 				state = game.get_state()
 				state['ai_id'] = ai_id

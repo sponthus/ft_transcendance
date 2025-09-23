@@ -17,6 +17,10 @@ LEFT_PADDLE = -7.4
 RIGHT_PADDLE = 7.4
 RIGHT_GOAL = 9
 
+POINTS_MOVE_TO_WALL = 100 # lost if you move to the wall
+POINTS_TOUCH_BALL = 2000 # Points for touching the ball
+POINTS_MARK_GOAL = 5000 # Points for scoring a goal
+POINTS_TAKE_A_GOAL = 2000 # lost if you take a goal
 # Simulation d'une partie a partir de la physique du jeu
 # Ajout de scores lors de la partie : point quand il a touche la balle
 # Crabmehameha : point quand un crabmehameha est fait alors que la balle est proche d'un ennemi, point ++ quand ca le touche, negatif ++ quand crabmehameha demande alors que indispo
@@ -106,9 +110,9 @@ class SimplePongGame:
 
 # Real pong game from the project
 class PongGame:
-	def __init__(self):
+	def __init__(self, gameOption=1):
 		self.gameMode = 0
-		self.gameOption = 1
+		self.gameOption = gameOption
 		self.inputs = {}; # { player1: {...}, player2: {...} }
 		self.input1 = {}
 
@@ -181,13 +185,21 @@ class PongGame:
 		}
 
 	def get_state_for_ai(self):
-		return [ self.paddle1['x'], 
-		  self.paddle2['x'], 
-		  self.ball['x'], 
-		  self.ball['z'], 
-		  self.ball['dirX'], 
-		  self.ball['dirZ'], 
-		  self.isSpell1Available ]
+		if (self.gameOption == 0):
+			return [ self.paddle1['x'], 
+			  self.paddle2['x'], 
+			  self.ball['x'], 
+			  self.ball['z'], 
+			  self.ball['dirX'], 
+			  self.ball['dirZ'] ]
+		else:
+			return [ self.paddle1['x'], 
+			self.paddle2['x'], 
+			self.ball['x'], 
+			self.ball['z'], 
+			self.ball['dirX'], 
+			self.ball['dirZ'], 
+			self.isSpell1Available ]
 	
 	def get_ai_score(self):
 		return self.ai_score
@@ -196,10 +208,19 @@ class PongGame:
 		return self.crab_score
 
 	def movePlayer1(self, action_nn):
-		if action_nn == 0 and self.paddle1['x'] > INFERIOR_PADDLE_LIMIT:
-			self.paddle1['x'] -= PLAYER_SPEED
-		elif action_nn == 1 and self.paddle1['x'] < SUPERIOR_PADDLE_LIMIT:
-			self.paddle1['x'] += PLAYER_SPEED
+		if action_nn == 0:
+			if self.paddle1['x'] > INFERIOR_PADDLE_LIMIT:
+				self.paddle1['x'] -= PLAYER_SPEED
+				self.ai_score += POINTS_MOVE_TO_WALL
+			else:
+				self.ai_score -= POINTS_MOVE_TO_WALL # Penalize hitting the wall
+		elif action_nn == 1:
+			if (self.paddle1['x'] < SUPERIOR_PADDLE_LIMIT):
+				self.paddle1['x'] += PLAYER_SPEED
+				self.ai_score += POINTS_MOVE_TO_WALL
+			else:
+				self.ai_score -= POINTS_MOVE_TO_WALL # Penalize hitting the wall
+	
 		# elif action_nn == 3 and self.crab1_cooldown <= 0:
 		# 	self.crab1_cooldown = 2.0
 		# 	self.crab2_paralyzed = 2.0  # Paralyse l'adversaire
@@ -243,7 +264,8 @@ class PongGame:
 
 		if (dz < 0.5 and dx < 1 and isDie == False):
 			if (paddleZ == -8):
-				self.ai_score += 10
+				# Points if AI touches the ball
+				self.ai_score += POINTS_TOUCH_BALL
 
 			if (self.ball['speed'] < SPEED_LIMIT):
 				self.ball['speed'] += SPEED_INCREMENT
@@ -266,9 +288,10 @@ class PongGame:
 		if (self.ball['z'] < LEFT_GOAL or self.ball['z'] > RIGHT_GOAL):
 			if (self.ball['z'] < LEFT_GOAL):
 				self.score['s2'] += 1
+				self.ai_score -= POINTS_TAKE_A_GOAL # Penalize for conceding a goal
 			else:
 				self.score['s1'] += 1
-				self.ai_score += 1
+				self.ai_score += POINTS_MARK_GOAL # Big bonus for scoring
 			# self.reset() # To make game endless
 			self.ball['dirZ'] *= -1
 
@@ -303,10 +326,12 @@ class PongGame:
 			self.isSpell1Available = True
 
 		if (action_nn == 3 and self.isSpell1Available and self.die1 == False):
-			self.crab_score += 1
+			self.crab_score += 10 # Bonus for a spell launched
 			self.isSpellGo1 = True
 			self.isSpell1Available = False
 			self.specialCooldown1 = 50
+		elif (action_nn == 3 and self.isSpell1Available == False):
+			self.crab_score -= 5 # Penalize useless spell
 		if (self.gameMode == 1 and self.die2 == False):
 			if (self.input1['3'] and self.specialCooldown2 < 0):
 				self.isSpellGo2 = True
