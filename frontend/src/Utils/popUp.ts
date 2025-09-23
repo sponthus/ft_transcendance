@@ -73,4 +73,8 @@ export class popUp{
 	get OverlayDiv() :HTMLElement {
 		return this.OverlayDiv;
 	}
+
+	get Title() :HTMLElement {
+		return this._Title;
+	}
 }

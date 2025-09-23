@@ -1,6 +1,6 @@
 import { popUp } from '../../Utils/popUp.js';
 import { renderScene } from '../../babylon/displaying/renderScene.js';
-import { createDiv, createElement, createButton, createDropdownDiv, createFormDiv, createCheckBoxLabel, append} from '../../Utils/elementMaker.js';
+import { createDiv, createElement, createButton, createDropdownDiv, createFormDiv, createCheckBoxLabel, append, createImage} from '../../Utils/elementMaker.js';
 import { LocalGamePage } from './LocalGamePage.js';
 import { TournamentPage } from "./tounramentPage.js";
 import { Event } from './Event.js';
@@ -40,17 +40,18 @@ export class GamePage extends popUp {
 		super("Pong Game");
 		this.render = render;
 		this.startGamePage();
+		// this._Title
 	}
 	
 	async startGamePage() {
-	await this.getUsername();
+		this.getUsername();
 		this.initPage();
 		this.initPopUpPage();
-		this.generateGamePage();
 		this.LocalGamePage = new LocalGamePage(this.Page, this.userName!);
 		this.TournamentPage = new TournamentPage(this.Page, this.userName!);
 		this.EndGamePage = new endGamePage(this.Page);
 		this.Event = new Event(this.LocalGamePage, this.TournamentPage, this);
+		this.generateGamePage();
 	}
 
 	private async getUsername(){
@@ -68,18 +69,25 @@ export class GamePage extends popUp {
 
 	private initPage() {
 		this.Page = document.createElement('div');
-		this.Page.className = "flex flex-col items-center h-[80%] w-[80%] text-center border-4 border-orange-400 rounded-xl space-y-4 overflow-hidden";
+		this.Page.className = "flex flex-col items-center h-[80%] w-[80%] text-center border-4 border-orange-400 rounded-xl space-y-4";
 	}
 
 	private initPopUpPage() {
-		this._Body.className = "flex flex-col items-center justify-center h-[60%] w-[60%] bg-orange-300 rounded-xl border-2 border-orange-400 shadow-2xl overflow-auto";
-		this._Title.classList.add("text-emerald-600");
+		this._Body.className = "flex flex-col items-center justify-center h-[70%] w-[70%] bg-orange-300 rounded-xl border-2 border-orange-400 shadow-2xl";
+		this._Body.style.backgroundImage = "url('/background1.gif')";
+		this._Body.style.backgroundPosition = "center";
+		this._Body.style.backgroundSize = "cover";
+		this._Title.textContent = "";
+		this.Title.className = "flex items-center justify-between h-[1%]"
+		// this._Title.classList.add("text-6xl");
+		// this._Title.remove();
 		this._Body.appendChild(this.Page);
 	}
 
 	/*********************************************function for rendering tournament Mod Page**********************************************/
 	async generateTournamentPage() {
 		(document.getElementById("Save-btn") as HTMLButtonElement).textContent = "Play Tournament";
+		this.Page.className = "flex flex-col items-center h-[80%] w-[80%] text-center border-4 border-orange-400 rounded-xl space-y-4";
 		this.cleanPage();
 		this.TournamentPage.render();
 		this.Event.addDeleteButton();
@@ -95,6 +103,8 @@ export class GamePage extends popUp {
 	/*********************************************function for rendering 1v1 Mod Page**********************************************/
 	async generate1v1GamePage() {
 		(document.getElementById("Save-btn") as HTMLButtonElement).textContent = "Play";
+		this.Page.className = "flex flex-col items-center  w-full h-[99%] text-center border-4 border-orange-400 rounded-xl space-y-4";
+		this._Body.className = "flex flex-col items-center justify-center h-[70%] w-[30%] bg-orange-300 rounded-xl border-2 border-orange-400 shadow-2xl";
 		this.cleanPage();
 		this.LocalGamePage.render();
 		this.Event.addDeleteButton();
@@ -104,28 +114,39 @@ export class GamePage extends popUp {
 	/*********************************************function for rendering Game Mod Select Page**********************************************/
 	async generateGamePage() {
 		this.Page.classList.add("justify-center");
-		await this.createGamePageDiv();
-		await this.CreateDropDownGamePage();
+		this.createGamePageDiv();
 	}
 
 	async generateEndGamePage() {
 		this.Event.ChangeBackPageButtonText([(document.getElementById("Return-btn") as HTMLButtonElement), "Return to Lobby"], [(document.getElementById("Save-btn") as HTMLButtonElement), "new game"]);
 		this.EndGamePage.render();
-
 	}
 
 	/*********************************************function Utils for rendering Game Mod Select Page**********************************************/
 	private async createGamePageDiv() {
-		const TextDiv: HTMLElement =  createDiv("GamePage-title", "flex items-center justify-center h-[30%]");
-		const GameModText: HTMLElement = createElement('h1', "GamePage-title", "Please Choose your game mod",  "text-emerald-600 text-center underline");
-
-		append(TextDiv, [GameModText]);
-		append(this.Page, [TextDiv]);
+		console.log("create game page function call")
+		this._Body.className = "flex flex-col items-center justify-center h-[70%] w-[70%] bg-orange-300 rounded-xl border-2 border-orange-400 shadow-2xl";
+		this.Page.className = "flex flex-wrap items-center justify-center w-full h-[99%] text-center space-y-4 rounded-xl shadow-2xl overflow-hidden";
+		const buttondiv: HTMLElement = createDiv("button-mod", "flex flex-row h-full w-full");
+		append(buttondiv, [this.create1v1button(), this.createTournamentButton()]);
+		append(this.Page, [buttondiv]);
+		this.Event.manageGameModEvent();
 	}
 
-	private async CreateDropDownGamePage() {
-		await renderDropdown(this.Page ,["1v1", "tournament"], "GameMod", "Pong Game Mod:");
-		await renderDropdown(this.Page ,["local"], "PlayerMod", "Pong player Mod :");
+	private create1v1button(): HTMLButtonElement {
+		console.log("create 1v1 button function call")
+		const OneVsOneBtn: HTMLButtonElement = (createButton("1v1", "group relative flex items-center justify-center h-full w-[50%] rounded-xl shadow-md hover:shadow-lg transition-all duration-200 transform hover:scale-105", "") as HTMLButtonElement);
+		append(OneVsOneBtn, [createImage("1v1", "absolute object-cover object-center h-full w-full opacity-40 group-hover:opacity-75", '1v1-page.png')
+							, createElement('h1', '1v1', '1v1', 'z-10 text-emerald-600 text-center group-hover:font-bold text-6xl')]);
+		return OneVsOneBtn;
+	}
+
+	private createTournamentButton(): HTMLButtonElement {
+		console.log("create tournament button function call")
+		const Tournamentbtn: HTMLButtonElement = (createButton("tournament", "group relative flex items-center justify-center h-full w-[50%] rounded-xl shadow-md hover:shadow-lg transition-all duration-200 transform hover:scale-105", "") as HTMLButtonElement);
+		append(Tournamentbtn, [createImage("tournament", "absolute object-cover object-center h-full w-full opacity-40 group-hover:opacity-75", 'tournament-page.png')
+							, createElement('h1', 'tournament', 'tournament', 'z-10 text-emerald-600 text-center group-hover:font-bold text-6xl')]);
+		return Tournamentbtn;
 	}
 
 	/*********************************************Global rendering function*********************************************/
@@ -139,6 +160,12 @@ export class GamePage extends popUp {
 		Array.from(this.Page.children).forEach((child)=>{
 			child.remove();
 		})
+	}
+
+	cleanStubborn() {
+		Array.from(this._Title.children).forEach((child=> {
+			child.remove();
+		}))
 	}
 
 	get Body(): HTMLElement {
