@@ -5,6 +5,7 @@ import { checkLog } from "../api/user-service/connection/check-log.js";
 import { getUserInfoBySlug } from "../api/user-service/user-info/getUserInfo.js";
 import { markNotificationsRead } from "../api/user-service/menu/notifications/markNotificationRead.js";
 import { getAllNotifications } from "../api/user-service/menu/notifications/getNotifications.js";
+import { activateTwoFa } from "../api/user-service/2fa.js";
 
 export class HomePage extends BasePage {
 
@@ -31,6 +32,14 @@ export class HomePage extends BasePage {
 		else {
 			await this.rengerLogoutHome();
 		}
+
+		//TEST A SUPPRIMER
+		const req = await activateTwoFa();
+		if (req.ok)
+		{
+			console.log('qrcode:', req.qrCode);
+		}
+		//
 		
 	await this.addInApp();
 	}
