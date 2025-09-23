@@ -1,7 +1,7 @@
 import { createDiv, createElement, createButton, createDropdownDiv, createFormDiv, createCheckBoxLabel, append, createImage} from '../../Utils/elementMaker.js';
 
-export async function renderProfileSetting(SettingText: HTMLElement, ButtonDiv: HTMLElement, SettingDiv: HTMLElement, ReturnDiv: HTMLElement) {
-	SettingText.textContent = "Profile Settings";
+export async function renderProfileSetting(ButtonDiv: HTMLElement, SettingDiv: HTMLElement, ReturnDiv: HTMLElement) {
+	// SettingText.textContent = "Profile Settings";
 	ButtonDiv.classList.add('hidden');
 
 	append(SettingDiv, [(createFormDiv(["password", "new-password", "choose a new password", true]

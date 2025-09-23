@@ -112,7 +112,6 @@ export class RegisterPage extends BasePage {
 				const req = await registerUser(username, password);
 				if (req.ok) {
 					await navigate('/');
-					location.reload();
 					return ; // back to home
 				}
 				else {
