@@ -4,6 +4,7 @@ import threading
 import time
 from game import SimplePongGame, PongGame
 from network import Network
+import json as json
 
 
 app = Flask(__name__)
@@ -135,7 +136,7 @@ def start_games(data):
 
 	def ai_thread(ai_id, results):
 		game = PongGame()
-		ai = Network(nb_input_layers=3, nb_neurons_per_layer=5, nb_inputs=7, nb_outputs=4)
+		ai = Network(conf=parse_json("data_gen_50_best.json"))
 		print(ai.get_conf())
 
 		ticks_per_decision = int(1 / game.dt)
@@ -155,7 +156,8 @@ def start_games(data):
 				state['game_id'] = game_id
 				socketio.emit('state', state)
 				tick += 1
-				# time.sleep(game.dt)
+				# TODO : Measure if sleep is needed, if the simulation sticks to the reality
+				time.sleep(game.dt)
 			results[ai_id].append(ai_score)
 			game = PongGame()
 
@@ -171,6 +173,12 @@ def start_games(data):
 		t.join()
 
 # TODO = Make dumb AI better
+
+def parse_json(file: str):
+	conf: list = []
+	with open(file, "r") as f:
+		conf = json.load(f)
+	return conf
 
 if __name__ == '__main__':
 	socketio.run(app, port=5000)

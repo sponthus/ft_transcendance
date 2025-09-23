@@ -1,28 +1,53 @@
 from game import PongGame
 from network import Network
 import random
+import json as json
+import time
+import concurrent.futures
 
 class Trainer:
 	# TODO make me kwargs
-	def __init__(self, population_size: int, weights_mutation_intensity: float = 0.1, bias_mutation_intensity: float = 0.05, weights_mutation_rate: float = 0.1, biases_mutation_rate: float = 0.1, nb_inputs: int, nb_hidden_layers: int, nb_neurons_per_layer: int, nb_outputs: int):
+	def __init__(self, **kwargs):
+		# Check if has config
+		has_config = 'config' in kwargs and kwargs['config'] is not None
+		# Or check if all required params are provided
+		has_params = all(
+			k in kwargs and kwargs[k] is not None
+			for k in ['population_size', 'nb_inputs', 'nb_hidden_layers', 'nb_neurons_per_layer', 'nb_outputs']
+		)
+		if not (has_config or has_params):
+			raise ValueError(
+				"Trainer needs either 'config' or all of 'population_size', 'nb_inputs', 'nb_hidden_layers', 'nb_neurons_per_layer', 'nb_outputs'."
+			)
+		
+		self.generation: int = 0
+		
+		# Population characteristics
+		if (has_config):
+			conf = kwargs.get('config')
+			self.population_size = len(conf)
+			self.nb_inputs = len(conf[0]['input_layer']['biases'])
+			self.nb_hidden_layers = len(conf[0]) - 2 # input and output layers are not counted
+			self.nb_neurons_per_layer = len(conf[0]['input_layer']['biases'])
+			self.nb_outputs = len(conf[0]['output_layer']['biases'])
+			self.population = [Network(conf=conf[i]) for i in range(self.population_size)]
+		else:
+			self.population_size: int = kwargs.get('population_size', 50)
+			self.nb_inputs: int = kwargs.get('nb_inputs', 7)
+			self.nb_hidden_layers: int = kwargs.get('nb_hidden_layers', 3)
+			self.nb_neurons_per_layer: int = kwargs.get('nb_neurons_per_layer', 5)
+			self.nb_outputs: int = kwargs.get('nb_outputs', 4)
+			self.population = [
+				Network(nb_inputs=self.nb_inputs, nb_neurons_per_layer=self.nb_neurons_per_layer, nb_hidden_layers=self.nb_hidden_layers, nb_outputs=self.nb_outputs) for _ in range(self.population_size)
+			]
+
+		# Max value added or subtracted during mutation, * 0.2
+		self.weights_mutation_intensity: float = kwargs.get('weights_mutation_intensity', 0.1)
+		self.bias_mutation_intensity: float = kwargs.get('bias_mutation_intensity', 0.05)
+
 		# On average, % of the weights and biases will be mutated
-		self.weights_mutation_rate = weights_mutation_rate 
-		self.bias_mutation_rate = biases_mutation_rate
-		# Max value added or subtracted during mutation
-		self.weights_mutation_intensity = weights_mutation_intensity
-		self.bias_mutation_intensity = bias_mutation_intensity
-
-		self.population_size = population_size
-
-		self.nb_hidden_layers = nb_hidden_layers
-		self.nb_neurons_per_layer = nb_neurons_per_layer
-		self.nb_inputs = nb_inputs
-		self.nb_outputs = nb_outputs
-
-		self.generation = 0
-		self.population = [
-			Network(nb_inputs=nb_inputs, nb_neurons_per_layer=nb_neurons_per_layer, nb_hidden_layers=nb_hidden_layers, nb_outputs=nb_outputs) for _ in range(population_size)
-		]
+		self.weights_mutation_rate: float = kwargs.get('weights_mutation_rate', 0.1)
+		self.biases_mutation_rate: float = kwargs.get('biases_mutation_rate', 0.1)
 
 	def evaluate(self, network: Network, nb_games: int = 5):
 		action = 2  # STILL by default
@@ -30,7 +55,7 @@ class Trainer:
 		game = PongGame()
 		ticks_per_decision = int(1 / game.dt)
 
-		for _ in range(nb_games):
+		for i in range(nb_games):
 			# game_len / game.dt = max_ticks
 			max_ticks = int(60 / game.dt)
 			tick = 0
@@ -39,37 +64,52 @@ class Trainer:
 					action = network.work(game.get_state_for_ai())
 				game.update(action)
 				tick += 1
+				time.sleep(game.dt)
 			total_score += game.get_ai_score() + game.get_crab_score() #Doesn´t take crab score
 			game.reset(True)
+			print(f"Game {i} done - Total score: {total_score}")
 		average_score = total_score / nb_games
+		print(f"------ Average score over {nb_games} games: {average_score}")
 		return average_score
 
 	# Mutate the network's weights and biases based on the mutation rate
 	# Keep the best 20% and cross them to create children
 	# keep 5% randoms to cross with the best ones
-	def evolve(self, retain_rate: float = 0.2, random_select: float = 0.05, random_network_rate: float = 0.05):
-		scores = [(self.evaluate(network), network) for network in self.population]
-		
-		scores.sort(key=lambda x: x[0], reverse=True)
-		retain_length = int(len(scores) * retain_rate)
+	def train(self, nb_generations: int = 50, save_rate: int = 10):
+		for _ in range(nb_generations):
+			with concurrent.futures.ThreadPoolExecutor() as executor:
+				results = list(executor.map(self.evaluate, self.population))
+			scores: list[tuple[float, Network]] = [(score, network) for score, network in zip(results, self.population)]
+			# print(scores)
+			scores.sort(key=lambda x: x[0], reverse=True)
+			print(f"Generation {self.generation} - Best score: {scores[0][0]}")
+			if (self.generation % save_rate == 0 and self.generation != 0):
+				self.save_config()
+			self.evolve(scores)
+		self.save_config()
+	
+	def evolve(self, scores: list[tuple[float, Network]], best_untouched_rate: float = 0.05, retain_rate: float = 0.2, random_select: float = 0.05, random_network_rate: float = 0.05):
+		retain_length = int(self.population_size * retain_rate)
+		best_untouched_length = max(1, int(self.population_size * best_untouched_rate))
+
+		# Select the best networks
 		parents = [network for _, network in scores[:retain_length]]
-		random_network_length = int(len(scores) * random_network_rate)
 
-		random_networks = []
-		
+		# Keep best network without any change
+		best_networks = [network for _, network in scores[:best_untouched_length]]
+
 		# Add some completely random individuals to promote genetic diversity
-		for _ in range(random_network_length):
-			random_networks.append(Network(nb_hidden_layers=self.nb_hidden_layers, nb_neurons_per_layer=self.nb_neurons_per_layer, nb_inputs=self.nb_inputs, nb_outputs=self.nb_outputs))
+		random_network_length = int(len(scores) * random_network_rate)
+		random_networks = self.get_random_networks(random_network_length)
 
-		# Randomly add other individuals to promote genetic diversity
+		# Randomly add other individuals to parents to promote genetic diversity
 		for _, network in scores[retain_length:]:
 			if random_select > random.random():
 				parents.append(network)
 
-		# TODO Delete crossovers for now, only mutations
 		# Crossover parents to create children, then mutate them
 		children = []
-		while len(children) + len(parents) < self.population_size - random_network_length:
+		while len(children) + len(parents) < self.population_size - random_network_length - best_untouched_length:
 			mother = random.choice(parents)
 			father = random.choice(parents)
 			if mother != father:
@@ -79,11 +119,13 @@ class Trainer:
 				self.mutate(child)
 				children.append(child)
 
-		# TODO: Choose if mutation is needed instead of crossover
-		# You need to identify whatś best between mutation and crossoverand both, at the same time or part/part
 		self.population = random_networks + parents + children
 		self.generation += 1
-	
+
+	# Add some completely random individuals to promote genetic diversity
+	def get_random_networks(self, nb_networks: int):
+		return [Network(nb_hidden_layers=self.nb_hidden_layers, nb_neurons_per_layer=self.nb_neurons_per_layer, nb_inputs=self.nb_inputs, nb_outputs=self.nb_outputs) for _ in range(nb_networks)]	
+
 	# TODO : add mutation rate per weight/bias
 	def mutate(self, network: Network):
 		new_conf = {}
@@ -94,10 +136,10 @@ class Trainer:
 			for i in range(len(layer['weights'])):
 				for j in range(len(layer['weights'][i])):
 					if self.weights_mutation_rate > random.random():
-						layer['weights'][i] += (random.uniform(-0.2, 0.2) * self.weights_mutation_intensity)
+						layer['weights'][i][j] += (random.uniform(-1, 1) * self.weights_mutation_intensity)
 			for i in range(len(layer['biases'])):
-				if self.bias_mutation_rate > random.random():
-					layer['biases'] += (random.uniform(-0.2, 0.2) * self.bias_mutation_intensity)
+				if self.biases_mutation_rate > random.random():
+					layer['biases'][i] += (random.uniform(-1, 1) * self.bias_mutation_intensity)
 			new_conf[layer_key] = layer
 		network.set_conf(new_conf)
 
@@ -107,7 +149,6 @@ class Trainer:
 			child_conf[key] = self.crossover_layer(conf1[key], conf2[key])
 		return child_conf
 	
-	# TODO No crossover for now ... See later
 	def crossover_layer(self, layer1, layer2):
 		weights1, biases1 = layer1['weights'], layer1['biases']
 		weights2, biases2 = layer2['weights'], layer2['biases']
@@ -130,3 +171,60 @@ class Trainer:
 
 		return {"weights": child_weights, "biases": child_biases}
 
+	def print_networks(self):
+		for i, network in enumerate(self.population):
+			print(f"Network {i}:\n")
+			print(f"Layers:")
+			print(f" Input Layer: {network.input_layer}")
+			for j, layer in enumerate(network.hidden_layers):
+				print(f" Hidden Layer {j}: {layer}")
+			print(f" Output Layer: {network.output_layer}\n")
+
+	def save_config(self):
+		result = []
+		for i, network in enumerate(self.population):
+			conf = network.get_conf()
+			result.append(conf)
+		
+		with open(f"data_gen_{self.generation}.json", "w") as f:
+			json.dump(result, f)
+		
+		best_network = self.population[0]
+		best_conf = best_network.get_conf()
+		with open(f"data_gen_{self.generation}_best.json", "w") as f:
+			json.dump(best_conf, f)
+	
+
+
+# Testing
+# import json as json
+
+def parse_json(file: str):
+	conf: list = []
+	with open(file, "r") as f:
+		conf = json.load(f)
+	return conf
+
+if __name__ == '__main__':
+	# network = Network(nb_inputs=4, nb_neurons_per_layer=5, nb_hidden_layers=2, nb_outputs=4)
+	# conf = network.get_conf()
+	# with open("data_training", "w") as f:
+	# 	json.dump(conf, f)
+
+	# # plus tard on aura une liste de dictionnaires
+	# conf_from_json: dict[str, dict[str, list[float] | list[list[float]]]] = []
+	# conf_from_json = parse_json("data_training")
+
+	# network2 = Network(conf=conf_from_json)
+	# with open("test2", "w") as f:
+	# 	json.dump(network2.get_conf(), f)
+
+	trainer = Trainer(population_size=50, nb_inputs=7, nb_hidden_layers=3, nb_neurons_per_layer=5, nb_outputs=4)
+	# trainer = Trainer(config=parse_json("data_gen_50.json"))
+	
+	# trainer.print_networks()
+	trainer.train(nb_generations=101, save_rate=1)
+	# trainer.print_networks()
+	# trainer.save_config()
+
+	# conf_from_json = parse_json("data_gen_50.json")
