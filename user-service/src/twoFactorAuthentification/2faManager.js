@@ -38,7 +38,11 @@ export async function activateTwoFa(request, reply)
         
         const qrDataUrl = await qrcode.toDataURL(secret.otpauth_url);
 
-        //si je veux une saisie manuelle je dois envoyer la cle secret en clair pause un pb de secu
+        //si je veux une saisie manuelle je dois envoyer la cle secret en clair pause un pb de secu*/
+
+        const qrAscii = await qrcode.toString(secret.otpauth_url, {type: 'terminal'}); //temporaire, permet de tester 
+        console.log(qrAscii);
+
         return reply.code(200).send({ qrCode: qrDataUrl });
     }
     catch (err)
@@ -47,5 +51,14 @@ export async function activateTwoFa(request, reply)
     }
 }
 
+export async function validate2FaTwoFa(request, reply)
+{
+    const   db = request.server.db;
+    const   idUser = request.user.idUser;
+
+    if (checkCodeFormat(request) == false)
+        return reply.code(400).send( {error : "Invalid format for 2FA code "} );
+
+}
 //validate2Fa
 //--> passer 2fa_activated a 1;

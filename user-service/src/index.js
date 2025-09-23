@@ -49,7 +49,11 @@ fastify.decorate("authenticate", async function (request, reply)
             return reply.code(401).send({error : err.message});
         }
         else
+        {
+            console.log("COUCOUO")
+
             return reply.code(400).send({error : err.message});
+        }
     }
     /*try
     {
@@ -95,7 +99,12 @@ fastify.get('/', async (req, reply) => {
 // Default handler for undefined routes
 fastify.setNotFoundHandler((req, reply) => {
     // Extension = file
-    console.log("ERREUR 404");
+   // console.log("ERREUR 404");
+    console.log("ERREUR 404", {
+        url: req.url,
+        method: req.method,
+        headers: req.headers
+    });
     reply.status(404).send("Not found");
 });
 

@@ -1,4 +1,4 @@
-import { activateTwoFa } from "../twoFactorAuthentification/2faManager";
+import { activateTwoFa } from "../twoFactorAuthentification/2faManager.js";
 
 export default async function routes2FA(fastify) 
 {
