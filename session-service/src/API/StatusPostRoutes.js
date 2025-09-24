@@ -1,15 +1,25 @@
+import { checkIdFormat, checkSendMessageFormat } from '../CheckFormat.js';
+
 // Sends a message to a user on his websocket, this user needs to be connected
-// Security : Road is protected to service-only
+// Security : Road is protected to service-only, and from SQLi
 export async function sendMessageToUser(request, reply) {
 	console.log("➡️ Service accessed POST /message/:userId");
 	
 	const { userId } = request.params;
+	if (!userId) {
+		console.error('❌❌❌❌❌❌❌❌❌❌❌❌❌ No userId found in request params');
+		return reply.status(400).send({error: 'No userId found in request.'});
+	}
+	if (checkIdFormat(userId) === false) {
+		console.error('❌❌❌❌❌❌❌❌❌❌❌❌❌ Bad userId found in request params');
+		return reply.status(400).send({ error: 'Bad userId format.'});
+	}
+	if (checkSendMessageFormat(request) === false) {
+		console.error('❌❌❌❌❌❌❌❌❌❌❌❌❌ Bad data format sent in request body');
+		return reply.status(400).send({ error: 'Bad data format - expected : sender, message.'});
+	}
 	const { sender, message } = request.body;
 
-	if (!sender || !message) {
-		return reply.status(400).send({
-			error: 'Incomplete message : No sender or message found in request.' });
-	}
 	const { WebSocketManager } = request.server;
 	if (!WebSocketManager) {
 		console.log("❌ Error while getting sessions: connexion not found");
