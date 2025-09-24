@@ -1,7 +1,7 @@
 import { createDiv, createElement, createButton, createDropdownDiv, createFormDiv, createCheckBoxLabel, append, createImage} from '../../Utils/elementMaker.js';
 // import { createLocalGame, getAvailableGames, startGame, deleteGame } from "../../api/game.js"
-import { renderDropdown } from "./GamePage.js";
-import { availableGames } from "./AvailableGames.js";
+// import { renderDropdown } from "./GamePage.js";
+// import { availableGames } from "./AvailableGames.js";
 
 
 export class LocalGamePage {
@@ -11,28 +11,56 @@ export class LocalGamePage {
 	private PartyMap!: Map<number, HTMLInputElement>;
 	// private AvailableGames: availableGames;
 	private Username!: string;
+
+	/*************************for creatingGame*************************/
 	private PlayerA!: string;
 	private PlayerB: string = "Crabby the bot";
-	private Ai: number = 0;
+	private Ai: number = 1; // ia playerA 2 PlayerB 
 	private MaxScore: number = 5;
-	private Option: number = 0;
+	private Option: number = 1;
 
+	/*************************button*************************/
+	private PlayBtn!: HTMLButtonElement;
+	private SettingBtn!: HTMLButtonElement;
+	private BackBtn!: HTMLButtonElement;
+
+	private botBtn!: HTMLButtonElement;
+	private playerBtn!: HTMLButtonElement;
+	private plusbtn!: HTMLButtonElement;
+	private minusBtn!: HTMLButtonElement;
+
+	/*************************utils div*************************/
+	private SettingPan!: HTMLElement;
 
 	constructor(Page: HTMLElement, UserName: string) {
+		// this.AvailableGames = new availableGames(this.Page, this.PartyMap);
 		this.Page = Page;
 		this.PartyMap = new Map<number, HTMLInputElement>();
-		// this.AvailableGames = new availableGames(this.Page, this.PartyMap);
 		this.Username = UserName;
-		this.PlayerA = this.Username;
+		this.PlayerA = "endoliam "; //this.Username; change to this.username
 	}
 
 	async render() {
 		this.Page.classList.add("relative");
-		append(this.Page, [createImage("1v1", "absolute object-center h-full w-full opacity-80", '1v1-page.png')]);
 
-		append(this.Page, [(createButton("play", "z-10 bg-orange-300 p-4 hover:bg-orange-400 text-emerald-600 hover:font-bold", "Play") as HTMLButtonElement)
-							,(createButton("settings", "z-10 bg-orange-300 p-4 hover:bg-orange-400 text-emerald-600 hover:font-bold", "Settings") as HTMLButtonElement)
-							,(createButton("return", "z-10 bg-orange-300 p-4 hover:bg-orange-400 text-emerald-600 hover:font-bold", "Return") as HTMLButtonElement)])
+		this.PlayBtn = (createButton("play", "relative flex items-center z-5 hover:scale-105 h-[30%] aspect-square transition-all duration-200 translate-x-96", "") as HTMLButtonElement);
+		this.SettingBtn = (createButton("settings", "relative flex items-center z-5 hover:scale-105 h-[12%] w-[30%] transition-all duration-200 -translate-x-96", "") as HTMLButtonElement);
+		this.BackBtn = (createButton("return", "relative flex items-center z-5 hover:scale-105 h-[10%] w-[20%] transition-all duration-200 top-16 left-32 -translate-x-96", "") as HTMLButtonElement);
+		append(this.Page, [createImage("1v1", "absolute object-fill object-center h-full w-full opacity-65", '1v1-page.png')]);
+
+		append(this.PlayBtn, [createImage('Play', 'absolute object-center h-full w-full', 'game_ui/Playebtn.png')]);
+		append(this.SettingBtn, [createImage('setting', 'absolute object-center h-full w-full', 'game_ui/Settingsbtn.png')]);
+		append(this.BackBtn, [createImage('Back', 'absolute object-center h-full w-full', 'game_ui/Backbtn.png')]);
+
+		append(this.Page, [createImage('bot-text', 'z-10 object-center h-[20%] w-[80%] animate-wiggle margin-top-32', 'game_ui/LocalPongText.png')
+							,this.SettingBtn , this.PlayBtn , this.BackBtn]);
+
+		this.Page.className = "flex flex-col items-center w-full h-full transition-all duration-300 text-center rounded-xl space-y-4";
+		setTimeout(() => {
+			this.PlayBtn.classList.remove('translate-x-96'); // = "relative flex items-center z-5 hover:scale-105 h-[30%] aspect-square transition-all duration-300";
+			this.SettingBtn.classList.remove('-translate-x-96');  //= "relative flex items-center z-5 hover:scale-105 h-[12%] w-[30%] transition-all duration-300";
+			this.BackBtn.classList.remove('-translate-x-96');  //=  "relative flex items-center z-5 hover:scale-105 h-[10%] w-[20%] transition-all duration-300 top-16 left-32";
+		}, 100);
 		// this.Page.classList.remove("justify-center");
 		// this.Page.classList.remove("border-4");
 		// await this.create1v1PageDiv();
@@ -42,6 +70,61 @@ export class LocalGamePage {
 		// await this.refreshAvailableGames();
 	}
 
+	async renderSetting() {
+		this.BackBtn = (createButton("return", "relative flex items-center z-5 hover:scale-105 h-[10%] w-[20%] transition-all duration-200 left-32 -translate-x-96", "") as HTMLButtonElement);
+		append(this.BackBtn, [createImage('Back', 'absolute object-center h-full w-full', 'game_ui/Backbtn.png')]);
+
+		this.SettingPan = createDiv('setting-pan', 'relative flex flex-col items-center w-full h-[70%] transition-all duration-200 translate-x-96 space-y-4');
+		append(this.SettingPan ,[createImage('1v1-setting', 'absolute object-center object-fill h-full w-full', 'game_ui/setting/SettingPan.png')]);		
+		this.fillSetingPan();
+
+		append(this.Page, [createImage("1v1", "absolute object-fill object-center h-full w-full opacity-20", '1v1-page.png')]);
+		append(this.Page, [createImage('bot-text', 'z-10 object-center h-[7%] w-[50%] animate-wiggle margin-top-32', 'game_ui/setting/settingText.png')
+							,this.SettingPan , this.BackBtn]);
+
+		this.Page.className = "flex flex-col items-center w-full h-full transition-all duration-300 text-center rounded-xl space-y-4";
+		setTimeout(async() => {
+			this.SettingPan .classList.remove('translate-x-96');
+			this.BackBtn.classList.remove('-translate-x-96');
+		}, 100);
+	}
+
+	private fillSetingPan() {
+		append(this.SettingPan, [this.createOpponentDiv(), this.createPlayerNameDiv()]);
+	}
+
+	private createOpponentDiv(): HTMLElement {
+		const opponentDiv: HTMLElement = createDiv('opponent', 'relative flex items-center h-[13%] w-[70%] translate-y-16 space-x-8');
+
+		this.botBtn = createButton('bot', 'relative flex items-center z-5 hover:scale-105 h-full w-[45%] transition-all duration-200', '');
+		append(this.botBtn, [createImage('bot', 'absolute object-center object-fill h-full w-full', 'game_ui/setting/botPan.png')]);
+
+		this.playerBtn = createButton('player-setting', 'relative flex items-center z-5 hover:scale-105 h-full w-[45%] transition-all duration-200', '');
+		append(this.playerBtn, [createImage('player', 'absolute object-center object-fill h-full w-full', 'game_ui/setting/PlayerPan.png')]);
+
+		append(opponentDiv, [this.botBtn, this.playerBtn]);
+		return opponentDiv;
+	}
+
+	private createPlayerNameDiv(): HTMLElement {
+		const PlayerNameDiv: HTMLElement = createDiv('player-name', 'flex flex-col h-[30%] w-[70%] translate-y-16 space-y-4');
+
+		append(PlayerNameDiv, [createImage('player-name', 'z-5 object-center object-fill h-[30%] w-[40%]', 'game_ui/setting/playerNamestext.png')]);
+
+		const playerADiv: HTMLElement = createDiv('player-name', 'relative flex h-[30%] w-full space-x-4');
+		append(playerADiv, [createImage('playerA', 'z-5 object-center object-fill h-full w-[40%]', 'game_ui/setting/playerA.png'), createFormDiv(['', '', '', true], '', '', ['h-full w-[40%]','','', ''])]);
+
+		const playerBDiv: HTMLElement = createDiv('player-name', 'relative flex h-[30%] w-full space-x-4');
+		append(playerBDiv, [createImage('playerB', 'z-5 object-center object-fill h-full w-[40%]', 'game_ui/setting/playerB.png'), createFormDiv(['', '', '', true], '', '', ['h-full w-[40%]','','', ''])]);
+
+		append(PlayerNameDiv, [playerADiv, playerBDiv]);
+		return PlayerNameDiv;
+	}
+
+	private createScorelimitDiv(): HTMLElement {
+		const scoreLimitDiv: HTMLElement = createDiv('score-limit', 'flex flex-col h-[30%]');
+		return scoreLimitDiv;
+	}
 	/******************************************getter*************************************/
 	get _PlayerA() :string{
 		return this.PlayerA;
@@ -63,6 +146,21 @@ export class LocalGamePage {
 		return this.Option;
 	}
 
+	get	_playBtn(): HTMLButtonElement {
+		return this.PlayBtn;
+	}
+
+	get _settingBtn(): HTMLButtonElement {
+		return this.SettingBtn;
+	}
+
+	get _backBtn(): HTMLButtonElement {
+		return this.BackBtn;
+	}
+
+	get _settingPan(): HTMLElement {
+		return this.SettingPan;
+	}
 	/******************************************getter*************************************/
 	set setPlayerA(PlayerA: string){
 		this.PlayerA = PlayerA;

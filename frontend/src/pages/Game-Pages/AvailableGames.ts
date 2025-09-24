@@ -196,7 +196,7 @@ export class availableGames {
 			})
 		})
 
-		document.getElementById("delete-btn")?.addEventListener('click', async (e) => {
+		document.getElementById("delete-btn")?.addEventListener('click', async(e) => {
 			this.PartyMap?.forEach(async (value, key) => {
 				if (value.checked) {
 					if (!tournament)
