@@ -1,8 +1,8 @@
-import { error } from "ajv/dist/vocabularies/applicator/dependencies.js";
 import { getUserIdFromSlug } from "../requests/GetUserIdFromSlug.js"
+import { checkIdFormat, checkSlugFormat } from "../../tools/CheckFormat.js"
 
 // Gives the list of tournaments linked to a player
-// Security : Road is protected to logged-in users
+// Security : Road is protected to logged-in users and from SQLi
 export async function getTournamentsForSlug(request, reply) {
 	console.log('➡️ User accessed GET /:slug/tournaments');
 
@@ -10,11 +10,14 @@ export async function getTournamentsForSlug(request, reply) {
 	if (!slug) {
 		return reply.status(400).send({ error: 'No slug found in request.'});
 	}
+	if (checkSlugFormat(slug) === false) {
+		return reply.status(400).send({ error: 'Bad slug format.'});
+	}
 
 	let userId = 0; 
 	const req = await getUserIdFromSlug(slug);
 	if (!req.ok) {
-		console.log("❌ Unable to get userId from slug");
+		console.log("❌ Unable to get userId from slug (" + slug + ")");
 		return reply.status(404).send({ error: "Requested user not found."});
 	} else {
 		userId = req.userId;
@@ -22,7 +25,7 @@ export async function getTournamentsForSlug(request, reply) {
 
 	const { db } = request.server;
 	if (!db) {
-		console.error('❌ Error while getting tournaments: database connection not found');
+		console.error('❌ Error while getting tournaments: database connection not found.');
 		return reply.status(500).send({ error: 'No database connection found.'});
 	}
 
@@ -33,24 +36,27 @@ export async function getTournamentsForSlug(request, reply) {
 			return reply.status(200).send([]);
 		}
 		console.log(`Found ${tournaments.length} tournaments for user ${userId}`);
-		// console.log(tournaments);
+		// console.log(tournaments); // To show the found data
 		return reply.status(200).send(tournaments);
 	}
 	catch (error) {
 		console.error('❌ Error fetching tournaments:');
 		console.log(error);
-		return reply.status(500).send({error: 'Internal server error while fetching tournaments'});
+		return reply.status(500).send({error: 'Internal server error while fetching tournaments.'});
 	}
 }
 
 // Gives the list of matches linked to a tournament
-// Security : Road is protected to logged-in users
+// Security : Road is protected to logged-in users and from SQLi
 export async function getTournamentMatches(request, reply) {
 	console.log('➡️ User accessed GET /:tournamentId');
 
 	const { tournamentId } = request.params;
 	if (!tournamentId) {
 		return reply.status(400).send({ error: 'No tournamentId found in request.'});
+	}
+	if (checkIdFormat(tournamentId) === false) {
+		return reply.status(400).send({ error: 'Bad tournamentId format.'});
 	}
 
 	const { db } = request.server;
@@ -66,7 +72,7 @@ export async function getTournamentMatches(request, reply) {
 			return reply.status(404).send({ error : 'No tournament found.'});
 		}
 		console.log(`Found ${matches.length} matches for id ${tournamentId}`);
-		console.log(matches);
+		// console.log(matches); // To show the found data
 		return reply.status(200).send(matches);
 	}
 	catch (error) {
@@ -77,12 +83,16 @@ export async function getTournamentMatches(request, reply) {
 }
 
 // Gives infos about the next match from a tournament
+// Security : Road is protected to logged-in users and from SQLi
 export async function getTournamentNextMatch(request, reply) {
 	console.log('➡️ User accessed GET /:tournamentId/next-match');
 
 	const { tournamentId } = request.params;
 	if (!tournamentId) {
 		return reply.status(400).send({ error: 'Missing input.'});
+	}
+	if (checkIdFormat(tournamentId) === false) {
+		return reply.status(400).send({ error: 'Bad tournamentId format.'});
 	}
 
 	const { db } = request.server;
@@ -95,15 +105,17 @@ export async function getTournamentNextMatch(request, reply) {
 		console.log("Trying to find next match from tournamentId " + tournamentId);
 		const match = db.getNextMatchForTournamentId(tournamentId);
 		if (!match) {
+			console.log("No next match found.");
 			return reply.status(404).send({error: 'No next match found for this tournament.'});
 		}
-		console.log(match);
+		console.log("Next match found: match " + match.id_match);
+		// console.log(match); // To show the found data
 		return reply.status(200).send(match);
 	}
 	catch (error) {
 		console.error('❌ Error fetching tournament next match:');
 		console.log(error);
-		return reply.status(500).send({error: 'Internal server error while fetching tournament next match'});
+		return reply.status(500).send({error: 'Internal server error while fetching tournament next match.'});
 	}
 }
 
