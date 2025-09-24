@@ -7,7 +7,9 @@ export async function deleteTournament(request, reply) {
 	console.log('➡️ User accessed DELETE /tournament/:gameId');
 
     const requestingUserId = request.user.idUser;
-	
+	if (!requestingUserId)
+		return reply.status(401).send({ error: "Unauthorized."});
+
 	const { tournamentId } = request.params;
     if (!tournamentId) {
         return reply.status(400).send({error: 'No tournamentId found in request.'});

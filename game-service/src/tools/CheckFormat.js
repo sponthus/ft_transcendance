@@ -17,6 +17,41 @@ export function    checkSlugFormat(slug)
     return (true);
 }
 
+export function	checkTournamentCreationFormat(request)
+{
+	const schema = 
+	{
+		type: "object",
+		properties:
+		{
+			name: { 
+				type: "string", 
+				minLength: 3, 
+				maxLength: 30, 
+				pattern: "^(?=.*[a-zA-ZÀ-ÿ0-9])[a-zA-ZÀ-ÿ0-9 \\-]+$" 
+			},
+			players: 
+			{ 
+				type: "array", 
+				anyOf: [
+					{ minItems: 4, maxItems: 4 },
+					{ minItems: 8, maxItems: 8 }
+				],
+				items: { type: "string" },
+				uniqueItems: true 
+			}
+		},
+		required: ["name", "players"],
+		additionalProperties: false
+	};
+	const ajv = new Ajv();
+	const BodyContract = ajv.compile(schema);
+	const valid = BodyContract(request.body);
+	if (!valid)
+		return (false);
+	return (true);
+}
+
 export function	checkGameCreationFormat(request)
 {
 	const schema = 
