@@ -1,4 +1,4 @@
-//<reference types="vite/client" />
+/// <reference types="vite/client" />
 import { refreshNotification } from "../Utils/notification";
 import Ajv, { ErrorObject } from "ajv";
 
