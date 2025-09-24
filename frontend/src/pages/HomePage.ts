@@ -1,10 +1,6 @@
-import { checkLog } from "../api/user-service/connection/check-log.js";
-import { navigate } from "../core/router.js";
 import { BasePage } from "./BasePage.js";
-import { getUserInfo } from "../api/user-service/user-info/getUserInfo.js";
-import { updateUsername } from "../api/user-service/user-info/updateUsername.js";
-import { addFriend } from "../api/user-service/menu/friendsList.js";
 import { append, createAnchorElement, createDiv, createImage } from "../Utils/elementMaker.js";
+import { checkLog } from "../api/user-service/connection/check-log.js";
 
 export class HomePage extends BasePage {
 
@@ -13,46 +9,41 @@ export class HomePage extends BasePage {
 	private ButtonDiv!: HTMLElement;
 	private LogoDiv!: HTMLElement;
 
-    constructor() {
-        super();
-    }
+	constructor() {
+		super();
+	}
 
-	//ou mettre le check log ? 
-    async render(): Promise<void> {
+	async render(): Promise<void> {
 
-		
+
 		await this.renderBanner();
 		await this.InitDivs();
 		await this.createLogo();
-		
-		/*if (state.isLoggedIn()) 
-			await this.renderLogInHome();*/
-		//verifier que ca marche 
-		console.log("Check si token existe dans home page");
+
 		const res = await checkLog();
-		if (res.ok)
-		{
+		if (res.ok) {
 			await this.renderLogInHome();
 		}
-		else 
-		{
+		else {
 			await this.rengerLogoutHome();
-			alert(res.error); //Met une alerte sur l'absence ou l'expiration du token
 		}
-		await this.addInApp();
-    }
-	
+		
+	await this.addInApp();
+	}
+
 	private async InitDivs() {
 		this.Background = this.initBackground();
-		this.Front = createDiv("front", "flex items-center justify-center rounded-xl shadow-2xl p-12 max-w-md w-full h-[30%] text-center");
+		this.Front = createDiv("front", "flex items-center justify-center rounded-xl shadow-2xl p-12 max-w-md absolute bottom-1 translate-y-32 w-full h-[30%] text-center");
 		this.ButtonDiv = createDiv("Button", "flex flex-col items-center justify-center space-y-6 w-full");
 	}
-	
+
 	private async createLogo() {
-		this.LogoDiv = createDiv("logo", "flex items-center justify-center h-[70%] w-full");
-		append(this.LogoDiv, [(createImage("logo", "mx-auto object-contain object-center absolute h-[70%] w-[70%]", "/logo/logoIlsandWorld.png") as HTMLImageElement)
-						, (createImage("logo-title-Text", "absolute h-1/2 w-1/2 translate-y-32", "/logo/IslandWorldText.png") as HTMLImageElement)
-						, (createImage("logo-Welcome.text", "absolute h-1/2 w-1/2 translate-x-14",  "/logo/welcomeText.png") as HTMLImageElement)]);
+	this.LogoDiv = createDiv("logo", "relative bottom-24 grid place-items-center min-h-[70%] h-[70%] min-w-full w-full animate-wiggle -my-[30px]");
+	append(this.LogoDiv, [
+	    (createImage("logo", "col-start-1 row-start-1 object-contain h-[100%] w-[70%]", "/logo/logoIlsandWorld.png") as HTMLImageElement),
+	    (createImage("logo-title-Text", "col-start-1 row-start-1 h-1/2 w-1/2 translate-y-32", "/logo/IslandWorldText.png") as HTMLImageElement),
+	    (createImage("logo-Welcome.text", "col-start-1 row-start-1 h-1/2 w-1/2 translate-x-14", "/logo/welcomeText.png") as HTMLImageElement)
+	]);
 		append(this.Background, [this.LogoDiv]);
 	}
 

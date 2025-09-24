@@ -38,7 +38,7 @@ export async function   getBackgroundColor(): Promise<ColorResult>
     const res = await fetch('/api/user/menu/color', 
     {
         method: 'GET',
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        headers: { 'Authorization': `Bearer ${token}` },
     });
     const data = await res.json();
     if (res.ok)

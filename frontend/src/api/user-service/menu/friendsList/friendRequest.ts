@@ -1,0 +1,72 @@
+
+type FriendsSuccess = {ok: true, friends?: AllFriends[] }
+type Failure = { ok: false; error: string };
+
+export type AllFriends = 
+{
+    username: string;
+    slug: string;
+    avatar: string;
+};
+
+
+export type FriendsResult = FriendsSuccess | Failure;
+
+//marche mais beaucoup de cas pas gérer (doublon par exemple), faire attention
+export async function   addFriend(slug: string): Promise<FriendsResult>
+{
+    const token = localStorage.getItem("token");
+    if (!token)
+        return {ok: false, error: "No token found"};
+    const res = await fetch('/api/user/menu/friendslist', 
+    {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify({ slug }),
+    });
+    if (res.ok) 
+    {
+        return { ok: true };
+    }
+    const data = await res.json(); // il est la car au dessus le JSON envoye est vide  
+    return { ok: false, error: data.error};
+}
+
+export async function   removeFriend(slug: string): Promise<FriendsResult>
+{
+    const token = localStorage.getItem("token");
+    if (!token)
+        return {ok: false, error: "No token found"};
+    console.log("FRONT remove friend");
+    const res = await fetch('/api/user/menu/friendslist', 
+    {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify({ slug }),
+    });
+    if (res.ok) 
+    {
+        return { ok: true };
+    }
+    const data = await res.json();    
+    return { ok: false, error: data.error};
+}
+
+export async function   getAllFriends(): Promise<FriendsResult>
+{
+    const token = localStorage.getItem("token");
+    if (!token)
+        return {ok: false, error: "No token found"};
+    const res = await fetch('/api/user/menu/friendslist/', 
+    {
+        method: 'GET',
+        headers: { 'Authorization': `Bearer ${token}` },
+    });
+    const data = await res.json();    
+    if (res.ok) 
+    {
+        return { ok: true,  friends: data.friends};
+    }
+    return { ok: false, error: data.error};
+}
+

@@ -3,7 +3,7 @@ import { spawnImpactFX} from "./impactFX";
 import { spawnExplosionFX } from "./impactFX";
 import { crabmehamehaFX } from "./impactFX";
 import { Score } from "./score";
-import { Socket } from "../../../core/Socket";
+import { GameSocket } from "../../../core/GameSocket.js";
 
 interface BallMesh extends Mesh {
 	direction: Vector3;
@@ -37,6 +37,10 @@ export class GamePhysics {
 
 	private _Win: boolean = false;
 
+	private socket: GameSocket | null = null;
+	private inputMap: Record<string, boolean> = {};
+	private ready: boolean = false; // Is the backend server ready to launch game ?
+
 	constructor(
 		ball: BallMesh,
 		scene: Scene,
@@ -60,49 +64,45 @@ export class GamePhysics {
 		this.setupControls();
 	}
 
-	private setupControls()
-	{
-		const	playerId = "player1"; // prompt("t ki ? player1 ou player2 ?") || "player1";
-		const	inputMap: Record<string, boolean> = {};
-		const	socket = Socket.getInstance();
-		if (!socket || !socket.ws)
-			return;
-		//const	socket = new WebSocket("ws://192.168.1.30:8080");
+	public launchSocket(gameId: number) {
+		this.socket = new GameSocket(gameId);
+		if (!this.socket) {
+			throw new Error("Error creating socket");
+			return ;
+		}
 
-		this._scene.actionManager = new ActionManager(this._scene);
+		// this.socket.send(JSON.stringify({
+		// 	type: "gameMode",
+		// 	// playerId: this.playerId,
+		// 	mode: this._gameMode,
+		// 	option: this._gameOption
+		// }));
 
-		this._scene.actionManager.registerAction(
-			new ExecuteCodeAction(ActionManager.OnKeyDownTrigger, evt => {
-				inputMap[evt.sourceEvent.key.toLowerCase()] = true;
-			})
-		);
-
-		this._scene.actionManager.registerAction(
-			new ExecuteCodeAction(ActionManager.OnKeyUpTrigger, evt => {
-				delete inputMap[evt.sourceEvent.key.toLowerCase()];
-			})
-		);
-			socket.send(JSON.stringify({
-				type: "gameMode",
-				playerId: playerId,
-				mode: this._gameMode,
-				option: this._gameOption
-			}));
-				// envoie les inputs au serveur
-			setInterval(() => {
-				socket.send(JSON.stringify({ // traduire en JSON
-					type: "input",
-					playerId: playerId, // fixe pour test, à améliorer plus tard
-					input: inputMap
-				}));
-			}, 33); // 30fps
 		// stocke l’état serveur
-		socket.ws.onmessage = (event) => {
+		this.socket.ws.onmessage = (event) => {
+			// TODO : Check data in socket
 			const data = JSON.parse(event.data); // Traduire en variable
+			if (data.type =="gameMode")
+			{
+				if (data.ai == 0)
+					this._gameMode = 1;
+				else
+					this._gameMode = 0;
+				this._gameOption = data.option;
+				return;
+			}
+			if (data.type == "auth_success")
+			{
+				this.ready = true;
+				this.socket!.send(JSON.stringify({
+					type: "start"
+				}));
+			}
+			
 			if (data.type == "pong")
 			{
 				console.log('Received pong from server');
-				socket.clearHeartbeatTimeout();
+				this.socket?.clearHeartbeatTimeout();
 				return;
 			}
 			if (data.type === "stateUpdate")
@@ -117,6 +117,42 @@ export class GamePhysics {
 				this._Win = true;
 			}
 		};
+
+		// envoie les inputs au serveur
+		setInterval(() => {
+			if (this.ready) {
+				this.socket?.send(JSON.stringify({ // traduire en JSON
+					type: "input",
+					// playerId: this.playerId, // fixe pour test, à améliorer plus tard
+					input: this.inputMap
+				}));
+			}
+		}, 33); // 30fps
+	}
+
+	public stopGame() {
+		if (this.socket)
+			this.socket.close();
+		this.ready = false;
+	}
+
+	private setupControls()
+	{
+		// const	playerId = "player1"; // prompt("t ki ? player1 ou player2 ?") || "player1";
+
+		this._scene.actionManager = new ActionManager(this._scene);
+
+		this._scene.actionManager.registerAction(
+			new ExecuteCodeAction(ActionManager.OnKeyDownTrigger, evt => {
+				this.inputMap[evt.sourceEvent.key.toLowerCase()] = true;
+			})
+		);
+
+		this._scene.actionManager.registerAction(
+			new ExecuteCodeAction(ActionManager.OnKeyUpTrigger, evt => {
+				delete this.inputMap[evt.sourceEvent.key.toLowerCase()];
+			})
+		);
 	}
 
 	private updateFrontend()
@@ -154,7 +190,7 @@ export class GamePhysics {
 
 	private pauseManager()
 	{
-		if (this._menuPause)
+		if (this._menuPause && this.ready)
 		{
 			if (this._serverState.ispaused === true)
 			{

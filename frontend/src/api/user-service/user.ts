@@ -23,45 +23,14 @@ export type GetUserResult = AuthFullSuccess | Failure;
 export type AvatarUploadResult = AvatarUploadSuccess | Failure;
 export type UserModificationResult = UserModificationSuccess | Failure;
 
-// GET /api/user/:slug request to get user infos
-/*export async function getUserInfo(slug: string): Promise<GetUserResult> {
-    const token = localStorage.getItem("token");
-    if (!token) {
-        return { ok: false, error: "No token found" };
-    }
-
-    const res = await fetch(`/api/user/${slug}`, {
-        method: 'GET',
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-        },
-    });
-
-    if (res.ok) {
-        console.log("Request for user info accepted");
-        const data = await res.json();
-        return { ok: true, token: data.token, user: {
-            username: data.username,
-            slug: data.slug,
-            id: data.id,
-            avatar: data.avatar,
-            created_at: data.created_at } };
-    }
-    else {
-        const error = await res.json();
-        return { ok: false,
-            error: error?.error || "Info not received from back" };
-    }
-}*/
 
 // PUT /api/user/:slug/avatar request to change avatar path
 export async function modifyUserAvatar(slug: string, avatar: string): Promise<AvatarUploadResult> {
     const token = localStorage.getItem("token");
     if (!token) {
+		console.log("no token found");
         return { ok: false, error: "No token found" };
     }
-
     const res = await fetch(`/api/user/${slug}/avatar`, {
         method: 'PUT',
         headers: {
@@ -70,6 +39,7 @@ export async function modifyUserAvatar(slug: string, avatar: string): Promise<Av
         },
         body: JSON.stringify({ avatar }),
     });
+	console.log("modify user avatar called");
     if (res.ok) {
         console.log("Request for avatar path change accepted");
         const data = await res.json();

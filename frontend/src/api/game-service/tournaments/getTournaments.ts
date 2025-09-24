@@ -45,18 +45,18 @@ type NextMatchData = {
 type TournamentNextMatch = { ok: true; next_match: NextMatchData }
 type TournamentNextMatchResult = TournamentNextMatch | Failure;
 
-// GET /:userId/tournaments
+// GET /:slug/tournaments
 // All available tournaments for a user, no filter
 // Security : Accessible for every logged-in user
-export async function getAllTournaments(userId: number):  Promise<TournamentsResult> {
+export async function getAllTournaments(slug: string):  Promise<TournamentsResult> {
 	const token = localStorage.getItem("token");
     if (!token)
         return { ok: false, error: "No token"};
-    if (!userId) {
-        return { ok: false, error: 'User ID is required' };
+    if (!slug) {
+        return { ok: false, error: 'Slug is required' };
     }
     try {
-        const response = await fetch(`/api/games/${userId}/tournaments`, {
+        const response = await fetch(`/api/games/${slug}/tournaments`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -78,12 +78,12 @@ export async function getAllTournaments(userId: number):  Promise<TournamentsRes
     }
 }
 
-// GET /:userId/tournaments
+// GET /:slug/tournaments
 // All available tournaments for a user, filtered = pending, between_games
 // Security : Accessible for every logged-in user
-export async function getAvailableTournaments(userId: number): Promise<TournamentsResult> {
+export async function getAvailableTournaments(slug: string): Promise<TournamentsResult> {
 	try {
-		const allTournamentsResult = await getAllTournaments(userId);
+		const allTournamentsResult = await getAllTournaments(slug);
 		if (!allTournamentsResult.ok) {
 			return { ok: false, error: allTournamentsResult.error };
 		}

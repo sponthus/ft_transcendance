@@ -1,4 +1,4 @@
-type AssetSuccess = { ok: true; asset: number };
+type AssetSuccess = { ok: true; asset?: number };
 type Failure = { ok: false; error: string };
 
 export type AssetResult = AssetSuccess | Failure;
@@ -14,11 +14,11 @@ export async function   changeCharacterAsset (asset: number): Promise<AssetResul
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
         body: JSON.stringify({ asset }),
     });
-    const data = await res.json();    
     if (res.ok) 
     {
-        return { ok: true, asset: data.asset};
+        return { ok: true };
     }
+    const data = await res.json();    
     return { ok: false, error: data.error};
 }
 
@@ -30,7 +30,7 @@ export async function   getCharacterAsset(): Promise<AssetResult>
     const res = await fetch('/api/user/menu/character/asset', 
     {
         method: 'GET',
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        headers: { 'Authorization': `Bearer ${token}` },
     });
     const data = await res.json();    
     if (res.ok) 
