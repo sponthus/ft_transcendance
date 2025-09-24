@@ -1,19 +1,19 @@
 
-type FriendsSuccess = {ok: true, friends?: AllFriends }
+type FriendsSuccess = {ok: true, friends?: AllFriends[] }
 type Failure = { ok: false; error: string };
 
-type AllFriends = 
+export type AllFriends = 
 {
     username: string;
     slug: string;
     avatar: string;
-}[];
+};
 
 
 export type FriendsResult = FriendsSuccess | Failure;
 
 //marche mais beaucoup de cas pas gérer (doublon par exemple), faire attention
-export async function   addFriend(username: string): Promise<FriendsResult>
+export async function   addFriend(slug: string): Promise<FriendsResult>
 {
     const token = localStorage.getItem("token");
     if (!token)
@@ -22,7 +22,7 @@ export async function   addFriend(username: string): Promise<FriendsResult>
     {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-        body: JSON.stringify({ username }),
+        body: JSON.stringify({ slug }),
     });
     if (res.ok) 
     {
@@ -32,7 +32,7 @@ export async function   addFriend(username: string): Promise<FriendsResult>
     return { ok: false, error: data.error};
 }
 
-export async function   removeFriend(username: string): Promise<FriendsResult>
+export async function   removeFriend(slug: string): Promise<FriendsResult>
 {
     const token = localStorage.getItem("token");
     if (!token)
@@ -42,7 +42,7 @@ export async function   removeFriend(username: string): Promise<FriendsResult>
     {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-        body: JSON.stringify({ username }),
+        body: JSON.stringify({ slug }),
     });
     if (res.ok) 
     {
@@ -60,7 +60,7 @@ export async function   getAllFriends(): Promise<FriendsResult>
     const res = await fetch('/api/user/menu/friendslist/', 
     {
         method: 'GET',
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        headers: { 'Authorization': `Bearer ${token}` },
     });
     const data = await res.json();    
     if (res.ok) 

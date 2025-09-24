@@ -183,8 +183,14 @@ export class EditProfile extends popUp {
 	}
 
 	private async saveDataUser() {
-		await this.saveUsername();
-		this.openUploadForm();
+		switch(this.EditingState) {
+			case EditState.AVATAR:
+				await this.openUploadForm();
+				break;
+			case EditState.USERNAME:
+				await this.saveUsername();
+				break;
+		}
 	}
 
 	private async saveUsername() {
@@ -210,6 +216,7 @@ export class EditProfile extends popUp {
 
 	async openUploadForm() {
 
+		console.log("upload form function called");
 		const form = document.getElementById('avatar-upload-form') as HTMLFormElement;
 		if (!form) 
 			return ;
@@ -233,6 +240,7 @@ export class EditProfile extends popUp {
 			const pathReq = await modifyUserAvatar(this.UserData.slug, req.avatar);
 			if (pathReq.ok) {
 				await navigate(`/user/${this.UserData.slug}`);
+				alert("avatar modify successfully");
 				return ;
 			}
 			else {

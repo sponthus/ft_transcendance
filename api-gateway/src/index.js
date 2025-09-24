@@ -21,7 +21,7 @@ console.log('Parameters for app are being set'); // debug
 // Otherwise gives a 429 code
 await app.register(rateLimit, {
     global: true,
-    max: 100,
+    max: 100, // too change to 100
     timeWindow: '100 seconds'
 });
 
