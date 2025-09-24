@@ -3,13 +3,13 @@ import bcrypt from "bcrypt";
 
 export default async function   updatePassword (request, reply)
 {
-    const   db = request.server.db;
-    const   idUser = request.user.idUser;
-    const   newPassword = request.body.password;
-
     if (checkPasswordFormat(request) == false)
         return reply.code(400).send( {error : "Invalid format for password"} );
 
+    const   db = request.server.db;
+    const   idUser = request.user.idUser;
+    const   newPassword = request.body.password;
+    
     try
     {
         let saltRounds = 10;//nombre de tour de calcul

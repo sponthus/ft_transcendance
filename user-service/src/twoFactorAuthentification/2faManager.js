@@ -1,15 +1,25 @@
 import speakeasy from "speakeasy";
 import qrcode from 'qrcode';
+import { checkCodeFormat } from "../tools/checkFormat.js";
 
 export async function activateTwoFa(request, reply)
 {
     const   db = request.server.db;
     const   idUser = request.user.idUser;
 
-    console.log("ici activer 2FA");
     try
     {
-        const row = db.prepare("  SELECT \
+         const stmt = db.prepare("  SELECT \
+                                        twofa_secret \
+                                    FROM \
+                                        users \
+                                    WHERE \
+                                        id = ?").get(idUser);
+        console.log('popo :', stmt.twofa_secret);
+        if ( stmt.twofa_secret)
+            return reply.code(400).send({ error: "2FA setup already activated" });
+
+        const row = db.prepare("    SELECT \
                                         username \
                                     FROM \
                                         users \
@@ -51,14 +61,58 @@ export async function activateTwoFa(request, reply)
     }
 }
 
-export async function validate2FaTwoFa(request, reply)
+export async function validateTwoFa(request, reply)
 {
-    const   db = request.server.db;
-    const   idUser = request.user.idUser;
-
     if (checkCodeFormat(request) == false)
         return reply.code(400).send( {error : "Invalid format for 2FA code "} );
 
+    const   db = request.server.db;
+    const   idUser = request.user.idUser;
+    const   code = request.body.code;
+
+    console.log(" code : -" + code + "-");
+    try
+    {
+        const row = db.prepare("    SELECT \
+                                        twofa_secret \
+                                    FROM \
+                                        users \
+                                    WHERE \
+                                        id = ?").get(idUser);
+        //decrypter cle secret 2fa
+        if (!row || !row.twofa_secret)
+            return reply.code(400).send({ error: "No 2FA setup found" });
+
+        const codeServer = speakeasy.totp({
+         secret: row.twofa_secret,
+        encoding: "base32"
+        });
+
+        console.log("💡 Code serveur:", codeServer);
+
+    
+        const   codeVerified = speakeasy.totp.verify(
+        {
+            secret: row.twofa_secret,
+            encoding: "base32",
+            token: code,
+            window: 1 //si il ya de la latence ou un decalage avec l' heure du user c'est 30s + 30s ??
+        });
+        if (!codeVerified)
+            return reply.code(401).send({ error: "Invalid 2FA code" });
+        
+        db.prepare( "   UPDATE \
+                            users \
+                        SET \
+                            twofa_enabled = 1 \
+                        WHERE \
+                            id = ?").run(idUser);
+        return reply.code(200).send();
+    }
+    catch (err)
+    {
+        return reply.code(500).send({ error: "Internal Server Error lol" + err.message});
+    }
 }
 //validate2Fa
 //--> passer 2fa_activated a 1;

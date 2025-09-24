@@ -5,7 +5,7 @@ import { checkLog } from "../api/user-service/connection/check-log.js";
 import { getUserInfoBySlug } from "../api/user-service/user-info/getUserInfo.js";
 import { markNotificationsRead } from "../api/user-service/menu/notifications/markNotificationRead.js";
 import { getAllNotifications } from "../api/user-service/menu/notifications/getNotifications.js";
-import { activateTwoFa } from "../api/user-service/2fa.js";
+import { activateTwoFa, validateTwoFa } from "../api/user-service/2fa.js";
 
 export class HomePage extends BasePage {
 
@@ -33,12 +33,14 @@ export class HomePage extends BasePage {
 			await this.rengerLogoutHome();
 		}
 
-		//TEST A SUPPRIMER
-		const req = await activateTwoFa();
+		//TEST A SUPPRIMER\
+		const req = await validateTwoFa("313081");
 		if (req.ok)
 		{
-			console.log('qrcode:', req.qrCode);
+			console.log('ca marche');
 		}
+		else
+			alert(req.error);
 		//
 		
 	await this.addInApp();

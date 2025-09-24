@@ -8,7 +8,7 @@ import env from "../config/env.js"; //ou c'est ? sert a quoi ?
 async function dbConnector(fastify, options)
 {
     const dbFile = env.usersDbFile || "./users.db";
-    const db = new Database(dbFile) //, { verbose: console.log });
+    const db = new Database(dbFile, { verbose: console.log });
    
     //FAIRE UNE TRANSACTION
     try
@@ -24,7 +24,7 @@ async function dbConnector(fastify, options)
             nickname DEFAULT TEXT NULL,
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
             twofa_enabled INTEGER DEFAULT 0 CHECK(twofa_enabled BETWEEN 0 AND 1),
-            twofa_secret DEFAULT TEXT NULL
+            twofa_secret TEXT DEFAULT NULL
         );
     `);
 

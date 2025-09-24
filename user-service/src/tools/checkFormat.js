@@ -48,7 +48,7 @@ export function    checkCodeFormat(request)
         type: "object",
         properties:
         {
-            username: { type: "string", minLength: 6, maxLength: 6, pattern: "^(?=.*[0-9])[0-9]+$"},
+            code: { type: "string", minLength: 6, maxLength: 6, pattern: "^(?=.*[0-9])[0-9]+$"},
         },
         required: ["code"],
         additionalProperties: false

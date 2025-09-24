@@ -77,6 +77,22 @@ fastify.decorate("authenticate", async function (request, reply)
 });
 
 
+fastify.setErrorHandler((error, request, reply) => {
+    console.error("⚠️ ERROR GLOBAL CAPTURED");
+    console.error("Route:", request.routerPath);
+    console.error("Method:", request.method);
+    console.error("Body:", request.body);
+    console.error("Headers:", request.headers);
+    console.error("Error stack:", error.stack);
+
+    // On renvoie un JSON générique pour l’utilisateur
+    reply.status(error.statusCode || 500).send({
+        error: error.message || "Internal Server Error"
+    });
+});
+
+
+
 
 //enregistre le plugin JWT dans fastify
 fastify.register(fastifyJwt, {
