@@ -74,7 +74,7 @@ export default class DatabaseHandler {
 	INSERT INTO games (status, id_user, player_a, player_b, score, ai, option) VALUES (?, ?, ?, ?, ?, ?, ?)
 			`);
 			const res = stmt.run('pending', userId, playerA, playerB, maxScore, ai, option);
-			const id = res.lastInsertRowId;
+			const id = res.lastInsertRowid;
 			return ({
 				game_id: id, 
 				status: 'pending', 
