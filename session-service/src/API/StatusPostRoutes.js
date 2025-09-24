@@ -14,7 +14,7 @@ export async function sendMessageToUser(request, reply) {
 	if (!WebSocketManager) {
 		console.log("❌ Error while getting sessions: connexion not found");
 		return reply.status(500).send({
-			error: 'No sessions connexion found' });
+			error: 'Internal server error while sending message' });
 	}
 
 	try {
@@ -27,7 +27,7 @@ export async function sendMessageToUser(request, reply) {
 					status: 'accepted' });
 			case 2 :
 				return reply.status(404).send({
-					error: 'Cannot find user' });
+					error: 'Requested user not found.' });
 			case 3 :
 				throw new Error("Unable to send message");
 			default:
