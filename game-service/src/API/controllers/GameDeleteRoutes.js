@@ -8,7 +8,7 @@ export async function deleteGame(request, reply) {
 
     const requestingUserId = request.user.idUser;
 	if (!requestingUserId)
-		return reply.status(401).send({ error: "Unauthorized"});
+		return reply.status(401).send({ error: "Unauthorized."});
     
 	let { gameId } = request.params;
     if (!gameId) {
@@ -30,17 +30,17 @@ export async function deleteGame(request, reply) {
     try {
         const gameToDelete = await db.getGame(gameId);
         if (!gameToDelete) {
-			return reply.status(404).send({ error : 'No game found'});
+			return reply.status(404).send({ error : 'No game found.'});
 		}
         if (gameToDelete.status !== 'pending') {
-            return reply.status(403).send({ error : 'Game is not pending' });
+            return reply.status(403).send({ error : 'Unauthorized, game is not pending.' });
         }
 		if (gameToDelete.id_user !== requestingUserId) {
 			// console.log("Error because found user_id = ", gamesToDelete[0].user_id);
-			return reply.status(403).send({ error: "Forbidden, this is not your game"});
+			return reply.status(403).send({ error: "Unauthorized, this is not your game."});
 		}
         if (gameToDelete.tournament_id)
-            return reply.status(403).send({ error: 'Forbidden, game is linked to a tournament' });
+            return reply.status(403).send({ error: 'Unauthorized, game is linked to a tournament.' });
 
         const result = db.deleteGame(gameId);
         return reply.status(200).send(result);

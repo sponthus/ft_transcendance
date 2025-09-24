@@ -1,3 +1,4 @@
+import { error } from "ajv/dist/vocabularies/applicator/dependencies.js";
 import { getUserIdFromSlug } from "../requests/GetUserIdFromSlug.js"
 
 // Gives the list of tournaments linked to a player
@@ -14,7 +15,7 @@ export async function getTournamentsForSlug(request, reply) {
 	const req = await getUserIdFromSlug(slug);
 	if (!req.ok) {
 		console.log("❌ Unable to get userId from slug");
-		return reply.status(500).send({ error: "Unable to get userId"});
+		return reply.status(404).send({ error: "Requested user not found."});
 	} else {
 		userId = req.userId;
 	}
@@ -62,7 +63,7 @@ export async function getTournamentMatches(request, reply) {
 		console.log("Trying to find tournaments with tournamentId " + tournamentId);
 		const matches = db.getMatchesForTournamentId(tournamentId);
 		if (!matches || matches.length === 0) {
-			return reply.status(200).send([]);
+			return reply.status(404).send({ error : 'No tournament found.'});
 		}
 		console.log(`Found ${matches.length} matches for id ${tournamentId}`);
 		console.log(matches);
@@ -81,7 +82,7 @@ export async function getTournamentNextMatch(request, reply) {
 
 	const { tournamentId } = request.params;
 	if (!tournamentId) {
-		return reply.status(400).send({ error: 'No tournamentId found in request.'});
+		return reply.status(400).send({ error: 'Missing input.'});
 	}
 
 	const { db } = request.server;
@@ -94,7 +95,7 @@ export async function getTournamentNextMatch(request, reply) {
 		console.log("Trying to find next match from tournamentId " + tournamentId);
 		const match = db.getNextMatchForTournamentId(tournamentId);
 		if (!match) {
-			return reply.status(404).send([]);
+			return reply.status(404).send({error: 'No next match found for this tournament.'});
 		}
 		console.log(match);
 		return reply.status(200).send(match);

@@ -6,7 +6,7 @@ export async function createTournament(request, reply) {
     const { name, players } = request.body;
     if (!players || !name) {
         console.log("Lack of given data");
-        return reply.status(400).send({error: 'Invalid input, expected : userId, players'});
+        return reply.status(400).send({error: 'Wrong input format, expected : userId, players.'});
     }
 
     const { db } = request.server;
@@ -17,7 +17,7 @@ export async function createTournament(request, reply) {
     
     const requestingUserId = request.user.idUser;
 	if (!requestingUserId)
-		return reply.status(401).send({ error: "Unauthorized"});
+		return reply.status(401).send({ error: "Unauthorized."});
 
     console.log('userId = ' + requestingUserId + ' / name ' + name + ' / players ' + players);
     
@@ -28,6 +28,6 @@ export async function createTournament(request, reply) {
     catch (error) {
 		console.log('❌ Error creating tournament : ');
 		console.log(error);
-        return reply.status(500).send({ error: 'Internal server error while creating tournament'});
+        return reply.status(500).send({ error: 'Internal server error while creating tournament.'});
     }
 }

@@ -5,7 +5,7 @@ export async function deleteTournament(request, reply) {
 	
 	const { tournamentId } = request.params;
     if (!tournamentId) {
-        return reply.status(400).send({error: 'No gameId found in request.'});
+        return reply.status(400).send({error: 'No tournamentId found in request.'});
     }
 
     const { db } = request.server;
@@ -38,7 +38,7 @@ export async function deleteTournament(request, reply) {
 			return reply.status(403).send({ error: "Forbidden, this is not your tournament"});
 		}
 
-        const result = db.deleteTournament(tournamentId);
+        db.deleteTournament(tournamentId);
         return reply.status(200).send({
 			action: "deleted",
 			name: tournamentToDelete.name
@@ -46,6 +46,6 @@ export async function deleteTournament(request, reply) {
     } catch (error) {
         console.error('❌ Error deleting tournament: ');
 		console.log(error);
-		return reply.status(500);
+		return reply.status(500).send({ error: 'Internal server error while deleting tournament.' });
     }
 }

@@ -8,7 +8,7 @@ export async function startGame(request, reply) {
     
 	const requestingUserId = request.user.idUser;
 	if (!requestingUserId)
-		return reply.status(401).send({ error: "Unauthorized"});
+		return reply.status(401).send({ error: "Unauthorized."});
 	
 	const { db } = request.server;
 	if (!db) {
@@ -38,7 +38,7 @@ export async function startGame(request, reply) {
         // console.log("Trying to find games with gameId " + gameId);
         const game = await db.getGame(gameId);
         if (!game)
-            return reply.status(404).send({ error : 'No game found' });
+            return reply.status(404).send({ error : 'No game found.' });
 		userId = game.id_user;
         player_a = game.player_a;
         player_b = game.player_b;
@@ -54,12 +54,12 @@ export async function startGame(request, reply) {
     catch (error) {
 		console.error('❌ Error fetching games: ');
 		console.log(error);
-        return reply.status(500).send({ error: "Internal server error while fetching games" });
+        return reply.status(500).send({ error: "Internal server error while fetching games." });
     }
 	
 	// Only the user can launch his own games, game must be pending
 	if (userId != requestingUserId)
-		return reply.status(401).send({ error: "Unauthorized, this is not your game"});
+		return reply.status(401).send({ error: "Unauthorized, this is not your game."});
 	if (status !== 'pending')
 		return reply.status(401).send({ error : 'Game is not pending' });
 
@@ -68,7 +68,7 @@ export async function startGame(request, reply) {
         const gameMaster = GameMaster.getInstance();
         if (!gameMaster) {
 			console.error('❌ Error : No GameMaster found while fetching games');
-            return reply.status(500).send({error: 'Internal server error while fetching users'});
+            return reply.status(500).send({error: 'Internal server error while fetching games.'});
         }
         gameMaster.createServer(gameId, userId, maxScore, tournament, ai, option);
         return reply.status(201).send({
@@ -78,13 +78,14 @@ export async function startGame(request, reply) {
             player_b: player_b,
             maxScore: maxScore,
 			tournament_id: tournament,
-			ai: ai
+			ai: ai,
+			option: option
         });
     }
     catch (error) {
         console.error('❌ Error creating game server:')
 		console.log(error);
-        return reply.status(500).send({error: 'Internal server error while creating games'});
+        return reply.status(500).send({error: 'Internal server error while fetching games.'});
     }
 }
 
@@ -149,6 +150,6 @@ export async function createGame(request, reply) {
     catch (error) {
 		console.log("❌ Error creating game : ")
 		console.log(error);
-        return reply.status(500).send({ error: "Game creation failed " + error.message });
+        return reply.status(500).send({ error: "Internal server error creating game."});
     }
 }

@@ -18,11 +18,11 @@ export async function getGamesForSlug(request, reply) {
 	const req = await getUserIdFromSlug(slug);
 	if (!req.ok) {
 		console.log("❌ Unable to get userId from slug");
-		return reply.status(500).send({ error: "Unable to get userId"});
+		return reply.status(404).send({ error: "Requested user not found."});
 	} else {
 		if (checkIdFormat(req.userId) === false) {
 			console.log("❌ Bad userId format got from slug");
-			return reply.status(400).send({ error: 'Bad userId format from slug.'});
+			return reply.status(500).send({ error: 'Internal server error: Wrong user data format.'});
 		}
 		userId = parseInt(req.userId, 10);
 		console.log("Got userId ", userId, " from slug ", slug);

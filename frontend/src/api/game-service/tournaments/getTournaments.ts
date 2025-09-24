@@ -12,6 +12,7 @@ type TournamentsInfos = {
 	began_at: string;
 	finished_at: string;
 	winner: string;
+	option: number;
 }
 
 type TournamentsList = { ok: true; tournaments: TournamentsInfos[] }
@@ -97,7 +98,8 @@ export async function getAvailableTournaments(slug: string): Promise<Tournaments
 				created_at: tournament.created_at,
 				began_at: tournament.began_at,
 				finished_at: tournament.finished_at,
-				winner: tournament.winner
+				winner: tournament.winner,
+				option: tournament.option
 			}));
 
 		return { ok: true, tournaments: pendingTournaments };
@@ -161,7 +163,8 @@ export async function getTournamentNextMatch(tournamentId: number): Promise<Tour
         });
 
         if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+			const data = await response.json();
+            throw new Error(data.error);
         }
 
 		const data = await response.json();

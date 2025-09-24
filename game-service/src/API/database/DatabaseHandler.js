@@ -372,11 +372,14 @@ export default class DatabaseHandler {
             }
 
             const result = {
-                tournamentId: tournamentId,
+                tournament_id: tournamentId,
+				name: name,
+				status: "pending",
                 numberOfPlayers: playersResult.length,
                 rounds: roundsResults,
                 nextGameId: nextGameId,
-				option: option
+				option: option,
+				players: players
             };
             return (result);
         });
