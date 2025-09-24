@@ -34,10 +34,10 @@ export class HomePage extends BasePage {
 		}
 
 		//TEST A SUPPRIMER\
-		const req = await validateTwoFa("313081");
+		const req = await validateTwoFa("182597");
 		if (req.ok)
 		{
-			console.log('ca marche');
+			console.log('obj: ', req.qrCode);
 		}
 		else
 			alert(req.error);

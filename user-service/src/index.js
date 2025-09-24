@@ -40,18 +40,17 @@ fastify.decorate("authenticate", async function (request, reply)
     {
         await request.jwtVerify(); //Décode et verifie le token et stock ses infos dans request
         console.log("Decoded token:", request.user);
+        if (request.user.twofa_pending === true)
+            return reply.code(401).send({ error: "2FA required" });
     } 
     catch (err)
     {
-        console.log('err.code : ', err.message)
         if (err.message === "Authorization token expired")
         {
             return reply.code(401).send({error : err.message});
         }
         else
         {
-            console.log("COUCOUO")
-
             return reply.code(400).send({error : err.message});
         }
     }

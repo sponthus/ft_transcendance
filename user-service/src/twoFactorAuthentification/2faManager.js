@@ -46,12 +46,12 @@ export async function activateTwoFa(request, reply)
         //secret.base32 --> format standard pour TOTP
         //secret.otpauth_url --> pour generer QR code 
         
-        const qrDataUrl = await qrcode.toDataURL(secret.otpauth_url);
+        const qrDataUrl = await qrcode.toDataURL(secret.otpauth_url) ;
 
         //si je veux une saisie manuelle je dois envoyer la cle secret en clair pause un pb de secu*/
 
         const qrAscii = await qrcode.toString(secret.otpauth_url, {type: 'terminal'}); //temporaire, permet de tester 
-        console.log(qrAscii);
+        console.log(qrAscii); //enlever
 
         return reply.code(200).send({ qrCode: qrDataUrl });
     }
@@ -100,6 +100,7 @@ export async function checkTwoFaCode(request, reply)
         if (!codeVerified)
             return reply.code(401).send({ error: "Invalid 2FA code" });
        
+        let msg = "2fa verified"
         if (row.twofa_enabled === 0)
         {
              db.prepare( "  UPDATE \
@@ -108,8 +109,9 @@ export async function checkTwoFaCode(request, reply)
                                 twofa_enabled = 1 \
                             WHERE \
                                 id = ?").run(idUser);
+            msg = "2fa enabled";
         }
-        return reply.code(200).send();
+        return reply.code(200).send({ msg: msg });
     }
     catch (err)
     {

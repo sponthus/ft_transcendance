@@ -37,15 +37,15 @@ export async function  checkTwoFaCode(url:string, code: string): Promise<Result>
              headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
             body: JSON.stringify({ code }),
         });
+        const data = await res.json();
         if (res.ok)
         {
-            return ({ ok: true });
+            return ({ ok: true, qrCode: data.msg });
         }
-        const data = await res.json();
-        return ( { ok: false, error: data.error } );
+        return ({ ok: false, error: data.error });
     }
     catch (err)
     {
-        return { ok: false, error: "Network error" };
+        return ({ ok: false, error: "Network error" });
     }
 }
