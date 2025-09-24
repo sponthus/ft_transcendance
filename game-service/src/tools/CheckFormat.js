@@ -27,7 +27,7 @@ export function	checkGameCreationFormat(request)
 			player_a: { type: "string", minLength: 1, maxLength: 15, pattern: "^[a-z0-9]+(-[0-9]+)?$" },
 			player_b: { type: "string", minLength: 1, maxLength: 15, pattern: "^[a-z0-9]+(-[0-9]+)?$" },
 			requestedMaxScore: { type: "integer", minimum: 1, maximum: 21 },
-			requestedAi: { type: "string", enum: ["0", "1"] },
+			requestedAi: { type: "string", enum: ["0", "1", "2"] },
 			requestedOption: { type: "string", enum: ["0", "1"] }
 		},
 		required: [player_a, player_b],

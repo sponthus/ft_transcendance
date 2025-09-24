@@ -1,5 +1,6 @@
+import { format } from 'node:path';
 import GameMaster from '../../GameMaster.js';
-import { checkIdFormat } from '../../tools/CheckFormat.js';
+import { checkGameCreationFormat, checkIdFormat } from '../../tools/CheckFormat.js';
 
 // Starts a game server
 // Security : Road is protected to logged-in users, only a user can launch his own games, protected versus SQLi
@@ -90,55 +91,43 @@ export async function startGame(request, reply) {
 }
 
 // Creation of a game for the player doing the request
-// Security : Road is protected to logged-in users
-// TODO = Add input validation VS SQL injections
+// Security : Road is protected to logged-in users, protected versus SQLi
 export async function createGame(request, reply) {
 	console.log('➡️ User accessed POST /game');
 
 	const { idUser } = request.user;
+	const formatCheck = checkGameCreationFormat(request.body);
+	if (!formatCheck.valid) {
+		return reply.status(400).send({ error: 'Bad input format - ' + formatCheck.errors});
+	}
 	const { player_a, player_b, requestedMaxScore, requestedAi, requestedOption } = request.body;
 	const { db } = request.server;
+	if (!db) {
+		console.error('❌ Error while creating game: database connection not found');
+		return reply.status(500).send({error: 'No database connection found.'});
+	}
 
 	const userId = idUser;
 	console.log('userId = ' + userId + ' playA ' + player_a + ' playB ' + player_b);
-	if (!userId || !player_a || !player_b || player_a === player_b) {
-		console.log("Lack of given data");
-		return reply.status(400).send({error: 'Invalid input, expected : userId, player_a != player_b'});
+	if (player_a === player_b) {
+		console.log("Player A cannot be equal to Player B");
+		return reply.status(400).send({error: 'Bad input format - player_a != player_b'});
 	}
 	if (!db) {
 		console.error('❌ Error while deleting game: database connection not found');
 		return reply.status(500).send({error: 'No database connection found.'});
 	}
 
-	if ((requestedMaxScore && (requestedMaxScore < 1 && requestedMaxScore > 50))
-		|| (requestedAi && (requestedAi != 0 && requestedAi != 1 && requestedAi != 2)) 
-		|| (requestedOption && (requestedOption != 0 && requestedOption != 1))) {
-		console.log("Bad options");
-		return reply.status(400).send({error: 'Invalid options, expected : ai(0 | 1 | 2), option(0, 1), 1 <= maxScore <= 50 '});
-	}
-
 	let finalMaxScore = 7;
 	let finalAi = 0;
 	let finalOption = 1;
 	if (requestedMaxScore) {
-		if (requestedMaxScore < 1 && requestedMaxScore > 50) {
-			console.log("Bad options");
-			return reply.status(400).send({error: 'Invalid option, expected : 1 <= maxScore <= 50'});
-		}
 		finalMaxScore = requestedMaxScore;
 	}
 	if (requestedAi) {
-		if (requestedAi != 0 && requestedAi != 1 && requestedAi != 2) {
-			console.log("Bad options");
-			return reply.status(400).send({error: 'Invalid option, expected : ai(0 | 1 | 2)'});
-		}
 		finalAi = requestedAi;
 	}
 	if (requestedOption) {
-		if (requestedOption != 0 && requestedOption != 1) {
-			console.log("Bad options");
-			return reply.status(400).send({error: 'Invalid options, expected : option(0, 1)'});
-		}
 		finalOption = requestedOption;
 	}
 	console.log("Options taken into account = ", finalMaxScore, finalAi, finalOption);
