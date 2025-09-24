@@ -22,12 +22,12 @@ export default async function loginUser (request, reply)
                                             username = ?").get(username);
         if (!userData)
             return (reply.code(401).send({error : "Username or password invalid"}));
-        //if ((bcrypt.compareSync(password, userData.pw_hash) == false))
-          //  return(reply.code(401).send({error : "Username or password invalid"})); //message generique pour les attaques
+        if ((bcrypt.compareSync(password, userData.pw_hash) == false))
+            return(reply.code(401).send({error : "Username or password invalid"})); //message generique pour les attaques
         const idUser = userData.id;
         const slug = userData.slug;
         const token = await reply.jwtSign({ idUser, username, slug }, {expiresIn: '1h'});
-        return reply.code(200).send({ token: token, username: userData.username, slug: userData.slug, id: userData.id });
+        return reply.code(200).send({ token: token, twoFaEnabled: userData.twofa_enabled });
     }
     catch (err)
     {

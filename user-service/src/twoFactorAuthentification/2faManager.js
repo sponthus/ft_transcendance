@@ -61,7 +61,7 @@ export async function activateTwoFa(request, reply)
     }
 }
 
-export async function validateTwoFa(request, reply)
+export async function checkTwoFaCode(request, reply)
 {
     if (checkCodeFormat(request) == false)
         return reply.code(400).send( {error : "Invalid format for 2FA code "} );
@@ -70,11 +70,10 @@ export async function validateTwoFa(request, reply)
     const   idUser = request.user.idUser;
     const   code = request.body.code;
 
-    console.log(" code : -" + code + "-");
     try
     {
         const row = db.prepare("    SELECT \
-                                        twofa_secret \
+                                        twofa_secret, twofa_enabled \
                                     FROM \
                                         users \
                                     WHERE \
@@ -83,12 +82,12 @@ export async function validateTwoFa(request, reply)
         if (!row || !row.twofa_secret)
             return reply.code(400).send({ error: "No 2FA setup found" });
 
-        const codeServer = speakeasy.totp({
+        /*const codeServer = speakeasy.totp({
          secret: row.twofa_secret,
         encoding: "base32"
         });
 
-        console.log("💡 Code serveur:", codeServer);
+        console.log("💡 Code serveur:", codeServer);*/ //voir le code du serveur
 
     
         const   codeVerified = speakeasy.totp.verify(
@@ -100,18 +99,21 @@ export async function validateTwoFa(request, reply)
         });
         if (!codeVerified)
             return reply.code(401).send({ error: "Invalid 2FA code" });
-        
-        db.prepare( "   UPDATE \
-                            users \
-                        SET \
-                            twofa_enabled = 1 \
-                        WHERE \
-                            id = ?").run(idUser);
+       
+        if (row.twofa_enabled === 0)
+        {
+             db.prepare( "  UPDATE \
+                                users \
+                            SET \
+                                twofa_enabled = 1 \
+                            WHERE \
+                                id = ?").run(idUser);
+        }
         return reply.code(200).send();
     }
     catch (err)
     {
-        return reply.code(500).send({ error: "Internal Server Error lol" + err.message});
+        return reply.code(500).send({ error: "Internal Server Error" });
     }
 }
 //validate2Fa
