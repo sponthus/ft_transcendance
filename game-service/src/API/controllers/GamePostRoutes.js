@@ -96,9 +96,11 @@ export async function createGame(request, reply) {
 	console.log('➡️ User accessed POST /game');
 
 	const { idUser } = request.user;
-	const formatCheck = checkGameCreationFormat(request.body);
+	const formatCheck = checkGameCreationFormat(request);
 	if (!formatCheck.valid) {
-		return reply.status(400).send({ error: 'Bad input format - ' + formatCheck.errors});
+		console.log("Bad input format : ");
+		console.log(formatCheck.errors);
+		return reply.status(400).send({ error: 'Bad input format : expected player_a, player_b, optional requestedMaxScore, requestedAi, requestedOption. '});
 	}
 	const { player_a, player_b, requestedMaxScore, requestedAi, requestedOption } = request.body;
 	const { db } = request.server;

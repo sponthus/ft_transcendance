@@ -34,7 +34,7 @@ export async function deleteTournament(request, reply) {
 		console.log(tournamentToDelete);
 		console.log("Status to check:", tournamentToDelete.status, typeof tournamentToDelete.status);
         if (tournamentToDelete.status !== 'pending') {
-			if (tournamentToDelete.status === 'between-games' ) {
+			if (tournamentToDelete.status === 'between_games' ) {
 				const result = db.updateTournamentStatus(tournamentId, 'canceled');
 				return reply.status(200).send({
 					action: "canceled",

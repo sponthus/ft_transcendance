@@ -47,9 +47,10 @@ export function	checkTournamentCreationFormat(request)
 	const ajv = new Ajv();
 	const BodyContract = ajv.compile(schema);
 	const valid = BodyContract(request.body);
-	if (!valid)
-		return (false);
-	return (true);
+    return {
+        valid,
+        errors: BodyContract.errors
+    };
 }
 
 export function	checkGameCreationFormat(request)
@@ -59,38 +60,45 @@ export function	checkGameCreationFormat(request)
 		type: "object",
 		properties:
 		{
-			player_a: { type: "string", minLength: 1, maxLength: 15, pattern: "^[a-z0-9]+(-[0-9]+)?$" },
-			player_b: { type: "string", minLength: 1, maxLength: 15, pattern: "^[a-z0-9]+(-[0-9]+)?$" },
+			player_a: { 
+				type: "string", 
+				minLength: 3, 
+				maxLength: 20, 
+				pattern: "^(?=.*[a-zA-ZÀ-ÿ0-9])[a-zA-ZÀ-ÿ0-9 \\-]+$" },
+			player_b: { 
+				type: "string", 
+				minLength: 3, 
+				maxLength: 15, 
+				pattern: "^(?=.*[a-zA-ZÀ-ÿ0-9])[a-zA-ZÀ-ÿ0-9 \\-]+$" },
 			requestedMaxScore: { type: "integer", minimum: 1, maximum: 21 },
-			requestedAi: { type: "string", enum: ["0", "1", "2"] },
-			requestedOption: { type: "string", enum: ["0", "1"] }
+			requestedAi: { type: "number", minimum: 0, maximum: 2 },
+			requestedOption: { type: "number", minimum: 0, maximum: 1 }
 		},
-		required: [player_a, player_b],
+		required: ["player_a", "player_b"],
 		additionalProperties: false
 	};
 	const ajv = new Ajv();
 	const BodyContract = ajv.compile(schema);
 	const valid = BodyContract(request.body);
-	if (!valid)
-		return (false);
-	return (true);
+    return {
+        valid,
+        errors: BodyContract.errors
+    };
 }
 
-export function    checkUsernameFormat(request)
+export function    checkUsernameFormat(username)
 {
     const schema = 
     {
-        type: "object",
-        properties:
-        {
-            username: { type: "string", minLength: 3, maxLength: 15, pattern: "^(?=.*[a-zA-Z])[^\\[\\]{}();]+$"},
-        },
-        required: ["username"],
-        additionalProperties: false
-    };
+        type: "string", 
+		minLength: 3, 
+		maxLength: 15, 
+		pattern: "^(?=.*[a-zA-Z])[^\\[\\]{}();]+$"
+	};
     const ajv = new Ajv();
     const contract = ajv.compile(schema);
-    const valid = contract(request.body);
+    const valid = contract(username);
+	console.log(contract.errors);
     if (!valid)
         return (false);
     return (true);

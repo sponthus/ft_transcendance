@@ -1,4 +1,4 @@
-import { checkTournamentCreationFormat, checkUsernameFormat } from "../../tools/CheckFormat";
+import { checkTournamentCreationFormat, checkUsernameFormat } from "../../tools/CheckFormat.js";
 
 // Create a new tournament
 // Security : Road is protected to logged-in users and from SQLi
@@ -9,7 +9,7 @@ export async function createTournament(request, reply) {
 	if (!requestingUserId)
 		return reply.status(401).send({ error: "Unauthorized."});
     
-	if (checkTournamentCreationFormat(request.body) === false) {
+	if (checkTournamentCreationFormat(request) === false) {
 		return reply.status(400).send({ error: 'Bad tournament creation format - expected : name, players[array of 4 or 8 unique names].'});
 	}
     const { name, players } = request.body;
