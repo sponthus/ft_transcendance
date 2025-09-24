@@ -207,12 +207,9 @@ export default class WebSocketManager {
 	}
 
 	updateUserStatus(userId, status) {
-		console.log("Updating status of ", userId, "with", status);
+		console.log("Updating status of", userId, "with", status);
 		if (this.clients.has(Number(userId))) {
 			const client = this.clients.get(Number(userId));
-			if (client.status == "playing" && status == "online") {
-				status = "playing";
-			}
 			client.status = status;
 			console.log(`✅ User status modification : ${userId} (${status})`);
 			return {

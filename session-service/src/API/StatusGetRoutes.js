@@ -1,4 +1,4 @@
-import { checkGameCreationFormat, checkSlugFormat } from "../CheckFormat.js";
+import { checkSlugFormat } from "../CheckFormat.js";
 
 // Gives the status of a user : online, playing, disconnected
 // Security : Road is protected to logged-in users and SQLi
@@ -8,11 +8,11 @@ export async function getStatusForSlug(request, reply) {
 
 	const { slug } = request.params;
 	if (!slug) {
-		console.error('❌❌❌❌❌❌❌❌❌❌❌❌❌ No slug found in request params');
+		console.error('❌ No slug found in request params');
 		return reply.status(400).send({error: 'No slug found in request.'});
 	}
 	if (checkSlugFormat(slug) === false) {
-		console.error('❌❌❌❌❌❌❌❌❌❌❌❌❌ Bad slug format sent in request params');
+		console.error('❌ Bad slug format sent in request params');
 		return reply.status(400).send({ error: 'Bad slug format.'});
 	}
 

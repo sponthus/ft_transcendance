@@ -7,15 +7,15 @@ export async function sendMessageToUser(request, reply) {
 	
 	const { userId } = request.params;
 	if (!userId) {
-		console.error('❌❌❌❌❌❌❌❌❌❌❌❌❌ No userId found in request params');
+		console.error('❌ No userId found in request params');
 		return reply.status(400).send({error: 'No userId found in request.'});
 	}
 	if (checkIdFormat(userId) === false) {
-		console.error('❌❌❌❌❌❌❌❌❌❌❌❌❌ Bad userId found in request params');
+		console.error('❌ Bad userId found in request params');
 		return reply.status(400).send({ error: 'Bad userId format.'});
 	}
 	if (checkSendMessageFormat(request) === false) {
-		console.error('❌❌❌❌❌❌❌❌❌❌❌❌❌ Bad data format sent in request body');
+		console.error('❌ Bad data format sent in request body');
 		return reply.status(400).send({ error: 'Bad data format - expected : sender, message.'});
 	}
 	const { sender, message } = request.body;

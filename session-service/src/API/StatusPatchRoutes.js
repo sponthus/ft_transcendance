@@ -8,15 +8,15 @@ export async function changeUserInfos(request, reply) {
 	
 	const { userId } = request.params;
 	if (!userId) {
-		console.error('❌❌❌❌❌❌❌❌❌❌❌❌❌ No userId found in request params');
+		console.error('❌ No userId found in request params');
 		return reply.status(400).send({error: 'No userId found in request.'});
 	}
 	if (checkIdFormat(userId) === false) {
-		console.error('❌❌❌❌❌❌❌❌❌❌❌❌❌ Bad userId found in request params');
+		console.error('❌ Bad userId found in request params');
 		return reply.status(400).send({ error: 'Bad userId format.'});
 	}
 	if (checkChangeInfosFormat(request) === false) {
-		console.error('❌❌❌❌❌❌❌❌❌❌❌❌❌ Bad data format sent in request body');
+		console.error('❌ Bad data format sent in request body');
 		return reply.status(400).send({ error: 'Bad data format - expected : username, slug.'});
 	}
 	const { username, slug } = request.body;
@@ -27,8 +27,9 @@ export async function changeUserInfos(request, reply) {
 		return reply.status(500).send({ error: 'No database connection found.'});
 	}
 
-	const data = WebSocketManager.updateUserInfos(userId, username, slug);
+	const data = WebSocketManager.updateUserInfos(Number(userId), username, slug);
 	if (data == null) {
+		console.log(`User with ${userId} not found.`);
 		return reply.status(404).send({error: 'Requested user doesn\'t exist'});
 	}
 	return reply.status(200).send({ userId: data.userId, username: data.username, slug: data.slug });
@@ -37,27 +38,27 @@ export async function changeUserInfos(request, reply) {
 
 // Updates the status of a user (playing | online | disconnected)
 // Expecting in the body: status
-// Security : Road is protected to service-only
+// Security : Road is protected to service-only and from SQLi
 export async function changeUserStatus(request, reply) {
 	console.log('➡️ User accessed PATCH /status/:userId');
 	
 	const { userId } = request.params;
 	if (!userId) {
-		console.error('❌❌❌❌❌❌❌❌❌❌❌❌❌ No userId found in request params');
+		console.error('❌ No userId found in request params');
 		return reply.status(400).send({error: 'No userId found in request.'});
 	}
 	if (checkIdFormat(userId) === false) {
-		console.error('❌❌❌❌❌❌❌❌❌❌❌❌❌ Bad userId format sent in request params');
+		console.error('❌ Bad userId format sent in request params');
 		return reply.status(400).send({ error: 'Bad userId format.'});
 	}
 
 	let { status } = request.body;
 	if (!status) {
-		console.error('❌❌❌❌❌❌❌❌❌❌❌❌❌ No status found in request body');
+		console.error('❌ No status found in request body');
 		return reply.status(400).send({error: 'No status found in request.'});
 	}
 	if (checkStatusFormat(status) === false) {
-		console.error('❌❌❌❌❌❌❌❌❌❌❌❌❌ Wrong status format sent in request body');
+		console.error('❌ Wrong status format sent in request body');
 		return reply.status(400).send({error: 'Wrong status sent for update (playing | not_playing).'});
 	}
 
