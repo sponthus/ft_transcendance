@@ -4,8 +4,10 @@ export class PongGame {
 	constructor(gameId, ai, option) {
 		if (ai == 0)
 			this.gameMode = 0;
+		else if (ai == 1)
+			this.gameMode = 1
 		else 
-			this.gameMode = 1;
+			this.gameMode = 2;
 
 		if (option)
 			this.gameOption = 1;
@@ -27,7 +29,7 @@ export class PongGame {
 
 		this.paddle1 = { x: 0 };
 		this.paddle2 = { x: 0 };
-		this.speedPaddle = 0.2;
+		this.speedPaddle = 1;
 
 		this.ball = {
 			x: 0,
@@ -105,30 +107,43 @@ export class PongGame {
 
 	movePlayer1()
 	{
-		if (this.input1.q && this.paddle1.x > this.groundLimiteNegatif + 0.5)
-			this.paddle1.x -= this.speedPaddle;
-		if (this.input1.e && this.paddle1.x < this.groundLimitePositif - 0.5)
-			this.paddle1.x += this.speedPaddle;
+		if (this.gameMode === 1)
+		{
+			// IA débile
+			if (this.paddle1.x > this.ball.x)
+				this.paddle1.x -= this.speedPaddle * this.dt;
+			else if (this.paddle1.x === this.ball.x)
+				;
+			else
+				this.paddle1.x += this.speedPaddle * this.dt;
+		}
+		else
+		{
+			if (this.input1.q && this.paddle1.x > this.groundLimiteNegatif + 0.5)
+				this.paddle1.x -= this.speedPaddle * this.dt;
+			if (this.input1.e && this.paddle1.x < this.groundLimitePositif - 0.5)
+				this.paddle1.x += this.speedPaddle * this.dt;
+		}
 	}
 
 	movePlayer2()
 	{
-		if (this.gameMode === 1)
-		{
-			if (this.input1['7'] && this.paddle2.x > this.groundLimiteNegatif + 0.5)
-				this.paddle2.x -= this.speedPaddle;
-			if (this.input1['9'] && this.paddle2.x < this.groundLimitePositif - 0.5)
-				this.paddle2.x += this.speedPaddle;
-		}
-		else
+		if (this.gameMode === 2)
 		{
 			// IA débile
 			if (this.paddle2.x > this.ball.x)
-				this.paddle2.x -= this.speedPaddle;
+				this.paddle2.x -= this.speedPaddle * this.dt;
 			else if (this.paddle2.x === this.ball.x)
 				;
 			else
-				this.paddle2.x += this.speedPaddle;
+				this.paddle2.x += this.speedPaddle * this.dt;
+		}
+		else
+		{
+			if (this.input1['7'] && this.paddle2.x > this.groundLimiteNegatif + 0.5)
+				this.paddle2.x -= this.speedPaddle * this.dt;
+			if (this.input1['9'] && this.paddle2.x < this.groundLimitePositif - 0.5)
+				this.paddle2.x += this.speedPaddle * this.dt;
 		}
 		
 	}
@@ -225,14 +240,26 @@ export class PongGame {
 
 	crabmehameha()
 	{
-		if (this.input1.x && this.specialCooldown1 < 0 && this.die1 === false)
+		if (this.gameMode === 1 && this.die1 === false)
 		{
-			this.isSpellGo1 = true;
-			this.specialCooldown1 = 50;
+			if (this.specialCooldown1 < 0 && this.die1 === false)
+			{
+				this.isSpellGo1 = true;
+				this.specialCooldown1 = 50;
+			}
 		}
-		if (this.gameMode === 1 && this.die2 === false)
+		else
 		{
-			if (this.input1['3'] && this.specialCooldown2 < 0)
+			if (this.input1.x && this.specialCooldown1 < 0 && this.die1 === false)
+			{
+				this.isSpellGo1 = true;
+				this.specialCooldown1 = 50;
+			}
+		}
+
+		if (this.gameMode === 2 && this.die2 === false)
+		{
+			if (this.specialCooldown2 < 0 && this.die2 === false)
 			{
 				this.isSpellGo2 = true;
 				this.specialCooldown2 = 50;
@@ -240,7 +267,7 @@ export class PongGame {
 		}
 		else
 		{
-			if (this.specialCooldown2 < 0 && this.die2 === false)
+			if (this.input1['3'] && this.specialCooldown2 < 0)
 			{
 				this.isSpellGo2 = true;
 				this.specialCooldown2 = 50;
