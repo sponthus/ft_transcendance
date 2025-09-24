@@ -116,8 +116,7 @@ export default class WebSocketManager {
 
 		this.sendToWs(ws, {
             type: 'auth_success',
-            gameId: gameId,
-            timestamp: Date.now()
+            gameId: gameId
         });
 
         await gameMaster.updateUserStatus(data.idUser);

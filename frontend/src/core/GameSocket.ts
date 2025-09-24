@@ -1,3 +1,88 @@
+/// <reference types="vite/client" />
+import Ajv, { ErrorObject } from "ajv";
+
+export interface WebSocketMessage {
+	type: string;
+	gameId?: number; // For auth_success messages
+	gameState?: any; // For game state updates
+	winner?: string; // For game end messages
+	scoreA?: number; // For game end messages
+	scoreB?: number; // For game end messages
+}
+
+export interface FormatCheckResult {
+	valid: boolean;
+	errors: ErrorObject[] | null | undefined;
+}
+
+// Checks the format of the message recieved via the websocket
+// It will contain exactly what's expected of be rejected
+export function checkWebSocketMessageFormat(message: WebSocketMessage): FormatCheckResult {
+	const schema = {
+		type: "object",
+		properties: {
+			type: { type: "string", minLength: 3 },
+			gameId: { type: "number", minimum: 1 },
+			gameState: { 
+				type: "object",
+				properties: {
+					paddle1: { type: "object" },
+					paddle2: { type: "object" },
+					ball: { type: "object" },
+					score: { type: "object" },
+					spell1: { type: "object" },
+					spell2: { type: "object" },
+					specialCooldown1: { type: "object" },
+					specialCooldown2: { type: "object" },
+					die1: { type: "boolean" },
+					die2: { type: "boolean" },
+					ispaused: { type: "boolean" }
+				},
+				required: ["paddle1", "paddle2", "ball", "score", "spell1", "spell2", "specialCooldown1", "specialCooldown2", "die1", "die2", "ispaused"],
+				additionalProperties: false
+			},
+			winner: { type: "string", minLength: 1, maxLength: 30 },
+			scoreA: { type: "number", minimum: 0 },
+			scoreB: { type: "number", minimum: 0 }
+		},
+		additionalProperties: false,
+		required: ["type"],
+		allOf: [
+			{
+				if: { properties: { type: { const: "auth_success" } } },
+				then: {
+					required: ["type", "gameId"],
+				}
+			},
+			{
+				if: { properties: { type: { const: "ping" } } },
+				then: {
+					required: ["type"],
+				}
+			},
+			{
+				if: { properties: { type: { const: "stateUpdate" } } },
+				then: {
+					required: ["type", "gameState"],
+				}
+			},
+			{
+				if : { properties: { type: { const: "endGame" } } },
+				then: {
+					required: ["type", "winner", "scoreA", "scoreB"],
+				}
+			}
+		]
+	};
+	const ajv = new Ajv();
+	const validate = ajv.compile(schema);
+	const valid = validate(message);
+	return {
+		valid,
+		errors: validate.errors
+	};
+}
+
 export class GameSocket {
 	public ws: WebSocket;
 
@@ -46,13 +131,25 @@ export class GameSocket {
         };
 
         this.ws.onmessage = (event) => {
-            try {
-                const data = JSON.parse(event.data);
-				// TODO Check data contains "type"
-                this.handleMessage(data);
+            let data = null;
+			try {
+                data = JSON.parse(event.data);
             } catch (error) {
-                console.error('Error parsing message:', error);
+				console.error('Error parsing JSON message.');
+				// TODO Emma Add logic here, when recieving an invalid message format
+				// Websocket will be closed (someone exterior sent a wrong message to the websocket, normally it's impossible)
+				this.close(3000, 'Invalid message format');
+				return;
             }
+			const checkFormat = checkWebSocketMessageFormat(data);
+			if (checkFormat.valid === false) {
+				console.error("Invalid WebSocket message format:", checkFormat.errors);
+				// TODO Emma Add logic here, when recieving an invalid message format
+				// Websocket will be closed (someone exterior sent a wrong message to the websocket, normally it's impossible)
+				this.close(3000, 'Invalid message format');
+				return;
+			}
+			this.handleMessage(data);
         };
 
         this.ws.onerror = (error) => {
@@ -62,7 +159,8 @@ export class GameSocket {
         this.ws.onclose = () => {
             console.log("Connexion WebSocket closed");
             this.stopHeartbeat();
-            // delete (window as any).GLOBAL_WEBSOCKET;
+			// TODO Emma Add logic here, when the websocket is closed
+			this.reconnect(); // Do we reconnect on close ? Websocket can also be closed if backend recompiles
         };
     }
 
@@ -130,8 +228,33 @@ export class GameSocket {
         return this.ws.readyState === WebSocket.OPEN;
     }
 
-    public close() {
-        if (this.ws)
-            this.ws.close();
+	public reconnect(): void {
+		console.log("Reconnecting to WebSocket server...");
+		this.stopHeartbeat();
+		const reconnectInterval = setInterval(() => {
+			if (!this.isOpen()) {
+				try {
+					console.log("Attempting to reconnect...");
+					this.ws = new WebSocket(this.getGameWsUrl());
+					console.log("Reconnected successfully!");
+					this.setupEventListeners();
+					this.startHeartbeat();
+					clearInterval(reconnectInterval);
+				} catch (error) {
+					console.error("Reconnection attempt failed:", error);
+				}
+			} else {
+				clearInterval(reconnectInterval);
+			}
+		}, 10000); // Try to reconnect every 5 seconds
+		this.ws.close();
+		
+	}
+
+    public close(code: number, reason: string): void {
+        this.stopHeartbeat();
+        if (!this.ws)
+            return;
+        this.ws.close(code, reason);
     }
 }
