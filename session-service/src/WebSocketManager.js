@@ -202,9 +202,7 @@ export default class WebSocketManager {
 		this.registerUser(ws, idUser, username, slug, "online");
 
 		this.sendToWs(ws, {
-			type: 'auth_success',
-			userId: idUser,
-			timestamp: Date.now()
+			type: 'auth_success'
 		});
 		
 
