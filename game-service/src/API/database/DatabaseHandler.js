@@ -391,6 +391,7 @@ export default class DatabaseHandler {
         return (result);
     }
 
+	// Internal only : gives id_user
 	// Gives 1 tournament
 	getTournament(tournamentId) {
 		const transaction = this.db.transaction((tournamentId) => {
