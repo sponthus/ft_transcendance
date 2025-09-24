@@ -56,8 +56,11 @@ export function    checkSlugFormat(request)
     const ajv = new Ajv();
     const contract = ajv.compile(schema);
     const valid = contract(request.body);
-    if (!valid)
+    if (!valid) {
+		console.log("Format errors :");
+		console.log(contract.errors);
         return (false);
+	}
     return (true);
 }
 
