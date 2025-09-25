@@ -26,39 +26,52 @@ export class BabylonSceneBuilder
 		this.initializeBall();
 	}
 
-	private initializeCamera()
-    {
-        this._camera = new Babylon.ArcRotateCamera(
-            "camera",
-            Math.PI,
-            0.8,
-            25,
-            Babylon.Vector3.Zero(),
-            this._scene
-        );
-        window.addEventListener("keydown", (evt) => {
-            switch (evt.key) {
-                case "ArrowUp":
-                    this._camera.setPosition(new Babylon.Vector3(0, 20, 0));
-                    this._camera.alpha = 3.14;          // angle horizontal
-                    //this._camera.beta = 0.5;         // angle vertical (vue du dessus)
-                    this._camera.setTarget(Babylon.Vector3.Zero());
-                    break;
-                case "ArrowDown":
-                    this._camera.setPosition(new Babylon.Vector3(-20, 10, 0));
-                    this._camera.setTarget(Babylon.Vector3.Zero());
-                    break;
-                case "ArrowLeft":
-                    this._camera.setPosition(new Babylon.Vector3(0, 10, 20));
-                    this._camera.setTarget(Babylon.Vector3.Zero());
-                    break;
-                case "ArrowRight":
-                    this._camera.setPosition(new Babylon.Vector3(0, 10, -20));
-                    this._camera.setTarget(Babylon.Vector3.Zero());
-                    break;
-            }
-        });
-    }
+	private initializeCamera() {
+			this._camera = new Babylon.ArcRotateCamera(
+				"camera",
+				Math.PI,
+				0.8,
+				25,
+				Babylon.Vector3.Zero(),
+				this._scene
+			);
+
+			const animateCameraPosition = (newPos: Babylon.Vector3) => {
+				const anim = new Babylon.Animation(
+					"camMove",
+					"position",
+					60,
+					Babylon.Animation.ANIMATIONTYPE_VECTOR3,
+					Babylon.Animation.ANIMATIONLOOPMODE_CONSTANT
+				);
+
+				anim.setKeys([
+					{ frame: 0, value: this._camera.position.clone() },
+					{ frame: 60, value: newPos }
+				]);
+
+				this._camera.animations = [];
+				this._camera.animations.push(anim);
+				this._scene.beginAnimation(this._camera, 0, 60, false);
+			};
+
+			window.addEventListener("keydown", (evt) => {
+				switch (evt.key) {
+					case "ArrowUp":
+						animateCameraPosition(new Babylon.Vector3(-1, 28, 0));
+						break;
+					case "ArrowDown":
+						animateCameraPosition(new Babylon.Vector3(-20, 10, 0));
+						break;
+					case "ArrowLeft":
+						animateCameraPosition(new Babylon.Vector3(0, 10, 20));
+						break;
+					case "ArrowRight":
+						animateCameraPosition(new Babylon.Vector3(0, 10, -20));
+						break;
+				}
+			});
+		}
 
 	private initializeLight()
 	{

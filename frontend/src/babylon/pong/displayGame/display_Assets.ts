@@ -25,6 +25,8 @@ export class DisplayAssets {
 	private _scene: Scene;
 	private _crab1: AbstractMesh | null = null;
 	private _crab2: AbstractMesh | null = null;
+	private _bullBob: AbstractMesh | null = null;
+	private _bullPatrick: AbstractMesh | null = null;
 	private _caste: AbstractMesh | null = null;
 	private _casteAnimation: AnimationGroup[] | null = null;
 	private _crab1Walk: AnimationGroup[] | null = null;
@@ -127,6 +129,21 @@ export class DisplayAssets {
         // appliquer l'offset 180°
         this._menuPause.rotationQuaternion = Quaternion.RotationAxis(new Vector3(0, 1, 0), Math.PI);
 
+
+		const result9 = await ImportMeshAsync("/assets/bullDiscussion2D.glb", this._scene);
+		this._bullBob = result9.meshes[0];
+		//this._bull1.scaling = new Vector3(0.4, 0.4, 0.4);
+		this._bullBob.position = new Vector3(7, 3.5, -2);
+		this._bullBob.billboardMode = Mesh.BILLBOARDMODE_ALL;
+		this._bullBob.setEnabled(false);
+
+
+		const result10 = await ImportMeshAsync("/assets/bullDiscussion2DPatrick.glb", this._scene);
+		this._bullPatrick = result10.meshes[0];
+		this._bullPatrick.position = new Vector3(7, 3.5, 3.5);
+		this._bullPatrick.billboardMode = Mesh.BILLBOARDMODE_ALL;
+		this._bullPatrick.setEnabled(false);
+
 		this._caste.freezeWorldMatrix(); // plus de recalculs de position/rotation/scale
 		this._caste.doNotSyncBoundingInfo = true; // plus de bounding box à recalculer
 		this._caste.isPickable = false; // si t'as pas besoin de clic dessus
@@ -163,6 +180,16 @@ export class DisplayAssets {
 	public get crab2(): AbstractMesh | null
 	{
 		return this._crab2;
+	}
+
+	public get bullBob(): AbstractMesh | null
+	{
+		return this._bullBob;
+	}
+
+	public get bullPatrick(): AbstractMesh | null
+	{
+		return this._bullPatrick;
 	}
 
 	public get menuPause(): AbstractMesh | null

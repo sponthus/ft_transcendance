@@ -19,6 +19,8 @@ export class GamePhysics {
 	private _engine: Engine;
 	private _crab1: AbstractMesh | null;
 	private _crab2: AbstractMesh | null;
+	private _bullBob: AbstractMesh | null;
+	private _bullPatrick: AbstractMesh | null;
 	private _menuPause: AbstractMesh | null;
 	private _light: HemisphericLight;
 
@@ -47,6 +49,8 @@ export class GamePhysics {
 		engine: Engine,
 		crab1: AbstractMesh | null,
 		crab2: AbstractMesh | null,
+		bullBob: AbstractMesh | null,
+		bullPatrick: AbstractMesh | null,
 		menuPause: AbstractMesh | null,
 		light: HemisphericLight
 	) {
@@ -55,9 +59,11 @@ export class GamePhysics {
 		this._engine = engine;
 		this._crab1 = crab1;
 		this._crab2 = crab2;
+		this._bullBob = bullBob;
+		this._bullPatrick = bullPatrick;
 		this._menuPause = menuPause;
 		this._light = light;
-		this._score = new Score(this._scene, this._scoreValue1, this._scoreValue2);
+		this._score = new Score(this._scene, this._scoreValue1, this._scoreValue2, this._bullBob, this._bullPatrick);
 
 		this._ball.speed = 0;
 		console.log("win ? in game physics", this.Win);
