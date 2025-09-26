@@ -6,8 +6,8 @@ class Neuron {
 	name = 0
 	constructor(conf) {
 		this.name = Neuron.name += 1;
-		this.weights = conf.weights; // array of weights
-		this.bias = conf.bias;
+		this.weights = conf["weights"]; // array of weights
+		this.bias = conf["bias"];
 		this.activation_function = ReLu;
 	}
 

@@ -58,7 +58,7 @@ class Trainer:
 	
 		for i in range(nb_games):
 			# game_len / game.dt = max_ticks
-			max_ticks = int(60 / game.dt)
+			max_ticks = int(60 * 60 / game.dt)
 			tick = 0
 			while tick < max_ticks :
 				last_action = action
@@ -67,8 +67,8 @@ class Trainer:
 				game.update(action)
 				tick += 1
 				# time.sleep(game.dt)
-				if (action != last_action):
-					total_score += 100
+				# if (action != last_action):
+				# 	total_score += 100
 			total_score += game.get_ai_score() + game.get_crab_score()
 			game.reset(True)
 			# print(f"Game {i} done - Total score: {total_score}")
@@ -235,12 +235,12 @@ if __name__ == '__main__':
 	# with open("test2", "w") as f:
 	# 	json.dump(network2.get_conf(), f)
 
-	# trainer = Trainer(population_size=50, nb_inputs=6, nb_hidden_layers=3, nb_neurons_per_layer=5, nb_outputs=3)
-	# trainer.train(nb_generations=100, save_rate=10)
+	trainer = Trainer(population_size=50, nb_inputs=6, nb_hidden_layers=3, nb_neurons_per_layer=5, nb_outputs=3)
+	trainer.train(nb_generations=100, save_rate=5)
 	# trainer.print_networks()
 	# trainer.print_networks()
 	# trainer.save_config()
 
-	conf_from_json = parse_json("data_gen_100.json")
-	trainer2 = Trainer(config=conf_from_json)
-	trainer2.train(nb_generations=100, save_rate=10)
+	# conf_from_json = parse_json("data_gen_30.json")
+	# trainer2 = Trainer(config=conf_from_json)
+	# trainer2.train(nb_generations=100, save_rate=10)
