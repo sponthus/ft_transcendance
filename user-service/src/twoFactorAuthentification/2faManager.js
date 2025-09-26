@@ -15,8 +15,7 @@ export async function activateTwoFa(request, reply)
                                         users \
                                     WHERE \
                                         id = ?").get(idUser);
-        console.log('popo :', stmt.twofa_secret);
-        if ( stmt.twofa_secret)
+        if (stmt.twofa_secret)
             return reply.code(400).send({ error: "2FA setup already activated" });
 
         const row = db.prepare("    SELECT \
@@ -33,7 +32,7 @@ export async function activateTwoFa(request, reply)
             symbols: false //plus facile a taper
         });
         //stocker la cle encrypte ici, utilise crypto ? PLUS TARD
-
+        encrypt(secret);
         db.prepare(    "UPDATE \
                             users \
                         SET \
