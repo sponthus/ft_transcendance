@@ -12,7 +12,7 @@ X_SUPERIOR_BALL_LIMIT = 5.8
 X_INFERIOR_PADDLE_LIMIT = -4.5
 X_SUPERIOR_PADDLE_LIMIT = 4.5
 Z_GOAL_LEFT = -9
-Z_PADDLE_LEFT = 8
+Z_PADDLE_LEFT = -8
 Z_PADDLE_RIGHT = 8
 Z_GOAL_RIGHT = 9
 X_PADDLE_HEIGHT = 1
@@ -190,8 +190,8 @@ class PongGame:
 
 		# print(f"[predictBallImpactX] x={x:.2f}, z={z:.2f}, dx={dx:.2f}, dz={dz:.2f}, speed={speed:.2f}, paddleZ={paddleZ}")
 
-		if dz == 0 or dx == 0 or speed == 0 or dz < 0:  # Ball moving away from the paddle
-			print(f"[predictBallImpactX] No impact: dz={dz}, dx={dx}, speed={speed}")
+		if dz == 0 or dx == 0 or speed == 0 or dz > 0:  # Ball moving away from the paddle
+			# print(f"[predictBallImpactX] No impact: dz={dz}, dx={dx}, speed={speed}")
 			return None
 
 		while True:
@@ -241,33 +241,33 @@ class PongGame:
 			else:
 				self.ai_score -= POINTS_MOVE_TO_WALL # Penalize hitting the wall
 		
-		impactX = self.predictBallImpactX(paddleZ=Z_PADDLE_RIGHT)  # Z du paddle IA
-		if impactX is not None:
-			dist = self.paddle1 - impactX
-			# Well placed: paddle covers impact zone
-			if abs(dist) < X_PADDLE_HEIGHT:
-				if action_nn == STILL:
-					self.ai_score += POINTS_WELL_PLACED * 2
-				else:
-					self.ai_score -= POINTS_BAD_PLACED  # Paddle should stay still
-			else:
-				# Not well placed: encourage movement toward impactX
-				if (action_nn == UP and self.paddle1 < impactX):
-					self.ai_score += POINTS_GOOD_DIRECTION
-				elif (action_nn == DOWN and self.paddle1 > impactX):
-					self.ai_score += POINTS_GOOD_DIRECTION
-				else:
-					self.ai_score -= POINTS_BAD_PLACED
-		else:
-			# Ball not heading to paddle: follow ball
-			if abs(self.ball.x - self.paddle1) < 1 and action_nn == STILL:
-				self.ai_score += POINTS_WELL_PLACED
-			elif self.ball.x > self.paddle1 and action_nn == UP:
-				self.ai_score += POINTS_FOLLOW_BALL
-			elif self.ball.x < self.paddle1 and action_nn == DOWN:
-				self.ai_score += POINTS_FOLLOW_BALL
-			else:
-				self.ai_score -= POINTS_DOESNT_FOLLOW_BALL
+		# impactX = self.predictBallImpactX(paddleZ=Z_PADDLE_RIGHT)  # Z du paddle IA
+		# if impactX is not None:
+		# 	dist = self.paddle1 - impactX
+		# 	# Well placed: paddle covers impact zone
+		# 	if abs(dist) < X_PADDLE_HEIGHT:
+		# 		if action_nn == STILL:
+		# 			self.ai_score += POINTS_WELL_PLACED * 2
+		# 		else:
+		# 			self.ai_score -= POINTS_BAD_PLACED  # Paddle should stay still
+		# 	else:
+		# 		# Not well placed: encourage movement toward impactX
+		# 		if (action_nn == UP and self.paddle1 < impactX):
+		# 			self.ai_score += POINTS_GOOD_DIRECTION
+		# 		elif (action_nn == DOWN and self.paddle1 > impactX):
+		# 			self.ai_score += POINTS_GOOD_DIRECTION
+		# 		else:
+		# 			self.ai_score -= POINTS_BAD_PLACED
+		# else:
+		# 	# Ball not heading to paddle: follow ball
+		# 	if abs(self.ball.x - self.paddle1) < 1 and action_nn == STILL:
+		# 		self.ai_score += POINTS_WELL_PLACED
+		# 	elif self.ball.x > self.paddle1 and action_nn == UP:
+		# 		self.ai_score += POINTS_FOLLOW_BALL
+		# 	elif self.ball.x < self.paddle1 and action_nn == DOWN:
+		# 		self.ai_score += POINTS_FOLLOW_BALL
+		# 	else:
+		# 		self.ai_score -= POINTS_DOESNT_FOLLOW_BALL
 
 	
 		# elif action_nn == 3 and self.crab1_cooldown <= 0:
@@ -311,6 +311,8 @@ class PongGame:
 		dx = abs(self.ball.x - paddle)
 		dz = abs(self.ball.z - paddleZ)
 
+		# CONCLUSION z negatif = vers paddle 1 !
+		print("ball z = " + str(self.ball.z) + " dz = " + str(self.ball.dirZ))
 		if (dz < Z_PADDLE_WIDTH and dx < X_PADDLE_HEIGHT and isDie == False):
 			if (paddleZ == -8):
 				# Points if AI touches the ball TODO check me
@@ -335,12 +337,14 @@ class PongGame:
 	def checkGoal(self):
 		if (self.ball.z < Z_GOAL_LEFT or self.ball.z > Z_GOAL_RIGHT):
 			if (self.ball.z < Z_GOAL_LEFT):
-				self.score.s1 += 1
+				self.score.s1 += 1 # L'inverse ???? TODO check me
 				self.ai_score += POINTS_MARK_GOAL # Big bonus for scoring
+				print("GOAL for player 1")
 			else:
-				self.score.s2 += 1
+				self.score.s2 += 1 # L'inverse ???? TODO check me
 				self.ai_score -= POINTS_TAKE_A_GOAL # Penalize for conceding a goal
-			self.reset() # Comment to make game endless no points
+				print("GOAL for player 2")
+			self.reset(total=False) # Comment to make game endless no points
 			self.ball.dirZ *= -1
 
 	def reset(self, total: bool = False):
@@ -383,12 +387,12 @@ class PongGame:
 		self.specialCooldown2 = 3
 
 		# Reset scores
-		if (total):
-			# self.score = { 's1': 0, 's2': 0 }
+		if (total == True):
 			self.score.s1 = 0
 			self.score.s2 = 0
 			self.crab_score = 0
 			self.ai_score = 0
+			# self.score = { 's1': 0, 's2': 0 }
 
 	def crabmehameha(self, action_nn):
 		if (self.gameMode == 1 and self.die1 == False):
