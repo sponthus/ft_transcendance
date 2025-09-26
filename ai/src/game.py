@@ -2,7 +2,7 @@ import numpy as np
 import time
 
 BASE_BALL_SPEED = 1.0
-PLAYER_SPEED = 0.2
+PLAYER_SPEED = 1.0
 SPEED_LIMIT = 2.0
 SPEED_INCREMENT = 0.2
 
@@ -26,24 +26,16 @@ POINTS_MOVE_TO_WALL = 0 # lost if you move to the wall
 POINTS_TOUCH_BALL = 0 # Points for touching the ball
 POINTS_MARK_GOAL = 0 # Points for scoring a goal
 POINTS_TAKE_A_GOAL = 0 # lost if you take a goal
-POINTS_WELL_PLACED = 200 # Points for being well placed to hit the ball
-POINTS_ALMOST_WELL_PLACED = 50 # Points for being almost well placed to hit the ball
-POINTS_GOOD_DIRECTION = 20 # Points for going in the right direction to hit the ball
-POINTS_BAD_PLACED = 200 # lost for being badly placed to hit the ball
-POINTS_CRAB_WELL_LAUNCHED = 10 # Points for launching a crabmehameha well
-POINTS_DOESNT_FOLLOW_BALL = 20 # lost for not following the ball
-POINTS_FOLLOW_BALL = 10 # Points for following the ball
+POINTS_WELL_PLACED = 0 #5.0 # Points for being well placed to hit the ball
+POINTS_ALMOST_WELL_PLACED = 0 #1.0 # Points for being almost well placed to hit the ball
+POINTS_GOOD_DIRECTION = 0 #0.5 # Points for going in the right direction to hit the ball
+POINTS_BAD_PLACED = 0 #2.0 # lost for being badly placed to hit the ball
+POINTS_DOESNT_FOLLOW_BALL = 1.0 #1.0 # lost for not following the ball
+POINTS_FOLLOW_BALL = 0# 1.0 # Points for following the ball
+POINTS_CRAB_WELL_LAUNCHED = 0 #10.0 # Points for launching a crabmehameha well
 # Simulation d'une partie a partir de la physique du jeu
 # Ajout de scores lors de la partie : point quand il a touche la balle
 # Crabmehameha : point quand un crabmehameha est fait alors que la balle est proche d'un ennemi, point ++ quand ca le touche, negatif ++ quand crabmehameha demande alors que indispo
-
-class Ball:
-	def __init__(self, x=0.0, z=-10.0, dirX = 0.0, dirZ = 1.0, speed=BASE_BALL_SPEED):
-		self.x = x
-		self.z = z
-		self.dirX = dirX
-		self.dirZ = dirZ
-		self.speed = speed
 
 # Real pong game from the project
 class PongGame:
@@ -63,11 +55,12 @@ class PongGame:
 		# 	'z' : 10
 		# }
 		class Spell:
-			def __init__(self, x=0.0, z=-10.0):
+			def __init__(self, x, y, z):
 				self.x = x
+				self.y = y
 				self.z = z
-		self.spell1 = Spell(x=0.0, z=-10.0)
-		self.spell2 = Spell(x=0.0, z=10.0)
+		self.spell1 = Spell(x=-0.22, y=1.9, z=-10.56)
+		self.spell2 = Spell(x=0.22, y=1.9, z=10.56)
 
 		self.isSpellGo1 = False
 		self.isSpell1Available = False
@@ -89,11 +82,18 @@ class PongGame:
 		# 	'dirZ': 1,#np.random.uniform(-1, 1),
 		# 	'speed': BASE_BALL_SPEED # unité par seconde
 		# }
+		class Ball:
+			def __init__(self, x=0.0, z=-10.0, dirX = 0.0, dirZ = 1.0, speed=BASE_BALL_SPEED):
+				self.x = x
+				self.z = z
+				self.dirX = dirX
+				self.dirZ = dirZ
+				self.speed = speed
 		self.ball = Ball(
 			x=0.0,
 			z=0.0,
-			dirX=np.random.uniform(0.0, 0.5),
-			dirZ=np.random.uniform(-1.0, 1.0),
+			dirX=np.random.random() - 0.5,
+			dirZ=-1 if np.random.random() < 0.5 else 1,
 			speed=BASE_BALL_SPEED
 		)
 
@@ -110,8 +110,8 @@ class PongGame:
 		self.die1 = False
 		self.die2 = False
 
-		self.ai_score = 0
-		self.crab_score = 0
+		self.ai_score = 0.0
+		self.crab_score = 0.0
 	
 	def setGameMode(self, mode, option):
 		self.gameMode = mode
@@ -188,7 +188,10 @@ class PongGame:
 		dz = self.ball.dirZ
 		speed = self.ball.speed
 
+		# print(f"[predictBallImpactX] x={x:.2f}, z={z:.2f}, dx={dx:.2f}, dz={dz:.2f}, speed={speed:.2f}, paddleZ={paddleZ}")
+
 		if dz == 0 or dx == 0 or speed == 0 or dz < 0:  # Ball moving away from the paddle
+			print(f"[predictBallImpactX] No impact: dz={dz}, dx={dx}, speed={speed}")
 			return None
 
 		while True:
@@ -206,6 +209,7 @@ class PongGame:
 				x_impact = x + dx * speed * tz_paddle
 				# Clamp the impact within the X limits
 				x_impact = max(X_INFERIOR_BALL_LIMIT, min(X_SUPERIOR_BALL_LIMIT, x_impact))
+				print(f"[predictBallImpactX] Impact at x={x_impact:.2f}")
 				return x_impact
 
 			# Otherwise, bounce off the wall
@@ -219,19 +223,20 @@ class PongGame:
 				t_remain = (paddleZ - (z - dz * speed * tx_wall)) / (dz * speed)
 				x_impact = (x - dx * speed * tx_wall) + dx * speed * t_remain
 				x_impact = max(X_INFERIOR_BALL_LIMIT, min(X_SUPERIOR_BALL_LIMIT, x_impact))
+				print(f"[predictBallImpactX] Impact after bounce at x={x_impact:.2f}")
 				return x_impact
 
 	def movePlayer1(self, action_nn):
 
 		if action_nn == DOWN:
-			if self.paddle1 > X_INFERIOR_PADDLE_LIMIT:
-				self.paddle1 -= PLAYER_SPEED
+			if self.paddle1 > X_INFERIOR_BALL_LIMIT + 0.5:
+				self.paddle1 -= PLAYER_SPEED * self.dt
 				self.ai_score += POINTS_MOVE_TO_WALL
 			else:
 				self.ai_score -= POINTS_MOVE_TO_WALL # Penalize hitting the wall
 		elif action_nn == UP:
-			if (self.paddle1 < X_SUPERIOR_PADDLE_LIMIT):
-				self.paddle1 += PLAYER_SPEED
+			if (self.paddle1 < X_SUPERIOR_BALL_LIMIT - 0.5):
+				self.paddle1 += PLAYER_SPEED * self.dt
 				self.ai_score += POINTS_MOVE_TO_WALL
 			else:
 				self.ai_score -= POINTS_MOVE_TO_WALL # Penalize hitting the wall
@@ -255,9 +260,11 @@ class PongGame:
 					self.ai_score -= POINTS_BAD_PLACED
 		else:
 			# Ball not heading to paddle: follow ball
-			if self.ball.x < self.paddle1 and action_nn == UP:
+			if abs(self.ball.x - self.paddle1) < 1 and action_nn == STILL:
+				self.ai_score += POINTS_WELL_PLACED
+			elif self.ball.x > self.paddle1 and action_nn == UP:
 				self.ai_score += POINTS_FOLLOW_BALL
-			elif self.ball.x > self.paddle1 and action_nn == DOWN:
+			elif self.ball.x < self.paddle1 and action_nn == DOWN:
 				self.ai_score += POINTS_FOLLOW_BALL
 			else:
 				self.ai_score -= POINTS_DOESNT_FOLLOW_BALL
@@ -269,24 +276,24 @@ class PongGame:
 
 	def movePlayer2(self):
 		if (self.gameMode == 1):
-			if (self.input1['7'] and self.paddle2 > X_INFERIOR_PADDLE_LIMIT):
-				self.paddle2 -= PLAYER_SPEED # Useless in training
-			if (self.input1['9'] and self.paddle2 < X_SUPERIOR_PADDLE_LIMIT):
-				self.paddle2 += PLAYER_SPEED # Useless in training
+			if (self.input1['7'] and self.paddle2 > X_INFERIOR_BALL_LIMIT + 0.5):
+				self.paddle2 -= PLAYER_SPEED * self.dt # Useless in training
+			if (self.input1['9'] and self.paddle2 < X_SUPERIOR_BALL_LIMIT - 0.5):
+				self.paddle2 += PLAYER_SPEED * self.dt # Useless in training
 		else:
 			# Basic IA -> Does the right movement 75% of the time otherwise does the contrary
 			if (np.random.rand() < 0.75):
 				if (self.paddle2 > self.ball.x):
-					self.paddle2 -= PLAYER_SPEED
+					self.paddle2 -= PLAYER_SPEED * self.dt
 				elif (self.paddle2 == self.ball.x):
 					pass
 				else:
-					self.paddle2 += PLAYER_SPEED
+					self.paddle2 += PLAYER_SPEED * self.dt
 			else:
 				if (self.paddle2 > self.ball.x):
-					self.paddle2 += PLAYER_SPEED
+					self.paddle2 += PLAYER_SPEED * self.dt
 				else:
-					self.paddle2 -= PLAYER_SPEED
+					self.paddle2 -= PLAYER_SPEED * self.dt
 
 	def moveBall(self):
 		self.ball.x += self.ball.dirX * self.ball.speed * self.dt
@@ -306,9 +313,8 @@ class PongGame:
 
 		if (dz < Z_PADDLE_WIDTH and dx < X_PADDLE_HEIGHT and isDie == False):
 			if (paddleZ == -8):
-				# Points if AI touches the ball
+				# Points if AI touches the ball TODO check me
 				self.ai_score += POINTS_TOUCH_BALL
-
 			if (self.ball.speed < SPEED_LIMIT):
 				self.ball.speed += SPEED_INCREMENT
 			self.ball.dirZ *= -1
@@ -329,11 +335,11 @@ class PongGame:
 	def checkGoal(self):
 		if (self.ball.z < Z_GOAL_LEFT or self.ball.z > Z_GOAL_RIGHT):
 			if (self.ball.z < Z_GOAL_LEFT):
-				self.score.s2 += 1
-				self.ai_score -= POINTS_TAKE_A_GOAL # Penalize for conceding a goal
-			else:
 				self.score.s1 += 1
 				self.ai_score += POINTS_MARK_GOAL # Big bonus for scoring
+			else:
+				self.score.s2 += 1
+				self.ai_score -= POINTS_TAKE_A_GOAL # Penalize for conceding a goal
 			self.reset() # Comment to make game endless no points
 			self.ball.dirZ *= -1
 
@@ -350,7 +356,7 @@ class PongGame:
 		self.ball.x = 0
 		self.ball.z = 0
 		self.ball.dirX = np.random.uniform(0, 0.5)
-		self.ball.dirZ = np.random.uniform(-1, 1)
+		self.ball.dirZ = np.random.uniform(-1, 1) * 1.5
 		self.ball.speed = BASE_BALL_SPEED
 
 		length = np.sqrt(self.ball.dirX ** 2 + self.ball.dirZ ** 2)
@@ -360,14 +366,16 @@ class PongGame:
 		self.die2 = False
 
 		# self.spell1 = { 'x': 0, 'z' : -10}
-		self.spell1.x = 0
-		self.spell1.z = -10
+		self.spell1.x = -0.22
+		self.spell1.y = 1.8
+		self.spell1.z = -10.56
 		self.isSpell1Available = False
 
 		self.isSpellGo1 = False
 		# self.spell2 = { 'x': 0, 'z' : 10}
-		self.spell2.x = 0
-		self.spell2.z = 10
+		self.spell2.x = 0.22
+		self.spell2.y = 1.8
+		self.spell2.z = 10.56
 		self.isSpell2Available = False
 
 		self.isSpellGo2 = False
@@ -383,24 +391,17 @@ class PongGame:
 			self.ai_score = 0
 
 	def crabmehameha(self, action_nn):
-		if (self.specialCooldown1 < 0):
-			self.isSpell1Available = True
+		if (self.gameMode == 1 and self.die1 == False):
+			if (self.specialCooldown1 < 0 and self.die1 == False):
+				self.isSpell1Go1 = True
+				self.specialCooldown1 = 50
+		else: 
+			if (self.input1['x'] and self.specialCooldown1 < 0 and self.die1 == False):
+				self.isSpell1Go1 = True
+				self.specialCooldown1 = 50
+		
+		# Deleted logic for player 2 crabmehameha
 
-		if (action_nn == 3 and self.isSpell1Available and self.die1 == False):
-			self.crab_score += POINTS_CRAB_WELL_LAUNCHED # Bonus for a spell launched
-			self.isSpellGo1 = True
-			self.isSpell1Available = False
-			self.specialCooldown1 = 50
-		elif (action_nn == 3 and self.isSpell1Available == False):
-			self.crab_score -= 5 # Penalize useless spell
-		if (self.gameMode == 1 and self.die2 == False):
-			if (self.input1['3'] and self.specialCooldown2 < 0):
-				self.isSpellGo2 = True
-				self.specialCooldown2 = 50 # Useless because we don't play
-		else:
-			if (self.specialCooldown2 < 0 and self.die2 == False):
-				self.isSpellGo2 = True
-				self.specialCooldown2 = 50
 		self.specialCooldown1 -= self.dt
 		self.specialCooldown2 -= self.dt
 		self.updateCrabmehameha()
@@ -409,21 +410,25 @@ class PongGame:
 		if (self.isSpellGo1 == True):
 			if (self.spell1.z < Z_GOAL_LEFT):
 				self.spell1.x = self.paddle1
+				self.spell1.y = 0.4
 				self.spell1.z = -7;#self.paddle['z'] + 1
 			if (self.spell1.z > Z_GOAL_RIGHT):
 				self.isSpellGo1 = False
-				self.spell1.x = 0
-				self.spell1.z = -10
+				self.spell1.x = -0.22
+				self.spell1.y = 1.8
+				self.spell1.z = -10.56
 			self.impactCrabmehameha(self.spell1, -10, self.paddle2, 8)
 			self.spell1.z += self.dt
 		if (self.isSpellGo2 == True):
 			if (self.spell2.z > Z_GOAL_RIGHT):
 				self.spell2.x = self.paddle2
-				self.spell2.z = 7;#self.paddle['z'] + 1
+				self.spell2.y = 0.4
+				self.spell2.z = 7
 			if (self.spell2.z < Z_GOAL_LEFT):
 				self.isSpellGo2 = False
-				self.spell2.x = 0
-				self.spell2.z = 10
+				self.spell2.x = 0.22
+				self.spell2.y = 1.9
+				self.spell2.z = 10.56
 			self.impactCrabmehameha(self.spell2, 10, self.paddle1, -8)
 			self.spell2.z -= self.dt
 
