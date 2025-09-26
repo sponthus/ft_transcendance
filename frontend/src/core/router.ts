@@ -11,7 +11,6 @@ let currentPage: BasePage | null = null;
 
 export async function renderRoute(path: string) {
     currentPage?.destroy();
-
     let userData;
     const req = await getUserInfo(); //Est-ce que je peux y mettre en appel en amont pour eviter une surchage de call API ?
     if (req.ok)
@@ -20,7 +19,6 @@ export async function renderRoute(path: string) {
 		if (req.error === "No token found")
 			userData = null;
 	}
-
     /*else {
         alert("PAS DE USER INFO DANS ROUTER, PAS POSSIBLE NORMALEMENT");//a enlever
     }*/ //router est appeler a chaque fois du coup le message s'affiche a chaque page
@@ -68,6 +66,11 @@ export async function renderRoute(path: string) {
 				await navigate('/login');
 				return ;
 			}
+			if (!dynamicPart) {
+				await navigate(`/user/${userData.slug}`);
+				return ;
+			}
+			console.log('dynamiquepart' , dynamicPart);
 			currentPage = new UserPage(dynamicPart);
 			break;
 		case '/setting':
@@ -78,7 +81,6 @@ export async function renderRoute(path: string) {
 			currentPage = new SettingPage();
 			break;
 		default:
-			currentPage = null;
 			break;
 	}
 
@@ -92,6 +94,7 @@ export async function renderRoute(path: string) {
 
 export async function navigate(path: string) {
     history.pushState(null, '', path);
+	location.reload();
     await renderRoute(path);
 }
 

@@ -30,7 +30,7 @@ export async function   getCharacterAsset(): Promise<AssetResult>
     const res = await fetch('/api/user/menu/character/asset', 
     {
         method: 'GET',
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        headers: { 'Authorization': `Bearer ${token}` },
     });
     const data = await res.json();    
     if (res.ok) 

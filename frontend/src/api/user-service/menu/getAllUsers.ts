@@ -1,11 +1,11 @@
-type Success = {ok: true, users: AllUsers}
+type Success = {ok: true, users: AllUsers[]}
 type Failure = { ok: false; error: string };
 
-type AllUsers =
+export type AllUsers =
 {
     username: string;
     slug: string;
-}[];
+};
 
 export type UsersResult = Success | Failure;
 
@@ -17,12 +17,12 @@ export async function   getAllUsers(): Promise<UsersResult>
     const res = await fetch('/api/user/menu/users', 
     {
         method: 'GET',
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        headers: { 'Authorization': `Bearer ${token}` },
     });
     const data = await res.json();    
     if (res.ok) 
     {
-        return { ok: true, users: data.users };
+        return { ok: true, users: data.users};
     }
     return { ok: false, error: data.error};
 }

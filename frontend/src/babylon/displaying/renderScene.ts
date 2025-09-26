@@ -9,6 +9,13 @@ import { LoadingScreen } from "./loadingScreen";
 import { popUp } from "../../Utils/popUp";
 import { GamePage } from "../../pages/Game-Pages/GamePage";
 
+
+type AssetData = {
+	asset: number;
+};
+
+
+
 enum state {HOME = 0, PONG = 1};
 
 // function sleep(ms: number) {
@@ -114,9 +121,9 @@ export class renderScene {
 		this._engine = new BABYLON.Engine(this._canvas, true);
 		if (!this._engine)
 			throw new Error("Engine Failed to load");
-		// var loadingScreen = new LoadingScreen(this.canvas!);
-		// if (this.engine)
-		// 	this.engine.loadingScreen = loadingScreen;
+		var loadingScreen = new LoadingScreen(this.canvas!);
+		if (this.engine)
+			this.engine.loadingScreen = loadingScreen;
 	}
 
 	private _initIsoCamera() {

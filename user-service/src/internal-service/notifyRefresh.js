@@ -1,7 +1,7 @@
 import { getSecret } from "../index.js";
 import env from "../../config/env.js";
 
-export async function sendFriendRequestToUser(idReceiver, sender, message) 
+export async function notifyRefresh(idReceiver, sender, message) 
 {
     const api_key = getSecret('api_key');
 

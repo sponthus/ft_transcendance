@@ -1,4 +1,4 @@
-type UserInfo = //VA ETRE CHANGER, le token renvoie le username et l'id du user
+export type UserInfo = //VA ETRE CHANGER, le token renvoie le username et l'id du user
 {
     id?: number
     username: string;
@@ -6,6 +6,7 @@ type UserInfo = //VA ETRE CHANGER, le token renvoie le username et l'id du user
     avatar: string;
     slug: string;
     created_at: string;
+    friendship_status: string;
 };
 
 type getUserInfoSuccess = {ok: true; userInfo: UserInfo}
@@ -23,7 +24,7 @@ export async function   getUserInfo() : Promise<GetUserInfoResult>
     const res = await fetch('/api/user/user-info', 
     {
         method: 'GET',
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },    
+        headers: { 'Authorization': `Bearer ${token}` },    
     });
     const data = await res.json();
     if (res.ok)
@@ -33,8 +34,6 @@ export async function   getUserInfo() : Promise<GetUserInfoResult>
     return ({ ok: false, error: data.error });
 }
 
-
-//PROBLEME avec cette requete, ne marche pas bien
 export async function   getUserInfoBySlug(slug: string) : Promise<GetUserInfoResult>
 {
     const token = localStorage.getItem("token");
@@ -45,7 +44,7 @@ export async function   getUserInfoBySlug(slug: string) : Promise<GetUserInfoRes
     const res = await fetch(`/api/user/user-info/other/${slug}`, 
     {
         method: 'GET',
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }, 
+        headers: { 'Authorization': `Bearer ${token}` }, 
     });
     const data = await res.json();
     if (res.ok)

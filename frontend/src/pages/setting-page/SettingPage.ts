@@ -1,20 +1,26 @@
 import { navigate } from "../../core/router";
 import { BasePage } from "../BasePage";
 import { createDiv, createElement, createButton, createDropdownDiv, createFormDiv, createCheckBoxLabel, append, createImage} from '../../Utils/elementMaker.js';
-import { renderGameSetting } from "./GameSettings";
+import { renderGameSetting, getAvatarAsset, getCurrentNpcAsset } from "./GameSettings";
 import { renderProfileSetting } from "./ProfileSetting";
+import { changeNpcAsset } from "../../api/user-service/menu/npcAsset";
+import { changeCharacterAsset } from "../../api/user-service/menu/characterAsset";
 
+enum PageState {GAME = 0, PROFILE = 1};
 
 export class SettingPage extends BasePage {
 
 	private front!: HTMLElement;
 	private ButtonDiv!: HTMLElement;
 	private SettingDiv!: HTMLElement;
-	private SettingText!: HTMLElement;
+	private Background!: HTMLElement;
+	// private SettingText!: HTMLElement;
 
+	private statePage: number;
 	private ReturnDiv!: HTMLElement;
 	constructor () {
 		super();
+		this.statePage = 0;
 	}
 
 	async render(): Promise<void> {
@@ -32,29 +38,29 @@ export class SettingPage extends BasePage {
 	/*********************************************function for creating Home Setting**********************************************/
 	private async createHomeSetting() {
 	
-			const Background: HTMLElement = this.initBackground();
-			Background.className = "flex items-center justify-center min-h-screen bg-gradient-to-br from-orange-100 to-orange-300 p-8";
+			this.Background = this.initBackground();
+			this.Background.className = "h-screen min-h-[1920x] w-screen min-w-[1024px] bg-gradient-to-br from-orange-100 to-orange-300 p-8";
 
 			this.createFrontSettting();
-			this.createSettingText();
-			this.createButtonDiv();			
+			// this.createSettingText();
+			this.createButtonDiv();	
 
-			Background.appendChild(this.front);
+			this.Background.appendChild(this.front);
 
-			this.app.appendChild(Background);
+			this.app.appendChild(this.Background);
 	}
 
 	private createFrontSettting() {
-		this.front = createDiv("grid Setting_front", "rounded-xl shadow-2xl p-12 max-w-md w-full text-center space-y-4");
+		this.front = createDiv("grid-Setting-front", "flex flex-wrap items-center  justify-center w-full h-[95%] text-center space-y-4");
 	}
 
-	private createSettingText() {
-		this.SettingText = createElement('h1', "setting_text", "Settings", "text-emerald-600 text-2xl py-3 px-6");
-		append(this.front, [this.SettingText]);
-	}
+	// private createSettingText() {
+	// 	this.SettingText = createElement('h1', "setting_text", "Settings", "text-emerald-600 text-2xl py-3 px-6");
+	// 	append(this.front, [this.SettingText]);
+	// }
 
 	private createButtonDiv() {
-		this.ButtonDiv = createDiv("Button_setting", "flex flex-col space-y-4");
+		this.ButtonDiv = createDiv("Button_setting", "h-full w-full");
 		append(this.front, [this.ButtonDiv]);
 	}
 
@@ -69,24 +75,26 @@ export class SettingPage extends BasePage {
 	}
 
 	private createGameSettingButton() {
-		const gameSettingButton = createButton("Game-Setting", "bg-orange-300 hover:bg-orange-400 text-emerald-600 font-bold py-3 px-6 rounded-lg", "Game-Setting");
+		const gameSettingButton = createButton("Game-Setting", "bg-orange-300 bg-opacity-10 hover:bg-orange-400 hover:bg-opacity-50 text-emerald-600 font-bold h-full w-[50%] rounded-xl shadow-md hover:shadow-lg transition-all duration-200 transform hover:scale-105 text-6xl", "Game-Setting");
 		gameSettingButton.addEventListener('click', async(e) => {
-			await renderGameSetting(this.SettingText, this.ButtonDiv, this.SettingDiv, this.ReturnDiv);
+			this.statePage = 0;
+			await renderGameSetting(this.ButtonDiv, this.SettingDiv, this.ReturnDiv);
 		});
 		append(this.ButtonDiv, [gameSettingButton]);
 	}
 
 	private createProfileSettingButton() {
-		const ProfileSettingButton = createButton("profile-setting", "bg-orange-300 hover:bg-orange-400 text-emerald-600 font-bold py-3 px-6 rounded-lg", "Profile Setting");
+		const ProfileSettingButton = createButton("profile-setting", "bg-orange-300 bg-opacity-10 hover:bg-orange-400 hover:bg-opacity-50 text-emerald-600 font-bold h-full w-[50%] rounded-xl shadow-md hover:shadow-lg transition-all duration-200 transform hover:scale-105 text-6xl", "Profile Setting");
 		ProfileSettingButton.addEventListener('click', async(e) => {
-			await renderProfileSetting(this.SettingText, this.ButtonDiv, this.SettingDiv, this.ReturnDiv);
+			this.statePage = 1;
+			await renderProfileSetting(this.ButtonDiv, this.SettingDiv, this.ReturnDiv);
 		});
 		append(this.ButtonDiv, [ProfileSettingButton]);
 	}
 
 	/*********************************************function for creating Profile Setting**********************************************/
 	private async renderProfileSetting(): Promise<void> {
-		this.SettingText.textContent = "Profile Settings";
+		// this.SettingText.textContent = "Profile Settings";
 		this.ButtonDiv.classList.add('hidden');
 
 		this.ReturnDiv.classList.remove('hidden');
@@ -94,22 +102,22 @@ export class SettingPage extends BasePage {
 
 	/*********************************************function utils**********************************************/
 	private async createReturnDiv() {
-		this.ReturnDiv = createDiv("return", "grid grid-cols-2 items-center justify-between p-4 bg-transparent py-3 px-4 space-x-4 hidden");
+		this.ReturnDiv = createDiv("return", "flex items-center justify-between bg-transparent space-x-4 h-[5%] hidden text-4xl");
 		
 		this.createReturnBtn();
 		this.createSaveBtn();
-		this.front.appendChild(this.ReturnDiv);
+		this.Background.appendChild(this.ReturnDiv);
 		this.manageReturnEvent();
 	}
 
 	private createReturnBtn() {
-		const ReturnButton: HTMLButtonElement = createButton("return", "bg-orange-300 hover:bg-orange-400 text-emerald-600 font-bold rounded-lg transition-colors duration-200transform", "return");
+		const ReturnButton: HTMLButtonElement = createButton("return", "bg-orange-300 hover:bg-orange-400 text-emerald-600 font-bold rounded-xl shadow-md hover:shadow-lg transition-all duration-200 transform hover:scale-105 w-[80%] h-full", "return");
 
 		this.ReturnDiv.appendChild(ReturnButton);
 	}
 
 	private createSaveBtn() {
-		const DoneButton: HTMLButtonElement = createButton("done", "bg-orange-300 hover:bg-orange-400 text-emerald-600 font-bold rounded-lg transition-colors duration-200transform", "Done");
+		const DoneButton: HTMLButtonElement = createButton("done", "bg-orange-300 hover:bg-orange-400 text-emerald-600 font-bold rounded-xl transition-colors shadow-md hover:shadow-lg transition-all duration-200 transform hover:scale-105 w-full h-full", "Done");
 
 		this.ReturnDiv.appendChild(DoneButton);
 	}
@@ -124,16 +132,51 @@ export class SettingPage extends BasePage {
 		})
 
 		DoneButton.addEventListener('click', async(e) => {
-			await this.Return();
+			console.log("change the assets");
+			await this.Done();
 		})
 	}
 
 	private async Return(): Promise<void> {
-		this.SettingText.textContent = "Settings";
+		// this.SettingText.textContent = "Settings";
 		Array.from(this.SettingDiv.children).forEach((child, index)=>{
 			child.remove();
 		})
 		this.ButtonDiv.classList.remove('hidden');
 		this.ReturnDiv.classList.add('hidden');
+	}
+
+	private async Done(): Promise<void> {
+		if (this.statePage == PageState.GAME) {
+			await this.callApiForChangeAvatar(); // don't work hover 12
+			await this.CallApiForChangeNpc();
+		}
+		this.Return();
+		return ;
+	}
+	private async CallApiForChangeNpc() {
+			let CurrentNpcAsset: number = getCurrentNpcAsset();
+
+		try {
+			const reqNpc = await changeNpcAsset(CurrentNpcAsset)
+			if (reqNpc.ok) {
+				alert("change NPC " + CurrentNpcAsset);
+			}
+		} catch (error) {
+			alert(error);
+		}
+	}
+	private async callApiForChangeAvatar() {
+		let CurrentAvatarAsset: number = getAvatarAsset();
+		try {
+			console.log("change the assets " ,CurrentAvatarAsset);
+			const reqAvatar = await changeCharacterAsset(CurrentAvatarAsset);
+			if (reqAvatar.ok) {
+				alert("change avatar " + CurrentAvatarAsset)
+			}
+ 
+		} catch (error) {
+			alert(error);
+		}
 	}
 }
