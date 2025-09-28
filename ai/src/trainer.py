@@ -1,3 +1,4 @@
+import sys
 from game import PongGame
 from network import Network
 import random
@@ -50,31 +51,35 @@ class Trainer:
 		self.weights_mutation_rate: float = kwargs.get('weights_mutation_rate', 0.1)
 		self.biases_mutation_rate: float = kwargs.get('biases_mutation_rate', 0.1)
 
-	def evaluate(self, network: Network, nb_games: int = 5):
-		action = 2  # STILL by default
-		total_score = 0
-		game = PongGame(gameOption=0)
-		ticks_per_decision = int(1 / game.dt)
-	
-		for i in range(nb_games):
-			# game_len / game.dt = max_ticks
-			max_ticks = int(60 * 60 / game.dt)
-			tick = 0
-			while tick < max_ticks :
-				last_action = action
-				if tick % ticks_per_decision == 0:
-					action = network.work(game.get_state_for_ai())
-				game.update(action)
-				tick += 1
-				# time.sleep(game.dt)
-				# if (action != last_action):
-				# 	total_score += 100
-			total_score += game.get_ai_score() + game.get_crab_score()
-			game.reset(True)
-			# print(f"Game {i} done - Total score: {total_score}")
-		average_score = total_score / nb_games
-		# print(f"------ Average score over {nb_games} games: {average_score}")
-		return average_score
+	def print_progress_bar(self, current: int, total: int, symbol: str = "o"):
+		bar = symbol * current + "-" * (total - current)
+		print(f"\r[{bar}] {current}/{total}", end="")
+		sys.stdout.flush()
+
+	def evaluate(self, network: Network, nb_games: int = 5, idx: int = -1):
+		# print(f"[EVAL START] Network idx={idx}")
+		try:
+			action = 2  # STILL by default
+			total_score = 0
+			game = PongGame(gameOption=0)
+			ticks_per_decision = int(1 / game.dt)
+			for i in range(nb_games):
+				max_ticks = int(3600 / game.dt)
+				tick = 0
+				while tick < max_ticks:
+					last_action = action
+					if tick % ticks_per_decision == 0:
+						action = network.work(game.get_state_for_ai())
+					game.update(action)
+					tick += 1
+				total_score += game.get_ai_score() + game.get_crab_score()
+				game.reset(True)
+			average_score = total_score / nb_games
+			# print(f"[EVAL END] Network idx={idx}")
+			return average_score
+		except Exception as e:
+			print(f"Exception in evaluate idx={idx}: {e}")
+			return -1e6  # Very bad score for failed evaluation
 
 	# Mutate the network's weights and biases based on the mutation rate
 	# Keep the best 20% and cross them to create children
@@ -82,21 +87,43 @@ class Trainer:
 	def train(self, nb_generations: int = 50, save_rate: int = 10):
 		
 		for _ in range(nb_generations):
-			if (self.generation % save_rate == 0):
-				self.save_config(best=True, population=True)
+			# # Log population size and check for duplicates
+			# print(f"[DEBUG] Population size: {len(self.population)}")
+			# ids = [id(network) for network in self.population]
+			# unique_ids = set(ids)
+			# if len(ids) != len(unique_ids):
+			# 	print(f"[WARNING] Duplicate network objects detected: {len(ids) - len(unique_ids)} duplicates")
+			# 	# Optionally, print the duplicate indices
+			# 	from collections import Counter
+			# 	dup_ids = [item for item, count in Counter(ids).items() if count > 1]
+			# 	for dup_id in dup_ids:
+			# 		dup_indices = [i for i, nid in enumerate(ids) if nid == dup_id]
+			# 		print(f"[WARNING] Duplicate network id={dup_id} at indices: {dup_indices}")
+			# else:
+			# 	print("[DEBUG] No duplicate network objects detected.")
+			# print(f"[DEBUG] Population indices: {[i for i in range(len(self.population))]}")
 			with concurrent.futures.ThreadPoolExecutor() as executor:
-				results = list(executor.map(self.evaluate, self.population))
+				futures = [executor.submit(self.evaluate, network, 5, idx) for idx, network in enumerate(self.population)]
+				results = []
+				for i, future in enumerate(concurrent.futures.as_completed(futures), 1):
+					try:
+						results.append(future.result(timeout=30))  # 30 secondes max par match
+					except Exception as e:
+						print(f"Timeout or error in network {i}: {e}")
+						results.append(-1e6)
+					self.print_progress_bar(i, self.population_size)
+				print() # \n at the end
 			scores: list[tuple[float, Network]] = [(score, network) for score, network in zip(results, self.population)]
 			scores.sort(key=lambda x: x[0], reverse=True)
+			if (self.generation % save_rate == 0):
+				self.save_config(best=True, population=True)
 			# print(scores)
 			print(f"Generation {self.generation} - Best score: {scores[0][0]}")
 			self.evolve(scores)
 			# for i, network in enumerate(self.population):
 			# 	conf = network.get_conf()
-			# 	# Vérifie la structure
 			# 	assert len(conf['input_layer']['weights']) == self.nb_neurons_per_layer
 			# 	assert len(conf['input_layer']['weights'][0]) == self.nb_inputs
-			# 	# ...idem pour hidden_layers et output_layer...
 			# 	for j in range(self.nb_hidden_layers):
 			# 		assert len(conf[f'{j + 1}']['weights']) == self.nb_neurons_per_layer
 			# 		assert len(conf[f'{j + 1}']['weights'][0]) == self.nb_neurons_per_layer if j > 0 else self.nb_inputs
@@ -104,14 +131,14 @@ class Trainer:
 			# 	assert len(conf['output_layer']['weights'][0]) == self.nb_neurons_per_layer
 		self.save_config(best=True, population=True)
 	
-	def evolve(self, scores: list[tuple[float, Network]], best_untouched_rate: float = 0.1, retain_rate: float = 0.3, random_select: float = 0.05, random_network_rate: float = 0.05):
+	def evolve(self, scores: list[tuple[float, Network]], best_untouched_rate: float = 0.1, retain_rate: float = 0.4, random_select: float = 0.05, random_network_rate: float = 0.05):
 		# Select the best networks
 		retain_length = int(self.population_size * retain_rate)
 		parents = [network for _, network in scores[:retain_length]]
 
 		# Keep best network without any change
 		best_untouched_length = max(1, int(self.population_size * best_untouched_rate))
-		best_networks = [network for _, network in scores[:best_untouched_length]]
+		best_networks = [copy.deepcopy(network) for _, network in scores[:best_untouched_length]]
 
 		# Add some completely random individuals to promote genetic diversity
 		random_network_length = int(len(scores) * random_network_rate)
@@ -133,6 +160,10 @@ class Trainer:
 				child = Network(conf=child_conf)
 				self.mutate(child)
 				children.append(child)
+		
+		# Mutate all parents (containing copies of best_networks)
+		for parent in parents:
+			self.mutate(parent)
 
 		self.population = best_networks + random_networks + parents + children
 		self.generation += 1
@@ -235,12 +266,22 @@ if __name__ == '__main__':
 	# with open("test2", "w") as f:
 	# 	json.dump(network2.get_conf(), f)
 
-	trainer = Trainer(population_size=50, nb_inputs=6, nb_hidden_layers=3, nb_neurons_per_layer=5, nb_outputs=3)
+	trainer = Trainer(population_size=50, nb_inputs=5, nb_hidden_layers=3, nb_neurons_per_layer=5, nb_outputs=3,\
+					bias_mutation_intensity=0.1, \
+						weights_mutation_intensity=0.2, \
+							bias_mutation_rate=0.1, \
+								weights_mutation_rate=0.1)
 	trainer.train(nb_generations=100, save_rate=5)
 	# trainer.print_networks()
 	# trainer.print_networks()
 	# trainer.save_config()
 
-	# conf_from_json = parse_json("data_gen_30.json")
-	# trainer2 = Trainer(config=conf_from_json)
-	# trainer2.train(nb_generations=100, save_rate=10)
+	# conf_from_json = parse_json("data_gen_10.json")
+	# # More rate / intensity  if it doesn't evolvze = 0.1 - 0.2% / 0.1 - 0.2
+	# # if it doesn't stabilize = 0.05% / 0.05 - 0.1
+	# trainer2 = Trainer(config=conf_from_json, \
+	# 				bias_mutation_intensity=0.1, \
+	# 					weights_mutation_intensity=0.2, \
+	# 						bias_mutation_rate=0.1, \
+	# 							weights_mutation_rate=0.1)
+	# trainer2.train(nb_generations=100, save_rate=5)
