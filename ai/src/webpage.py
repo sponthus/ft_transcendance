@@ -135,7 +135,7 @@ def start_games(data):
 
 	def ai_thread(ai_id, results):
 		game = PongGame(gameOption=0)
-		ai = Network(conf=parse_json("data_gen_20_best.json"))
+		ai = Network(conf=parse_json("data_gen_25_best.json"))
 		print(ai.get_conf())
 
 		ticks_per_decision = int(1 / game.dt)

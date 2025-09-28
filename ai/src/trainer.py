@@ -8,7 +8,6 @@ import concurrent.futures
 import copy
 
 class Trainer:
-	# TODO make me kwargs
 	def __init__(self, **kwargs):
 		# Check if has config
 		has_config = 'config' in kwargs and kwargs['config'] is not None
@@ -63,11 +62,11 @@ class Trainer:
 			total_score = 0
 			game = PongGame(gameOption=0)
 			ticks_per_decision = int(1 / game.dt)
+			max_ticks = int(3600 / game.dt)
 			for i in range(nb_games):
-				max_ticks = int(3600 / game.dt)
 				tick = 0
 				while tick < max_ticks:
-					last_action = action
+					# last_action = action
 					if tick % ticks_per_decision == 0:
 						action = network.work(game.get_state_for_ai())
 					game.update(action)
@@ -131,7 +130,7 @@ class Trainer:
 			# 	assert len(conf['output_layer']['weights'][0]) == self.nb_neurons_per_layer
 		self.save_config(best=True, population=True)
 	
-	def evolve(self, scores: list[tuple[float, Network]], best_untouched_rate: float = 0.1, retain_rate: float = 0.4, random_select: float = 0.05, random_network_rate: float = 0.05):
+	def evolve(self, scores: list[tuple[float, Network]], best_untouched_rate: float = 0.2, retain_rate: float = 0.4, random_select: float = 0.05, random_network_rate: float = 0.1):
 		# Select the best networks
 		retain_length = int(self.population_size * retain_rate)
 		parents = [network for _, network in scores[:retain_length]]
@@ -266,22 +265,22 @@ if __name__ == '__main__':
 	# with open("test2", "w") as f:
 	# 	json.dump(network2.get_conf(), f)
 
-	trainer = Trainer(population_size=50, nb_inputs=5, nb_hidden_layers=3, nb_neurons_per_layer=5, nb_outputs=3,\
-					bias_mutation_intensity=0.1, \
-						weights_mutation_intensity=0.2, \
-							bias_mutation_rate=0.1, \
-								weights_mutation_rate=0.1)
-	trainer.train(nb_generations=100, save_rate=5)
-	# trainer.print_networks()
-	# trainer.print_networks()
-	# trainer.save_config()
-
-	# conf_from_json = parse_json("data_gen_10.json")
-	# # More rate / intensity  if it doesn't evolvze = 0.1 - 0.2% / 0.1 - 0.2
-	# # if it doesn't stabilize = 0.05% / 0.05 - 0.1
-	# trainer2 = Trainer(config=conf_from_json, \
+	# trainer = Trainer(population_size=50, nb_inputs=5, nb_hidden_layers=3, nb_neurons_per_layer=5, nb_outputs=3,\
 	# 				bias_mutation_intensity=0.1, \
 	# 					weights_mutation_intensity=0.2, \
 	# 						bias_mutation_rate=0.1, \
 	# 							weights_mutation_rate=0.1)
-	# trainer2.train(nb_generations=100, save_rate=5)
+	# trainer.train(nb_generations=100, save_rate=5)
+	# trainer.print_networks()
+	# trainer.print_networks()
+	# trainer.save_config()
+
+	conf_from_json = parse_json("data_gen_25.json")
+	# More rate / intensity  if it doesn't evolvze = 0.1 - 0.2% / 0.1 - 0.2
+	# if it doesn't stabilize = 0.05% / 0.05 - 0.1
+	trainer2 = Trainer(config=conf_from_json, \
+					bias_mutation_intensity=0.05, \
+						weights_mutation_intensity=0.1, \
+							bias_mutation_rate=0.05, \
+								weights_mutation_rate=0.05)
+	trainer2.train(nb_generations=200, save_rate=5)
