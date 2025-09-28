@@ -22,16 +22,16 @@ UP = 0
 DOWN = 1
 STILL = 2
 
-POINTS_MOVE_TO_WALL = 0.5 # lost if you move to the wall
-POINTS_TOUCH_BALL = 0 # Points for touching the ball
-POINTS_MARK_GOAL = 0 # Points for scoring a goal
-POINTS_TAKE_A_GOAL = 0 # lost if you take a goal
-POINTS_WELL_PLACED = 5.0 # Points for being well placed to hit the ball
-POINTS_ALMOST_WELL_PLACED = 1.0 # Points for being almost well placed to hit the ball
-POINTS_GOOD_DIRECTION = 0.5 # Points for going in the right direction to hit the ball
-POINTS_BAD_PLACED = 2.0 # lost for being badly placed to hit the ball
-POINTS_DOESNT_FOLLOW_BALL = 1.0 # lost for not following the ball
-POINTS_FOLLOW_BALL = 1.0 # Points for following the ball
+POINTS_MOVE_TO_WALL = 1 # lost if you move to the wall
+POINTS_TOUCH_BALL = 10 # Points for touching the ball
+POINTS_MARK_GOAL = 50 # Points for scoring a goal
+POINTS_TAKE_A_GOAL = 50 # lost if you take a goal
+POINTS_WELL_PLACED = 0.2 # Points for being well placed to hit the ball
+POINTS_ALMOST_WELL_PLACED = 0.1 # Points for being almost well placed to hit the ball
+POINTS_GOOD_DIRECTION = 0.2 # Points for going in the right direction to hit the ball
+POINTS_BAD_PLACED = 0.1 # lost for being badly placed to hit the ball
+POINTS_DOESNT_FOLLOW_BALL = 0.1 # lost for not following the ball
+POINTS_FOLLOW_BALL = 0.2 # Points for following the ball
 POINTS_CRAB_WELL_LAUNCHED = 0 #10.0 # Points for launching a crabmehameha well
 # Simulation d'une partie a partir de la physique du jeu
 # Ajout de scores lors de la partie : point quand il a touche la balle
@@ -146,6 +146,9 @@ class PongGame:
 			'die2': self.die2
 		}
 
+	def norm(self, val, minv, maxv):
+		return 2 * (val - minv) / (maxv - minv) - 1
+	
 	def get_state_for_ai(self):
 		if (self.gameOption == 0):
 			# return [ self.paddle1['x'], 
@@ -153,11 +156,11 @@ class PongGame:
 			#   self.ball['z'], 
 			#   self.ball['dirX'], 
 			#   self.ball['dirZ'] ]
-			return [ self.paddle1, 
-			  self.ball.x, 
-			  self.ball.z, 
-			  self.ball.dirX, 
-			  self.ball.dirZ ]
+			return [ self.norm(self.paddle1, X_INFERIOR_PADDLE_LIMIT, X_SUPERIOR_PADDLE_LIMIT),
+        		self.norm(self.ball.x, X_INFERIOR_BALL_LIMIT, X_SUPERIOR_BALL_LIMIT),
+        		self.norm(self.ball.z, Z_GOAL_LEFT, Z_GOAL_RIGHT), 
+				self.ball.dirX, 
+				self.ball.dirZ ]
 		else:
 			# return [ self.paddle1['x'], 
 			# self.paddle2['x'], 
