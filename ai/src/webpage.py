@@ -2,7 +2,7 @@ from flask import Flask, render_template_string
 from flask_socketio import SocketIO, emit
 import threading
 import time
-from game import SimplePongGame, PongGame
+from game import PongGame
 from network import Network
 import json as json
 
@@ -58,14 +58,14 @@ function draw(state) {
     // Scores
     ctx.fillStyle = "black";
     ctx.font = "20px Arial";
-    ctx.fillText("S1: " + state.score.s1, 10, 390);
-    ctx.fillText("S2: " + state.score.s2, 10, 30);
+    ctx.fillText("S1: " + state.score["s1"], 10, 390);
+    ctx.fillText("S2: " + state.score["s2"], 10, 30);
 	
 	// AI score
     ctx.fillStyle = "black";
     ctx.font = "20px Arial";
     ctx.fillText("AI score: " + state.ai_score, 10, 180);
-	ctx.fillText("Game " + state.game_id + " AI " + state.ai_id, 10, 220);
+	ctx.fillText("Game " + state.game_id + " AI " + state.ai_id + " Act: " + state.ai_action, 10, 220);
 }
 
 function toCanvasX(gameX) {
@@ -135,7 +135,7 @@ def start_games(data):
 
 	def ai_thread(ai_id, results):
 		game = PongGame(gameOption=0)
-		ai = Network(conf=parse_json("data_gen_10_best.json"))
+		ai = Network(conf=parse_json("data_gen_20_best.json"))
 		print(ai.get_conf())
 
 		ticks_per_decision = int(1 / game.dt)
@@ -158,6 +158,7 @@ def start_games(data):
 				state['ai_id'] = ai_id
 				state['ai_score'] = game.get_ai_score()
 				state['game_id'] = game_id
+				state['ai_action'] = str(action)
 				socketio.emit('state', state)
 				tick += 1
 
