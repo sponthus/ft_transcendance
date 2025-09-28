@@ -22,16 +22,16 @@ UP = 0
 DOWN = 1
 STILL = 2
 
-POINTS_MOVE_TO_WALL = 0 # lost if you move to the wall
+POINTS_MOVE_TO_WALL = 0.5 # lost if you move to the wall
 POINTS_TOUCH_BALL = 0 # Points for touching the ball
 POINTS_MARK_GOAL = 0 # Points for scoring a goal
 POINTS_TAKE_A_GOAL = 0 # lost if you take a goal
-POINTS_WELL_PLACED = 0 #5.0 # Points for being well placed to hit the ball
-POINTS_ALMOST_WELL_PLACED = 0 #1.0 # Points for being almost well placed to hit the ball
-POINTS_GOOD_DIRECTION = 0 #0.5 # Points for going in the right direction to hit the ball
-POINTS_BAD_PLACED = 0 #2.0 # lost for being badly placed to hit the ball
-POINTS_DOESNT_FOLLOW_BALL = 1.0 #1.0 # lost for not following the ball
-POINTS_FOLLOW_BALL = 0# 1.0 # Points for following the ball
+POINTS_WELL_PLACED = 5.0 # Points for being well placed to hit the ball
+POINTS_ALMOST_WELL_PLACED = 1.0 # Points for being almost well placed to hit the ball
+POINTS_GOOD_DIRECTION = 0.5 # Points for going in the right direction to hit the ball
+POINTS_BAD_PLACED = 2.0 # lost for being badly placed to hit the ball
+POINTS_DOESNT_FOLLOW_BALL = 1.0 # lost for not following the ball
+POINTS_FOLLOW_BALL = 1.0 # Points for following the ball
 POINTS_CRAB_WELL_LAUNCHED = 0 #10.0 # Points for launching a crabmehameha well
 # Simulation d'une partie a partir de la physique du jeu
 # Ajout de scores lors de la partie : point quand il a touche la balle
@@ -180,51 +180,68 @@ class PongGame:
 	def get_crab_score(self):
 		return self.crab_score
 
-	def predictBallImpactX(self, paddleZ=Z_PADDLE_RIGHT):
-		# Initial positions and directions
+	# 	def predictBallImpactX(self, paddleZ=Z_PADDLE_LEFT):
+	# 	x = self.ball.x
+	# 	z = self.ball.z
+	# 	dx = self.ball.dirX
+	# 	dz = self.ball.dirZ
+	# 	speed = self.ball.speed
+
+	# 	# print(f"Predicting impact: x={x}, z={z}, dz={dz}, dx={dx}speed={speed}, paddleZ={paddleZ}, t={(paddleZ - z) / (dz * speed)}")
+
+	# 	# Ball goes towards paddle
+	# 	if dz >= 0:
+	# 		return None
+
+	# 	if dz * speed == 0:
+	# 		return None
+	# 	# Time to get to paddle Z
+	# 	t = (paddleZ - z) / (dz * speed)
+	# 	if t < 0:
+	# 		return None
+
+	# 	x_impact = x + dx * speed * t
+	# 	# Clamp l'impact dans les limites X
+	# 	x_impact = max(X_INFERIOR_BALL_LIMIT, min(X_SUPERIOR_BALL_LIMIT, x_impact))
+	# 	print("Predicted impact before wall bounce:", x_impact)
+	# 	return x_impact
+
+	def predictBallImpactX(self, paddleZ=Z_PADDLE_LEFT):
 		x = self.ball.x
 		z = self.ball.z
 		dx = self.ball.dirX
 		dz = self.ball.dirZ
 		speed = self.ball.speed
 
-		# print(f"[predictBallImpactX] x={x:.2f}, z={z:.2f}, dx={dx:.2f}, dz={dz:.2f}, speed={speed:.2f}, paddleZ={paddleZ}")
+		# print(f"Predicting impact: x={x}, z={z}, dz={dz}, dx={dx}speed={speed}, paddleZ={paddleZ}, t={(paddleZ - z) / (dz * speed)}")
 
-		if dz == 0 or dx == 0 or speed == 0 or dz > 0:  # Ball moving away from the paddle
-			# print(f"[predictBallImpactX] No impact: dz={dz}, dx={dx}, speed={speed}")
+		# predict if ball goes towards paddle & real conditions
+		if (dz < 0 and paddleZ >= z) or (dz > 0 and paddleZ <= z) or dz == 0 or speed == 0:
 			return None
 
+		# Rebounce taken into account
 		while True:
-			# Time to reach the next X wall
+			# Time to lateral wall
 			if dx > 0:
 				tx_wall = (X_SUPERIOR_BALL_LIMIT - x) / (dx * speed)
 			else:
 				tx_wall = (X_INFERIOR_BALL_LIMIT - x) / (dx * speed)
 
-			# Time to reach the paddleZ
+			# Time to paddle Z
 			tz_paddle = (paddleZ - z) / (dz * speed)
 
-			# If the paddleZ is reached before the wall
-			if tz_paddle < tx_wall and tz_paddle > 0:
+			# Si le paddle est atteint avant le mur
+			if tz_paddle >= 0 and tz_paddle < tx_wall:
 				x_impact = x + dx * speed * tz_paddle
-				# Clamp the impact within the X limits
 				x_impact = max(X_INFERIOR_BALL_LIMIT, min(X_SUPERIOR_BALL_LIMIT, x_impact))
-				print(f"[predictBallImpactX] Impact at x={x_impact:.2f}")
+				# print("Predicted impact:", x_impact)
 				return x_impact
 
-			# Otherwise, bounce off the wall
+			# Sinon, rebond sur le mur
 			x += dx * speed * tx_wall
 			z += dz * speed * tx_wall
-			dx *= -1  # Horizontal bounce
-
-			# If the ball exceeds the paddleZ during the bounce, we calculate the impact at that moment
-			if (dz > 0 and z >= paddleZ) or (dz < 0 and z <= paddleZ):
-				# Remaining time to reach paddleZ from the last position
-				t_remain = (paddleZ - (z - dz * speed * tx_wall)) / (dz * speed)
-				x_impact = (x - dx * speed * tx_wall) + dx * speed * t_remain
-				x_impact = max(X_INFERIOR_BALL_LIMIT, min(X_SUPERIOR_BALL_LIMIT, x_impact))
-				print(f"[predictBallImpactX] Impact after bounce at x={x_impact:.2f}")
-				return x_impact
+			dx *= -1
+			# print("Ball will bounce")
 
 	def movePlayer1(self, action_nn):
 
@@ -241,33 +258,34 @@ class PongGame:
 			else:
 				self.ai_score -= POINTS_MOVE_TO_WALL # Penalize hitting the wall
 		
-		# impactX = self.predictBallImpactX(paddleZ=Z_PADDLE_RIGHT)  # Z du paddle IA
-		# if impactX is not None:
-		# 	dist = self.paddle1 - impactX
-		# 	# Well placed: paddle covers impact zone
-		# 	if abs(dist) < X_PADDLE_HEIGHT:
-		# 		if action_nn == STILL:
-		# 			self.ai_score += POINTS_WELL_PLACED * 2
-		# 		else:
-		# 			self.ai_score -= POINTS_BAD_PLACED  # Paddle should stay still
-		# 	else:
-		# 		# Not well placed: encourage movement toward impactX
-		# 		if (action_nn == UP and self.paddle1 < impactX):
-		# 			self.ai_score += POINTS_GOOD_DIRECTION
-		# 		elif (action_nn == DOWN and self.paddle1 > impactX):
-		# 			self.ai_score += POINTS_GOOD_DIRECTION
-		# 		else:
-		# 			self.ai_score -= POINTS_BAD_PLACED
-		# else:
-		# 	# Ball not heading to paddle: follow ball
-		# 	if abs(self.ball.x - self.paddle1) < 1 and action_nn == STILL:
-		# 		self.ai_score += POINTS_WELL_PLACED
-		# 	elif self.ball.x > self.paddle1 and action_nn == UP:
-		# 		self.ai_score += POINTS_FOLLOW_BALL
-		# 	elif self.ball.x < self.paddle1 and action_nn == DOWN:
-		# 		self.ai_score += POINTS_FOLLOW_BALL
-		# 	else:
-		# 		self.ai_score -= POINTS_DOESNT_FOLLOW_BALL
+		impactX = self.predictBallImpactX(paddleZ=Z_PADDLE_LEFT)  # Z du paddle IA
+		if impactX is not None:
+			dist = self.paddle1 - impactX
+			# Well placed: paddle covers impact zone
+			#Possibility = No bad_placed if already at a good spot
+			if abs(dist) < X_PADDLE_HEIGHT:
+				if action_nn == STILL:
+					self.ai_score += POINTS_WELL_PLACED * 2
+				else:
+					self.ai_score -= POINTS_BAD_PLACED  # Paddle should stay still
+			else:
+				# Not well placed: encourage movement toward impactX
+				if (action_nn == UP and self.paddle1 < impactX):
+					self.ai_score += POINTS_GOOD_DIRECTION
+				elif (action_nn == DOWN and self.paddle1 > impactX):
+					self.ai_score += POINTS_GOOD_DIRECTION
+				else:
+					self.ai_score -= POINTS_BAD_PLACED
+		else:
+			# Ball not heading to paddle: follow ball
+			if abs(self.ball.x - self.paddle1) < 1 and action_nn == STILL:
+				self.ai_score += POINTS_WELL_PLACED
+			elif self.ball.x > self.paddle1 and action_nn == UP:
+				self.ai_score += POINTS_FOLLOW_BALL
+			elif self.ball.x < self.paddle1 and action_nn == DOWN:
+				self.ai_score += POINTS_FOLLOW_BALL
+			else:
+				self.ai_score -= POINTS_DOESNT_FOLLOW_BALL # OK
 
 	
 		# elif action_nn == 3 and self.crab1_cooldown <= 0:
@@ -312,7 +330,7 @@ class PongGame:
 		dz = abs(self.ball.z - paddleZ)
 
 		# CONCLUSION z negatif = vers paddle 1 !
-		print("ball z = " + str(self.ball.z) + " dz = " + str(self.ball.dirZ))
+		# print("ball z = " + str(self.ball.z) + " dz = " + str(self.ball.dirZ))
 		if (dz < Z_PADDLE_WIDTH and dx < X_PADDLE_HEIGHT and isDie == False):
 			if (paddleZ == -8):
 				# Points if AI touches the ball TODO check me
@@ -334,16 +352,17 @@ class PongGame:
 			self.ball.dirX /= length
 			self.ball.dirZ /= length
 
+	# INVERSE DANS LE CODE
 	def checkGoal(self):
 		if (self.ball.z < Z_GOAL_LEFT or self.ball.z > Z_GOAL_RIGHT):
 			if (self.ball.z < Z_GOAL_LEFT):
-				self.score.s1 += 1 # L'inverse ???? TODO check me
-				self.ai_score += POINTS_MARK_GOAL # Big bonus for scoring
-				print("GOAL for player 1")
+				self.score.s2 += 1 
+				# print("GOAL for player 2, score ", self.score.s2)
+				self.ai_score -= POINTS_TAKE_A_GOAL
 			else:
-				self.score.s2 += 1 # L'inverse ???? TODO check me
-				self.ai_score -= POINTS_TAKE_A_GOAL # Penalize for conceding a goal
-				print("GOAL for player 2")
+				self.score.s1 += 1 # L'inverse ???? TODO check me
+				self.ai_score += POINTS_MARK_GOAL
+				# print("GOAL for player 1, score ", self.score.s1)
 			self.reset(total=False) # Comment to make game endless no points
 			self.ball.dirZ *= -1
 
