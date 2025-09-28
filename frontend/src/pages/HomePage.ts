@@ -5,7 +5,7 @@ import { checkLog } from "../api/user-service/connection/check-log.js";
 import { getUserInfoBySlug } from "../api/user-service/user-info/getUserInfo.js";
 import { markNotificationsRead } from "../api/user-service/menu/notifications/markNotificationRead.js";
 import { getAllNotifications } from "../api/user-service/menu/notifications/getNotifications.js";
-import { activateTwoFa, validateTwoFa } from "../api/user-service/2fa.js";
+import { activateTwoFa, checkTwoFaCode, desactivateTwoFa } from "../api/user-service/2fa.js";
 
 export class HomePage extends BasePage {
 
@@ -34,10 +34,10 @@ export class HomePage extends BasePage {
 		}
 
 		//TEST A SUPPRIMER\
-		const req = await validateTwoFa("182597");
+		const req = await desactivateTwoFa();
 		if (req.ok)
 		{
-			console.log('obj: ', req.qrCode);
+			console.log('obj: ', req.status);
 		}
 		else
 			alert(req.error);

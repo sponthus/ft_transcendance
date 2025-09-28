@@ -1,6 +1,7 @@
 import speakeasy from "speakeasy";
 import qrcode from 'qrcode';
 import { checkCodeFormat } from "../tools/checkFormat.js";
+import { decrypt, encrypt,  } from "./cryptSecret.js";
 
 export async function activateTwoFa(request, reply)
 {
@@ -10,12 +11,12 @@ export async function activateTwoFa(request, reply)
     try
     {
          const stmt = db.prepare("  SELECT \
-                                        twofa_secret \
+                                        twofa_secret, twofa_enabled \
                                     FROM \
                                         users \
                                     WHERE \
                                         id = ?").get(idUser);
-        if (stmt.twofa_secret)
+        if (stmt.twofa_secret && stmt.twofa_enabled === 1)
             return reply.code(400).send({ error: "2FA setup already activated" });
 
         const row = db.prepare("    SELECT \
@@ -32,13 +33,14 @@ export async function activateTwoFa(request, reply)
             symbols: false //plus facile a taper
         });
         //stocker la cle encrypte ici, utilise crypto ? PLUS TARD
-        encrypt(secret);
+        console.log('Secret 2fa : ', secret.base32);
+        const encryptSecret = encrypt(secret.base32);
         db.prepare(    "UPDATE \
                             users \
                         SET \
                             twofa_secret = ? \
                         WHERE \
-                            id = ?").run(secret.base32, idUser);
+                            id = ?").run(encryptSecret, idUser);
 
         //secret.ascii --> juste des caractères ASCII, peu utilisé pour 2FA.
         //secret.hex --> format hexa
@@ -77,7 +79,7 @@ export async function checkTwoFaCode(request, reply)
                                         users \
                                     WHERE \
                                         id = ?").get(idUser);
-        //decrypter cle secret 2fa
+        
         if (!row || !row.twofa_secret)
             return reply.code(400).send({ error: "No 2FA setup found" });
 
@@ -88,10 +90,11 @@ export async function checkTwoFaCode(request, reply)
 
         console.log("💡 Code serveur:", codeServer);*/ //voir le code du serveur
 
-    
+        const   secret = decrypt(row.twofa_secret);
+        console.log('SSSecret 2fa : ', secret);
         const   codeVerified = speakeasy.totp.verify(
         {
-            secret: row.twofa_secret,
+            secret: secret,
             encoding: "base32",
             token: code,
             window: 1 //si il ya de la latence ou un decalage avec l' heure du user c'est 30s + 30s ??
@@ -99,7 +102,7 @@ export async function checkTwoFaCode(request, reply)
         if (!codeVerified)
             return reply.code(401).send({ error: "Invalid 2FA code" });
        
-        let msg = "2fa verified"
+        let status = "2FA verified"
         if (row.twofa_enabled === 0)
         {
              db.prepare( "  UPDATE \
@@ -108,14 +111,52 @@ export async function checkTwoFaCode(request, reply)
                                 twofa_enabled = 1 \
                             WHERE \
                                 id = ?").run(idUser);
-            msg = "2fa enabled";
+            status = "2FA enabled";
         }
-        return reply.code(200).send({ msg: msg });
+        return reply.code(200).send({ status: status });
     }
     catch (err)
     {
         return reply.code(500).send({ error: "Internal Server Error" });
     }
 }
-//validate2Fa
-//--> passer 2fa_activated a 1;
+
+export async function desactivateTwoFa(request, reply)
+{
+    const   db = request.server.db;
+    const   idUser = request.user.idUser;
+    
+    try
+    {
+        const row = db.prepare("    SELECT \
+                                        twofa_secret, twofa_enabled \
+                                    FROM \
+                                        users \
+                                    WHERE \
+                                        id = ?").get(idUser);
+         if (!row || row.twofa_enabled === 0)
+            return reply.code(400).send({ error: "2FA is not active" });
+        db.prepare("    UPDATE \
+                            users \
+                        SET \
+                            twofa_secret = NULL, \
+                            twofa_enabled = 0 \
+                        WHERE \
+                            id = ?").run(idUser);
+        return reply.code(200).send({ status: "2FA deactivated" });
+    }
+    catch (err)
+    {
+        return reply.code(500).send({ error: "Internal Server Error" });
+    }
+}
+
+/*
+secret contient : 
+{
+  ascii: 'ABCDEFG...', --> cle TOTP generer differement
+  hex: '1f2e3d4c...', --> pareil
+  base32: 'JBSWY3DPEHPK3PXP', --> "vraie" cle TOTP
+  otpauth_url: 'otpauth://totp/IslandWord:username?secret=JBSWY3DPEHPK3PXP&issuer=Transcendance'
+}
+*/

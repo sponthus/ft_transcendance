@@ -1,4 +1,4 @@
-type Success = {ok: true, qrCode?: string }
+type Success = {ok: true, qrCode?: string, status?: string }
 type Failure = { ok: false; error: string };
 
 export type Result = Success | Failure 
@@ -21,17 +21,14 @@ export async function  activateTwoFa(): Promise<Result>
     return ( { ok: false, error: data.error } );
 }
 
-export const validateTwoFa = (code: string) => checkTwoFaCode('/api/user/2fa/validate', code); //Pour valide l'activation de la 2FA
-export const verifyTwoFa = (code: string) => checkTwoFaCode('/api/user/2fa/verify', code); // pour login avec 2FA
-
-export async function  checkTwoFaCode(url:string, code: string): Promise<Result>
+export async function  checkTwoFaCode(code: string): Promise<Result>
 {
     const token = localStorage.getItem("token");
     if (!token)
         return { ok: false, error : "No token found" };
     try
     {
-        const res = await fetch( url, 
+        const res = await fetch( "/api/user/2fa/check", 
         {
             method: 'POST',
              headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
@@ -40,7 +37,7 @@ export async function  checkTwoFaCode(url:string, code: string): Promise<Result>
         const data = await res.json();
         if (res.ok)
         {
-            return ({ ok: true, qrCode: data.msg });
+            return ({ ok: true, status: data.status });
         }
         return ({ ok: false, error: data.error });
     }
@@ -48,4 +45,22 @@ export async function  checkTwoFaCode(url:string, code: string): Promise<Result>
     {
         return ({ ok: false, error: "Network error" });
     }
+}
+
+export async function  desactivateTwoFa(): Promise<Result>
+{
+    const token = localStorage.getItem("token");
+    if (!token)
+        return { ok: false, error : "No token found" };
+    const res = await fetch('/api/user/2fa/desactivate', 
+    {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}` },
+    });
+    const data = await res.json();
+    if (res.ok)
+    {
+        return ({ ok: true, status: data.status });
+    }
+    return ( { ok: false, error: data.error } );
 }
