@@ -10,7 +10,6 @@ def ReLu(input_value: float) -> float :
 	value = max(0, input_value) # ReLU activation
 	return value
 
-# TODO make me kwargs
 class Neuron:
 	name: int = 0
 	def __init__ (self, **kwargs):
@@ -118,8 +117,11 @@ class Layer:
 		return f"Layer(name={self.name}, neurons={len(self.neurons)})"
 	
 class Network:
+	name_val: int = 0
 	def __init__(self, **kwargs): 
 	#def __init__(self, nb_hidden_layers: int, nb_neurons_per_layer: int, nb_inputs: int, nb_outputs: int, conf = None):
+		self.name = str(Network.name_val)
+		Network.name_val += 1
 		self.input_layer: Layer
 		self.hidden_layers: list[Layer] = []
 		self.output_layer: Layer
@@ -196,7 +198,7 @@ class Network:
 		self.output_layer = Layer(conf=conf['output_layer'])
 
 	def __repr__(self):
-		return f"Network"
+		return f"N{self.name}"
 
 # Testing
 # import json as json
