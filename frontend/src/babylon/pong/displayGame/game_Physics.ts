@@ -8,6 +8,8 @@ import { GameSocket } from "../../../core/GameSocket.js";
 import { AdvancedDynamicTexture, TextBlock} from "@babylonjs/gui/2D";
 import { MeshBuilder } from "@babylonjs/core";
 
+import { DisplayName } from "./display_name";
+
 interface BallMesh extends Mesh {
 	direction: Vector3;
 	speed: number;
@@ -46,7 +48,9 @@ export class GamePhysics {
 	private inputMap: Record<string, boolean> = {};
 	private ready: boolean = false; // Is the backend server ready to launch game ?
 
-
+	private _displayName!: DisplayName;
+	private _pancartePlayer1: AbstractMesh | null;
+	private _pancartePlayer2: AbstractMesh | null;
 	private _displayCountBegin: Mesh;
 	private _advancedTexture2: AdvancedDynamicTexture;
 	private _text: TextBlock;
@@ -60,6 +64,8 @@ export class GamePhysics {
 		bullBob: AbstractMesh | null,
 		bullPatrick: AbstractMesh | null,
 		menuPause: AbstractMesh | null,
+		pancartePlayer1: AbstractMesh | null,
+		pancartePlayer2: AbstractMesh | null,
 		light: HemisphericLight
 	) {
 		this._ball = ball;
@@ -71,7 +77,11 @@ export class GamePhysics {
 		this._bullPatrick = bullPatrick;
 		this._menuPause = menuPause;
 		this._light = light;
+		this._pancartePlayer1 = pancartePlayer1;
+		this._pancartePlayer2 = pancartePlayer2;
+
 		this._score = new Score(this._scene, this._scoreValue1, this._scoreValue2, this._bullBob, this._bullPatrick);
+		this._displayName = new DisplayName(this._scene, "player1", "player2", this._pancartePlayer1, this._pancartePlayer2);
 
 		this._ball.speed = 0;
 		console.log("win ? in game physics", this.Win);

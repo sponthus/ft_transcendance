@@ -44,6 +44,7 @@ export class DisplayAssets {
 
 	private _statusCrab: AbstractMesh | null = null;
 	private _pancartePlayer1: AbstractMesh | null = null;
+	private _pancartePlayer2: AbstractMesh | null = null;
 
 	private _ground?: Mesh;
 	private _waterMaterial?: WaterMaterial;
@@ -155,10 +156,15 @@ export class DisplayAssets {
 
 		const result12 = await ImportMeshAsync("/assets/pancarte.glb", this._scene);
 		this._pancartePlayer1 = result12.meshes[0];
-		this._pancartePlayer1.position = new Vector3(7, 1.5, 10.5);
-		this._pancartePlayer1.scaling = new Vector3(5,5,5);
+		this._pancartePlayer1.position = new Vector3(7, 2, 10.5);
+		this._pancartePlayer1.scaling = new Vector3(8,8,8);
 		//this._pancartePlayer1.billboardMode = Mesh.BILLBOARDMODE_ALL;
-		
+
+		const result13 = await ImportMeshAsync("/assets/pancarte.glb", this._scene);
+		this._pancartePlayer2 = result13.meshes[0];
+		this._pancartePlayer2.position = new Vector3(7, 1.8, -10.5);
+		this._pancartePlayer2.scaling = new Vector3(8,8,8);"@babylonjs/core";
+
 		this._caste.freezeWorldMatrix(); // plus de recalculs de position/rotation/scale
 		this._caste.doNotSyncBoundingInfo = true; // plus de bounding box à recalculer
 		this._caste.isPickable = false; // si t'as pas besoin de clic dessus
@@ -210,6 +216,16 @@ export class DisplayAssets {
 	public get menuPause(): AbstractMesh | null
 	{
 		return this._menuPause;
+	}
+
+	public get pancartePlayer1(): AbstractMesh | null
+	{
+		return this._pancartePlayer1;
+	}
+
+	public get pancartePlayer2(): AbstractMesh | null
+	{
+		return this._pancartePlayer2;
 	}
 	
 	private async _makingSkybox(): Promise<void>
