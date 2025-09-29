@@ -49,6 +49,9 @@ export class PongGame {
 		this.groundLimitePositif = 5.8;
 		this.groundLimiteNegatif = -5.8;
 
+		this.pauseBegin = true;
+		this.timePauseBegin = 20;
+
 	}
 
 	setInputs(input)
@@ -68,15 +71,19 @@ export class PongGame {
 		this.isPausedManagement();
 		if (this.ispaused === false)
 		{
-			this.movePlayer1();
-			this.movePlayer2();
-			this.moveBall();
-			this.checkCollisionWall();
-			this.checkCollisionPaddle(this.paddle1, -8, this.die1);
-			this.checkCollisionPaddle(this.paddle2, 8, this.die2);
-			this.checkGoal();
-			if (this.gameOption === 1)
-				this.crabmehameha();
+			this.isPauseBeginManagement();
+			if (this.pauseBegin === false)
+			{
+				this.movePlayer1();
+				this.movePlayer2();
+				this.moveBall();
+				this.checkCollisionWall();
+				this.checkCollisionPaddle(this.paddle1, -8, this.die1);
+				this.checkCollisionPaddle(this.paddle2, 8, this.die2);
+				this.checkGoal();
+				if (this.gameOption === 1)
+					this.crabmehameha();
+			}
 		}
 	}
 
@@ -93,7 +100,8 @@ export class PongGame {
 			specialCooldown2: this.specialCooldown2,
 			die1: this.die1,
 			die2: this.die2,
-			ispaused: this.ispaused
+			ispaused: this.ispaused,
+			timePauseBegin: this.timePauseBegin
 		};
 	}
 
@@ -103,6 +111,17 @@ export class PongGame {
 			this.ispaused = true;
 		if (this.input1[' '])
 			this.ispaused = false;
+	}
+
+	isPauseBeginManagement()
+	{
+		if (this.timePauseBegin > 0)
+		{
+			this.pauseBegin = true;
+			this.timePauseBegin -= this.dt;
+		}
+		else
+			this.pauseBegin = false;
 	}
 
 	movePlayer1()
@@ -208,8 +227,11 @@ export class PongGame {
 				scoreA: this.score.s1,
 				scoreB: this.score.s2
 			});
+			//anim but
+			//temps dattente de 3seconde? avant reprise
+			this.timePauseBegin = 25;
 			this.reset();
-			this.ball.dirZ *= -1;
+			//this.ball.dirZ *= -1;
 		}
 	}
 

@@ -1,4 +1,4 @@
-import { AdvancedDynamicTexture, TextBlock, Control} from "@babylonjs/gui/2D";
+import { AdvancedDynamicTexture, TextBlock} from "@babylonjs/gui/2D";
 import { Scene, AbstractMesh, Mesh, Vector3, MeshBuilder} from "@babylonjs/core";
 
 export class Score {
@@ -35,6 +35,7 @@ export class Score {
 		this._textBob.text = "";
 		this._textBob.color = "black";
 		this._textBob.fontSize = 70;
+		this._textBob.fontFamily = "Comic Sans MS";
 
 		this._advancedTextureBob.addControl(this._textBob);
 
@@ -50,6 +51,7 @@ export class Score {
 		this._textPatrick.text = "";
 		this._textPatrick.color = "black";
 		this._textPatrick.fontSize = 96;
+		this._textPatrick.fontFamily = "Comic Sans MS";
 
 		this._advancedTexturePatrick.addControl(this._textPatrick);
 		// Dessine les textes

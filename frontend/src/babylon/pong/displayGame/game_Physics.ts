@@ -5,6 +5,9 @@ import { crabmehamehaFX } from "./impactFX";
 import { Score } from "./score";
 import { GameSocket } from "../../../core/GameSocket.js";
 
+import { AdvancedDynamicTexture, TextBlock} from "@babylonjs/gui/2D";
+import { MeshBuilder } from "@babylonjs/core";
+
 interface BallMesh extends Mesh {
 	direction: Vector3;
 	speed: number;
@@ -43,6 +46,11 @@ export class GamePhysics {
 	private inputMap: Record<string, boolean> = {};
 	private ready: boolean = false; // Is the backend server ready to launch game ?
 
+
+	private _displayCountBegin: Mesh;
+	private _advancedTexture2: AdvancedDynamicTexture;
+	private _text: TextBlock;
+
 	constructor(
 		ball: BallMesh,
 		scene: Scene,
@@ -68,6 +76,23 @@ export class GamePhysics {
 		this._ball.speed = 0;
 		console.log("win ? in game physics", this.Win);
 		this.setupControls();
+
+		this._displayCountBegin = MeshBuilder.CreatePlane("displayCountBegin", { size: 6 }, this._scene);
+		this._displayCountBegin.position = new Vector3(0, 3, 0); // décalé au-dessus de ton mesh
+		this._displayCountBegin.billboardMode = Mesh.BILLBOARDMODE_ALL;
+		//this._plane2.rotation = new Vector3(0, Math.PI, 0); // 180° sur Y
+
+		// GUI sur le plane
+		this._advancedTexture2 = AdvancedDynamicTexture.CreateForMesh(this._displayCountBegin);
+		this._text = new TextBlock();
+		this._text.text = "";
+		this._text.color = "black";
+		this._text.fontSize = 360;
+		this._text.fontFamily = "Comic Sans MS";
+		this._text.fontStyle = "italic";
+		this._text.fontWeight = "bold";
+
+		this._advancedTexture2.addControl(this._text);
 	}
 
 	public launchSocket(gameId: number) {
@@ -167,6 +192,7 @@ export class GamePhysics {
 		if (this._serverState)
 		{
 			this.pauseManager();
+			this.displayCountBegin();
 			this._ball.position.x = this._serverState.ball.x;
 			this._ball.position.z = this._serverState.ball.z;
 			this.moveCrab();
@@ -208,6 +234,29 @@ export class GamePhysics {
 				this._light.intensity = 1;
 				this._menuPause.setEnabled(false);
 			}
+		}
+	}
+
+	private displayCountBegin()
+	{
+		if (this._serverState.timePauseBegin > 0)
+		{
+			if (this._serverState.timePauseBegin < 6)
+			{
+				this._text.text = "1";
+			}
+			else if (this._serverState.timePauseBegin < 12)
+			{
+				this._text.text = "2";
+			}
+			else if (this._serverState.timePauseBegin < 18)
+			{
+				this._text.text = "3";
+			}
+		}
+		else
+		{
+			this._text.text = "";
 		}
 	}
 

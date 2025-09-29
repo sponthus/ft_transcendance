@@ -41,6 +41,10 @@ export class DisplayAssets {
 
 	//private _skybox: AbstractMesh | null = null;
 
+
+	private _statusCrab: AbstractMesh | null = null;
+	private _pancartePlayer1: AbstractMesh | null = null;
+
 	private _ground?: Mesh;
 	private _waterMaterial?: WaterMaterial;
 	private _skybox?: Mesh;
@@ -144,6 +148,17 @@ export class DisplayAssets {
 		this._bullPatrick.billboardMode = Mesh.BILLBOARDMODE_ALL;
 		this._bullPatrick.setEnabled(false);
 
+		const result11 = await ImportMeshAsync("/assets/statusCrabGold.glb", this._scene);
+		this._statusCrab = result11.meshes[0];
+		this._statusCrab.position = new Vector3(10.5, 1.5, 0);
+		this._statusCrab.scaling = new Vector3(5,5,5);
+
+		const result12 = await ImportMeshAsync("/assets/pancarte.glb", this._scene);
+		this._pancartePlayer1 = result12.meshes[0];
+		this._pancartePlayer1.position = new Vector3(7, 1.5, 10.5);
+		this._pancartePlayer1.scaling = new Vector3(5,5,5);
+		//this._pancartePlayer1.billboardMode = Mesh.BILLBOARDMODE_ALL;
+		
 		this._caste.freezeWorldMatrix(); // plus de recalculs de position/rotation/scale
 		this._caste.doNotSyncBoundingInfo = true; // plus de bounding box à recalculer
 		this._caste.isPickable = false; // si t'as pas besoin de clic dessus
