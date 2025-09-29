@@ -7,6 +7,7 @@ import fs from "fs";
 import dbConnector from "./db.js";
 import logger from "../config/logger.js";
 import routes from "./routes/index.js";
+//import { getSecret } from "./tools/getSecret.js";
 
 const __filename = fileURLToPath(import.meta.url); // This filename, from ESM expression to classic path
 export const __dirname = path.dirname(__filename); // Parent folder to this file
@@ -17,13 +18,17 @@ const fastify = Fastify({
 
 console.log(`\nFastify user-service listen on port ${env.user_port}\n`); // debug
 
-export function getSecret(name) {
-	try {
+export function getSecret(name)
+{
+	try
+    {
 		const key = fs.readFileSync(`/run/secrets/${name}`, 'utf8').trim();
 		return (key);
-	} catch (error) {
+	}
+    catch (error)
+    {
 		console.log("❌ Critical error : Unable to read secret ", name);
-		process.exit(1);
+		process.exit(0);
 	}
 }
 
