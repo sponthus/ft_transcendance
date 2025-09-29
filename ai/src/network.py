@@ -35,7 +35,7 @@ class Neuron:
 		# TODO limit bias modification ? possibility to be neg ?
 		self.bias: float
 		if (kwargs.get('bias') is None):
-			self.bias = np.random.rand() # TODO Limit biais to limit impact on neuron response
+			self.bias = np.random.uniform(-1, 1)
 		else:
 			self.bias = kwargs.get('bias')
 		self.activation_function: Callable = kwargs.get('activation_function', ReLu)
