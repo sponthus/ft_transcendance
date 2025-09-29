@@ -1,6 +1,6 @@
 import { navigate } from '../../core/router.js';
 import { updateUsername } from "../../api/user-service/user-info/updateUsername.js";
-import { getUserInfo } from '../../api/user-service/user-info/getUserInfo.js';
+import { getUserInfo, getUserInfoBySlug, UserInfo } from '../../api/user-service/user-info/getUserInfo.js';
 import { uploadAvatar } from "../../api/avatar.js";
 import { BasePage } from "../BasePage.js";
 import { popUp } from '../../Utils/popUp.js';
@@ -8,34 +8,48 @@ import { sleep } from '../../babylon/displaying/dialogueBox.js';
 import { createDiv, createElement, createButton, createDropdownDiv, createFormDiv, createCheckBoxLabel, append, createImage, createInput} from '../../Utils/elementMaker.js';
 import { getAllGames } from '../../api/game-service/games/game.js';
 import { DisplayHistoryPage } from './HistoryPage.js';
+import { displayFriendlist } from './FriendListPage.js';
 import { UserBanner } from './UserBannerPage.js';
 
 enum BodyState {PROFILE = 0, FRIENDS = 1, HISTORY = 2};
+
+type UserData = //VA ETRE CHANGER, le token renvoie le username et l'id du user
+{
+	id: number
+	username: string;
+	nickname: string;
+	avatar: string;
+	slug: string;
+	created_at: string;
+};
 
 export class UserPage extends BasePage {
 	// protected slug?: string;
 
 	private Background!: HTMLElement;
 	private UserBanner!: UserBanner;
+	private slug!: string;
 	protected BodyDiv!: HTMLElement;
 
-	private UserData?: any;
+	private UserData?: UserInfo;
 
 	private StateBody!: number;
 
+	private isOwnProfile: boolean = true;
 
 	constructor(slug: string) {
 		// if (!state.isLoggedIn())
 		// 	navigate('/');
 		super();
 		console.log('Constructor');
+		this.slug = slug;
 		// this.slug = state!.user?.slug;
 	}
 	
 	async render(): Promise<void> {
 		await this.renderBanner();
 		await this.initDivs();
-		this.TryGetUserInfo();
+		await this.TryGetUserInfo();
 	}
 
 	/*************************************Functions for render Page*************************************/
@@ -50,7 +64,9 @@ export class UserPage extends BasePage {
 			const req = await getUserInfo();
 			if (req.ok) {
 				this.UserData = req.userInfo;
-				this.UserBanner = new UserBanner(this.UserData);
+				if (this.slug != this.UserData.slug)
+					await this.fillUserData()
+				this.UserBanner = new UserBanner(this.UserData, this.isOwnProfile);
 				console.log(`user data = ` + JSON.stringify(this.UserData));
 				this.StateBody = this.UserBanner._ProfileState;
 				await this.showUserPage();
@@ -65,6 +81,20 @@ export class UserPage extends BasePage {
 		}
 	}
 
+	private async fillUserData() {
+		console.log('fille userDAta called');
+		this.isOwnProfile = false;
+		try {
+			const req = await getUserInfoBySlug(this.slug);
+			if (req.ok) {
+				this.UserData = req.userInfo;
+				console.log("new userdata = ", this.UserData);
+			}
+
+		} catch (error) {
+			alert(error);
+		}
+	}
 	async showUserPage() {
 		await this.renderProfileBanner();
 		await this.renderBodyProfile();
@@ -74,7 +104,7 @@ export class UserPage extends BasePage {
 
 
 	private async renderProfileBanner() {
-		this.UserBanner.render();
+		await this.UserBanner.render();
 		this.Background.appendChild(this.UserBanner._ProfileBanner);
 	}
 
@@ -85,16 +115,16 @@ export class UserPage extends BasePage {
 
 		this.BodyDiv = document.createElement('div');
 		this.BodyDiv.className = "bg-orange-300  bg-opacity-50 w-full h-[60%] flex items-center justify-center overflow-auto";
-
 		switch(this.StateBody){
 			case BodyState.PROFILE:
 				this.BodyDiv.textContent = "i'm in the profile body";
 				break;
 			case BodyState.FRIENDS:
-				this.BodyDiv.textContent = "i'm in the Friendlist body";
+				await displayFriendlist(this.BodyDiv,this.UserData!, this.isOwnProfile);
+				// this.BodyDiv.textContent = "i'm in the Friendlist body";
 				break;
 			case BodyState.HISTORY:
-				DisplayHistoryPage(this.BodyDiv);
+				await DisplayHistoryPage(this.BodyDiv, this.UserData!);
 				break;
 			default:break;
 		}
@@ -106,7 +136,10 @@ export class UserPage extends BasePage {
 	/*************************************Functions for Event Management*************************************/
 	private async addEvents() {
 		await this.BannerEvents();
-		await this.editingEvents()
+		if (this.isOwnProfile)
+			await this.editingEvents();
+		else
+			await this.UserBanner.managefriendrequest();
 	}
 
 	private async BannerEvents() {

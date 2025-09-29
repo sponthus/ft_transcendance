@@ -1,4 +1,4 @@
-type RequestSuccess = {ok: true, requests?: string[] }
+type RequestSuccess = {ok: true, requests?: any[]}
 type Failure = { ok: false; error: string };
 
 export type RequestResult = RequestSuccess | Failure;
@@ -52,7 +52,7 @@ export async function   getSentRequests(): Promise<RequestResult>
         headers: { 'Authorization': `Bearer ${token}` },
     });
     const data = await res.json();    
-    if (res.ok) 
+    if (res.ok)
     {
         return { ok: true,  requests: data.requests};
     }
@@ -69,7 +69,7 @@ export async function   getReceivedRequests(): Promise<RequestResult>
         method: 'GET',
         headers: { 'Authorization': `Bearer ${token}` },
     });
-    const data = await res.json();    
+    const data = await res.json();
     if (res.ok) 
     {
         return { ok: true,  requests: data.requests};

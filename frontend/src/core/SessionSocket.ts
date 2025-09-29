@@ -1,4 +1,5 @@
-/// <reference types="vite/client" />
+//<reference types="vite/client" />
+import { refreshNotification } from "../Utils/notification";
 
 export class SessionSocket {
     static instance: null | SessionSocket = null;
@@ -51,7 +52,9 @@ export class SessionSocket {
 
         this.sWS.onmessage = (event) => {
             try {
-                const data = JSON.parse(event.data);
+				// console.log('Received message');
+				const data = JSON.parse(event.data);
+				// console.log('Received message:', data);
 				// TODO Check data contains "type"
                 this.handleMessage(data);
             } catch (error) {
@@ -138,12 +141,18 @@ export class SessionSocket {
 
     private handleMessage(data: any) {
         console.log('Received message:', data);
+		console.log('data.type = :', data.type);
 		if (data.type === 'pong') {
-			console.log('Received pong from server');
+			// console.log('Received pong from server');
 			this.clearHeartbeatTimeout();
 			return;
 		}
-        // TODO Emma Add logic here, when recieving a friend request message
+		else if (data.type === "message") {
+			console.log("receive friend request frome data.type message");
+			refreshNotification();
+			return ;
+			// TODO Emma Add logic here, when recieving a friend request message
+		}
     }
 
     public  addEventListener(type: string, listener: (event: any) => void) {

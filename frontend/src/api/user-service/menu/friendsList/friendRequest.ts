@@ -1,13 +1,13 @@
 
-type FriendsSuccess = {ok: true, friends?: AllFriends }
+type FriendsSuccess = {ok: true, friends?: AllFriends[] }
 type Failure = { ok: false; error: string };
 
-type AllFriends = 
+export type AllFriends = 
 {
     username: string;
     slug: string;
     avatar: string;
-}[];
+};
 
 
 export type FriendsResult = FriendsSuccess | Failure;

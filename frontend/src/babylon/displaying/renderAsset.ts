@@ -4,6 +4,8 @@ import "@babylonjs/core/Debug/debugLayer";
 import * as BABYLON from "@babylonjs/core";
 import "@babylonjs/loaders/glTF";
 import { ImportMeshAsync } from "@babylonjs/core/Loading/sceneLoader";
+import { getCharacterAsset } from "../../api/user-service/menu/characterAsset";
+import { getNpcAsset } from "../../api/user-service/menu/npcAsset";
 
 export class renderAsset {
 
@@ -43,12 +45,21 @@ export class renderAsset {
 
 	private async _loadPlayer() {
 		/******************************load player******************************/
-		const result = await ImportMeshAsync("/asset/Characters/Models/GLBformat/character-b.glb", this._scene);
+		let AssetNumber: number = 0;
+		try {
+			const req = await getCharacterAsset();
+			if (req.ok) {
+				AssetNumber  = req.asset!;
+				console.log("AssetData = ", req.asset as number);
+			}
+		} catch(error) {
+			alert(error);
+		}
+		const result = await ImportMeshAsync(`/asset/Characters/Models/GLBformat/character-${AssetNumber}.glb`, this._scene);
 		if (result)
 			console.log("Meshes Player import succesfully", result.meshes);
 		this._setUpMesh(result, new BABYLON.Vector3(5, 0, 5), 1.5);
 		this._player = result.meshes[0] as BABYLON.Mesh;
-		// this._player.setEnabled(false);
 		if (!this._player)
 			console.log("player not initialized:");
 		this._addColisionPlayer(this._player);
@@ -56,7 +67,17 @@ export class renderAsset {
 
 	private async _loadNpc() {
 		/******************************load npc******************************/
-		const result = await ImportMeshAsync("/asset/Characters/Models/GLBformat1/character-female-a.glb", this._scene);
+		let AssetNumber: number = 0;
+		try {
+			const req = await getNpcAsset();
+			if (req.ok) {
+				AssetNumber = req.asset!;
+				// console.log("AssetNumber NPC = " , AssetNumber);
+			}
+		} catch (error) {
+			alert(error);
+		}
+		const result = await ImportMeshAsync(`/asset/Characters/Models/GLBformat1/character-${AssetNumber}.glb`, this._scene);
 		if (result)
 			console.log("mesh npc import successfully");
 		this._catAnimationGroupName(result, "npc_");
@@ -109,7 +130,6 @@ export class renderAsset {
 	}
 
 	private async __loadStageSet(): Promise<void> {
-
 		await this._loadboats();
 		await this._loadPlatforms()
 		await this._loadBottleCrates();
