@@ -6,6 +6,7 @@ import json as json
 import time
 import concurrent.futures
 import copy
+import math
 
 class Trainer:
 	def __init__(self, **kwargs):
@@ -85,6 +86,8 @@ class Trainer:
 	# keep 5% randoms to cross with the best ones
 	def train(self, nb_generations: int = 50, save_rate: int = 10):
 		
+		last_best_score = 0
+		last_conf = None
 		for _ in range(nb_generations):
 			# # Log population size and check for duplicates
 			# print(f"[DEBUG] Population size: {len(self.population)}")
@@ -102,7 +105,7 @@ class Trainer:
 			# 	print("[DEBUG] No duplicate network objects detected.")
 			# print(f"[DEBUG] Population indices: {[i for i in range(len(self.population))]}")
 			with concurrent.futures.ThreadPoolExecutor() as executor:
-				futures = [executor.submit(self.evaluate, network, 5, idx) for idx, network in enumerate(self.population)]
+				futures = [executor.submit(self.evaluate, network, 4, idx) for idx, network in enumerate(self.population)]
 				results = []
 				for i, future in enumerate(concurrent.futures.as_completed(futures), 1):
 					try:
@@ -117,8 +120,20 @@ class Trainer:
 			if (self.generation % save_rate == 0):
 				self.save_config(best=True, population=True)
 			# print(scores)
+			best_score = 0
 			print(f"Generation {self.generation} - Best score: {scores[0][0]}")
+			for i in range(math.floor(self.population_size / 10)):
+				best_score += scores[i][0]
+			best_score /= math.floor(self.population_size / 10)
+			if (best_score <= last_best_score * 0.7 and last_conf is not None):
+				self.population = [Network(conf=last_conf[i]) for i in range(self.population_size)]
+				print("Score decreased, reverting")
+			else:
+				last_best_score = best_score
+				last_conf = self.save_conf_in_var()
 			self.evolve(scores)
+
+
 			# for i, network in enumerate(self.population):
 			# 	conf = network.get_conf()
 			# 	assert len(conf['input_layer']['weights']) == self.nb_neurons_per_layer
@@ -131,6 +146,10 @@ class Trainer:
 		self.save_config(best=True, population=True)
 	
 	def evolve(self, scores: list[tuple[float, Network]], best_untouched_rate: float = 0.2, retain_rate: float = 0.4, random_select: float = 0.05, random_network_rate: float = 0.1):
+		# print("Initial population: ")
+		# for i, (_, network) in enumerate(scores):
+		# 	print(f"{network} (score: {scores[i][0]})")
+
 		# Select the best networks
 		retain_length = int(self.population_size * retain_rate)
 		parents = [network for _, network in scores[:retain_length]]
@@ -157,15 +176,20 @@ class Trainer:
 				child_conf = self.crossover(mother.get_conf(), father.get_conf())
 				# TODO test with or without mutation, or add mutation rate ? Maybe at the beginning crossover, then mutate
 				child = Network(conf=child_conf)
+				child.name = f"[{mother.name}/{father.name}]"
 				self.mutate(child)
 				children.append(child)
 		
 		# Mutate all parents (containing copies of best_networks)
 		for parent in parents:
 			self.mutate(parent)
+			parent.name = f"{parent.name}m*"
 
 		self.population = best_networks + random_networks + parents + children
 		self.generation += 1
+		# print("New population: ")
+		# for i, network in enumerate(self.population):
+		# 	print(f"{network}")
 
 	# Add some completely random individuals to promote genetic diversity
 	def get_random_networks(self, nb_networks: int):
@@ -217,13 +241,20 @@ class Trainer:
 		return {"weights": child_weights, "biases": child_biases}
 
 	def print_networks(self):
-		for i, network in enumerate(self.population):
-			print(f"Network {i}:\n")
+		for _, network in enumerate(self.population):
+			print(f"{network}\n")
 			print(f"Layers:")
 			print(f" Input Layer: {network.input_layer}")
 			for j, layer in enumerate(network.hidden_layers):
 				print(f" Hidden Layer {j}: {layer}")
 			print(f" Output Layer: {network.output_layer}\n")
+
+	def save_conf_in_var(self):
+		result = []
+		for i, network in enumerate(self.population):
+			conf = network.get_conf()
+			result.append(conf)
+		return result
 
 	def save_config(self, best: bool = True, population: bool = True):
 		if (population):
@@ -265,22 +296,22 @@ if __name__ == '__main__':
 	# with open("test2", "w") as f:
 	# 	json.dump(network2.get_conf(), f)
 
-	# trainer = Trainer(population_size=50, nb_inputs=5, nb_hidden_layers=3, nb_neurons_per_layer=5, nb_outputs=3,\
-	# 				bias_mutation_intensity=0.1, \
-	# 					weights_mutation_intensity=0.2, \
-	# 						bias_mutation_rate=0.1, \
-	# 							weights_mutation_rate=0.1)
-	# trainer.train(nb_generations=100, save_rate=5)
+	trainer = Trainer(population_size=50, nb_inputs=5, nb_hidden_layers=3, nb_neurons_per_layer=5, nb_outputs=3,\
+					bias_mutation_intensity=0.05, \
+						weights_mutation_intensity=0.1, \
+							bias_mutation_rate=0.1, \
+								weights_mutation_rate=0.1)
+	trainer.train(nb_generations=200, save_rate=10)
 	# trainer.print_networks()
 	# trainer.print_networks()
 	# trainer.save_config()
 
-	conf_from_json = parse_json("data_gen_25.json")
+	# conf_from_json = parse_json("data_gen_25.json")
 	# More rate / intensity  if it doesn't evolvze = 0.1 - 0.2% / 0.1 - 0.2
 	# if it doesn't stabilize = 0.05% / 0.05 - 0.1
-	trainer2 = Trainer(config=conf_from_json, \
-					bias_mutation_intensity=0.05, \
-						weights_mutation_intensity=0.1, \
-							bias_mutation_rate=0.05, \
-								weights_mutation_rate=0.05)
-	trainer2.train(nb_generations=200, save_rate=5)
+	# trainer2 = Trainer(config=conf_from_json, \
+	# 				bias_mutation_intensity=0.05, \
+	# 					weights_mutation_intensity=0.1, \
+	# 						bias_mutation_rate=0.05, \
+	# 							weights_mutation_rate=0.05)
+	# trainer2.train(nb_generations=200, save_rate=5)
