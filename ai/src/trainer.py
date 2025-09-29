@@ -195,20 +195,22 @@ class Trainer:
 	def get_random_networks(self, nb_networks: int):
 		return [Network(nb_hidden_layers=self.nb_hidden_layers, nb_neurons_per_layer=self.nb_neurons_per_layer, nb_inputs=self.nb_inputs, nb_outputs=self.nb_outputs) for _ in range(nb_networks)]	
 
-	# TODO : add mutation rate per weight/bias
 	def mutate(self, network: Network):
 		new_conf = {}
 		conf = copy.deepcopy(network.get_conf())
 		for layer_key in conf.keys():
 			layer = conf[layer_key]
-			# TODO Mutation is not right
 			for i in range(len(layer['weights'])):
 				for j in range(len(layer['weights'][i])):
 					if self.weights_mutation_rate > random.random():
-						layer['weights'][i][j] += (random.uniform(-1, 1) * self.weights_mutation_intensity)
+						weight = layer['weights'][i][j] + (random.uniform(-1, 1) * self.weights_mutation_intensity)
+						if (weight < 5 and weight > -5):
+							layer['weights'][i][j] = weight
 			for i in range(len(layer['biases'])):
 				if self.biases_mutation_rate > random.random():
-					layer['biases'][i] += (random.uniform(-1, 1) * self.bias_mutation_intensity)
+					biais = layer['biases'][i] + (random.uniform(-1, 1) * self.bias_mutation_intensity)
+					if (biais < 5 and biais > -5):
+						layer['biases'][i] = biais
 			new_conf[layer_key] = layer
 		network.set_conf(new_conf)
 
@@ -296,22 +298,22 @@ if __name__ == '__main__':
 	# with open("test2", "w") as f:
 	# 	json.dump(network2.get_conf(), f)
 
-	trainer = Trainer(population_size=50, nb_inputs=5, nb_hidden_layers=3, nb_neurons_per_layer=5, nb_outputs=3,\
-					bias_mutation_intensity=0.05, \
-						weights_mutation_intensity=0.1, \
-							bias_mutation_rate=0.1, \
-								weights_mutation_rate=0.1)
-	trainer.train(nb_generations=200, save_rate=10)
+	# trainer = Trainer(population_size=50, nb_inputs=5, nb_hidden_layers=3, nb_neurons_per_layer=5, nb_outputs=3,\
+	# 				bias_mutation_intensity=0.05, \
+	# 					weights_mutation_intensity=0.1, \
+	# 						bias_mutation_rate=0.1, \
+	# 							weights_mutation_rate=0.1)
+	# trainer.train(nb_generations=200, save_rate=10)
 	# trainer.print_networks()
 	# trainer.print_networks()
 	# trainer.save_config()
 
-	# conf_from_json = parse_json("data_gen_25.json")
+	conf_from_json = parse_json("data_gen_30.json")
 	# More rate / intensity  if it doesn't evolvze = 0.1 - 0.2% / 0.1 - 0.2
 	# if it doesn't stabilize = 0.05% / 0.05 - 0.1
-	# trainer2 = Trainer(config=conf_from_json, \
-	# 				bias_mutation_intensity=0.05, \
-	# 					weights_mutation_intensity=0.1, \
-	# 						bias_mutation_rate=0.05, \
-	# 							weights_mutation_rate=0.05)
-	# trainer2.train(nb_generations=200, save_rate=5)
+	trainer2 = Trainer(config=conf_from_json, \
+					bias_mutation_intensity=0.1, \
+						weights_mutation_intensity=0.1, \
+							bias_mutation_rate=0.1, \
+								weights_mutation_rate=0.1)
+	trainer2.train(nb_generations=200, save_rate=10)
