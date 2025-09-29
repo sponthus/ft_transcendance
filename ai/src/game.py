@@ -27,10 +27,10 @@ POINTS_TOUCH_BALL = 10 # Points for touching the ball
 POINTS_MARK_GOAL = 50 # Points for scoring a goal
 POINTS_TAKE_A_GOAL = 50 # lost if you take a goal
 POINTS_WELL_PLACED = 0.2 # Points for being well placed to hit the ball
-POINTS_ALMOST_WELL_PLACED = 0.1 # Points for being almost well placed to hit the ball
+# POINTS_ALMOST_WELL_PLACED = 0.1 # Points for being almost well placed to hit the ball
 POINTS_GOOD_DIRECTION = 0.2 # Points for going in the right direction to hit the ball
 POINTS_BAD_PLACED = 0.1 # lost for being badly placed to hit the ball
-POINTS_DOESNT_FOLLOW_BALL = 0.1 # lost for not following the ball
+POINTS_DOESNT_FOLLOW_BALL = 0; #0.1 # lost for not following the ball
 POINTS_FOLLOW_BALL = 0.2 # Points for following the ball
 POINTS_CRAB_WELL_LAUNCHED = 0 #10.0 # Points for launching a crabmehameha well
 # Simulation d'une partie a partir de la physique du jeu
@@ -287,8 +287,8 @@ class PongGame:
 				self.ai_score += POINTS_FOLLOW_BALL
 			elif self.ball.x < self.paddle1 and action_nn == DOWN:
 				self.ai_score += POINTS_FOLLOW_BALL
-			else:
-				self.ai_score -= POINTS_DOESNT_FOLLOW_BALL # OK
+			# else:
+			# 	self.ai_score -= POINTS_DOESNT_FOLLOW_BALL # Stop penalizing, too strict
 
 	
 		# elif action_nn == 3 and self.crab1_cooldown <= 0:
