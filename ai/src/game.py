@@ -22,17 +22,17 @@ UP = 0
 DOWN = 1
 STILL = 2
 
-POINTS_MOVE_TO_WALL = 1 # lost if you move to the wall
-POINTS_TOUCH_BALL = 10 # Points for touching the ball
+POINTS_MOVE_TO_WALL = 1 #1 # lost if you move to the wall
+POINTS_TOUCH_BALL = 20 #10 # Points for touching the ball
 POINTS_MARK_GOAL = 50 # Points for scoring a goal
 POINTS_TAKE_A_GOAL = 50 # lost if you take a goal
 POINTS_WELL_PLACED = 0.2 # Points for being well placed to hit the ball
 # POINTS_ALMOST_WELL_PLACED = 0.1 # Points for being almost well placed to hit the ball
 POINTS_GOOD_DIRECTION = 0.2 # Points for going in the right direction to hit the ball
 POINTS_BAD_PLACED = 0.1 # lost for being badly placed to hit the ball
-POINTS_DOESNT_FOLLOW_BALL = 0; #0.1 # lost for not following the ball
+POINTS_DOESNT_FOLLOW_BALL = 0.1 # lost for not following the ball
 POINTS_FOLLOW_BALL = 0.2 # Points for following the ball
-POINTS_CRAB_WELL_LAUNCHED = 0 #10.0 # Points for launching a crabmehameha well
+POINTS_CRAB_WELL_LAUNCHED = 0.0 # Points for launching a crabmehameha well
 # Simulation d'une partie a partir de la physique du jeu
 # Ajout de scores lors de la partie : point quand il a touche la balle
 # Crabmehameha : point quand un crabmehameha est fait alors que la balle est proche d'un ennemi, point ++ quand ca le touche, negatif ++ quand crabmehameha demande alors que indispo
@@ -149,18 +149,32 @@ class PongGame:
 	def norm(self, val, minv, maxv):
 		return 2 * (val - minv) / (maxv - minv) - 1
 	
+			# if (self.gameOption == 0):
+			# return [ self.norm(self.paddle1, X_INFERIOR_PADDLE_LIMIT, X_SUPERIOR_PADDLE_LIMIT),
+        	# 	self.norm(self.ball.x, X_INFERIOR_BALL_LIMIT, X_SUPERIOR_BALL_LIMIT),
+        	# 	self.norm(self.ball.z, Z_GOAL_LEFT, Z_GOAL_RIGHT), 
+			# 	self.ball.dirX, 
+			# 	self.ball.dirZ ]
 	def get_state_for_ai(self):
+		# PAddle distance
+		dist_right = X_SUPERIOR_PADDLE_LIMIT - (self.paddle1 + X_PADDLE_HEIGHT/2)
+		dist_left = (self.paddle1 - X_PADDLE_HEIGHT/2) - X_INFERIOR_PADDLE_LIMIT
+		dist_to_wall = min(dist_left, dist_right)
+
+		# Ball distance : Z
+		ball_dist_z = abs(self.ball.z - Z_PADDLE_LEFT)
+
+		#Ball distance : X
+		ball_dist_x = abs(self.ball.x - self.paddle1)
 		if (self.gameOption == 0):
 			# return [ self.paddle1['x'], 
 			#   self.ball['x'], 
 			#   self.ball['z'], 
 			#   self.ball['dirX'], 
 			#   self.ball['dirZ'] ]
-			return [ self.norm(self.paddle1, X_INFERIOR_PADDLE_LIMIT, X_SUPERIOR_PADDLE_LIMIT),
-        		self.norm(self.ball.x, X_INFERIOR_BALL_LIMIT, X_SUPERIOR_BALL_LIMIT),
-        		self.norm(self.ball.z, Z_GOAL_LEFT, Z_GOAL_RIGHT), 
-				self.ball.dirX, 
-				self.ball.dirZ ]
+			return [ self.norm(ball_dist_x, 0, 10.3), # distance max possible
+        		self.norm(ball_dist_z, 0, Z_PADDLE_RIGHT - Z_PADDLE_LEFT),
+        		self.norm(dist_to_wall, 0, X_SUPERIOR_PADDLE_LIMIT - X_PADDLE_HEIGHT/2) ]
 		else:
 			# return [ self.paddle1['x'], 
 			# self.paddle2['x'], 
@@ -251,13 +265,13 @@ class PongGame:
 		if action_nn == DOWN:
 			if self.paddle1 > X_INFERIOR_BALL_LIMIT + 0.5:
 				self.paddle1 -= PLAYER_SPEED * self.dt
-				self.ai_score += POINTS_MOVE_TO_WALL
+				# self.ai_score += POINTS_MOVE_TO_WALL
 			else:
 				self.ai_score -= POINTS_MOVE_TO_WALL # Penalize hitting the wall
 		elif action_nn == UP:
 			if (self.paddle1 < X_SUPERIOR_BALL_LIMIT - 0.5):
 				self.paddle1 += PLAYER_SPEED * self.dt
-				self.ai_score += POINTS_MOVE_TO_WALL
+				# self.ai_score += POINTS_MOVE_TO_WALL
 			else:
 				self.ai_score -= POINTS_MOVE_TO_WALL # Penalize hitting the wall
 		

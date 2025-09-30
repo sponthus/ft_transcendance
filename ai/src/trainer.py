@@ -56,7 +56,7 @@ class Trainer:
 		print(f"\r[{bar}] {current}/{total}", end="")
 		sys.stdout.flush()
 
-	def evaluate(self, network: Network, nb_games: int = 5, idx: int = -1):
+	def evaluate(self, network: Network, nb_games: int, idx: int = -1):
 		# print(f"[EVAL START] Network idx={idx}")
 		try:
 			action = 2  # STILL by default
@@ -105,7 +105,7 @@ class Trainer:
 			# 	print("[DEBUG] No duplicate network objects detected.")
 			# print(f"[DEBUG] Population indices: {[i for i in range(len(self.population))]}")
 			with concurrent.futures.ThreadPoolExecutor() as executor:
-				futures = [executor.submit(self.evaluate, network, 4, idx) for idx, network in enumerate(self.population)]
+				futures = [executor.submit(self.evaluate, network, 8, idx) for idx, network in enumerate(self.population)]
 				results = []
 				for i, future in enumerate(concurrent.futures.as_completed(futures), 1):
 					try:
@@ -120,17 +120,18 @@ class Trainer:
 			if (self.generation % save_rate == 0):
 				self.save_config(best=True, population=True)
 			# print(scores)
-			best_score = 0
-			print(f"Generation {self.generation} - Best score: {scores[0][0]}")
+			average_score = 0
 			for i in range(math.floor(self.population_size / 10)):
-				best_score += scores[i][0]
-			best_score /= math.floor(self.population_size / 10)
-			if (best_score <= last_best_score * 0.7 and last_conf is not None):
-				self.population = [Network(conf=last_conf[i]) for i in range(self.population_size)]
-				print("Score decreased, reverting")
-			else:
-				last_best_score = best_score
-				last_conf = self.save_conf_in_var()
+				average_score += scores[i][0]
+			average_score /= math.floor(self.population_size / 10)
+			print(f"Generation {self.generation} - Best score: {scores[0][0]} - Average top 10%: {average_score}")
+			# best_score /= math.floor(self.population_size / 10)
+			# if (best_score <= last_best_score * 0.7 and last_conf is not None):
+			# 	self.population = [Network(conf=last_conf[i]) for i in range(self.population_size)]
+			# 	print("Score decreased, reverting")
+			# else:
+			# 	last_best_score = best_score
+			# 	last_conf = self.save_conf_in_var()
 			self.evolve(scores)
 
 
@@ -298,7 +299,7 @@ if __name__ == '__main__':
 	# with open("test2", "w") as f:
 	# 	json.dump(network2.get_conf(), f)
 
-	# trainer = Trainer(population_size=50, nb_inputs=5, nb_hidden_layers=3, nb_neurons_per_layer=5, nb_outputs=3,\
+	# trainer = Trainer(population_size=50, nb_inputs=3, nb_hidden_layers=3, nb_neurons_per_layer=5, nb_outputs=3,\
 	# 				bias_mutation_intensity=0.05, \
 	# 					weights_mutation_intensity=0.1, \
 	# 						bias_mutation_rate=0.1, \
@@ -308,7 +309,7 @@ if __name__ == '__main__':
 	# trainer.print_networks()
 	# trainer.save_config()
 
-	conf_from_json = parse_json("data_gen_30.json")
+	conf_from_json = parse_json("data_gen_40.json")
 	# More rate / intensity  if it doesn't evolvze = 0.1 - 0.2% / 0.1 - 0.2
 	# if it doesn't stabilize = 0.05% / 0.05 - 0.1
 	trainer2 = Trainer(config=conf_from_json, \
@@ -316,4 +317,4 @@ if __name__ == '__main__':
 						weights_mutation_intensity=0.1, \
 							bias_mutation_rate=0.1, \
 								weights_mutation_rate=0.1)
-	trainer2.train(nb_generations=200, save_rate=10)
+	trainer2.train(nb_generations=500, save_rate=10)
