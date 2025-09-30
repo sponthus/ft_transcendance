@@ -29,10 +29,8 @@ class Neuron:
 		if (kwargs.get('weights') is not None and len(kwargs.get('weights')) != 0):
 			self.weights = np.array(kwargs.get('weights'))
 		else:
-			self.weights = np.random.randn(kwargs.get('nb_inputs')) 
-			# TODO Possibility to modify biais generation for better alignment
+			self.weights = np.random.randn(kwargs.get('nb_inputs'))
 
-		# TODO limit bias modification ? possibility to be neg ?
 		self.bias: float
 		if (kwargs.get('bias') is None):
 			self.bias = np.random.uniform(-1, 1)
