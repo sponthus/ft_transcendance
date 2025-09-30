@@ -16,7 +16,7 @@ async function dbConnector(fastify, options)
         db.exec(`
         CREATE TABLE IF NOT EXISTS users (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            username TEXT UNIQUE NOT NULL,
+            username TEXT UNIQUE NOT NULL COLLATE BINARY,
             slug TEXT UNIQUE NOT NULL,
             avatar TEXT NOT NULL,
             pw_hash TEXT NOT NULL,
@@ -37,18 +37,31 @@ async function dbConnector(fastify, options)
             menu_color_g INTEGER DEFAULT 0 CHECK(menu_color_g BETWEEN 0 AND 255),
             menu_color_b INTEGER DEFAULT 0 CHECK(menu_color_b BETWEEN 0 AND 255),
             menu_asset_character INTEGER DEFAULT 0 CHECK(menu_asset_character BETWEEN 0 AND 18),
-            menu_asset_npc INTERGER DEFAULT 0 CHECK(menu_asset_character BETWEEN 0 AND 11),
+            menu_asset_npc INTERGER DEFAULT 0 CHECK(menu_asset_npc BETWEEN 0 AND 11),
             FOREIGN KEY (menu_user_id) REFERENCES users(id)
         );
-    `); //status : 0 = en attente, 1 = accepté, 2 = refusé
+    `); //status : 0 = en attente, 1 = accepté
         db.exec (`
         CREATE TABLE IF NOT EXISTS friends (
             frie_id INTEGER PRIMARY KEY AUTOINCREMENT,
             frie_user_id INTEGER NOT NULL,
             frie_friend_user_id INTEGER NOT NULL,
-            frie_status INTEGER NOT NULL CHECK(frie_status BETWEEN 0 AND 2),
+            frie_status INTEGER NOT NULL CHECK(frie_status BETWEEN 0 AND 1),
             FOREIGN KEY (frie_user_id) REFERENCES users(id),
             FOREIGN KEY (frie_friend_user_id) REFERENCES users(id)
+        );
+    `);
+            //status : 0 = non lu, 1 = lu
+        db.exec(`
+        CREATE TABLE IF NOT EXISTS notifications (
+            notif_id INTEGER PRIMARY KEY AUTOINCREMENT,
+            notif_user_id INTEGER NOT NULL,
+            notif_sender_id INTEGER NOT NULL,
+            notif_type TEXT NOT NULL CHECK(notif_type IN ('friend_request', 'friend_accept', 'friend_reject')),
+            notif_status INTEGER DEFAULT 0 CHECK(notif_status BETWEEN 0 AND 1),
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (notif_user_id) REFERENCES users(id),
+            FOREIGN KEY (notif_sender_id) REFERENCES users(id)
         );
     `);
     }

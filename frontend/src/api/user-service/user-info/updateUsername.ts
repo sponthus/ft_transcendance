@@ -1,10 +1,5 @@
-type UserBasic = {
-    username: string;
-    slug: string;
-};
-
 type Failure = { ok: false; error: string };
-type UserModificationSuccess = { ok: true; user: UserBasic; token: string}
+type UserModificationSuccess = { ok: true; token: string}
 
 export type UserModificationResult = UserModificationSuccess | Failure;
 
@@ -15,7 +10,7 @@ export async function updateUsername(username: string): Promise<UserModification
         return { ok: false, error: "No token found" };
     }
     const res = await fetch(`/api/user/user-info/username`, {
-        method: 'PUT',
+        method: 'PATCH',
         headers: {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${token}`
@@ -25,9 +20,8 @@ export async function updateUsername(username: string): Promise<UserModification
     const data = await res.json();
     if (res.ok) 
     {
-        console.log("New username accepted");
-        localStorage.setItem("token", data.token); //mise a jour token avec le nouveau username
-        return {ok: true, user: data.user, token: data.token};
+        localStorage.setItem("token", data.token);
+        return {ok: true, token: data.token};
     }
     return { ok: false, error: data.error};
 }

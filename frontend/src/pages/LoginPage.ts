@@ -83,7 +83,6 @@ export class LoginPage extends BasePage {
 			const req = await loginUser(username, password);
 			if (req.ok) {
 			    await navigate('/');
-				location.reload();
 			    return ;
 			}
 			else {
