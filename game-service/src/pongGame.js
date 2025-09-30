@@ -6,7 +6,7 @@ export class PongGame {
 			this.gameMode = 1;
 		else 
 			this.gameMode = 0;
-		else if (ai == 1)
+		if (ai == 1)
 			this.gameMode = 1
 		else 
 			this.gameMode = 2;
