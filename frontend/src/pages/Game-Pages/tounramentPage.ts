@@ -1,15 +1,10 @@
 import { Checkbox } from '@babylonjs/inspector/fluent/primitives/checkbox';
-import { createDiv, createElement, createButton, createDropdownDiv, createFormDiv, createCheckBoxLabel, append} from '../../Utils/elementMaker.js';
+import { createDiv, createElement, createButton, createImage, createFormDiv, createCheckBoxLabel, append} from '../../Utils/elementMaker.js';
 import { availableGames } from './AvailableGames.js';
 import { getTournamentMatches, GameInfos, getTournamentNextMatch } from "../../api/game-service/tournaments/getTournaments.js" 
 import { Game } from '../../babylon/main.js';
 
-/**
- * in event.ts you can find the class wich add tournament in the backend (saveTournament() call by SaveNewParty()) and launch round (function PlayRound()) 
- * in AvailableGames.ts you can find the class wich display available games you'll have to modify refreshAvailableTournament() in it to get available tournament
- * after setting Tournament (create tournament and set available games) you will have to decomment the PlayTournament() function in Event.ts and delete the line this.GamePage.generateBracketTournament(0); (or comment)
- *  
- */
+
 export class TournamentPage {
 	private Page!: HTMLElement;
 	private NewTournamentForm!: HTMLElement;
@@ -23,6 +18,11 @@ export class TournamentPage {
 	private Username!: string;
 	private TournamentMatches: Map<number, number>; // Map<gameId, idDiv>
 
+	/*************************button*************************/
+	private PlayBtn!: HTMLButtonElement;
+	private ContinueBtn!: HTMLButtonElement;
+	private BackBtn!: HTMLButtonElement;
+
 
 	constructor(Page: HTMLElement, UserName: string) {
 		this.Page = Page;
@@ -35,13 +35,26 @@ export class TournamentPage {
 	}
 
 	async render() {
-		this.Page.classList.remove("border-4");
-		this.Page.classList.remove("justify-center");
-		await this.createTournamentPageDiv();
-		await this.createTournamentFormDiv();
-		this.AvailableGames.render();
-		this.openTournamentForm();
-		this.refreshAvailableTournament();
+		this.Page.classList.add("relative");
+
+		this.PlayBtn = (createButton("play", "relative flex items-center z-5 active:scale-95 hover:scale-105 h-[30%] aspect-square transition-all duration-200 translate-x-96", "") as HTMLButtonElement);
+		this.ContinueBtn = (createButton("continue", "relative flex items-center z-5 active:scale-95 hover:scale-105 h-[12%] w-[30%] transition-all duration-200 -translate-x-96", "continue") as HTMLButtonElement);
+		this.BackBtn = (createButton("return", "relative flex items-center z-5 active:scale-95 hover:scale-105 h-[10%] w-[20%] transition-all duration-200 top-16 left-32 -translate-x-96", "") as HTMLButtonElement);
+		append(this.Page, [createImage("1v1", "absolute object-fill object-center h-full w-full opacity-65", '1v1-page.png')]);
+
+		append(this.PlayBtn, [createImage('Play', 'absolute object-center h-full w-full', 'game_ui/Playebtn.png')]);
+		append(this.ContinueBtn, [createImage('continue', 'absolute object-center h-full w-full', 'game_ui/continuesbtn.png')]);
+		append(this.BackBtn, [createImage('Back', 'absolute object-center h-full w-full', 'game_ui/Backbtn.png')]);
+
+		append(this.Page, [createImage('bot-text', 'z-10 object-center h-[20%] w-[80%] animate-wiggle margin-top-32', 'game_ui/LocalPongText.png') // change to tournament pong text
+							,this.ContinueBtn , this.PlayBtn , this.BackBtn]);
+
+		this.Page.className = "flex flex-col items-center w-full h-full transition-all duration-300 text-center rounded-xl space-y-4";
+		setTimeout(() => {
+			this.PlayBtn.classList.remove('translate-x-96');
+			this.ContinueBtn.classList.remove('-translate-x-96');
+			this.BackBtn.classList.remove('-translate-x-96');
+		}, 100);
 	}
 
 	async renderBracket(IdTournament: number) {
@@ -150,109 +163,6 @@ export class TournamentPage {
 		(document.getElementById(`match-${NextRound}-div`) as HTMLElement)?.classList.add('bg-orange-500');
 	}
 
-	private async createTournamentPageDiv() {
-		const Div : HTMLElement = createDiv("New", "flex flex-col items-center justify-center");
-			
-		this.createNewTournamentText(Div);
-		this.createNewTournamentBtn(Div);
-		append(this.Page, [Div]);
-	}
-	
-	// Title
-	private createNewTournamentText(Div: HTMLElement) {
-		const TextDiv: HTMLElement =  createDiv("TournamentPage-title", "flex items-center justify-center");
-		const TournamentModText: HTMLElement = createElement('h1', "TournamentPage-title", "Create New Tournament",  "text-emerald-600 text-center underline");
-		append(TextDiv, [TournamentModText]);
-	
-		if (Div)
-			append(Div, [TextDiv]);
-	}
-	
-	// "New "button
-	private createNewTournamentBtn(Div: HTMLElement) {
-		const BtnDiv: HTMLElement = createDiv("New", "flex items-center justify-center text-center p-4 bg-transparent py-3 px-4 w-full space-x-24");
-	
-		const ClassNameBtn: string = "bg-orange-200 hover:bg-orange-400 text-emerald-600 font-bold rounded-lg transition-colors duration-200transform w-full";
-		const NewBtn: HTMLButtonElement = createButton("New", ClassNameBtn, "New");
-	
-		append(BtnDiv, [NewBtn]);
-		if (Div)
-			append(Div, [BtnDiv]);
-	}
-
-	private async createTournamentFormDiv() {
-		this.NewTournamentForm = createDiv("Form", "flex flex-col items-center justify-center w-full space-y-6 hidden");
-		append(this.Page, [this.NewTournamentForm]);
-		this.renderTournamentFormDiv();
-	}
-
-	// Form content to create a tournament
-	private async renderTournamentFormDiv() {
-		const FormsDiv: HTMLFormElement = this.createNewTournamentFormDiv();
-		this.addPlayersNameForm(FormsDiv, "Player1", "player_a_me", "Player 1 Name");
-		this.addPlayersNameForm(FormsDiv, "Player2", "player_b_me", "Player 2 Name");
-		this.addPlayersNameForm(FormsDiv, "Player3", "player_c_me", "Player 3 Name");
-		this.addPlayersNameForm(FormsDiv, "Player4", "player_d_me", "Player 4 Name");
-	}
-
-	// form element for 1 player and his checkbox 
-	private addPlayersNameForm(Div: HTMLElement, IdForm: string, idCheckBox: string, TextContent: string) {
-		const Player: HTMLElement = createFormDiv(["text", IdForm, TextContent , true]
-										,IdForm
-										,""
-										,["flex items-center flex-row-reverse space-x-4"
-											,"block text-sm font-medium text-emerald-600 mb-2"
-											,"w-full border bg-orange-200 border-emerald-600 rounded-lg focus:ring-2 focus:ring-emerald-800focus:border-emerald-8 00 transition-colors duration-200 placeholder-emerald-600 text-center"
-											,"block text-sm text-center font-medium text-emerald-500 mb-2"]);
-	
-		const checkbox = createCheckBoxLabel(idCheckBox, idCheckBox, "me", ["text-emerald-600",""]) as HTMLLabelElement;
-		this.FormMap.set(Player, (checkbox.querySelector('input')) as HTMLInputElement);
-		append(Player, [checkbox]);
-		append(Div, [Player]);
-	}
-
-	// Form for tournament name
-	private createNewTournamentFormDiv() : HTMLFormElement {
-		const FormsDiv: HTMLFormElement = document.createElement('form');
-		FormsDiv.id = "new-tournament-form";
-		FormsDiv.className =  "grid grid-cols-4 grid-rows-2 gap-4  flex items-center justify-center w-full";
-		append(this.NewTournamentForm, [(createFormDiv(["text", "name-tournament", "name of tournament" , true]
-										,"name-tournament"
-										,""
-										,["flex items-center flex-row-reverse space-x-4"
-											,"block text-sm font-medium text-emerald-600 mb-2"
-											,"w-full border bg-orange-200 border-emerald-600 rounded-lg focus:ring-2 focus:ring-emerald-800focus:border-emerald-8 00 transition-colors duration-200 placeholder-emerald-600 text-center"
-											,"block text-sm text-center font-medium text-emerald-500 mb-2"]) as HTMLElement ),FormsDiv]);
-
-		return FormsDiv;
-	}
-
-	// check for me checkboc function
-	private openTournamentForm() {
-		this.FormMap.forEach((value: HTMLInputElement, key: HTMLElement) => {
-			value.addEventListener('change', () => {
-				this.FormMap.forEach((value: HTMLInputElement, key: HTMLElement) => {
-					const InputKey = key.querySelector("input") as HTMLInputElement;
-					value.checked = false;
-					InputKey.readOnly = false;
-					InputKey.value = "";
-				})
-				const InputKey = key.querySelector("input") as HTMLInputElement;
-				value.checked = true;
-				InputKey.readOnly = true;
-				InputKey.value = this.Username; // call qpi for username
-			})
-		}) 
-	}
-
-	// function to call refresh tournament
-	async refreshAvailableTournament() {
-		this.AvailableGames.refreshAvailableTournament();
-	}
-
-	get _NewTournamentForm() : HTMLElement {
-		return this.NewTournamentForm;
-	}
 
 	get _PartyMap(): Map<number, HTMLInputElement>{
 		return this.PartyMap;
@@ -271,5 +181,17 @@ export class TournamentPage {
 
 	get _NextGameId(): number {
 		return this.NextGameId;
+	}
+	
+	get _playbtn() : HTMLButtonElement {
+		return this.PlayBtn;
+	}
+
+	get _continuebtn(): HTMLButtonElement {
+		return this.ContinueBtn;
+	}
+
+	get _backbtn(): HTMLButtonElement {
+		return this.BackBtn;
 	}
 }

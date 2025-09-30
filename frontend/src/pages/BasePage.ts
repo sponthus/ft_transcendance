@@ -20,6 +20,7 @@ export abstract class BasePage {
         if (!bannerDiv)
             throw new Error('Banner element not found');
         this.banner = bannerDiv;
+		// window.addEventListener('resize', () => {});
     }
 
     // Mandatory : Implement this in pages

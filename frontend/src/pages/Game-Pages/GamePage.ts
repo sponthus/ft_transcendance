@@ -83,11 +83,19 @@ export class GamePage extends popUp {
 
 	/*********************************************function for rendering tournament Mod Page**********************************************/
 	async generateTournamentPage() {
-		this.Page.className = "flex flex-col items-center h-[80%] w-[80%] text-center border-4 border-orange-400 rounded-xl space-y-4";
-		this.cleanPage();
-		this.TournamentPage.render();
-		this.Event.addDeleteButton();
+		// this.Page.className = "flex flex-col items-center h-[80%] w-[80%] text-center border-4 border-orange-400 rounded-xl space-y-4";
+		// this.cleanPage();
+		// this.TournamentPage.render();
+		// this.Event.addDeleteButton();
 		// this.Event.manageNewGameEvent();
+		this._Body.className = "relative flex flex-col items-center justify-center min-h-[70%] h-[70%] min-w-[30%] w-[30%] transition-all duration-300 rounded-xl shadow-2xl";
+		this.Page.className = "flex flex-col items-center w-full h-full transition-all opacity-0 duration-300 rounded-xl space-y-4";
+		setTimeout(async() => {
+			this.cleanPage();
+			this.TournamentPage.render();
+			this.Event.manageTournamentEvent();
+			// this.Event.managePlaye1v1GameEvent(); // manage tournament event
+		} ,300);
 	}
 
 	async generateBracketTournament(IdTournament: number) {
@@ -96,9 +104,10 @@ export class GamePage extends popUp {
 		this.cleanPage();
 		this.TournamentPage.renderBracket(IdTournament);
 	}
+
 	/*********************************************function for rendering 1v1 Mod Page**********************************************/
 	async generate1v1GamePage() {
-		this._Body.className = "relative flex flex-col items-center justify-center h-[70%] w-[30%] transition-all duration-300 rounded-xl shadow-2xl";
+		this._Body.className = "relative flex flex-col items-center justify-center min-h-[70%] h-[70%] min-w-[30%] w-[30%] transition-all duration-300 rounded-xl shadow-2xl";
 		this.Page.className = "flex flex-col items-center w-full h-full transition-all opacity-0 duration-300 rounded-xl space-y-4";
 		setTimeout(async() => {
 			this.cleanPage();
@@ -108,7 +117,7 @@ export class GamePage extends popUp {
     }
 	
 	async generate1v1SettingPage(){
-		this._Body.className = "relative flex flex-col items-center justify-center h-[80%] w-[35%] transition-all duration-300 rounded-xl shadow-2xl";
+		this._Body.className = "relative flex flex-col items-center justify-center min-h-[80%] h-[80%] min-w-[35%] w-[35%] transition-all duration-300 rounded-xl shadow-2xl";
 		this.LocalGamePage._playBtn.classList.add('translate-x-96');
 		this.LocalGamePage._settingBtn.classList.add('-translate-x-96');
 		this.LocalGamePage._backBtn.classList.add('-translate-x-96');

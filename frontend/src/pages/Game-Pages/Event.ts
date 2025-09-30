@@ -58,27 +58,8 @@ export class Event {
 	async ManageEvent() {
 		if (this.StatePage === PageState.MOD)
 			this.manageGameModEvent();
-		// this.ManageSaveEvent();
 		this.ManageReturnEvent();
 	}
-
-	// async manageNewGameEvent() {
-	// 	document.getElementById('New-btn')?.addEventListener('click', async () => {
-	// 		this.ChangeBackPageButtonText([document.getElementById("Return-btn") as HTMLButtonElement, "Cancel"]
-	// 		, [document.getElementById("Save-btn")  as HTMLButtonElement, "Save New Game"]);
-	
-	// 		// if (this.StatePage == PageState.PARTY) {
-	// 		// 	this.StatePage = PageState.NEWGAME;
-	// 		// 	this.removeDeleteButton();
-	// 		// 	this.LocalGamePage._NewGameForm.classList.remove("hidden");
-	// 		// }
-	// 		if (this.StatePage == PageState.TOURNAMENT) {
-	// 			// this.StatePage = PageState.NEWGAME;
-	// 			this.removeDeleteButton();
-	// 			this.TournamentPage._NewTournamentForm.classList.remove("hidden");
-	// 		}
-	// 	});
-	// }
 
 	/*************************************Function for Event Return button*************************************/
 	private async ManageReturnEvent() {
@@ -110,7 +91,7 @@ export class Event {
 		})
 	}
 
-					/*********************************function utils for return*********************************/
+	/*********************************function utils for return*********************************/
 	private ReturnToLobby(){
 		this.StatePage = PageState.MOD;
 		this.GamePage.cleanStubborn();
@@ -118,36 +99,12 @@ export class Event {
 	}
 
 	private returnToGameMod() {
-		// this.ChangeButtonText(document.getElementById("Save-btn") as HTMLButtonElement, "Save");
 		this.StatePage = PageState.MOD;
 		Array.from(this.GamePage._Page.children).forEach((child)=>{
 			child.remove();
 		})
-
-		// this.removeDeleteButton();
-
-		// this.GamePage._Page.classList.add("border-4");
 		this.GamePage.generateGamePage();
 	}
-
-	// private CancelNewGame() {
-	// 	this.ChangeBackPageButtonText([document.getElementById("Return-btn") as HTMLButtonElement, "Return"]
-	// 	, [document.getElementById("Save-btn")  as HTMLButtonElement, "Play"]);
-
-	// 	console.log("cancel fgame function called");
-	// 	// if (this.LocalGamePage._NewGameForm && !this.LocalGamePage._NewGameForm.classList.contains("hidden")) {
-	// 	// 	console.log("we are in localgame page");
-	// 	// 	this.StatePage = PageState.PARTY;
-	// 	// 	this.LocalGamePage._NewGameForm.classList.add('hidden');
-	// 	// }
-	// 	if (this.TournamentPage._NewTournamentForm && !this.TournamentPage._NewTournamentForm.classList.contains("hidden")) {
-	// 		console.log("we are in tournament page");
-	// 		this.StatePage = PageState.TOURNAMENT;
-	// 		this.TournamentPage._NewTournamentForm.classList.add("hidden");
-	// 	}
-	
-	// 	this.addDeleteButton();
-	// }
 
 	private async returnTo1v1Game() {
 		if (this.LocalGamePage._backBtn)
@@ -163,7 +120,7 @@ export class Event {
 		await this.GamePage.generateTournamentPage();
 	}
 
-	/*************************************Function for Event Save button*************************************/
+	/*************************************Functions for Game Mod Event*************************************/
 	async manageGameModEvent() {
 		console.log("manage newgame event function called");
 		(document.getElementById('1v1-btn')?.addEventListener('click', async() => {
@@ -176,6 +133,7 @@ export class Event {
 		}));
 	}
 
+	/*************************************Functions for 1v1 Event*************************************/
 	async managePlaye1v1GameEvent() {
 		if (this.LocalGamePage._playBtn){
 			this.LocalGamePage._playBtn.addEventListener('click', async() => {this.saveParty();})};
@@ -185,15 +143,91 @@ export class Event {
 			this.LocalGamePage._backBtn.addEventListener('click', async() => {this.returnToGameMod();})
 	}
 
-	async manageSettingEvent() {
-		if (this.LocalGamePage._backBtn)
-			this.LocalGamePage._backBtn.addEventListener('click', async() => {this.returnTo1v1Game();})
-	}
-
+	/*************************************Functions for 1v1 setting Event*************************************/
 	private GoTo1v1setting() {
 		this.StatePage = PageState.SETTING;
 		this.GamePage.generate1v1SettingPage();
 	}
+
+	async manageSettingEvent() {
+		if (this.LocalGamePage._backBtn)
+			this.LocalGamePage._backBtn.addEventListener('click', async() => {this.returnTo1v1Game();})
+		if (this.LocalGamePage._botBtn)
+			this.LocalGamePage._botBtn.addEventListener('click', async() => {this.ActiveBotBtn();})
+		if (this.LocalGamePage._playerBtn)
+			this.LocalGamePage._playerBtn.addEventListener('click', async() => {this.activePlayervsBtn();})
+		if (this.LocalGamePage._optionbtn)
+			this.LocalGamePage._optionbtn.addEventListener('click', async() => {this.ClickOptionEvent();})
+		if (this.LocalGamePage._minusbtn)
+			this.LocalGamePage._minusbtn.addEventListener('click', async() => {this.clickminusEvent();})
+		if (this.LocalGamePage._plusbtn)
+			this.LocalGamePage._plusbtn.addEventListener('click', async() => {this.clickPlusEvent();})
+	}
+
+	private ActiveBotBtn() {
+		if (this.LocalGamePage._Ai == 0) {
+			this.LocalGamePage._botBtn.classList.remove('hover:scale-110');
+			this.LocalGamePage._botBtn.classList.add('scale-110');
+			this.LocalGamePage._playerBtn.classList.add('hover:scale-110');
+			this.LocalGamePage._playerBtn.classList.remove('scale-110');
+			this.LocalGamePage.setPlayerAInput = "endoliam";
+			this.LocalGamePage.setPlayerA = this.LocalGamePage._playerAInput.value;
+			this.LocalGamePage.setPlayerAReadonly = true;
+			this.LocalGamePage.setPlayerBInput = "Crabby the bot";
+			this.LocalGamePage.setPlayerB = this.LocalGamePage._playerBinput.value;
+			this.LocalGamePage.setPlayerBReadonly = true;
+			this.LocalGamePage.setAi = 1;
+		}
+	}
+
+	private activePlayervsBtn() {
+		if (this.LocalGamePage._Ai > 0) {
+			this.LocalGamePage._playerBtn.classList.remove('hover:scale-110');
+			this.LocalGamePage._playerBtn.classList.add('scale-110');
+			this.LocalGamePage._botBtn.classList.add('hover:scale-110');
+			this.LocalGamePage._botBtn.classList.remove('scale-110');
+			this.LocalGamePage.setPlayerAInput = "player A";
+			this.LocalGamePage.setPlayerA = this.LocalGamePage._playerAInput.value;
+			this.LocalGamePage.setPlayerAReadonly = false;
+			this.LocalGamePage.setPlayerBInput = "player B";
+			this.LocalGamePage.setPlayerB = this.LocalGamePage._playerBinput.value;
+			this.LocalGamePage.setPlayerBReadonly = false;
+			this.LocalGamePage.setAi = 0;
+		}
+	}
+
+	private clickPlusEvent() {
+		if (this.LocalGamePage._MaxScore < 15) {
+			this.LocalGamePage.setMaxScore = this.LocalGamePage._MaxScore  + 5;
+			console.log("maxscore : ", this.LocalGamePage._MaxScore );
+		}
+	}
+
+	private clickminusEvent() {
+		if (this.LocalGamePage._MaxScore > 5) {
+			this.LocalGamePage.setMaxScore = this.LocalGamePage._MaxScore  - 5;
+			console.log("maxscore : ", this.LocalGamePage._MaxScore );
+		}
+	}
+
+	private ClickOptionEvent() {
+		if (this.LocalGamePage._option == 1) {
+			this.LocalGamePage._optionimg.src = 'game_ui/setting/uncheckedValue.png';
+			this.LocalGamePage.setOption = 0;
+		}
+		else {
+			this.LocalGamePage._optionimg.src = 'game_ui/setting/checkedValue.png';
+			this.LocalGamePage.setOption = 1;
+		}
+	}
+
+	/*************************************Functions for tournament Event*************************************/
+
+	async manageTournamentEvent() {
+		if (this.TournamentPage._backbtn)
+			this.TournamentPage._backbtn.addEventListener('click', async() => {this.returnToGameMod();})
+	}
+
 	// private async ManageSaveEvent() {
 	// 	 document.getElementById("Save-btn")?.addEventListener('click', async(e) => {
 	// 			switch(this.StatePage) {
@@ -323,13 +357,13 @@ export class Event {
 		// 	this.LocalGamePage._NewGameForm.classList.add("hidden");
 		// 	await this.LocalGamePage.refreshAvailableGames();
 		// }
-		if (this.TournamentPage._NewTournamentForm && !this.TournamentPage._NewTournamentForm.classList.contains("hidden")) {
-			/**save tournament**/
-			this.saveTournament();
-			this.StatePage = PageState.TOURNAMENT;
-			this.TournamentPage._NewTournamentForm.classList.add("hidden");
-			await this.TournamentPage.refreshAvailableTournament();
-		}
+		// if (this.TournamentPage._NewTournamentForm && !this.TournamentPage._NewTournamentForm.classList.contains("hidden")) {
+		// 	/**save tournament**/
+		// 	this.saveTournament();
+		// 	this.StatePage = PageState.TOURNAMENT;
+		// 	this.TournamentPage._NewTournamentForm.classList.add("hidden");
+		// 	await this.TournamentPage.refreshAvailableTournament();
+		// }
 	}
 
 	private async saveParty() {
