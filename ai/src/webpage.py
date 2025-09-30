@@ -24,6 +24,7 @@ HTML = """<!DOCTYPE html>
 	<input id="nbAIs" type="number" value="1" min="1" style="width:60px;">
 	 | Nb of games per AI : 
 	<input id="nbGames" type="number" value="1" min="1" style="width:60px;">
+	<input id="generation" type="text" value="10" style="width:60px;">
 	<button id="startBtn">Launch games</button>
 <script>
 const canvas = document.getElementById('pong');
@@ -81,10 +82,13 @@ let lastState = null;
 let socket = null;
 let aiGames = {}; // Dict
 let selectedAI = 0;
+let generation = "10"
 
 document.getElementById('aiSelect').onchange = function() {
     selectedAI = this.value;
 };
+
+
 
 function updateSelectors() {
     const aiSelect = document.getElementById('aiSelect');
@@ -102,10 +106,11 @@ function updateSelectors() {
 document.getElementById('startBtn').onclick = () => {
 	const nbGames = parseInt(document.getElementById('nbGames').value, 10);
 	const nbAIs = parseInt(document.getElementById('nbAIs').value, 10);
+	const generation = document.getElementById('generation').value;
 	if (socket)
 		socket.disconnect();
 	socket = io();
-	socket.emit('start_games', { nbGames, nbAIs });
+	socket.emit('start_games', { nbGames, nbAIs, generation });
 
 	socket.on('state', function(state) {
 		if (!aiGames[state.ai_id]) {
@@ -131,28 +136,26 @@ def index():
 @socketio.on('start_games')
 def start_games(data):
 	nb_games = int(data.get('nbGames', 1)) # If no nbGames, gives 1
-	nb_ais = int(data.get('nbAIs', 1))
+	nb_ais: int = int(data.get('nbAIs', 1))
+	gen = data.get('generation', '10')
+	conf = parse_json(f"data_gen_{gen}.json")
 
-	def ai_thread(ai_id, results):
+	def ai_thread(ai_id: int):
 		game = PongGame(gameOption=0)
-		ai = Network(conf=parse_json("data_gen_25_best.json"))
-		print(ai.get_conf())
+		ai = Network(conf=conf[ai_id])
+		# print(ai.get_conf())
 
 		ticks_per_decision = int(1 / game.dt)
 		action = 2  # STILL by default
 
-
 		for game_id in range(nb_games):
-			max_ticks = int(60 * 60 / game.dt)
+			max_ticks = int(3600 / game.dt)
 			tick = 0
-			ai_score = 0
+			# ai_score = 0
 			
 			while tick < max_ticks :
-				
 				if tick % ticks_per_decision == 0:
 					action = ai.work(game.get_state_for_ai())
-					# if (action != 2):
-					# 	ai_score += 10
 				game.update(action)
 				state = game.get_state()
 				state['ai_id'] = ai_id
@@ -161,17 +164,13 @@ def start_games(data):
 				state['ai_action'] = str(action)
 				socketio.emit('state', state)
 				tick += 1
-
 				time.sleep(game.dt / 3)
 				
-			results[ai_id].append(ai_score)
 			game = PongGame()
 
-	results = {} # Score dict for each AI : result[ai_id] = list of scores for each game
 	threads = []
 	for ai_id in range(nb_ais):
-		results[ai_id] = []
-		t = threading.Thread(target=ai_thread, args=(ai_id, results), daemon=True)
+		t = threading.Thread(target=ai_thread, args=(ai_id,), daemon=True)
 		t.start()
 		threads.append(t)
 	
