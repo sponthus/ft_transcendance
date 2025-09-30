@@ -3,10 +3,8 @@ import { gameEventEmitter } from "./GameEventEmitter.js";
 export class PongGame {
 	constructor(gameId, ai, option) {
 		if (ai == 0)
-			this.gameMode = 1;
-		else 
 			this.gameMode = 0;
-		if (ai == 1)
+		else if (ai == 1)
 			this.gameMode = 1
 		else 
 			this.gameMode = 2;
