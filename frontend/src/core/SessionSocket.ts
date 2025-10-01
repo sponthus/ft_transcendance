@@ -251,10 +251,15 @@ export class SessionSocket {
 		
 	}
 
-    public close(code: number, reason: string): void {
+    public close(code: number = -1, reason: string = ""): void {
         this.stopHeartbeat();
         if (!this.sWS)
             return;
-        this.sWS.close(code, reason);
+        if (code > 0 && reason.length > 0)
+			this.sWS.close(code, reason);
+		else if (code > 0)
+			this.sWS.close(code);
+		else
+			this.sWS.close();
     }
 }

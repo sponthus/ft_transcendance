@@ -251,10 +251,15 @@ export class GameSocket {
 		
 	}
 
-    public close(code: number, reason: string): void {
+    public close(code: number = -1, reason: string = ""): void {
         this.stopHeartbeat();
         if (!this.ws)
             return;
-        this.ws.close(code, reason);
+        if (code > 0 && reason.length > 0)
+			this.ws.close(code, reason);
+		else if (code > 0)
+			this.ws.close(code);
+		else
+			this.ws.close();
     }
 }
