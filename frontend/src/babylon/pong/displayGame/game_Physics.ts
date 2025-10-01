@@ -144,6 +144,8 @@ export class GamePhysics {
 				this.socket!.send(JSON.stringify({
 					type: "start"
 				}));
+				// TODO Morgan : You can get playerA and playerB from data here
+				return;
 			}
 			
 			if (data.type == "pong")
@@ -156,6 +158,7 @@ export class GamePhysics {
 			{
 				this._serverState = data.gameState;
 				this.updateFrontend();
+				return;
 			}
 			if (data.type === "endGame") {
 				this.socket?.setPlaying(false);
@@ -163,6 +166,7 @@ export class GamePhysics {
 				this._scoreValue2 = 0;
 				this._score.updateScore(this._scoreValue1, this._scoreValue2);
 				this._Win = true;
+				return;
 			}
 		};
 

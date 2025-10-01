@@ -71,7 +71,7 @@ export async function startGame(request, reply) {
 			console.error('❌ Error : No GameMaster found while fetching games');
             return reply.status(500).send({error: 'Internal server error while fetching games.'});
         }
-        gameMaster.createServer(gameId, userId, maxScore, tournament, ai, option);
+        gameMaster.createServer(gameId, userId, maxScore, tournament, ai, option, [player_a, player_b]);
         return reply.status(201).send({
             gameId: gameId, 
             status: status, 

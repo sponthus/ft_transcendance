@@ -131,10 +131,12 @@ export default class WebSocketManager {
 		console.log(`Message recieved: auth, from ${data.slug}, for game ${gameId}`);
 
         gameMaster.addUserToGame(ws, data.idUser, gameId);
-
+		const players = gameMaster.getPlayersByGameId(gameId);
 		this.sendToWs(ws, {
             type: 'auth_success',
-            gameId: gameId
+            gameId: gameId,
+			playerA: players[0],
+			playerB: players[1]
         });
 
         await gameMaster.updateUserStatus(data.idUser);

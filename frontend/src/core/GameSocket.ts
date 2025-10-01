@@ -8,6 +8,8 @@ export interface WebSocketMessage {
 	winner?: string; // For game end messages
 	scoreA?: number; // For game end messages
 	scoreB?: number; // For game end messages
+	playerA?: string;
+	playerB?: string;
 }
 
 export interface FormatCheckResult {
@@ -85,7 +87,15 @@ export function checkWebSocketMessageFormat(message: WebSocketMessage): FormatCh
 				pattern: "^(?=.*[a-zA-ZÀ-ÿ0-9])[a-zA-ZÀ-ÿ0-9 \\-]+$" 
 			},
 			scoreA: { type: "number", minimum: 0 },
-			scoreB: { type: "number", minimum: 0 }
+			scoreB: { type: "number", minimum: 0 },
+			playerA: { 
+				type: "string", 
+				minLength: 3
+			},
+			playerB: { 
+				type: "string", 
+				minLength: 3
+			}
 		},
 		additionalProperties: false,
 		required: ["type"],
@@ -93,7 +103,7 @@ export function checkWebSocketMessageFormat(message: WebSocketMessage): FormatCh
 			{
 				if: { properties: { type: { const: "auth_success" } } },
 				then: {
-					required: ["type", "gameId"],
+					required: ["type", "gameId", "playerA", "playerB"],
 				}
 			},
 			{
