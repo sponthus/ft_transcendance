@@ -120,3 +120,62 @@ export function    checkIdFormat(id)
         return (false);
     return (true);
 }
+
+export function checkWebSocketMessageFormat(message) {
+	const schema = {
+		type: "object",
+		properties: {
+			type: { type: "string", minLength: 3 },
+			token: { type: "string", minLength: 10, maxLength: 500 },
+			gameId: { type: "number", minimum: 1 },
+			input: {
+				type: "object",
+                propertyNames: { maxLength: 15 }, // Touch name
+                additionalProperties: { type: "boolean" } // Touch value
+			}
+		},
+		required: ["type"],
+		additionalProperties: false, // Allows no other properties
+		allOf: [
+			{
+				if: {
+					properties: { type: { const: "input" } }
+				},
+				then: {
+					required: ["type", "input"]
+				}
+			},
+			{
+				if: {
+					properties: { type: { const: "auth" } }
+				},
+				then: {
+					required: ["type", "token", "gameId"]
+				}
+			},
+			{
+				if: {
+					properties: { type: { const: "ping" } }
+				},
+				then: {
+					required: ["type"]
+				}
+			},
+			{
+				if: {
+					properties: { type: { const: "start" } }
+				},
+				then: {
+					required: ["type"]
+				}
+			}
+		]
+	};
+	const ajv = new Ajv();
+	const validate = ajv.compile(schema);
+	const valid = validate(message);
+	return {
+		valid,
+		errors: validate.errors
+	};
+}

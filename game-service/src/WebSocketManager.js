@@ -1,4 +1,5 @@
 import GameMaster from './GameMaster.js';
+import { checkWebSocketMessageFormat } from './tools/CheckFormat.js';
 
 const gameMaster = GameMaster.getInstance();
 
@@ -17,15 +18,18 @@ export default class WebSocketManager {
                 let message;
                 try {
                     message = JSON.parse(data);
-                    // TODO: Add a handler for messages that do not contain "type" 
-                    // = 1007 error, do not print token in logs
-                    // console.log('Message received :', message);
-                    if (message.type !== 'input')
-                        console.log('Message received :', message);
-                } catch (error) {
+				} catch (error) {
                     console.error('❌ Invalid JSON recieved:', error);
                 }
-
+				const formatCheck = checkWebSocketMessageFormat(message);
+                if (!formatCheck.valid) {
+					console.log('❌ Bad message format received:', formatCheck.errors);
+					this.disconnectWs(ws, 1007, "Invalid message format");
+					return;
+				}
+				if (message.type !== 'input' && message.type !== 'auth') {
+					console.log('Message received :', message);
+				}
                 try {
                     this.handleMessage(ws, message);
                 } catch (error) {
@@ -49,17 +53,14 @@ export default class WebSocketManager {
                 this.pong(ws);
                 break;
             case 'auth':
-                // TODO : Add content check
                 await this.authenticateUser(ws, message.token, message.gameId);
                 break;
             case 'input':
                 break;
+			case 'start':
+				break;
             default:
-                console.warn("⚠️ Type not recognized");
-            // case 'join_game':
-            //     this.handleJoinGame(ws, message.gameId);
-            //     break;
-
+                console.warn("⚠️ Type not recognized : ", message.type);
         }
     }
 
@@ -79,6 +80,22 @@ export default class WebSocketManager {
 		}
 	}
 
+	disconnectWs(ws, code, reason) {
+		const userId = gameMaster.getUserIdByWs(ws);
+		// Remove from unknown clients if present
+		this.unknownClients = this.unknownClients.filter(c => c !== ws);
+		if (ws.readyState === 1) {
+			ws.close(code, reason);
+			if (userId)
+				console.log(`🔴 Ws ${userId} has been disconnected: ${code} - ${reason}`);
+			else
+				console.log(`🔴 Unregistered ws has been disconnected: ${code} - ${reason}`);
+		} else {
+			console.warn("❌ Cannot close WebSocket: already closed");
+		}
+
+	}
+
     handleConnexion(ws) {
         this.unknownClients.push(ws);
 		
@@ -93,25 +110,26 @@ export default class WebSocketManager {
     }
 
     async authenticateUser(ws, token, gameId) {
-        if (!token) {
-            console.warn('Authentication failed: no token provided');
+		
+		if (!token) {
+			console.warn('Authentication failed: no token provided');
             return;
         }
         if (!gameId) {
             console.warn('Authentication failed: no gameId provided');
             return;
         }
-
+		
         let data = {};
 		try {
-            data = this.fastify.jwt.verify(token);
+			data = this.fastify.jwt.verify(token);
 		} catch (err) {
 			console.error("❌ Invalid token:", err.message);
 			ws.close(4002, "Invalid authentication");
 			return ;
 		}
+		console.log(`Message recieved: auth, from ${data.slug}, for game ${gameId}`);
 
-        console.log(data);
         gameMaster.addUserToGame(ws, data.idUser, gameId);
 
 		this.sendToWs(ws, {
