@@ -7,6 +7,7 @@ import fs from "fs";
 import dbConnector from "./db.js";
 import logger from "../config/logger.js";
 import routes from "./routes/index.js";
+import { initOAuthGithub } from "./connection/githubStrategy.js";
 //import { getSecret } from "./tools/getSecret.js";
 
 const __filename = fileURLToPath(import.meta.url); // This filename, from ESM expression to classic path
@@ -17,6 +18,8 @@ const fastify = Fastify({
 });
 
 console.log(`\nFastify user-service listen on port ${env.user_port}\n`); // debug
+
+initOAuthGithub(fastify);
 
 export function getSecret(name)
 {
@@ -94,9 +97,6 @@ fastify.setErrorHandler((error, request, reply) => {
         error: error.message || "Internal Server Error"
     });
 });
-
-
-
 
 //enregistre le plugin JWT dans fastify
 fastify.register(fastifyJwt, {

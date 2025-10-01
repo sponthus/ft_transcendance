@@ -1,9 +1,9 @@
 import { checkRegistrationFormat } from "../tools/checkFormat.js";
-import generateUniqueSlug from "../tools/generateUniqueSlug.js";
+import { generateUniqueSlug } from "../tools/generateUnique.js";
 import bcrypt from "bcrypt";
 import slugify from "slugify";
 
-export default async function registerUser(request, reply) 
+export async function registerUser(request, reply) 
 {
      if (checkRegistrationFormat(request) == false)
         return reply.code(400).send( {error : "Invalid format for username or password"} );
@@ -15,7 +15,7 @@ export default async function registerUser(request, reply)
 
     //pourquoi le username peut pas etre defaut ?
     const existingUser = db.prepare('   SELECT \
-                                            1 \
+                                            1 sad\
                                         FROM \
                                             users \
                                         WHERE \
@@ -41,7 +41,7 @@ export default async function registerUser(request, reply)
     }
 }
 
-function fillInfoUserInDb(db, username, slug, avatar, pw_hash)
+export function fillInfoUserInDb(db, username, slug, avatar, pw_hash = null)
 {
     let statement;
 

@@ -1,4 +1,4 @@
-import registerUser from "../connection/registerUser.js";
+import { registerUser } from "../connection/registerUser.js";
 import loginUser from "../connection/loginUser.js";
 import loginThroughToken from "../connection/loginThroughToken.js";
 
