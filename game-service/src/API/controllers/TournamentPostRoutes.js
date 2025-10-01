@@ -28,6 +28,9 @@ export async function createTournament(request, reply) {
     console.log('userId = ' + requestingUserId + ' / name ' + name + ' / players ' + players);
     
     try {
+		if (players.length !== 4 && players.length !== 8) {
+			return reply.status(400).send({ error: 'A tournament must have 4 or 8 players.'});
+		}
         const result = await db.createTournament(name, requestingUserId, players);
         return reply.status(201).send(result);
     }
