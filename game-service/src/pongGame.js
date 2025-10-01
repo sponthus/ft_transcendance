@@ -1,13 +1,58 @@
 import { gameEventEmitter } from "./GameEventEmitter.js";
+import fs from 'fs';
 
+/**
+ * Décodage récursif des tuples encodés dans le JSON
+ * - Les valeurs encodées comme { __tuple__: true, items: [...] } deviennent des tableaux JS
+ * - Les clés encodées comme "__tuplekey__:[...]" deviennent des tableaux JS
+ */
+export function decodeTuples(obj) {
+    if (Array.isArray(obj)) {
+        return obj.map(decodeTuples);
+    }
+    if (obj && typeof obj === 'object') {
+        // Decode a tuple value
+        if (obj.__tuple__ && Array.isArray(obj.items)) {
+            return obj.items.map(decodeTuples); // Recursively decode items
+        }
+        // Decode a dict using tuple as a key
+        const newObj = {};
+        for (const [key, value] of Object.entries(obj)) {
+            let decodedKey = key;
+            if (typeof key === 'string' && key.startsWith('__tuplekey__:')) {
+                try {
+                    const arr = JSON.parse(key.slice(13)); // Take away the prefix "__tuplekey__:"
+                    decodedKey = arr.map(decodeTuples);
+                } catch (e) {
+                    decodedKey = key; // in case of fail, keep the original key
+                }
+            }
+            newObj[decodedKey] = decodeTuples(value);
+        }
+        return newObj;
+    }
+    return obj;
+}
+
+
+// AI : 0 = no AI, 1 = AI as player1, 2 = AI as player2
+// Option : 0 = classical pong, 1 = with crabmehameha
 export class PongGame {
 	constructor(gameId, ai, option) {
 		if (ai == 0)
 			this.gameMode = 0;
-		else if (ai == 1)
-			this.gameMode = 1
-		else 
-			this.gameMode = 2;
+		else {
+			if (ai == 1)
+				this.gameMode = 1
+			else 
+				this.gameMode = 2;
+			this.qtable = {};
+			
+			// Load Q-table from JSON file
+			const data = fs.readFileSync("q_table.json", "utf-8");
+			const rawQtable = JSON.parse(data);
+			console.log(rawQtable);
+		}
 
 		if (option)
 			this.gameOption = 1;
