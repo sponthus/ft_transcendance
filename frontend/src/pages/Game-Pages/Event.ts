@@ -8,7 +8,7 @@ import { TournamentPage } from './tounramentPage.js';
 import { getUserInfo } from "../../api/user-service/user-info/getUserInfo.js";
 import { createTournament } from "../../api/game-service/tournaments/newTournament.js";
 
-export enum PageState {MOD = 0, TOURNAMENT = 1, PARTY = 2, SETTING = 3, BRACKET = 4, WIN = 5};
+export enum PageState {MOD = 0, TOURNAMENT = 1, PARTY = 2, LOCALSETTING = 3, NEWTOURNAMENT = 4, CONTINUETOURNAMENT = 5, BRACKET = 6, WIN = 7};
 
 type UserData = //VA ETRE CHANGER, le token renvoie le username et l'id du user
 {
@@ -106,19 +106,6 @@ export class Event {
 		this.GamePage.generateGamePage();
 	}
 
-	private async returnTo1v1Game() {
-		if (this.LocalGamePage._backBtn)
-			this.LocalGamePage._backBtn.classList.add('-translate-x-96');
-		if (this.LocalGamePage._settingPan)
-			this.LocalGamePage._settingPan.classList.add('translate-x-96');
-		this.StatePage = PageState.PARTY;
-		await this.GamePage.generate1v1GamePage();
-	}
-
-	private async returnToTournament() {
-		this.StatePage = PageState.TOURNAMENT;
-		await this.GamePage.generateTournamentPage();
-	}
 
 	/*************************************Functions for Game Mod Event*************************************/
 	async manageGameModEvent() {
@@ -140,30 +127,71 @@ export class Event {
 		if (this.LocalGamePage._settingBtn)
 			this.LocalGamePage._settingBtn.addEventListener('click', async() => {this.GoTo1v1setting()});
 		if (this.LocalGamePage._backBtn)
-			this.LocalGamePage._backBtn.addEventListener('click', async() => {this.returnToGameMod();})
+			this.LocalGamePage._backBtn.addEventListener('click', async() => {this.returnToGameMod();});
+	}
+
+	private async saveParty() {
+		try {
+			const req = await getUserInfo();
+			if (!req.ok)
+			{
+			    console.log('Error GamePage: ', req.error);
+			    alert("Error GamePage" + req.error);
+			    return ;
+			}
+			const userData = req.userInfo;
+			if (!userData?.id)
+				throw new Error('user not connected');
+			// Add here the field for the max score in game creation, as a third parameter
+			console.log('arg in create local game ', this.LocalGamePage._PlayerA, this.LocalGamePage._PlayerB, this.LocalGamePage._MaxScore, this.LocalGamePage._Ai, this.LocalGamePage._option);
+			const request = await createLocalGame(this.LocalGamePage._PlayerA, this.LocalGamePage._PlayerB, this.LocalGamePage._MaxScore, this.LocalGamePage._Ai, this.LocalGamePage._option);
+			if (!request.ok) 
+				throw new Error('Failed to create Game');
+			else if (request.ok) {
+				const id:number = request.gameId;
+				console.log("id party = ", request);
+				this.launchGame(id);
+			}
+		}
+		catch (error) {
+			console.log("Error creating Games : ", error);
+			alert('Error creating Game PLease try again: ' + error);
+		}
 	}
 
 	/*************************************Functions for 1v1 setting Event*************************************/
-	private GoTo1v1setting() {
-		this.StatePage = PageState.SETTING;
-		this.GamePage.generate1v1SettingPage();
+
+	private async GoTo1v1setting() {
+		this.StatePage = PageState.LOCALSETTING;
+		await this.GamePage.generate1v1SettingPage();
 	}
 
 	async manageSettingEvent() {
 		if (this.LocalGamePage._backBtn)
-			this.LocalGamePage._backBtn.addEventListener('click', async() => {this.returnTo1v1Game();})
+			this.LocalGamePage._backBtn.addEventListener('click', async() => {this.returnTo1v1Game();});
 		if (this.LocalGamePage._botBtn)
-			this.LocalGamePage._botBtn.addEventListener('click', async() => {this.ActiveBotBtn();})
+			this.LocalGamePage._botBtn.addEventListener('click', async() => {this.ActiveBotBtn();});
 		if (this.LocalGamePage._playerBtn)
-			this.LocalGamePage._playerBtn.addEventListener('click', async() => {this.activePlayervsBtn();})
+			this.LocalGamePage._playerBtn.addEventListener('click', async() => {this.activePlayervsBtn();});
 		if (this.LocalGamePage._optionbtn)
-			this.LocalGamePage._optionbtn.addEventListener('click', async() => {this.ClickOptionEvent();})
+			this.LocalGamePage._optionbtn.addEventListener('click', async() => {this.ClickOptionEvent();});
 		if (this.LocalGamePage._minusbtn)
-			this.LocalGamePage._minusbtn.addEventListener('click', async() => {this.clickminusEvent();})
+			this.LocalGamePage._minusbtn.addEventListener('click', async() => {this.clickminusEvent();});
 		if (this.LocalGamePage._plusbtn)
-			this.LocalGamePage._plusbtn.addEventListener('click', async() => {this.clickPlusEvent();})
+			this.LocalGamePage._plusbtn.addEventListener('click', async() => {this.clickPlusEvent();});
 	}
 
+	/**********return to 1v1 page**********/
+	private async returnTo1v1Game() {
+		if (this.LocalGamePage._backBtn)
+			this.LocalGamePage._backBtn.classList.add('-translate-x-96');
+		if (this.LocalGamePage._settingPan)
+			this.LocalGamePage._settingPan.classList.add('translate-x-96');
+		this.StatePage = PageState.PARTY;
+		await this.GamePage.generate1v1GamePage();
+	}
+
+	/**********active bot player button**********/
 	private ActiveBotBtn() {
 		if (this.LocalGamePage._Ai == 0) {
 			this.LocalGamePage._botBtn.classList.remove('hover:scale-110');
@@ -180,6 +208,7 @@ export class Event {
 		}
 	}
 
+	/**********active 1v1 player button**********/
 	private activePlayervsBtn() {
 		if (this.LocalGamePage._Ai > 0) {
 			this.LocalGamePage._playerBtn.classList.remove('hover:scale-110');
@@ -196,20 +225,25 @@ export class Event {
 		}
 	}
 
+	/**********increase score limit**********/
 	private clickPlusEvent() {
 		if (this.LocalGamePage._MaxScore < 15) {
 			this.LocalGamePage.setMaxScore = this.LocalGamePage._MaxScore  + 5;
+			this.LocalGamePage._maxScoreP.textContent = this.LocalGamePage._MaxScore.toString();
 			console.log("maxscore : ", this.LocalGamePage._MaxScore );
 		}
 	}
 
+	/**********decrease score limit**********/
 	private clickminusEvent() {
 		if (this.LocalGamePage._MaxScore > 5) {
 			this.LocalGamePage.setMaxScore = this.LocalGamePage._MaxScore  - 5;
+			this.LocalGamePage._maxScoreP.textContent = this.LocalGamePage._MaxScore.toString();
 			console.log("maxscore : ", this.LocalGamePage._MaxScore );
 		}
 	}
 
+	/**********set crabmehameha option for 1v1**********/
 	private ClickOptionEvent() {
 		if (this.LocalGamePage._option == 1) {
 			this.LocalGamePage._optionimg.src = 'game_ui/setting/uncheckedValue.png';
@@ -224,35 +258,80 @@ export class Event {
 	/*************************************Functions for tournament Event*************************************/
 
 	async manageTournamentEvent() {
-		if (this.TournamentPage._backbtn)
-			this.TournamentPage._backbtn.addEventListener('click', async() => {this.returnToGameMod();})
+		if (this.TournamentPage._backBtn)
+			this.TournamentPage._backBtn.addEventListener('click', async() => {this.returnToGameMod();});
+		if (this.TournamentPage._playBtn){
+			this.TournamentPage._playBtn.addEventListener('click', async() => {this.renderNewTournament()})};
+		if (this.TournamentPage._continueBtn)
+			this.TournamentPage._continueBtn.addEventListener('click', async() => {this.continueTournament();});
 	}
 
-	// private async ManageSaveEvent() {
-	// 	 document.getElementById("Save-btn")?.addEventListener('click', async(e) => {
-	// 			switch(this.StatePage) {
-	// 			case PageState.MOD:
-	// 				this.SaveGameMod();
-	// 				break;
-	// 			case PageState.PARTY:
-	// 				this.PlayGame();
-	// 				break;
-	// 			case PageState.TOURNAMENT:
-	// 				this.PlayTournament();
-	// 				break;
-	// 			case PageState.NEWGAME:
-	// 				this.SaveNewParty();
-	// 				break;
-	// 			case PageState.BRACKET:
-	// 				this.PlayRound();
-	// 				break;
-	// 			case PageState.WIN:
-	// 				this.returnToGameMod();
-	// 				break;
-	// 			default: break;
-	// 		}
-	// 	})
-	// }
+	/**********return to tournament page**********/
+	private async returnToTournament() {
+		this.StatePage = PageState.TOURNAMENT;
+		await this.GamePage.generateTournamentPage();
+	}
+
+	/**********rendering new tournament page**********/
+	private async renderNewTournament() {
+		this.StatePage = PageState.NEWTOURNAMENT;
+		await this.GamePage.generateNewTournamentPage();
+	}
+
+	/**********rendering continue tournament page**********/
+	private async continueTournament() {
+		this.StatePage = PageState.CONTINUETOURNAMENT;
+		await this.GamePage.generateContinueTournamentPage();
+	}
+
+	async manageNewTournamentEvent() {
+		if (this.TournamentPage._backBtn)
+			this.TournamentPage._backBtn.addEventListener('click', async() => {this.returnToTournament();});
+		if (this.TournamentPage._playBtn)
+			this.TournamentPage._playBtn.addEventListener('click', async() => {this.saveTournament()});
+		if (this.TournamentPage._optionbtn)
+			this.TournamentPage._optionbtn.addEventListener('click', async() => {this.ClickOptionTournamentEvent();});
+	}
+
+	/**********save new tournament**********/
+	private async saveTournament() {
+		/****************************function for call API to save tounrnament**********************/
+		/**************add Players Names in one string**************/
+		let PlayersNames: string[] = [];
+		this.TournamentPage._nameMap.forEach((value, key) => {PlayersNames.push(value.value);})
+
+		/**************check tournament name**************/
+		if (!this.TournamentPage._tournamentName.value)
+			alert("Please enter a tournament name.");
+
+		try {
+			const res = await createTournament(this.TournamentPage._tournamentName.value, PlayersNames, this.TournamentPage._option);
+			if (res.ok) {
+				this.setStatePage = PageState.BRACKET;
+				this.GamePage.generateBracketTournament(res.tournament.tournament_id);
+			}
+
+		} catch (error) {
+			alert(error);
+		}
+	}
+
+	/**********set crabmehameha option for tounrnament**********/
+	private ClickOptionTournamentEvent() {
+		if (this.TournamentPage._option == 1) {
+			this.TournamentPage._optionimg.src = 'game_ui/setting/uncheckedValue.png';
+			this.TournamentPage.setOption = 0;
+		}
+		else {
+			this.TournamentPage._optionimg.src = 'game_ui/setting/checkedValue.png';
+			this.TournamentPage.setOption = 1;
+		}
+	}
+
+	async manageContinueTournamentEvent() {
+		if (this.TournamentPage._backBtn)
+			this.TournamentPage._backBtn.addEventListener('click', async() => {this.returnToTournament();});
+	}
 
 				/*********************************function utils for saving games*********************************/
 	// private async SaveGameMod() {
@@ -366,64 +445,36 @@ export class Event {
 		// }
 	}
 
-	private async saveParty() {
-		try {
-			const req = await getUserInfo();
-			if (!req.ok)
-			{
-			    console.log('Error GamePage: ', req.error);
-			    alert("Error GamePage" + req.error);
-			    return ;
-			}
-			const userData = req.userInfo;
-			if (!userData?.id)
-				throw new Error('user not connected');
-			// Add here the field for the max score in game creation, as a third parameter
-			console.log('arg in create local game ', this.LocalGamePage._PlayerA, this.LocalGamePage._PlayerB, this.LocalGamePage._MaxScore, this.LocalGamePage._Ai, this.LocalGamePage._option);
-			const request = await createLocalGame(this.LocalGamePage._PlayerA, this.LocalGamePage._PlayerB, this.LocalGamePage._MaxScore, this.LocalGamePage._Ai, this.LocalGamePage._option);
-			if (!request.ok) 
-				throw new Error('Failed to create Game');
-			else if (request.ok) {
-				const id:number = request.gameId;
-				console.log("id party = ", request);
-				this.launchGame(id);
-			}
-		}
-		catch (error) {
-			console.log("Error creating Games : ", error);
-			alert('Error creating Game PLease try again: ' + error);
-		}
-	}
 
-	private async saveTournament() {
-		/****************************function for call API to save tounrnament**********************/
-		const formData = new FormData(document.getElementById('new-tournament-form') as HTMLFormElement);
+	// private async saveTournament() {
+	// 	/****************************function for call API to save tounrnament**********************/
+	// 	const formData = new FormData(document.getElementById('new-tournament-form') as HTMLFormElement);
 
-		// also you can use this.tournamentPage._FormMap
-		// this.TournamentPage._FormMap.forEach((value: HTMLInputElement , key :(string) HTMLElement) => {
-		// 	console.log("key = ", key, "value = ", value);
-		// })
-		const PlayerA = this.GetDataForm('Player1', formData);
-		const PlayerB = this.GetDataForm('Player2', formData);
-		const PlayerC = this.GetDataForm('Player3', formData);
-		const PlayerD = this.GetDataForm('Player4', formData);
+	// 	// also you can use this.tournamentPage._FormMap
+	// 	// this.TournamentPage._FormMap.forEach((value: HTMLInputElement , key :(string) HTMLElement) => {
+	// 	// 	console.log("key = ", key, "value = ", value);
+	// 	// })
+	// 	const PlayerA = this.GetDataForm('Player1', formData);
+	// 	const PlayerB = this.GetDataForm('Player2', formData);
+	// 	const PlayerC = this.GetDataForm('Player3', formData);
+	// 	const PlayerD = this.GetDataForm('Player4', formData);
 
-		const playersList = [PlayerA, PlayerB, PlayerC, PlayerD];
-		console.log('playerList', playersList);
+	// 	const playersList = [PlayerA, PlayerB, PlayerC, PlayerD];
+	// 	console.log('playerList', playersList);
 		
-		const nameElement = document.getElementById('name-tournament-input') as HTMLInputElement;
-		const tournamentName = nameElement.value;
-		if (!tournamentName)
-			alert("Please enter a tournament name.");
-		console.log('Tournament name is ', tournamentName);
+	// 	const nameElement = document.getElementById('name-tournament-input') as HTMLInputElement;
+	// 	const tournamentName = nameElement.value;
+	// 	if (!tournamentName)
+	// 		alert("Please enter a tournament name.");
+	// 	console.log('Tournament name is ', tournamentName);
 
-		const res = await createTournament(tournamentName, playersList);
-		if (!res.ok) {
-			alert("Error: " + res.error);
-		}
-		// You can get all the data about the created tournament if you like
+	// 	const res = await createTournament(tournamentName, playersList);
+	// 	if (!res.ok) {
+	// 		alert("Error: " + res.error);
+	// 	}
+	// 	// You can get all the data about the created tournament if you like
 
-	}
+	// }
 
 	private GetDataForm(id: string, formData: any): string {
 		const PlayerRaw = formData.get(id);

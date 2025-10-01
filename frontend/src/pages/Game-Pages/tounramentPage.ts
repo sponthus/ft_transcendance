@@ -1,5 +1,5 @@
 import { Checkbox } from '@babylonjs/inspector/fluent/primitives/checkbox';
-import { createDiv, createElement, createButton, createImage, createFormDiv, createCheckBoxLabel, append} from '../../Utils/elementMaker.js';
+import { createDiv, createElement, createButton, createImage, createInput, createCheckBoxLabel, append} from '../../Utils/elementMaker.js';
 import { availableGames } from './AvailableGames.js';
 import { getTournamentMatches, GameInfos, getTournamentNextMatch } from "../../api/game-service/tournaments/getTournaments.js" 
 import { Game } from '../../babylon/main.js';
@@ -9,7 +9,7 @@ export class TournamentPage {
 	private Page!: HTMLElement;
 	private NewTournamentForm!: HTMLElement;
 	private BracketDiv!: HTMLElement;
-	private FormMap!: Map<HTMLElement, HTMLInputElement>;
+	// private FormMap!: Map<HTMLElement, HTMLInputElement>;
 	private PartyMap!: Map<number, HTMLInputElement>;
 	private AvailableGames: availableGames;
 	private Tournament?: any;
@@ -18,15 +18,24 @@ export class TournamentPage {
 	private Username!: string;
 	private TournamentMatches: Map<number, number>; // Map<gameId, idDiv>
 
+	private Option: number = 1;
 	/*************************button*************************/
 	private PlayBtn!: HTMLButtonElement;
 	private ContinueBtn!: HTMLButtonElement;
 	private BackBtn!: HTMLButtonElement;
 
+	private nameMap!: Map<number, HTMLInputElement>;
+	private OptionBtn!: HTMLButtonElement;
+	private OptionImg!: HTMLImageElement;
+	private TournamentName!: HTMLInputElement;
+
+	/*************************utils div*************************/
+	private TournamentPan!: HTMLElement;
 
 	constructor(Page: HTMLElement, UserName: string) {
 		this.Page = Page;
-		this.FormMap = new Map<HTMLElement, HTMLInputElement>();
+		this.nameMap = new Map<number, HTMLInputElement>();
+		// this.FormMap = new Map<HTMLElement, HTMLInputElement>();
 		this.PartyMap = new Map<number, HTMLInputElement>();
 		this.AvailableGames = new availableGames(this.Page, this.PartyMap);
 		this.Username = UserName;
@@ -35,12 +44,10 @@ export class TournamentPage {
 	}
 
 	async render() {
-		this.Page.classList.add("relative");
-
 		this.PlayBtn = (createButton("play", "relative flex items-center z-5 active:scale-95 hover:scale-105 h-[30%] aspect-square transition-all duration-200 translate-x-96", "") as HTMLButtonElement);
 		this.ContinueBtn = (createButton("continue", "relative flex items-center z-5 active:scale-95 hover:scale-105 h-[12%] w-[30%] transition-all duration-200 -translate-x-96", "continue") as HTMLButtonElement);
 		this.BackBtn = (createButton("return", "relative flex items-center z-5 active:scale-95 hover:scale-105 h-[10%] w-[20%] transition-all duration-200 top-16 left-32 -translate-x-96", "") as HTMLButtonElement);
-		append(this.Page, [createImage("1v1", "absolute object-fill object-center h-full w-full opacity-65", '1v1-page.png')]);
+		append(this.Page, [createImage("1v1", "absolute object-fill object-center h-full w-full opacity-65", 'tournament-page.png')]);
 
 		append(this.PlayBtn, [createImage('Play', 'absolute object-center h-full w-full', 'game_ui/Playebtn.png')]);
 		append(this.ContinueBtn, [createImage('continue', 'absolute object-center h-full w-full', 'game_ui/continuesbtn.png')]);
@@ -55,6 +62,108 @@ export class TournamentPage {
 			this.ContinueBtn.classList.remove('-translate-x-96');
 			this.BackBtn.classList.remove('-translate-x-96');
 		}, 100);
+	}
+
+	async renderNewTournament() {
+		const btnDiv = createDiv('btn', 'flex flex-row justify-around w-full h-[20%] z-5 -translate-x-96');
+		this.InitTournamentForm(btnDiv);
+		this.fillNewPan();
+		this.appendTournamentForm(btnDiv);
+	}
+
+	async renderContinueTournament() {
+		const btnDiv = createDiv('btn', 'flex flex-row justify-around w-full h-[20%] z-5 -translate-x-96');
+		this.InitTournamentForm(btnDiv);
+		this.fillContinuePan();
+		this.appendTournamentForm(btnDiv);
+	}
+
+	private InitTournamentForm(btnDiv: HTMLElement) {
+		this.BackBtn = (createButton("return", "relative flex items-center z-5 active:scale-95 hover:scale-105 h-full w-[20%] transition-all duration-200", "") as HTMLButtonElement);
+		this.PlayBtn = (createButton("play", "relative flex items-center z-5 active:scale-95 hover:scale-105 h-full aspect-square transition-all duration-200", "") as HTMLButtonElement);
+		append(this.PlayBtn, [createImage('Play', 'absolute object-center h-full w-full', 'game_ui/Playebtn.png')]);
+		append(this.BackBtn, [createImage('Back', 'absolute object-center h-full w-full', 'game_ui/Backbtn.png')]);
+
+		
+		append(btnDiv, [this.BackBtn, this.PlayBtn]);
+
+		this.TournamentPan = createDiv('setting-pan', 'relative flex flex-col items-center w-full h-[80%] transition-all duration-200 translate-x-96 space-y-4');
+		append(this.TournamentPan ,[createImage('1v1-setting', 'absolute object-center object-fill h-full w-full', 'game_ui/setting/SettingPan.png')]);
+	}
+
+	private appendTournamentForm(btnDiv: HTMLElement) {
+		append(this.Page, [createImage("1v1", "absolute object-fill object-center h-full w-full opacity-20", 'tournament-page.png')]);
+
+		append(this.Page, [createImage('bot-text', 'z-10 object-center h-[20%] w-[80%] animate-wiggle margin-top-32', 'game_ui/LocalPongText.png') /**change to tournament title */
+						, this.TournamentPan, btnDiv]);
+
+		this.Page.className = "flex flex-col items-center w-full h-full transition-all duration-300 rounded-xl space-y-4";
+		setTimeout(async() => {
+			this.TournamentPan.classList.remove('translate-x-96');
+			btnDiv.classList.remove('-translate-x-96');
+		}, 300);
+	}
+
+	private fillContinuePan() {
+
+	}
+	private fillNewPan() {
+		append(this.TournamentPan, [createImage('player-name', 'absolute z-5 object-center h-[10%] w-[20%] translate-y-16 -translate-x-64', 'game_ui/setting/playerNamestext.png')	
+									, this.addNameForm(), this.createTournamentNameForm() ,this.createcrabmehamehaDiv()]);
+	}
+
+	private addNameForm(): HTMLElement {
+		const NameFormDiv: HTMLElement = createDiv('name-form', 'flex flex-col w-full h-[50%] items-center z-10 space-y-4 translate-y-16 translate-x-10');
+		for (let i = 0; i < 4; i++) {
+			append(NameFormDiv, [this.createPlayerNameDiv(i)]);
+		}
+		return NameFormDiv
+	}
+
+	private createPlayerNameDiv(index: number): HTMLElement {
+		const playerDiv: HTMLElement = createDiv('players-names', 'flex justify-start items-center h-[20%]');
+
+		const PlayerInput: HTMLInputElement = createInput(['', '', '', true], 'PlayerA', 'h-[70%] w-[70%]');
+		PlayerInput.value = `Player ${(index + 1).toString()}`;
+		this.nameMap.set(index, PlayerInput);
+
+		const container: HTMLElement = createDiv('', 'grid  justify-start place-items-center w-full h-full');
+		const playerPan: HTMLImageElement = createImage(`Player-${(index + 1).toString()}`, ' object-contain col-start-1 row-start-1', 'game_ui/setting/emptyPan.png');
+		append(container, [createElement('p',`Player-${(index + 1).toString()}`, `Player ${(index + 1).toString()}`, 'z-10 text-center col-start-1 row-start-1 text-orange-200')
+						,playerPan]);
+	
+		append(playerDiv, [container, PlayerInput]);
+
+		return playerDiv;
+	}
+
+	private createTournamentNameForm() {
+		const checcrabmehamehaDiv: HTMLElement = createDiv('crabmehameha', 'flex items-center justify-arround h-[10%] translate-y-14 -translate-x-32 space-x-4');
+
+		this.TournamentName = createInput(['text', 'tournament-name', 'tournament name', true], 'tournament-name', 'h-[70%] w-[70%]');
+		// this.TournamentName.value = "tournament name";
+	
+		append(checcrabmehamehaDiv, [createElement('p', '', "name", 'text-center text-orange-200 text-4xl')
+									,this.TournamentName]);
+
+		return checcrabmehamehaDiv;
+	}
+
+	private createcrabmehamehaDiv() : HTMLElement {
+		const checcrabmehamehaDiv: HTMLElement = createDiv('crabmehameha', 'flex items-center justify-arround h-[10%] translate-y-10 -translate-x-28 space-x-4');
+
+		this.OptionBtn = createButton('minus', 'relative flex items-center z-5 active:scale-95 hover:scale-105 transition-all duration-200', '');
+		let src: string = 'game_ui/setting/checkedValue.png';
+		if (this.Option == 0)
+			src = 'game_ui/setting/uncheckedValue.png';
+
+		this.OptionImg = createImage('check', 'active:scale-95 hover:scale-105 transition-all duration-200', src);
+		append(this.OptionBtn, [this.OptionImg]);
+	
+		append(checcrabmehamehaDiv, [createElement('p', '', "option crabmehameha", 'text-center text-orange-200 text-4xl')
+									,this.OptionBtn]);
+
+		return checcrabmehamehaDiv;
 	}
 
 	async renderBracket(IdTournament: number) {
@@ -168,9 +277,9 @@ export class TournamentPage {
 		return this.PartyMap;
 	}
 
-	get _FormMap() : Map<HTMLElement, HTMLInputElement> {
-		return this.FormMap;
-	}
+	// get _FormMap() : Map<HTMLElement, HTMLInputElement> {
+	// 	return this.FormMap;
+	// }
 
 	get _Tournament(): any {
 		if (this.Tournament)
@@ -183,15 +292,39 @@ export class TournamentPage {
 		return this.NextGameId;
 	}
 	
-	get _playbtn() : HTMLButtonElement {
+	get _playBtn() : HTMLButtonElement {
 		return this.PlayBtn;
 	}
 
-	get _continuebtn(): HTMLButtonElement {
+	get _continueBtn(): HTMLButtonElement {
 		return this.ContinueBtn;
 	}
 
-	get _backbtn(): HTMLButtonElement {
+	get _backBtn(): HTMLButtonElement {
 		return this.BackBtn;
+	}
+
+	get _nameMap(): Map<number, HTMLInputElement> {
+		return this.nameMap;
+	}
+
+	get _option(): number{
+		return this.Option;
+	}
+
+	get _optionbtn():HTMLButtonElement {
+		return this.OptionBtn;
+	}
+
+	get _optionimg(): HTMLImageElement {
+		return this.OptionImg;
+	}
+
+	get _tournamentName(): HTMLInputElement {
+		return this.TournamentName;
+	}
+	
+	set setOption(Option: number){
+		this.Option = Option;
 	}
 }

@@ -73,6 +73,8 @@ export class RegisterPage extends BasePage {
 		
 		append (this.Form, [(createFormDiv(["text", 'username', "choose a username", true], "username",   "choose a unique username", 
 								ClassNames) as HTMLElement)
+							, (createFormDiv(["text", 'email', "put your email adress", true], "email", "email adress", 
+								ClassNames) as HTMLElement)
 							, (createFormDiv(["password", 'password', "create a password", true], "password", "Use a strong password", 
 								ClassNames) as HTMLElement)
 							, (createFormDiv(["password", 'ConfirmPassword', "Confirm Password", true], "ConfirmPassword", "Confirm Password" , 
@@ -101,6 +103,7 @@ export class RegisterPage extends BasePage {
 
 				const formData = new FormData(this.Form);
 				const username = formData.get('username') as string;
+				const email = formData.get('email') as string;
 				const password = formData.get('password') as string;
 				const ConfirmPassword = formData.get('ConfirmPassword') as string;
 

@@ -16,7 +16,7 @@ type UserData = //VA ETRE CHANGER, le token renvoie le username et l'id du user
     created_at: string;
 };
 
-const wrapper: HTMLElement = createDiv('wrapper', 'grid grid-cols-3 items-center justify-between p-4 bg-orange-200 shadow-md');
+const wrapper: HTMLElement = createDiv('wrapper', 'grid grid-cols-3 items-center justify-between p-4 bg-orange-200 shadow-md overflow-hidden');
 const userInfo: HTMLElement = createDiv('user-info', 'flex flex-wrap order-1 text-sm text-gray-600');
 const logo: HTMLElement = createDiv('logo', 'mx-auto order-2 snap-center');
 const navLinks: HTMLUListElement = createElement('ul', 'navlinks', '', 'flex justify-end space-x-4 order-3 list-none') as HTMLUListElement;

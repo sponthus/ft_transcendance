@@ -1,8 +1,4 @@
 import { createDiv, createElement, createButton, createDropdownDiv, createFormDiv, createCheckBoxLabel, append, createImage, createInput} from '../../Utils/elementMaker.js';
-// import { createLocalGame, getAvailableGames, startGame, deleteGame } from "../../api/game.js"
-// import { renderDropdown } from "./GamePage.js";
-// import { availableGames } from "./AvailableGames.js";
-
 
 export class LocalGamePage {
 
@@ -27,6 +23,7 @@ export class LocalGamePage {
 	private playerBtn!: HTMLButtonElement;
 	private plusbtn!: HTMLButtonElement;
 	private minusBtn!: HTMLButtonElement;
+	private maxScoreP!: HTMLElement;
 	private PlayerAInput!: HTMLInputElement;
 	private PLayerBInput!: HTMLInputElement;
 	private OptionBtn!: HTMLButtonElement;
@@ -44,8 +41,6 @@ export class LocalGamePage {
 	}
 
 	async render() {
-		this.Page.classList.add("relative");
-
 		this.PlayBtn = (createButton("play", "relative flex items-center z-5 active:scale-95 hover:scale-105 h-[30%] aspect-square transition-all duration-200 translate-x-96", "") as HTMLButtonElement);
 		this.SettingBtn = (createButton("settings", "relative flex items-center z-5 active:scale-95 hover:scale-105 h-[12%] w-[30%] transition-all duration-200 -translate-x-96", "") as HTMLButtonElement);
 		this.BackBtn = (createButton("return", "relative flex items-center z-5 active:scale-95 hover:scale-105 h-[10%] w-[20%] transition-all duration-200 top-16 left-32 -translate-x-96", "") as HTMLButtonElement);
@@ -86,7 +81,7 @@ export class LocalGamePage {
 	}
 
 	private fillSetingPan() {
-		append(this.SettingPan, [this.createOpponentDiv(), this.createPlayerNameDiv(), this.createScorelimitDiv(), this.createKramehamehaDiv()]);
+		append(this.SettingPan, [this.createOpponentDiv(), this.createPlayerNameDiv(), this.createScorelimitDiv(), this.createcrabmehamehaDiv()]);
 	}
 
 	private createOpponentDiv(): HTMLElement {
@@ -102,10 +97,12 @@ export class LocalGamePage {
 			this.botBtn.classList.remove('hover:scale-110');
 			this.botBtn.classList.add('scale-110');
 		}
+
 		else {
 			this.playerBtn.classList.remove('hover:scale-110');
 			this.playerBtn.classList.add('scale-110');
 		}
+
 		append(opponentDiv, [this.botBtn, this.playerBtn]);
 		return opponentDiv;
 	}
@@ -126,7 +123,7 @@ export class LocalGamePage {
 		this.PLayerBInput = createInput(['', '', '', true], 'PlayerA', 'h-full w-[40%]');
 		this.PLayerBInput.value = this.PlayerB;
 		if (this.Ai > 0)
-			this.PlayerAInput.readOnly = true;
+			this.PLayerBInput.readOnly = true;
 		append(playerBDiv, [createImage('playerB', 'z-5 object-center object-fill h-full w-[40%]', 'game_ui/setting/playerB.png'), this.PLayerBInput]);
 
 		append(PlayerNameDiv, [playerADiv, playerBDiv]);
@@ -134,27 +131,30 @@ export class LocalGamePage {
 	}
 
 	private createScorelimitDiv(): HTMLElement {
-		const scoreLimitDiv: HTMLElement = createDiv('score-limit', 'flex flex-col h-[10%]  translate-y-16 ');
+		const scoreLimitDiv: HTMLElement = createDiv('score-limit', 'flex items-center justify-around h-[20%] w-[80%] translate-y-10 space-x-4');
 
-		this.plusbtn = createButton('plus', 'relative flex items-center z-5 active:scale-95 hover:scale-105 h-full w-[45%] transition-all duration-200', '')
-		append(this.plusbtn, [createImage('plus', '', 'game_ui/setting/plusValue.png')])
+		this.plusbtn = createButton('plus', 'relative flex items-center z-5 active:scale-95 hover:scale-105 h-full w-[40%] transition-all duration-200', '')
+		append(this.plusbtn, [createImage('plus', 'absolute object-cover object-center', 'game_ui/setting/plusValue.png')])
 
-		this.minusBtn = createButton('minus', 'relative flex items-center z-5 active:scale-95 hover:scale-105 h-full w-[45%] transition-all duration-200', '');
-		append(this.minusBtn, [createImage('minus', '', 'game_ui/setting/minusValue.png')]);
+		this.minusBtn = createButton('minus', 'relative flex items-center z-5 active:scale-95 hover:scale-105 h-full w-[40%] transition-all duration-200', '');
+		append(this.minusBtn, [createImage('minus', 'absolute object-cover object-center', 'game_ui/setting/minusValue.png')]);
 
-		const MaxScorePan: HTMLImageElement = createImage('max-score', '', 'game_ui/setting/emptyPan.png');
-		append(MaxScorePan, [createElement('p','score-limit', `${this.MaxScore.toString()}`, 'z-10 text-center')]) // add Maxscore img here 
+		const container: HTMLElement = createDiv('', 'grid place-items-center w-full h-full')
+		const MaxScorePan: HTMLImageElement = createImage('max-score', 'w-full h-full object-contain col-start-1 row-start-1', 'game_ui/setting/emptyPan.png');
+		this.maxScoreP = createElement('p','score-limit', `${this.MaxScore.toString()}`, 'z-10 text-center col-start-1 row-start-1 text-orange-200');
+		append(container, [this.maxScoreP ,MaxScorePan]); // add Maxscore img here 
 
-		const scoreLimitPan: HTMLElement = createDiv('score-limit-pan', 'relative flex h-[] w-[] space-x-4');
-		append(scoreLimitPan, [this.plusbtn, MaxScorePan, this.minusBtn]);
+		const scoreLimitPan: HTMLElement = createDiv('score-limit-pan', 'relative flex h-full w-[45%] space-x-4');
+		append(scoreLimitPan, [this.plusbtn, container, this.minusBtn]);
 
-		append(scoreLimitDiv, [scoreLimitPan]);
+		append(scoreLimitDiv, [createElement('p', '', "score limit", 'text-center text-orange-200 text-4xl')
+								,scoreLimitPan]);
 		
 		return scoreLimitDiv;
 	}
 	
-	private createKramehamehaDiv() : HTMLElement {
-		const checkKramehamehaDiv: HTMLElement = createDiv('kramehameha', 'flex flex-col h-[10%] translate-y-16');
+	private createcrabmehamehaDiv() : HTMLElement {
+		const checcrabmehamehaDiv: HTMLElement = createDiv('crabmehameha', 'flex items-center justify-arround h-[10%] translate-y-2 space-x-4');
 
 		this.OptionBtn = createButton('minus', 'relative flex items-center z-5 active:scale-95 hover:scale-105 transition-all duration-200', '');
 		let src: string = 'game_ui/setting/checkedValue.png';
@@ -164,9 +164,10 @@ export class LocalGamePage {
 		this.OptionImg = createImage('check', 'active:scale-95 hover:scale-105 transition-all duration-200', src);
 		append(this.OptionBtn, [this.OptionImg]);
 	
-		append(checkKramehamehaDiv, [this.OptionBtn]);
+		append(checcrabmehamehaDiv, [createElement('p', '', "option crabmehameha", 'text-center text-orange-200 text-4xl')
+									,this.OptionBtn]);
 
-		return checkKramehamehaDiv;
+		return checcrabmehamehaDiv;
 	}
 
 	/******************************************getter*************************************/
@@ -222,6 +223,10 @@ export class LocalGamePage {
 		return this.minusBtn;
 	}
 
+	get _maxScoreP(): HTMLElement {
+		return this.maxScoreP;
+	}
+
 	get _playerAInput(): HTMLInputElement {
 		return this.PlayerAInput;
 	}
@@ -237,8 +242,6 @@ export class LocalGamePage {
 	get _optionimg(): HTMLImageElement {
 		return this.OptionImg;
 	}
-	// private OptionBtn!: HTMLButtonElement;
-	// private OptionImg!: HTMLImageElement;
 	/******************************************setter*************************************/
 	set setPlayerA(PlayerA: string){
 		this.PlayerA = PlayerA;
