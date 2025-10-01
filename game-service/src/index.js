@@ -41,11 +41,11 @@ app.decorate("authenticate", async function (request, reply)
 		const internalApiKey = request.headers['x-internal-api-key'];
 		if (internalApiKey && internalApiKey === getSecret('api_key')) {
 			return;
+		}
+		else 
+			await request.jwtVerify(); // Check external JWT token from users and store their infos in request.user
+		// console.log("Decoded token:", request.user);
     }
-		// Check external JWT token from users and store their infos in request.user
-		await request.jwtVerify();
-        // console.log("Decoded token:", request.user);
-    } 
     catch (err)
     {
 		console.log("❌ Error : ", err.message);
