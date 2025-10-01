@@ -27,7 +27,11 @@ export class PongGame  {
 				this._sceneBuilder!.engine,
 				this._displayAssets.crab1,
 				this._displayAssets.crab2,
+				this._displayAssets.bullBob,
+				this._displayAssets.bullPatrick,
 				this._displayAssets.menuPause,
+				this._displayAssets.pancartePlayer1,
+				this._displayAssets.pancartePlayer2,
 				this._sceneBuilder!.light
 			);
 		}
