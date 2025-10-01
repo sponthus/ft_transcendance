@@ -102,6 +102,8 @@ export async function createGame(request, reply) {
 		console.log(formatCheck.errors);
 		return reply.status(400).send({ error: 'Bad input format : expected player_a, player_b, optional requestedMaxScore, requestedAi, requestedOption. '});
 	}
+	console.log("Body :");
+	console.log(request.body);
 	const { player_a, player_b, requestedMaxScore, requestedAi, requestedOption } = request.body;
 	const { db } = request.server;
 	if (!db) {
@@ -123,16 +125,15 @@ export async function createGame(request, reply) {
 	let finalMaxScore = 7;
 	let finalAi = 0;
 	let finalOption = 1;
-	if (requestedMaxScore) {
-		finalMaxScore = requestedMaxScore;
+	if (Number(requestedMaxScore) > 0) {
+		finalMaxScore = Number(requestedMaxScore);
 	}
-	if (requestedAi) {
-		finalAi = requestedAi;
+	if (Number(requestedAi) >= 0) {
+		finalAi = Number(requestedAi);
 	}
-	if (requestedOption) {
-		finalOption = requestedOption;
+	if (Number(requestedOption) == 0) {
+		finalOption = Number(requestedOption);
 	}
-	console.log("Options taken into account = ", finalMaxScore, finalAi, finalOption);
 
     try {
         const result = await db.createGame(userId, player_a, player_b, finalMaxScore, finalAi, finalOption);
