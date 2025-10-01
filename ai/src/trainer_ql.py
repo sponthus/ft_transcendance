@@ -6,7 +6,7 @@ if __name__ == '__main__':
 	ticks_per_decision = int(1 / game.dt)
 	max_ticks = int(3600 / game.dt)
 	action = 2 # STILL
-	for i in range(5000):
+	for i in range(10000):
 		tick = 0
 		while tick < max_ticks:
 			if tick % ticks_per_decision == 0:
@@ -21,7 +21,7 @@ if __name__ == '__main__':
 			# time.sleep(game.dt / 3)
 		if ((i % 10) == 0):
 			print(f"Game: {i}, Score: {game.score.s1} - {game.score.s2}, Epsilon: {game.epsilon:.4f}, AI score: {game.ai_score}")
-		if (i > 1000 and i % 100 == 0):
+		if (i > 1500 and i % 100 == 0):
 			game.save_q_table(i)
 			# print(f"{game.q_table}")
 		game.reset(total=True)
