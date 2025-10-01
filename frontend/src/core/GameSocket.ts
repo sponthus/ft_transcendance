@@ -136,7 +136,7 @@ export class GameSocket {
                 data = JSON.parse(event.data);
             } catch (error) {
 				console.error('Error parsing JSON message.');
-				// TODO Emma Add logic here, when recieving an invalid message format
+				// TODO Add logic here, when recieving an invalid message format
 				// Websocket will be closed (someone exterior sent a wrong message to the websocket, normally it's impossible)
 				this.close(3000, 'Invalid message format');
 				return;
@@ -144,7 +144,7 @@ export class GameSocket {
 			const checkFormat = checkWebSocketMessageFormat(data);
 			if (checkFormat.valid === false) {
 				console.error("Invalid WebSocket message format:", checkFormat.errors);
-				// TODO Emma Add logic here, when recieving an invalid message format
+				// TODO Add logic here, when recieving an invalid message format
 				// Websocket will be closed (someone exterior sent a wrong message to the websocket, normally it's impossible)
 				this.close(3000, 'Invalid message format');
 				return;
@@ -159,7 +159,7 @@ export class GameSocket {
         this.ws.onclose = () => {
             console.log("Connexion WebSocket closed");
             this.stopHeartbeat();
-			// TODO Emma Add logic here, when the websocket is closed
+			// TODO Add logic here, when the websocket is closed
 			this.reconnect(); // Do we reconnect on close ? Websocket can also be closed if backend recompiles
         };
     }

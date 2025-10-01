@@ -49,7 +49,6 @@ export function checkWebSocketMessageFormat(message: WebSocketMessage): FormatCh
 
 export class SessionSocket {
     static instance: null | SessionSocket = null;
-    // public ws: WebSocket;
     public sWS: WebSocket;
     private heartbeatInterval: number | null = null;
     private heartbeatTimeout: number | null = null;
@@ -101,7 +100,7 @@ export class SessionSocket {
 				data = JSON.parse(event.data);
             } catch (error) {
                 console.error('Error parsing JSON message.');
-				// TODO Emma Add logic here, when recieving an invalid message format
+				// TODO Add logic here, when recieving an invalid message format
 				// Websocket will be closed (someone exterior sent a wrong message to the websocket, normally it's impossible)
 				this.close(3000, 'Invalid message format');
 				return;
@@ -109,7 +108,7 @@ export class SessionSocket {
 			const checkFormat = checkWebSocketMessageFormat(data);
 			if (checkFormat.valid === false) {
 				console.error("Invalid WebSocket message format:", checkFormat.errors);
-				// TODO Emma Add logic here, when recieving an invalid message format
+				// TODO Add logic here, when recieving an invalid message format
 				// Websocket will be closed (someone exterior sent a wrong message to the websocket, normally it's impossible)
 				this.close(3000, 'Invalid message format');
 				return;
@@ -124,19 +123,10 @@ export class SessionSocket {
         this.sWS.onclose = () => {
             console.log("Connexion WebSocket closed");
             this.stopHeartbeat();
-            // TODO Emma Add logic here, when the websocket is closed
+            // TODO Add logic here, when the websocket is closed
 			this.reconnect(); // Do we reconnect on close ? Websocket can also be closed if backend recompiles
         };
     }
-
-    // private getGameWsUrl(): string {
-    //     console.log(import.meta.env?.MODE);
-    //     const status = import.meta.env?.MODE;
-    //     if (status === "development")
-    //         return `ws://${import.meta.env.VITE_DOMAIN_NAME}:8080/g-ws/`;
-    //     else
-    //         return `wss://${import.meta.env.VITE_DOMAIN_NAME}/g-ws/`;
-    // }
 
     private getStatusWsUrl(): string {
         console.log(import.meta.env?.MODE);
