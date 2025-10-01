@@ -77,6 +77,10 @@ export default class GameServer {
 				case "start":
 					this.startGame();
 					break;
+				
+				case "ping":
+					this.pong(this.ws);
+					break;
 
 				default:
 					console.warn("ERR: Type inconnu :", data.type);
@@ -93,6 +97,13 @@ export default class GameServer {
 		});
     }
 
+	pong(ws) {
+        if (ws.readyState === 1) {
+            this.sendToWs(ws, { type: 'pong' });
+        } else
+			console.error("❌ Unable to send pong back");
+    }
+	
     startGame() {
         this.state = 'playing';
         gameEventEmitter.emitGameEvent('game:started', this.gameId, {
