@@ -24,24 +24,66 @@ export function checkWebSocketMessageFormat(message: WebSocketMessage): FormatCh
 			type: { type: "string", minLength: 3 },
 			gameId: { type: "number", minimum: 1 },
 			gameState: { 
-				type: "object",
+				type: "object", 
 				properties: {
-					paddle1: { type: "object" },
-					paddle2: { type: "object" },
-					ball: { type: "object" },
-					score: { type: "object" },
-					spell1: { type: "object" },
-					spell2: { type: "object" },
-					specialCooldown1: { type: "object" },
-					specialCooldown2: { type: "object" },
+					paddle1: { 
+						type: "object",
+						properties: {
+							x: { type: "number" }
+						}
+					},
+					paddle2: { 
+						type: "object",
+						properties: {
+							x: { type: "number" }
+						}
+					},
+					ball: { 
+						type: "object",
+						properties: {
+							x: { type: "number" },
+							z: { type: "number" }
+						}
+					},
+					score: { 
+						type: "object", 
+						properties: {
+							s1: { type: "number", minimum: 0 },
+							s2: { type: "number", minimum: 0 }
+						}
+					},
+					spell1: { 
+						type: "object",
+						properties: {
+							x: { type: "number" },
+							y: { type: "number" },
+							z: { type: "number" }
+						}
+					},
+					spell2: { 
+						type: "object",
+						properties: {
+							x: { type: "number" },
+							y: { type: "number" },
+							z: { type: "number" }
+						}
+					},
+					specialCooldown1: { type: "number" },
+					specialCooldown2: { type: "number" },
 					die1: { type: "boolean" },
 					die2: { type: "boolean" },
-					ispaused: { type: "boolean" }
+					ispaused: { type: "boolean" },
+					timePauseBegin: { type: "number" }
 				},
-				required: ["paddle1", "paddle2", "ball", "score", "spell1", "spell2", "specialCooldown1", "specialCooldown2", "die1", "die2", "ispaused"],
+				required: ["paddle1", "paddle2", "ball", "score", "spell1", "spell2", "specialCooldown1", "specialCooldown2", "die1", "die2", "ispaused", "timePauseBegin"],
 				additionalProperties: false
 			},
-			winner: { type: "string", minLength: 1, maxLength: 30 },
+			winner: { 
+				type: "string", 
+				minLength: 1, 
+				maxLength: 100,
+				pattern: "^(?=.*[a-zA-ZÀ-ÿ0-9])[a-zA-ZÀ-ÿ0-9 \\-]+$" 
+			},
 			scoreA: { type: "number", minimum: 0 },
 			scoreB: { type: "number", minimum: 0 }
 		},
@@ -91,6 +133,12 @@ export class GameSocket {
     private heartbeatTimeout: number | null = null;
     private pingInterval: number = 30000; // every 30s sends a ping
     private pongInterval: number = 5000; // 5s to recieve back pong
+	private playing: boolean = false;
+
+	// Call this when the game actually starts
+	public setPlaying(state: boolean) {
+		this.playing = state;
+	}
 
 	constructor(gameId: number) {
 		if (!gameId || gameId == 0) {
@@ -159,8 +207,10 @@ export class GameSocket {
         this.ws.onclose = () => {
             console.log("Connexion WebSocket closed");
             this.stopHeartbeat();
-			// TODO Add logic here, when the websocket is closed
-			this.reconnect(); // Do we reconnect on close ? Websocket can also be closed if backend recompiles
+			// TODO Complete logic here, when the websocket is closed
+			if (this.playing === false)
+				this.reconnect();
+			// Do we reconnect on close if playing ? Websocket can also be closed if backend recompiles
         };
     }
 
