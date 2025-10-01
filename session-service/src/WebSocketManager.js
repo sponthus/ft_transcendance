@@ -34,19 +34,20 @@ export default class WebSocketManager {
                 let message;
 				try {
                     message = JSON.parse(data);
-					const formatCheck = checkWebSocketMessageFormat(message);
-					if (!formatCheck.valid) {
-						console.log('❌ Bad message format received:', formatCheck.errors);
-						this.disconnectWs(ws, 1007, "Invalid message format");
-						return;
-					}
-					if (message.type !== 'auth')
-						console.log('Message received :', message);
-					else
-						console.log('Auth message received');
 				} catch (error) {
                     console.error('❌ Invalid JSON recieved:', error);
                 }
+				
+				const formatCheck = checkWebSocketMessageFormat(message);
+				if (!formatCheck.valid) {
+					console.log('❌ Bad message format received:', formatCheck.errors);
+					this.disconnectWs(ws, 1007, "Invalid message format");
+					return;
+				}
+				if (message.type !== 'auth')
+					console.log('Message received :', message);
+				else
+					console.log('Auth message received');
 
 				try {
 					this.handleMessage(ws, message);
