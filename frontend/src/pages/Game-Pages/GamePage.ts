@@ -50,6 +50,7 @@ export class GamePage extends popUp {
 		this.LocalGamePage = new LocalGamePage(this.Page, this.userName!);
 		this.TournamentPage = new TournamentPage(this.Page, this.userName!);
 		this.Event = new Event(this.LocalGamePage, this.TournamentPage, this);
+		this._Title.remove();
 		this.generateGamePage();
 	}
 

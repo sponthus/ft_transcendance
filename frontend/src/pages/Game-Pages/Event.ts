@@ -38,20 +38,6 @@ export class Event {
 	}
 
 	render() {
-		this.createReturnDiv();
-	}
-
-	/*************************************Function for creating Return and Save button*************************************/
-	private async createReturnDiv(): Promise<void> {
-		const Div: HTMLElement = createDiv("Submit", "flex items-center justify-center text-center p-4 bg-transparent py-3 px-4 h-[20%] w-full space-x-24");
-
-		const ClassNameBtn: string = "bg-orange-200 hover:bg-orange-400 text-emerald-600 font-bold rounded-lg transition-colors duration-200transform w-[20%]";
-		const ReturnBtn: HTMLButtonElement = createButton("Return", ClassNameBtn, "Return");
-		const DeleteBtn: HTMLButtonElement = createButton("delete",ClassNameBtn + " hidden", "Delete");
-		// const SaveBtn: HTMLButtonElement = createButton("Save", ClassNameBtn, "Save");
-
-		append(Div, [ReturnBtn, DeleteBtn]);
-		append(this.GamePage.Title, [Div]);
 	}
 
 	/*************************************Function for Manage Event Return and Save button*************************************/
@@ -307,6 +293,8 @@ export class Event {
 		try {
 			const res = await createTournament(this.TournamentPage._tournamentName.value, PlayersNames, this.TournamentPage._option);
 			if (res.ok) {
+				console.log('res tournament : ', res.tournament);
+				console.log('id tournament : ', res.tournament.tournament_id);
 				this.setStatePage = PageState.BRACKET;
 				this.GamePage.generateBracketTournament(res.tournament.tournament_id);
 			}

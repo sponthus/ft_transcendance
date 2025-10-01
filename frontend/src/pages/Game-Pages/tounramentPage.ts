@@ -1,4 +1,3 @@
-import { Checkbox } from '@babylonjs/inspector/fluent/primitives/checkbox';
 import { createDiv, createElement, createButton, createImage, createInput, createCheckBoxLabel, append} from '../../Utils/elementMaker.js';
 import { availableGames } from './AvailableGames.js';
 import { getTournamentMatches, GameInfos, getTournamentNextMatch } from "../../api/game-service/tournaments/getTournaments.js" 
@@ -43,6 +42,7 @@ export class TournamentPage {
 		this.NextGameId = 0; // Impossible value, game id never 0
 	}
 
+	/****************function for rendering tournament page****************/
 	async render() {
 		this.PlayBtn = (createButton("play", "relative flex items-center z-5 active:scale-95 hover:scale-105 h-[30%] aspect-square transition-all duration-200 translate-x-96", "") as HTMLButtonElement);
 		this.ContinueBtn = (createButton("continue", "relative flex items-center z-5 active:scale-95 hover:scale-105 h-[12%] w-[30%] transition-all duration-200 -translate-x-96", "continue") as HTMLButtonElement);
@@ -64,6 +64,7 @@ export class TournamentPage {
 		}, 100);
 	}
 
+	/****************function for rendering new tournament page****************/
 	async renderNewTournament() {
 		const btnDiv = createDiv('btn', 'flex flex-row justify-around w-full h-[20%] z-5 -translate-x-96');
 		this.InitTournamentForm(btnDiv);
@@ -71,42 +72,7 @@ export class TournamentPage {
 		this.appendTournamentForm(btnDiv);
 	}
 
-	async renderContinueTournament() {
-		const btnDiv = createDiv('btn', 'flex flex-row justify-around w-full h-[20%] z-5 -translate-x-96');
-		this.InitTournamentForm(btnDiv);
-		this.fillContinuePan();
-		this.appendTournamentForm(btnDiv);
-	}
-
-	private InitTournamentForm(btnDiv: HTMLElement) {
-		this.BackBtn = (createButton("return", "relative flex items-center z-5 active:scale-95 hover:scale-105 h-full w-[20%] transition-all duration-200", "") as HTMLButtonElement);
-		this.PlayBtn = (createButton("play", "relative flex items-center z-5 active:scale-95 hover:scale-105 h-full aspect-square transition-all duration-200", "") as HTMLButtonElement);
-		append(this.PlayBtn, [createImage('Play', 'absolute object-center h-full w-full', 'game_ui/Playebtn.png')]);
-		append(this.BackBtn, [createImage('Back', 'absolute object-center h-full w-full', 'game_ui/Backbtn.png')]);
-
-		
-		append(btnDiv, [this.BackBtn, this.PlayBtn]);
-
-		this.TournamentPan = createDiv('setting-pan', 'relative flex flex-col items-center w-full h-[80%] transition-all duration-200 translate-x-96 space-y-4');
-		append(this.TournamentPan ,[createImage('1v1-setting', 'absolute object-center object-fill h-full w-full', 'game_ui/setting/SettingPan.png')]);
-	}
-
-	private appendTournamentForm(btnDiv: HTMLElement) {
-		append(this.Page, [createImage("1v1", "absolute object-fill object-center h-full w-full opacity-20", 'tournament-page.png')]);
-
-		append(this.Page, [createImage('bot-text', 'z-10 object-center h-[20%] w-[80%] animate-wiggle margin-top-32', 'game_ui/LocalPongText.png') /**change to tournament title */
-						, this.TournamentPan, btnDiv]);
-
-		this.Page.className = "flex flex-col items-center w-full h-full transition-all duration-300 rounded-xl space-y-4";
-		setTimeout(async() => {
-			this.TournamentPan.classList.remove('translate-x-96');
-			btnDiv.classList.remove('-translate-x-96');
-		}, 300);
-	}
-
-	private fillContinuePan() {
-
-	}
+		/****************function for rendering tournament page****************/
 	private fillNewPan() {
 		append(this.TournamentPan, [createImage('player-name', 'absolute z-5 object-center h-[10%] w-[20%] translate-y-16 -translate-x-64', 'game_ui/setting/playerNamestext.png')	
 									, this.addNameForm(), this.createTournamentNameForm() ,this.createcrabmehamehaDiv()]);
@@ -166,6 +132,45 @@ export class TournamentPage {
 		return checcrabmehamehaDiv;
 	}
 
+	/****************function for rendering continue tournament page****************/
+	async renderContinueTournament() {
+		const btnDiv = createDiv('btn', 'flex flex-row justify-around w-full h-[20%] z-5 -translate-x-96');
+		this.InitTournamentForm(btnDiv);
+		this.fillContinuePan();
+		this.appendTournamentForm(btnDiv);
+	}
+
+
+	private fillContinuePan() {
+
+	}
+
+	private InitTournamentForm(btnDiv: HTMLElement) {
+		this.BackBtn = (createButton("return", "relative flex items-center z-5 active:scale-95 hover:scale-105 h-full w-[20%] transition-all duration-200", "") as HTMLButtonElement);
+		this.PlayBtn = (createButton("play", "relative flex items-center z-5 active:scale-95 hover:scale-105 h-full aspect-square transition-all duration-200", "") as HTMLButtonElement);
+		append(this.PlayBtn, [createImage('Play', 'absolute object-center h-full w-full', 'game_ui/Playebtn.png')]);
+		append(this.BackBtn, [createImage('Back', 'absolute object-center h-full w-full', 'game_ui/Backbtn.png')]);
+
+		
+		append(btnDiv, [this.BackBtn, this.PlayBtn]);
+
+		this.TournamentPan = createDiv('setting-pan', 'relative flex flex-col items-center w-full h-[80%] transition-all duration-200 translate-x-96 space-y-4');
+		append(this.TournamentPan ,[createImage('1v1-setting', 'absolute object-center object-fill h-full w-full', 'game_ui/setting/SettingPan.png')]);
+	}
+
+	private appendTournamentForm(btnDiv: HTMLElement) {
+		append(this.Page, [createImage("1v1", "absolute object-fill object-center h-full w-full opacity-20", 'tournament-page.png')]);
+
+		append(this.Page, [createImage('bot-text', 'z-10 object-center h-[20%] w-[80%] animate-wiggle margin-top-32', 'game_ui/LocalPongText.png') /**change to tournament title */
+						, this.TournamentPan, btnDiv]);
+
+		this.Page.className = "flex flex-col items-center w-full h-full transition-all duration-300 rounded-xl space-y-4";
+		setTimeout(async() => {
+			this.TournamentPan.classList.remove('translate-x-96');
+			btnDiv.classList.remove('-translate-x-96');
+		}, 300);
+	}
+
 	async renderBracket(IdTournament: number) {
 		this.TournamentId = IdTournament;
 		/*******function for rendering bracket tournament**********/
@@ -173,7 +178,7 @@ export class TournamentPage {
 			const data = await getTournamentMatches(IdTournament);
 			if (!data.ok)
 				throw new Error("Unable to get tournament matches");
-
+			console.log("tournament bracket rendering");
 				this.TournamentMatches.clear(); // On vide avant de remplir
 
 				// Assign key = gameId, value = element in div
@@ -204,6 +209,7 @@ export class TournamentPage {
 			append(this.Page, [this.BracketDiv]);
 			this.findNextRound();
 		} catch (error) {
+			alert(error);
 			this.Page.innerHTML = `<div class="text-red-500">error : ${error}</div>`
 		}
 	}
@@ -277,10 +283,6 @@ export class TournamentPage {
 		return this.PartyMap;
 	}
 
-	// get _FormMap() : Map<HTMLElement, HTMLInputElement> {
-	// 	return this.FormMap;
-	// }
-
 	get _Tournament(): any {
 		if (this.Tournament)
 			return this.Tournament;
@@ -323,7 +325,7 @@ export class TournamentPage {
 	get _tournamentName(): HTMLInputElement {
 		return this.TournamentName;
 	}
-	
+
 	set setOption(Option: number){
 		this.Option = Option;
 	}
