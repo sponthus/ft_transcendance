@@ -10,7 +10,7 @@ SPEED_INCREMENT = 0.2
 NB_OUTPUTS = 3
 ALPHA = 0.2
 GAMMA = 0.5
-EPSILON_DECAY_FACTOR = 0.000001
+EPSILON_DECAY_FACTOR = 0.00001
 EPSILON_MIN = 0.005
 
 # Positions
@@ -25,6 +25,8 @@ Z_GOAL_RIGHT = 9
 X_PADDLE_HEIGHT = 1
 Z_PADDLE_WIDTH = 0.5
 X_TOTAL = X_SUPERIOR_BALL_LIMIT * 2
+AREA_SIZE = 0.95
+AREA_NUMBER = 12
 
 UP = 0
 DOWN = 1
@@ -134,7 +136,7 @@ class PongGame:
 			self.q_table = pickle.load(f)
 
 	def update(self, previous_action_qn, action_needed=False) :
-		begin_state = self.get_ai_state(previous_action_qn)
+		begin_state = self.get_ai_state(previous_action_qn, self.get_ball_state_situation())
 		if (action_needed == True):
 			chosen_action = self.get_ai_action(begin_state)
 			# print("ai_action")
@@ -165,8 +167,8 @@ class PongGame:
 
 		# print(f"Predicting impact: x={x}, z={z}, dz={dz}, dx={dx}speed={speed}, paddleZ={paddleZ}, t={(paddleZ - z) / (dz * speed)}")
 
-		# predict if ball goes towards paddle & real conditions
-		if (dz < 0 and paddleZ >= z) or (dz > 0 and paddleZ <= z) or dz == 0 or speed == 0:
+		# Ball doesn´t go to the paddle
+		if dz == 0 or speed == 0 or (dz > 0 and paddleZ < 0) or (dz < 0 and paddleZ > 0) :
 			return None
 
 		# Rebounce taken into account
@@ -179,8 +181,10 @@ class PongGame:
 
 			# Time to paddle Z
 			tz_paddle = (paddleZ - z) / (dz * speed)
+			if tz_paddle < 0:
+				return None
 
-			# Si le paddle est atteint avant le mur
+			# Si le paddle est atteint
 			if tz_paddle >= 0 and tz_paddle < tx_wall:
 				x_impact = x + dx * speed * tz_paddle
 				x_impact = max(X_INFERIOR_BALL_LIMIT, min(X_SUPERIOR_BALL_LIMIT, x_impact))
@@ -204,22 +208,46 @@ class PongGame:
 		# Have a minimum reward to avoid too much negative rewards
 		return max(-MAX_REWARD, reward)
 
-	# We schematoze the state as 3 situation : Ball is in paddle range, or left/right to the paddle
-	def get_ai_state_situation(self):
-		if (self.paddle1 <= self.ball.x <= self.paddle1 + X_PADDLE_HEIGHT) or (self.paddle1 - X_PADDLE_HEIGHT <= self.ball.x <= self.paddle1):
-			state = 0 # Ball is in the paddle range -> Best action = 2
-		elif (self.ball.x < self.paddle1):
-			state = 1 # Ball is under paddle -> Best action is up 0
+	# We schematize ball position  : 12 areas from left to right
+	def get_ai_position(self):
+		# Normalize between 0 and 1 the position
+		area_percent = (self.paddle1 - X_INFERIOR_BALL_LIMIT) / (X_SUPERIOR_BALL_LIMIT - X_INFERIOR_BALL_LIMIT)
+		area_percent = max(0.0, min(1.0, area_percent))  # Security
+		area_zone = min(AREA_NUMBER, int(area_percent * AREA_NUMBER) + 1)
+		return area_zone
+
+	def get_ball_state_situation(self):
+		if (self.ball.dirZ > 0):
+			state = 2 # Ball going away
 		else:
-			state = 2 # Ball is over paddle -> Best action is down 1
+			state = 1 # Ball approaching
 		return state
 
+	def get_predicted_impact(self, predicted_impact):
+		if (predicted_impact is None):
+			return 0  # Ball going away
+		
+		# Normalize between 0 and 1 the predicted impact
+		area_percent = (predicted_impact - X_INFERIOR_BALL_LIMIT) / (X_SUPERIOR_BALL_LIMIT - X_INFERIOR_BALL_LIMIT)
+		area_percent = max(0.0, min(1.0, area_percent))  # Security
+		area_zone = min(AREA_NUMBER, int(area_percent * AREA_NUMBER) + 1)
+		# print(f"zone: {area_zone}")
+		return area_zone
+
 	# Full state with situation and action
-	def get_ai_state(self, action_qn):
+	def get_ai_state(self, action_qn: int, ball_dirZ=1):
+		if (ball_dirZ == 1):
+			paddleZ = Z_PADDLE_LEFT
+		else:
+			paddleZ = Z_PADDLE_RIGHT
+		predicted_impact = self.predictBallImpactX(paddleZ)
+		# print(f"Predicted impact: {predicted_impact}")
 		state = (
-			self.get_ai_state_situation(),
+			self.get_ai_position(),
+			self.get_predicted_impact(predicted_impact),
 			action_qn
 		)
+		# print(state)
 		# state = self.get_ai_state_situation()
 		return state
 
@@ -343,8 +371,8 @@ class PongGame:
 		self.paddle2 = 0.0
 		self.ball.x = 0
 		self.ball.z = 0
-		self.ball.dirX = np.random.uniform(0, 0.5)
-		self.ball.dirZ = np.random.uniform(-1, 1) * 1.5
+		self.ball.dirX = np.random.random() - 0.5
+		self.ball.dirZ = -1 if np.random.random() < 0.5 else 1
 		self.ball.speed = BASE_BALL_SPEED
 
 		length = np.sqrt(self.ball.dirX ** 2 + self.ball.dirZ ** 2)

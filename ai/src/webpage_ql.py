@@ -116,10 +116,10 @@ def start_games(data):
 	def ai_thread(ai_id: int):
 		game = PongGame(gameOption=0, training=False, dumb=False)
 		game.load_q_table(file)
-		ticks_per_decision = int(1 / game.dt)
+		ticks_per_decision = int(1 / 0.016666)
 		action = 2  # STILL by default
 		for game_id in range(nb_games):
-			max_ticks = int(3600 / game.dt)
+			max_ticks = int(3600 / 0.016666)
 			tick = 0
 			while tick < max_ticks :
 				if tick % ticks_per_decision == 0:
@@ -132,7 +132,7 @@ def start_games(data):
 				state['ai_action'] = str(action)
 				socketio.emit('state', state)
 				tick += 1
-				time.sleep(game.dt / 3)
+				time.sleep(game.dt / 50)
 
 	ai_thread(0)
 

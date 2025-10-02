@@ -3,10 +3,10 @@ import time
 
 if __name__ == '__main__':
 	game = PongGame(gameOption=0, training=True)
-	ticks_per_decision = int(1 / game.dt)
-	max_ticks = int(3600 / game.dt)
+	ticks_per_decision = int(1 / 0.016666)
+	max_ticks = int(3600 / 0.016666)
 	action = 2 # STILL
-	for i in range(10000):
+	for i in range(5000):
 		tick = 0
 		while tick < max_ticks:
 			if tick % ticks_per_decision == 0:
@@ -25,5 +25,4 @@ if __name__ == '__main__':
 			game.save_q_table(i)
 			# print(f"{game.q_table}")
 		game.reset(total=True)
-
-
+	print(game.q_table)
