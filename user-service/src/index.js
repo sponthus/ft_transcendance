@@ -1,5 +1,6 @@
 import Fastify from "fastify";
 import fastifyJwt from '@fastify/jwt';
+import fastifyCookie from "@fastify/cookie";
 import { fileURLToPath } from "url"; // Transforms ESM paths to system paths
 import path from 'path'; // utilities for working with file and directory paths
 import env from "../config/env.js";
@@ -42,11 +43,16 @@ fastify.decorate("verifyApiKey", async function (request, reply)
 		return reply.code(401).send({ error: 'Unauthorized: Invalid API Key' });
 });
 
+
+
 fastify.decorate("authenticate", async function (request, reply)
 {
     try 
     {
-        await request.jwtVerify(); //Décode et verifie le token et stock ses infos dans request
+        const result = fastify.unsignCookie(request.cookies.token); //verifie manuellement signature cookie
+        if (!result.valid)
+            return reply.code(401).send({ error: "Invalid cookie" });
+        request.user = await fastify.jwt.verify(result.value); //Décode et verifie le token et stock ses infos dans request
         console.log("Decoded token:", request.user);
         if (request.user.twofa_pending === true)
             return reply.code(401).send({ error: "2FA required" });
@@ -84,6 +90,7 @@ fastify.decorate("authenticate", async function (request, reply)
 });
 
 
+
 fastify.setErrorHandler((error, request, reply) => {
     console.error("⚠️ ERROR GLOBAL CAPTURED");
     console.error("Route:", request.routerPath);
@@ -98,9 +105,22 @@ fastify.setErrorHandler((error, request, reply) => {
     });
 });
 
-//enregistre le plugin JWT dans fastify
-fastify.register(fastifyJwt, {
+if (!fastify.hasDecorator('serializeCookie'))
+{
+    fastify.register(fastifyCookie,
+    {
+        secret: getSecret('cookie_key')
+    });
+}
+
+fastify.register(fastifyJwt, 
+{
 	secret: getSecret('hash_key'),
+    cookie:
+    {
+        cookieName: 'token',
+        signed: true
+    }
 });
 
 fastify.register(dbConnector);
