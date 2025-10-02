@@ -18,8 +18,7 @@ export async function getUserIdFromSlug(slug) {
     });
 	const data = await res.json();  
     if (res.ok) {
-		console.log("got : ", data.idUser.id);
-        return { ok: true, userId: data.idUser.id };
+        return { ok: true, userId: String(data.idUser.id) };
     } 
     return { ok: false, error: data.error };
 }
