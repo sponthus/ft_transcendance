@@ -1,39 +1,7 @@
 import { gameEventEmitter } from "./GameEventEmitter.js";
 import fs from 'fs';
 
-/**
- * Décodage récursif des tuples encodés dans le JSON
- * - Les valeurs encodées comme { __tuple__: true, items: [...] } deviennent des tableaux JS
- * - Les clés encodées comme "__tuplekey__:[...]" deviennent des tableaux JS
- */
-export function decodeTuples(obj) {
-    if (Array.isArray(obj)) {
-        return obj.map(decodeTuples);
-    }
-    if (obj && typeof obj === 'object') {
-        // Decode a tuple value
-        if (obj.__tuple__ && Array.isArray(obj.items)) {
-            return obj.items.map(decodeTuples); // Recursively decode items
-        }
-        // Decode a dict using tuple as a key
-        const newObj = {};
-        for (const [key, value] of Object.entries(obj)) {
-            let decodedKey = key;
-            if (typeof key === 'string' && key.startsWith('__tuplekey__:')) {
-                try {
-                    const arr = JSON.parse(key.slice(13)); // Take away the prefix "__tuplekey__:"
-                    decodedKey = arr.map(decodeTuples);
-                } catch (e) {
-                    decodedKey = key; // in case of fail, keep the original key
-                }
-            }
-            newObj[decodedKey] = decodeTuples(value);
-        }
-        return newObj;
-    }
-    return obj;
-}
-
+let X_PADDLE_HEIGHT = 1.0;
 
 // AI : 0 = no AI, 1 = AI as player1, 2 = AI as player2
 // Option : 0 = classical pong, 1 = with crabmehameha
@@ -46,14 +14,16 @@ export class PongGame {
 				this.gameMode = 1
 			else 
 				this.gameMode = 2;
-			this.qtable = {};
 			
 			// Load Q-table from JSON file
 			const data = fs.readFileSync("q_table.json", "utf-8");
-			const rawQtable = JSON.parse(data);
-			console.log(rawQtable);
+			this.qtable = JSON.parse(data);
+			console.log(this.qtable);
+			console.log(typeof this.qtable);
+			console.log(typeof this.qtable["00"]);
 		}
 
+		console.log("LAUNCHING A GAME WITH AI MODE ", this.gameMode);
 		if (option)
 			this.gameOption = 1;
 		else
@@ -111,7 +81,93 @@ export class PongGame {
 	// 	this.gameOption = option;
 	// }
 
-	update()
+	// Schema of state in 3 situations (0, 1, 2))
+	get_ai_state_situation()
+	{
+		let state;
+		if (this.gameMode == 1) {
+			if ((this.paddle1.x <= this.ball.x && this.ball.x <= this.paddle1.x + X_PADDLE_HEIGHT) 
+				|| (this.paddle1.x - X_PADDLE_HEIGHT <= this.ball.x && this.ball.x <= this.paddle1.x))
+				state = 0 // Ball is in the paddle range -> Best action = 2
+			else if (this.ball.x < this.paddle1)
+				state = 1 // Ball is under paddle -> Best action is up 0
+			else
+				state = 2 // Ball is over paddle -> Best action is down 1
+		}
+		else if (this.gameMode == 2) {
+			if ((this.paddle2.x <= this.ball.x && this.ball.x <= this.paddle2.x + X_PADDLE_HEIGHT) 
+				|| (this.paddle2.x - X_PADDLE_HEIGHT <= this.ball.x && this.ball.x <= this.paddle2.x))
+				state = 0 // Ball is in the paddle range -> Best action = 2
+			else if (this.ball.x < this.paddle2)
+				state = 1 // Ball is under paddle -> Best action is up 0
+			else
+				state = 2 // Ball is over paddle -> Best action is down 1
+		}
+		return state
+	}
+
+	// Mixes action and state of game to get the key of Q-table
+	get_ai_state(action)
+	{
+		const situation = this.get_ai_state_situation()
+		const str_action = action;
+		const state = situation + String(str_action);
+		console.log("State for Q-table :", state, " with situation ", situation, " and action ", str_action);
+		return state;
+	}
+
+	get_max_arg(array) {
+		if (array.length === 0) {
+			return -1;
+		}
+		let max = array[0];
+		let max_index = 0;
+		for (let i = 1; i < array.length; i++) {
+			if (array[i] > max) {
+				max_index = i;
+				max = array[i];
+			}
+		}
+		return max_index;
+	}
+
+	// get_ai_decision(state)
+	// {
+	// 	if (this.qtable.hasOwnProperty(state) == false)
+	// 	{
+	// 		console.warn("State not found in Q-table :", state);
+	// 		return 2; // Default action
+	// 	}
+	// 	action = this.get_max_arg(this.qtable[state]);
+	// 	if (action == -1) {
+	// 		console.warn("No action found in Q-table for state :", state);
+	// 		return 2; // Default action
+	// 	}
+	// 	console.log("Action from Q-table :", action);
+	// 	console.log(typeof action);
+	// 	return action;
+	// }
+
+	get_ai_decision(state)
+	{
+		if (this.qtable.hasOwnProperty(state) == false)
+		{
+			console.warn("State not found in Q-table :", state);
+			return 2;
+		}
+		
+		const action = this.get_max_arg(this.qtable[state]);
+		if (action == -1 || action == undefined) {
+			console.warn("No action found in Q-table for state :", state);
+			return 2;
+		}
+		
+		// console.log("Action from Q-table :", action);
+		// console.log(typeof action);
+		return action;
+	}
+
+	update(action, decision = false)
 	{
 		this.isPausedManagement();
 		if (this.ispaused === false)
@@ -119,8 +175,25 @@ export class PongGame {
 			this.isPauseBeginManagement();
 			if (this.pauseBegin === false)
 			{
-				this.movePlayer1();
-				this.movePlayer2();
+				if (this.gameMode != 0) {
+					let chosen_action = action;
+					// console.log("Action is = ", action, typeof action);
+					if (decision) {
+						// console.log("Decision to make")
+						let begin_state = this.get_ai_state(action);
+						chosen_action = this.get_ai_decision(begin_state);
+						action = chosen_action;
+						// console.log("AI chose action :", chosen_action, " for state ", begin_state);
+					}
+					if (this.gameMode == 1) {
+						// console.log("Gamemode = 1");
+						this.movePlayer1(chosen_action);
+						this.movePlayer2();
+					} else if (this.gameMode == 2) {
+						this.movePlayer1();
+						this.movePlayer2(chosen_action);
+					}
+				}
 				this.moveBall();
 				this.checkCollisionWall();
 				this.checkCollisionPaddle(this.paddle1, -8, this.die1);
@@ -130,6 +203,7 @@ export class PongGame {
 					this.crabmehameha();
 			}
 		}
+		return action;
 	}
 
 	getState()
@@ -169,17 +243,32 @@ export class PongGame {
 			this.pauseBegin = false;
 	}
 
-	movePlayer1()
+	movePlayer1(ai_action = 2)
 	{
 		if (this.gameMode === 1)
 		{
-			// IA débile
-			if (this.paddle1.x > this.ball.x)
-				this.paddle1.x -= this.speedPaddle * this.dt;
-			else if (this.paddle1.x === this.ball.x)
-				;
-			else
-				this.paddle1.x += this.speedPaddle * this.dt;
+			switch (ai_action) {
+				case 0: // UP
+					if (this.paddle1.x < this.groundLimitePositif - 0.5)
+						this.paddle1.x += this.speedPaddle * this.dt;
+					break;
+				case 1: // DOWN
+					if (this.paddle1.x > this.groundLimiteNegatif + 0.5)
+						this.paddle1.x -= this.speedPaddle * this.dt;
+					break;
+				case 2: // STILL
+					break;
+				default:
+					console.warn("ERR: Action inconnue pour l'IA :", ai_action);
+			}
+			
+			// // IA débile
+			// if (this.paddle1.x > this.ball.x)
+			// 	this.paddle1.x -= this.speedPaddle * this.dt;
+			// else if (this.paddle1.x === this.ball.x)
+			// 	;
+			// else
+			// 	this.paddle1.x += this.speedPaddle * this.dt;
 		}
 		else
 		{
@@ -190,17 +279,32 @@ export class PongGame {
 		}
 	}
 
-	movePlayer2()
+	movePlayer2(ai_action = 2)
 	{
 		if (this.gameMode === 2)
 		{
-			// IA débile
-			if (this.paddle2.x > this.ball.x)
-				this.paddle2.x -= this.speedPaddle * this.dt;
-			else if (this.paddle2.x === this.ball.x)
-				;
-			else
-				this.paddle2.x += this.speedPaddle * this.dt;
+			switch (ai_action) {
+				case 0: // UP
+					if (this.paddle2.x < this.groundLimitePositif - 0.5)
+						this.paddle2.x += this.speedPaddle * this.dt;
+					break;
+				case 1: // DOWN
+					if (this.paddle2.x > this.groundLimiteNegatif + 0.5)
+						this.paddle2.x -= this.speedPaddle * this.dt;
+					break;
+				case 2: // STILL
+					break;
+				default:
+					console.warn("ERR: Action inconnue pour l'IA :", ai_action);
+			}
+			
+			// // IA débile
+			// if (this.paddle2.x > this.ball.x)
+			// 	this.paddle2.x -= this.speedPaddle * this.dt;
+			// else if (this.paddle2.x === this.ball.x)
+			// 	;
+			// else
+			// 	this.paddle2.x += this.speedPaddle * this.dt;
 		}
 		else
 		{
