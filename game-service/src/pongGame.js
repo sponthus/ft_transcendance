@@ -2,6 +2,10 @@ import { gameEventEmitter } from "./GameEventEmitter.js";
 import fs from 'fs';
 
 let X_PADDLE_HEIGHT = 1.0;
+let X_INFERIOR_BALL_LIMIT = -5.8;
+let X_SUPERIOR_BALL_LIMIT = 5.8;
+let Z_PADDLE_LEFT = -8;
+let Z_PADDLE_RIGHT = 8;
 
 // AI : 0 = no AI, 1 = AI as player1, 2 = AI as player2
 // Option : 0 = classical pong, 1 = with crabmehameha
@@ -61,8 +65,8 @@ export class PongGame {
 		this.die1 = false;
 		this.die2 = false;
 
-		this.groundLimitePositif = 5.8;
-		this.groundLimiteNegatif = -5.8;
+		this.groundLimitePositif = X_SUPERIOR_BALL_LIMIT;
+		this.groundLimiteNegatif = X_INFERIOR_BALL_LIMIT;
 
 		this.pauseBegin = true;
 		this.timePauseBegin = 20;
@@ -196,8 +200,8 @@ export class PongGame {
 				}
 				this.moveBall();
 				this.checkCollisionWall();
-				this.checkCollisionPaddle(this.paddle1, -8, this.die1);
-				this.checkCollisionPaddle(this.paddle2, 8, this.die2);
+				this.checkCollisionPaddle(this.paddle1, Z_PADDLE_LEFT, this.die1);
+				this.checkCollisionPaddle(this.paddle2, Z_PADDLE_RIGHT, this.die2);
 				this.checkGoal();
 				if (this.gameOption === 1)
 					this.crabmehameha();
@@ -348,9 +352,9 @@ export class PongGame {
 				this.ball.speed += 0.2;
 			this.ball.dirZ *= -1;
 			if (this.ball.z < 0)
-				this.ball.z = -7.4;
+				this.ball.z = Z_PADDLE_LEFT + 0.4;
 			else
-				this.ball.z = 7.4;
+				this.ball.z = Z_PADDLE_RIGHT - 0.4;
 			const relativeImpact = (this.ball.x - paddle.x);// * 0.5;
 
 			// Clamp entre -1 et 1
@@ -466,7 +470,7 @@ export class PongGame {
 				this.spell1.y = 1.8;
 				this.spell1.z = -10.56;
 			}
-			this.impactCrabmehameha(this.spell1, -10, this.paddle2, 8);
+			this.impactCrabmehameha(this.spell1, -10, this.paddle2, Z_PADDLE_RIGHT);
 			this.spell1.z += this.dt;
 		}
 		if (this.isSpellGo2 === true)
@@ -484,7 +488,7 @@ export class PongGame {
 				this.spell2.y = 1.9;
 				this.spell2.z = 10.56;
 			}
-			this.impactCrabmehameha(this.spell2, 10, this.paddle1, -8);
+			this.impactCrabmehameha(this.spell2, 10, this.paddle1, Z_PADDLE_LEFT);
 			this.spell2.z -= this.dt;
 		}
 	}
