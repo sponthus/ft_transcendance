@@ -8,9 +8,9 @@ SPEED_LIMIT = 2.0
 SPEED_INCREMENT = 0.2
 
 NB_OUTPUTS = 3
-ALPHA = 0.2
-GAMMA = 0.5
-EPSILON_DECAY_FACTOR = 0.00001
+ALPHA = 0.4 # Taux d'apprentissage
+GAMMA = 0.7 # Facteur d'actualisation
+EPSILON_DECAY_FACTOR = 0.0000005
 EPSILON_MIN = 0.005
 
 # Positions
@@ -98,6 +98,9 @@ class PongGame:
 		self.epsilon_min = EPSILON_MIN # Minimum exploration factor
 
 		self.q_table = {} # Q-table for storing state-action values
+
+		self.state = self.get_ai_state(2, self.get_ball_state_situation())
+		print(f"Initial state: {self.state}")
 	
 	# Makes epsilon decrease until minimum is reached
 	def epsilon_decay(self):
@@ -135,13 +138,12 @@ class PongGame:
 		with open(filename, "rb") as f:
 			self.q_table = pickle.load(f)
 
-	def update(self, previous_action_qn, action_needed=False) :
-		begin_state = self.get_ai_state(previous_action_qn, self.get_ball_state_situation())
-		if (action_needed == True):
-			chosen_action = self.get_ai_action(begin_state)
-			# print("ai_action")
-		else: 
-			chosen_action = previous_action_qn
+	def update(self, previous_action_qn: int, can_see=False) :
+		if (can_see == True):
+			self.state = self.get_ai_state(previous_action_qn, self.get_ball_state_situation())
+		else:
+			self.state = self.get_state_without_new_view(self.state, previous_action_qn)
+		chosen_action = self.get_ai_action(self.state)
 		self.movePlayer1(chosen_action)
 		self.movePlayer2()
 		self.moveBall()
@@ -151,10 +153,10 @@ class PongGame:
 		self.checkGoal()
 		if (self.gameOption == 1):
 			self.crabmehameha(chosen_action)
-		if (self.training == True and action_needed == True):
+		if (self.training == True):
 			reward = self.reward()
 			next_state = self.get_ai_state(chosen_action)
-			self.update_q_value(begin_state, chosen_action, reward, next_state)
+			self.update_q_value(self.state, chosen_action, reward, next_state)
 			self.ai_score += reward
 		return chosen_action
 
@@ -249,6 +251,14 @@ class PongGame:
 		)
 		# print(state)
 		# state = self.get_ai_state_situation()
+		return state
+	
+	def get_state_without_new_view(self, old_state, action):
+		state = (
+			self.get_ai_position(),
+			old_state[1],
+			action
+		)
 		return state
 
 	# To show it in webpage

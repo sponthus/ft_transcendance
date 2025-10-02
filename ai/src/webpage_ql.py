@@ -123,16 +123,16 @@ def start_games(data):
 			tick = 0
 			while tick < max_ticks :
 				if tick % ticks_per_decision == 0:
-					action = game.update(action, action_needed=True)
+					action = game.update(action, can_see=True)
 				else:
-					game.update(action)
+					action = game.update(action)
 				state = game.get_state()
 				state['ai_score'] = game.get_ai_score()
 				state['game_id'] = game_id
 				state['ai_action'] = str(action)
 				socketio.emit('state', state)
 				tick += 1
-				time.sleep(game.dt / 50)
+				time.sleep(game.dt / 5)
 
 	ai_thread(0)
 
