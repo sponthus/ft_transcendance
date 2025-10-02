@@ -3,7 +3,7 @@ import { generateUniqueSlug } from "../tools/generateUnique.js";
 import bcrypt from "bcrypt";
 import slugify from "slugify";
 
-export async function registerUser(request, reply) 
+export default async function registerUser(request, reply) 
 {
      if (checkRegistrationFormat(request) == false)
         return reply.code(400).send( {error : "Invalid format for username or password"} );
@@ -41,7 +41,7 @@ export async function registerUser(request, reply)
     }
 }
 
-export function fillInfoUserInDb(db, username, slug, avatar, pw_hash = null)
+function fillInfoUserInDb(db, username, slug, avatar, pw_hash = null)
 {
     let statement;
 

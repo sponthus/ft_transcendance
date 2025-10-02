@@ -18,7 +18,7 @@ export function generateUniqueUsername(baseUsername, db)
     let counter = 1;
 
     const dbFindings = db.prepare("SELECT COUNT(*) AS count FROM users WHERE username = ?");
-    while (dbFindings.get(slug).count > 0)
+    while (dbFindings.get(username).count > 0)
     {
         username = `${baseUsername}-${counter}`;
         counter++;

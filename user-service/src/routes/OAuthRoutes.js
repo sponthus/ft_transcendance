@@ -1,27 +1,22 @@
 import fetch from 'node-fetch'
 import slugify from "slugify";
 import { generateUniqueUsername, generateUniqueSlug } from '../tools/generateUnique.js';
-import { fillInfoUserInDb } from '../connection/registerUser.js';
 
 export default async function OAuthRoutes(fastify) 
 {
     fastify.get("/oauth/github/callback", async (request, reply) =>
     {
-
-        const db = fastify.db;
-        const test = db.prepare("   SELECT \
-                                        username \
-                                    FROM \
-                                        users").all();
-        console.log('Test = ', test);
-
-        const accessToken = await fastify.auth.getAccessTokenFromAuthorizationCodeFlow(request);
+       const accessToken = await fastify.auth.getAccessTokenFromAuthorizationCodeFlow(request);
         try
         {
             const userInfo = await createUserWithGithubInfos(accessToken.token.access_token, db);
             if (userInfo.error)
                 reply.code(401).send({ error: userInfo.error});
             const token = await reply.jwtSign({ idUser: userInfo.idUser, username: userInfo.username, slug: userInfo.slug }, {expiresIn: '1h'});
+            console.log("\nidUser: ", userInfo.idUser);
+            console.log("\nusername: : ", userInfo.username);
+            console.log("\nslug: : ", userInfo.slug);
+            console.log("Le compte github existe deja");
             return reply.code(200).send({ token }); 
         }
         catch (err)
@@ -39,18 +34,13 @@ async function createUserWithGithubInfos(AccessToken, db)
     if (!result.ok)
         return {result};
   //  console.log('User Info Github : ', result.userInfo);
-    console.log('Login : ', result.userInfo.login);
-    let existingGithubUsername;
-    const tran = db.prepare("     SELECT \
-                                                        * \
-                                                    FROM \
-                                                        users \
-                                                    WHERE \
-                                                        github_username = ?");
-    existingGithubUsername = tran.get(result.userInfo.login);
-    console.log('GITHUB', existingGithubUsername);
-   // return 1
-    //console.log('verifier : ', existingGithubUsername);
+    const githubUsername = result.userInfo.login;
+    const existingGithubUsername = db.prepare(" SELECT \
+                                                    * \
+                                                FROM \
+                                                    users \
+                                                WHERE \
+                                                    github_username = ?").get(githubUsername);
     if (existingGithubUsername)
     {
         console.log("username github exist");
@@ -59,7 +49,7 @@ async function createUserWithGithubInfos(AccessToken, db)
                                     FROM \
                                         users \
                                     WHERE \
-                                        github_username = ?").get(result.userInfo.login);
+                                        github_username = ?").get(githubUsername);
         return { idUser: user.id, username: user.username, slug: user.slug }; 
     }
     console.log("username github doesn't exist");
@@ -68,23 +58,34 @@ async function createUserWithGithubInfos(AccessToken, db)
                                             FROM \
                                                 users \
                                             WHERE \
-                                                username = ?").get(result.userInfo.login);
-    let username = result.userInfo.login;
+                                                username = ?").get(githubUsername);
+    let username;
     if (existingUsername)
-        username = generateUniqueUsername(result.userInfo.login)
+        username = generateUniqueUsername(githubUsername, db);
+    else
+        username = githubUsername;
     const baseSlug = slugify(username, { lower: true, strict: true });
     const slug = generateUniqueSlug(baseSlug, db);
     const avatar = 'default.jpg';
-    //fill github username, slug, avatar, pass
-    const idUser = fillInfoUserInDb(db, username, slug, avatar);
-    db.prepare("    UPDATE \
-                        users \
-                    SET \
-                        github_username = ? \
-                    WHERE \
-                        id = ?").run(result.userInfo.login, idUser);
+    const createAccountWithGithub = db.transaction( (username, slug, avatar, githubUsername) =>
+    {
+        let statement = db.prepare('    INSERT INTO \
+                                            users (username, slug, avatar, last_username_change, github_username) \
+                                        VALUES \
+                                            (?, ?, ?, CURRENT_TIMESTAMP, ?)');
+        const result = statement.run(username, slug, avatar, githubUsername);
+        const idUser = result.lastInsertRowid;
+        statement = db.prepare('    INSERT INTO \
+                                        menu_state (menu_user_id) \
+                                    VALUES \
+                                        (?)');
+        statement.run(idUser);
+        return (idUser);
+    });
+    const idUser = createAccountWithGithub(username, slug, avatar, githubUsername);
     return {idUser, username, slug};
 }
+
 
 async function getInfoFromGithub(token)
 {
