@@ -21,7 +21,6 @@ type PendingGamesInfos = {
 export type AllGamesInfos = {
     id: number;
     status: 'pending' | 'ongoing' | 'finished' | 'canceled';
-    id_user: number,
     player_a: string;
     player_b: string;
     score_a: number;
@@ -163,25 +162,31 @@ export async function getAvailableGames(slug: string): Promise<AvailableGamesRes
 // GET /:slug/games
 // All available FINISHED games for a user, gives only useful infos
 // Security : Accessible for every logged-in user
-export async function getFinishedGames(slug: string): Promise<AvailableGamesResult> {
+export async function getFinishedGames(slug: string): Promise<AllGamesResult> {
     try {
         const allGamesResult = await getAllGames(slug);
         if (!allGamesResult.ok) {
             return { ok: false, error: allGamesResult.error };
         }
-        const pendingGames: PendingGamesInfos[] = allGamesResult.games
+        const finishedGames: AllGamesInfos[] = allGamesResult.games
             .filter(game => game.status === 'finished')
             .map(game => ({
                 id: game.id,
                 status: game.status,
                 player_a: game.player_a,
                 player_b: game.player_b,
+				winner: game.winner,
                 created_at: game.created_at,
+				began_at: game.began_at,
+				finished_at: game.finished_at,
+				score_a: game.score_a,
+				score_b: game.score_b,
+				tournament_id: game.tournament_id,
 				ai: game.ai,
 				option: game.option
             }));
 
-        return { ok: true, games: pendingGames };
+        return { ok: true, games: finishedGames };
 
     } catch (error) {
         console.error('❌ Error filtering finished games', error as string );

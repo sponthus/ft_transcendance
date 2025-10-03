@@ -6,7 +6,7 @@ export async function   getAllNotifications(request, reply)
     try
     {
         const   notifs = db.prepare("   SELECT \
-                                            users.username, \
+                                            users.slug, \
                                             notifications.notif_type, \
                                             notifications.notif_status, \
                                             notifications.created_at \
@@ -36,7 +36,7 @@ export async function   getAllSpecificNotifications(request, reply, status) //re
     try
     {
         const   notifs = db.prepare("   SELECT \
-                                            users.username, \
+                                            users.slug, \
                                             notifications.notif_type, \
                                             notifications.notif_status, \
                                             notifications.created_at \

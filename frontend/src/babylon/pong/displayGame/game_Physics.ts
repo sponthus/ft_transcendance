@@ -9,6 +9,7 @@ import { AdvancedDynamicTexture, TextBlock} from "@babylonjs/gui/2D";
 import { MeshBuilder } from "@babylonjs/core";
 
 import { DisplayName } from "./display_name";
+import { checkWebSocketMessageFormat } from "../../../core/GameSocket.js"; 
 
 interface BallMesh extends Mesh {
 	direction: Vector3;
@@ -109,20 +110,25 @@ export class GamePhysics {
 		this.socket = new GameSocket(gameId);
 		if (!this.socket) {
 			throw new Error("Error creating socket");
-			return ;
+			return;
 		}
-
-		// this.socket.send(JSON.stringify({
-		// 	type: "gameMode",
-		// 	// playerId: this.playerId,
-		// 	mode: this._gameMode,
-		// 	option: this._gameOption
-		// }));
 
 		// stocke l’état serveur
 		this.socket.ws.onmessage = (event) => {
-			// TODO : Check data in socket
-			const data = JSON.parse(event.data); // Traduire en variable
+			let data: any;; 
+			try {
+				data = JSON.parse(event.data);
+			} catch (error) {
+				console.error('Error parsing JSON message.');
+				this.socket!.close(3000, 'Invalid message format');
+				return;
+			}
+			const checkFormat = checkWebSocketMessageFormat(data);
+			if (checkFormat.valid === false) {
+				console.error("Invalid WebSocket message format:", checkFormat.errors);
+				this.socket!.close(3000, 'Invalid message format');
+				return;
+			}
 			if (data.type =="gameMode")
 			{
 				if (data.ai == 0)
@@ -138,6 +144,8 @@ export class GamePhysics {
 				this.socket!.send(JSON.stringify({
 					type: "start"
 				}));
+				// TODO Morgan : You can get playerA and playerB from data here
+				return;
 			}
 			
 			if (data.type == "pong")
@@ -150,12 +158,15 @@ export class GamePhysics {
 			{
 				this._serverState = data.gameState;
 				this.updateFrontend();
+				return;
 			}
 			if (data.type === "endGame") {
+				this.socket?.setPlaying(false);
 				this._scoreValue1 = 0;
 				this._scoreValue2 = 0;
 				this._score.updateScore(this._scoreValue1, this._scoreValue2);
 				this._Win = true;
+				return;
 			}
 		};
 
@@ -164,7 +175,6 @@ export class GamePhysics {
 			if (this.ready) {
 				this.socket?.send(JSON.stringify({ // traduire en JSON
 					type: "input",
-					// playerId: this.playerId, // fixe pour test, à améliorer plus tard
 					input: this.inputMap
 				}));
 			}

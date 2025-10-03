@@ -7,6 +7,7 @@ import fs from "fs";
 import dbConnector from "./db.js";
 import logger from "../config/logger.js";
 import routes from "./routes/index.js";
+//import { getSecret } from "./tools/getSecret.js";
 
 const __filename = fileURLToPath(import.meta.url); // This filename, from ESM expression to classic path
 export const __dirname = path.dirname(__filename); // Parent folder to this file
@@ -17,13 +18,17 @@ const fastify = Fastify({
 
 console.log(`\nFastify user-service listen on port ${env.user_port}\n`); // debug
 
-export function getSecret(name) {
-	try {
+export function getSecret(name)
+{
+	try
+    {
 		const key = fs.readFileSync(`/run/secrets/${name}`, 'utf8').trim();
 		return (key);
-	} catch (error) {
+	}
+    catch (error)
+    {
 		console.log("❌ Critical error : Unable to read secret ", name);
-		process.exit(1);
+		process.exit(0);
 	}
 }
 
@@ -39,17 +44,20 @@ fastify.decorate("authenticate", async function (request, reply)
     try 
     {
         await request.jwtVerify(); //Décode et verifie le token et stock ses infos dans request
-        console.log("Decoded token:", request.user);
+        // console.log("Decoded token:", request.user);
+        if (request.user.twofa_pending === true)
+            return reply.code(401).send({ error: "2FA required" });
     } 
     catch (err)
     {
-        console.log('err.code : ', err.message)
         if (err.message === "Authorization token expired")
         {
             return reply.code(401).send({error : err.message});
         }
         else
+        {
             return reply.code(400).send({error : err.message});
+        }
     }
     /*try
     {
@@ -71,6 +79,22 @@ fastify.decorate("authenticate", async function (request, reply)
     }*/
     
 });
+
+
+fastify.setErrorHandler((error, request, reply) => {
+    console.error("⚠️ ERROR GLOBAL CAPTURED");
+    console.error("Route:", request.routerPath);
+    console.error("Method:", request.method);
+    console.error("Body:", request.body);
+    console.error("Headers:", request.headers);
+    console.error("Error stack:", error.stack);
+
+    // On renvoie un JSON générique pour l’utilisateur
+    reply.status(error.statusCode || 500).send({
+        error: error.message || "Internal Server Error"
+    });
+});
+
 
 
 
@@ -95,7 +119,12 @@ fastify.get('/', async (req, reply) => {
 // Default handler for undefined routes
 fastify.setNotFoundHandler((req, reply) => {
     // Extension = file
-    console.log("ERREUR 404");
+   // console.log("ERREUR 404");
+    console.log("ERREUR 404", {
+        url: req.url,
+        method: req.method,
+        headers: req.headers
+    });
     reply.status(404).send("Not found");
 });
 

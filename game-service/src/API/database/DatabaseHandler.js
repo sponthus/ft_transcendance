@@ -94,7 +94,20 @@ export default class DatabaseHandler {
     getGamesForUserId(userId) {
         const transaction = this.db.transaction((userId) => {
 			const stmt = this.db.prepare(`
-	SELECT *
+	SELECT id, 
+		status, 
+		player_a, 
+		player_b, 
+		score_a, 
+		score_b, 
+		tournament_id, 
+		created_at, 
+		began_at, 
+		finished_at, 
+		winner, 
+		score, 
+		ai, 
+		option
 	FROM games
 	WHERE id_user = ?
 	ORDER BY created_at DESC
@@ -112,6 +125,7 @@ export default class DatabaseHandler {
     }
 
     // Test ok
+	// Used internally only (gives userId)
     getGame(gameId) {
         const transaction = this.db.transaction((gameId) => {
 			const stmt = this.db.prepare(`
@@ -359,10 +373,13 @@ export default class DatabaseHandler {
 
             const result = {
                 tournament_id: tournamentId,
+				name: name,
+				status: "pending",
                 numberOfPlayers: playersResult.length,
                 rounds: roundsResults,
                 nextGameId: nextGameId,
-				option: option
+				option: option,
+				players: players
             };
             return (result);
         });
@@ -374,6 +391,7 @@ export default class DatabaseHandler {
         return (result);
     }
 
+	// Internal only : gives id_user
 	// Gives 1 tournament
 	getTournament(tournamentId) {
 		const transaction = this.db.transaction((tournamentId) => {

@@ -1,9 +1,54 @@
-//<reference types="vite/client" />
+/// <reference types="vite/client" />
 import { refreshNotification } from "../Utils/notification";
+import Ajv, { ErrorObject } from "ajv";
+
+export interface WebSocketMessage {
+	type: string;
+	message?: string; // Pour les messages de type "message"
+	sender?: string; // Pour les messages de type "message"
+}
+
+export interface FormatCheckResult {
+	valid: boolean;
+	errors: ErrorObject[] | null | undefined;
+}
+
+export function checkWebSocketMessageFormat(message: WebSocketMessage): FormatCheckResult {
+	const schema = {
+		type: "object",
+		properties: {
+			type: { type: "string", minLength: 3 },
+			message: { type: "string", minLength: 1, maxLength: 500 },
+			sender: { type: "string", minLength: 1, maxLength: 100 }
+		},
+		additionalProperties: false,
+		required: ["type"],
+		allOf: [
+			{
+				if: { properties: { type: { const: "auth_success" } } },
+				then: {
+					required: ["type"],
+				}
+			},
+			{
+				if: { properties: { type: { const: "ping" } } },
+				then: {
+					required: ["type"],
+				}
+			}
+		]
+	};
+	const ajv = new Ajv();
+	const validate = ajv.compile(schema);
+	const valid = validate(message);
+	return {
+		valid,
+		errors: validate.errors
+	};
+}
 
 export class SessionSocket {
     static instance: null | SessionSocket = null;
-    // public ws: WebSocket;
     public sWS: WebSocket;
     private heartbeatInterval: number | null = null;
     private heartbeatTimeout: number | null = null;
@@ -13,7 +58,6 @@ export class SessionSocket {
     constructor() {
 		try {
 			console.log("Creating new WebSocket connection");
-			// this.ws = new WebSocket(this.getGameWsUrl());
             this.sWS = new WebSocket(this.getStatusWsUrl());
 			this.setupEventListeners();
 
@@ -51,15 +95,25 @@ export class SessionSocket {
         };
 
         this.sWS.onmessage = (event) => {
-            try {
-				// console.log('Received message');
-				const data = JSON.parse(event.data);
-				// console.log('Received message:', data);
-				// TODO Check data contains "type"
-                this.handleMessage(data);
+            let data: any;
+			try {
+				data = JSON.parse(event.data);
             } catch (error) {
-                console.error('Error parsing message:', error);
+                console.error('Error parsing JSON message.');
+				// TODO Add logic here, when recieving an invalid message format
+				// Websocket will be closed (someone exterior sent a wrong message to the websocket, normally it's impossible)
+				this.close(3000, 'Invalid message format');
+				return;
             }
+			const checkFormat = checkWebSocketMessageFormat(data);
+			if (checkFormat.valid === false) {
+				console.error("Invalid WebSocket message format:", checkFormat.errors);
+				// TODO Add logic here, when recieving an invalid message format
+				// Websocket will be closed (someone exterior sent a wrong message to the websocket, normally it's impossible)
+				this.close(3000, 'Invalid message format');
+				return;
+			}
+			this.handleMessage(data);
         };
 
         this.sWS.onerror = (error) => {
@@ -69,18 +123,10 @@ export class SessionSocket {
         this.sWS.onclose = () => {
             console.log("Connexion WebSocket closed");
             this.stopHeartbeat();
-            // delete (window as any).GLOBAL_WEBSOCKET;
+            // TODO Add logic here, when the websocket is closed
+			this.reconnect(); // Do we reconnect on close ? Websocket can also be closed if backend recompiles
         };
     }
-
-    // private getGameWsUrl(): string {
-    //     console.log(import.meta.env?.MODE);
-    //     const status = import.meta.env?.MODE;
-    //     if (status === "development")
-    //         return `ws://${import.meta.env.VITE_DOMAIN_NAME}:8080/g-ws/`;
-    //     else
-    //         return `wss://${import.meta.env.VITE_DOMAIN_NAME}/g-ws/`;
-    // }
 
     private getStatusWsUrl(): string {
         console.log(import.meta.env?.MODE);
@@ -140,8 +186,7 @@ export class SessionSocket {
     }
 
     private handleMessage(data: any) {
-        console.log('Received message:', data);
-		console.log('data.type = :', data.type);
+        console.log('➡️ Received message:', data);
 		if (data.type === 'pong') {
 			// console.log('Received pong from server');
 			this.clearHeartbeatTimeout();
@@ -173,10 +218,38 @@ export class SessionSocket {
         return this.sWS.readyState === WebSocket.OPEN;
     }
 
-    close(): void {
+	public reconnect(): void {
+		console.log("Reconnecting to WebSocket server...");
+		this.stopHeartbeat();
+		const reconnectInterval = setInterval(() => {
+			if (!this.isOpen()) {
+				try {
+					console.log("Attempting to reconnect...");
+					this.sWS = new WebSocket(this.getStatusWsUrl());
+					console.log("Reconnected successfully!");
+					this.setupEventListeners();
+					this.startHeartbeat();
+					clearInterval(reconnectInterval);
+				} catch (error) {
+					console.error("Reconnection attempt failed:", error);
+				}
+			} else {
+				clearInterval(reconnectInterval);
+			}
+		}, 10000); // Try to reconnect every 5 seconds
+		this.sWS.close();
+		
+	}
+
+    public close(code: number = -1, reason: string = ""): void {
         this.stopHeartbeat();
         if (!this.sWS)
             return;
-        this.sWS.close(1000, 'Manual close');
+        if (code > 0 && reason.length > 0)
+			this.sWS.close(code, reason);
+		else if (code > 0)
+			this.sWS.close(code);
+		else
+			this.sWS.close();
     }
 }

@@ -146,6 +146,7 @@ export class UserBanner {
 		(document.getElementById('friend-request-btn')?.addEventListener('click', async() => {
 			console.log('send a friend request');
 			try {
+				// TODO Emma & Elodie : Backend expects a slug so maj are rejected
 				const req = await addFriend(this.UserData.username);
 				if (req.ok) {
 					document.getElementById('friend-request-btn')!.textContent = "friend request sent...";
