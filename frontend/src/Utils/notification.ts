@@ -167,7 +167,7 @@ function addUSerData(userData: UserInfo, parent: HTMLAnchorElement, textContent:
 }
 
 function addInvitation(userdata: UserInfo) : HTMLAnchorElement {
-	console.log("add invitation fonction called");
+	// TODO Emma : I had a bug here where userData was undefined ? Impossible to recreate it but be careful
 	const InvitationDiv: HTMLAnchorElement = createAnchorElement(`notification-${userdata.slug}`, '', `/user/${userData.slug}`, 'group flex items-center justify between w-full h-24 hover:bg-orange-200 space-x-4 shadow-xl w-14 h-14 group-hover:shadow-lg transition-all duration-200 transform');
 
 	const userIcon: HTMLElement = createDiv(`user-notification-icon-${userdata.slug}`, 'flex items-center justify-center bg-orange-300 group-hover:bg-orange-400 rounded-full relative shadow-xl w-14 h-14 group-hover:shadow-lg transition-all duration-200 transform');

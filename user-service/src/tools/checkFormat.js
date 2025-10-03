@@ -41,6 +41,26 @@ export function    checkUsernameFormat(request)
     return (true);
 }
 
+export function    checkCodeFormat(request)
+{
+    const schema = 
+    {
+        type: "object",
+        properties:
+        {
+            code: { type: "string", minLength: 6, maxLength: 6, pattern: "^(?=.*[0-9])[0-9]+$"},
+        },
+        required: ["code"],
+        additionalProperties: false
+    };
+    const ajv = new Ajv();
+    const contract = ajv.compile(schema);
+    const valid = contract(request.body);
+    if (!valid)
+        return (false);
+    return (true);
+}
+
 export function    checkSlugFormat(request)
 {
     const schema = 
@@ -56,8 +76,11 @@ export function    checkSlugFormat(request)
     const ajv = new Ajv();
     const contract = ajv.compile(schema);
     const valid = contract(request.body);
-    if (!valid)
+    if (!valid) {
+		console.log("Format errors :");
+		console.log(contract.errors);
         return (false);
+	}
     return (true);
 }
 

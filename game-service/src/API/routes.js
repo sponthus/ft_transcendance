@@ -1,10 +1,10 @@
 
-import { createGame, startGame } from "./API/controllers/GamePostRoutes.js"
-import { createTournament } from "./API/controllers/TournamentPostRoutes.js"
-import { getGamesForSlug } from "./API/controllers/GameGetRoutes.js"
-import { deleteGame } from "./API/controllers/GameDeleteRoutes.js"
-import { getTournamentsForSlug, getTournamentMatches, getTournamentNextMatch } from "./API/controllers/TournamentGetRoutes.js"
-import { deleteTournament } from "./API/controllers/TournamentDeleteRoutes.js"
+import { createGame, startGame } from "./controllers/GamePostRoutes.js"
+import { createTournament } from "./controllers/TournamentPostRoutes.js"
+import { getGamesForSlug } from "./controllers/GameGetRoutes.js"
+import { deleteGame } from "./controllers/GameDeleteRoutes.js"
+import { getTournamentsForSlug, getTournamentMatches, getTournamentNextMatch } from "./controllers/TournamentGetRoutes.js"
+import { deleteTournament } from "./controllers/TournamentDeleteRoutes.js"
 
 export default async function routes (fastify, options) {
     console.log(`Registering routes`);
