@@ -36,7 +36,7 @@ function createAvatarBtn(Id: string, MaxI: number, Folder: string, TextContent: 
 async function setCurrentAvatar() {
 	try {
 		const req = await  getCharacterAsset();
-		if (req.ok)
+		if (req.ok && req.asset)
 			CurrentAvatarAsset = req.asset;
 	} catch(error) {
 		alert(error);
@@ -46,7 +46,7 @@ async function setCurrentAvatar() {
 async function setCurrentNpc() {
 	try {
 		const req = await getNpcAsset();
-		if (req.ok)
+		if (req.ok && req.asset)
 			CurrentNpcAsset = req.asset;
 	} catch (error) {
 		alert(error);

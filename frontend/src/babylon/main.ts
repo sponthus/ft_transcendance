@@ -2,7 +2,6 @@ import "@babylonjs/core/Debug/debugLayer";
 import * as BABYLON from "@babylonjs/core";
 import * as ADDONS from "@babylonjs/addons"
 import "@babylonjs/loaders/glTF";
-import	{DropDownMenu } from "./menu/dropDownMenu.js";
 import { BasePage } from "../pages/BasePage.js";
 import { renderScene } from "./displaying/renderScene.js";
 import { renderMap } from "./displaying/renderMap.js";
@@ -26,7 +25,6 @@ export class Game extends BasePage {
 	private _slug: string;
 
 	/***********dropdown menu************/
-	private	_dropDown: DropDownMenu | null = null;
 
 	constructor(slug: string) {
 		super();
