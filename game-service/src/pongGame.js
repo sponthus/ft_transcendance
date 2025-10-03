@@ -6,6 +6,7 @@ let X_INFERIOR_BALL_LIMIT = -5.8;
 let X_SUPERIOR_BALL_LIMIT = 5.8;
 let Z_PADDLE_LEFT = -8;
 let Z_PADDLE_RIGHT = 8;
+let AREA_NUMBER = 16;
 
 // AI : 0 = no AI, 1 = AI as player1, 2 = AI as player2
 // Option : 0 = classical pong, 1 = with crabmehameha
@@ -71,6 +72,8 @@ export class PongGame {
 		this.pauseBegin = true;
 		this.timePauseBegin = 20;
 
+		this.state = this.get_ai_state(2, undefined)
+		this.impact_x = undefined;
 	}
 
 	setInputs(input)
@@ -79,44 +82,51 @@ export class PongGame {
 		this.input1 = this.inputs || {};
 	}
 
-	// setGameMode(mode, option)
+	// Schema of state in 3 situations (0, 1, 2))
+	// get_ai_state_situation()
 	// {
-	// 	this.gameMode = mode;
-	// 	this.gameOption = option;
+	// 	let state;
+	// 	if (this.gameMode == 1) {
+	// 		if ((this.paddle1.x <= this.ball.x && this.ball.x <= this.paddle1.x + X_PADDLE_HEIGHT) 
+	// 			|| (this.paddle1.x - X_PADDLE_HEIGHT <= this.ball.x && this.ball.x <= this.paddle1.x))
+	// 			state = 0 // Ball is in the paddle range -> Best action = 2
+	// 		else if (this.ball.x < this.paddle1)
+	// 			state = 1 // Ball is under paddle -> Best action is up 0
+	// 		else
+	// 			state = 2 // Ball is over paddle -> Best action is down 1
+	// 	}
+	// 	else if (this.gameMode == 2) {
+	// 		if ((this.paddle2.x <= this.ball.x && this.ball.x <= this.paddle2.x + X_PADDLE_HEIGHT) 
+	// 			|| (this.paddle2.x - X_PADDLE_HEIGHT <= this.ball.x && this.ball.x <= this.paddle2.x))
+	// 			state = 0 // Ball is in the paddle range -> Best action = 2
+	// 		else if (this.ball.x < this.paddle2)
+	// 			state = 1 // Ball is under paddle -> Best action is up 0
+	// 		else
+	// 			state = 2 // Ball is over paddle -> Best action is down 1
+	// 	}
+	// 	return state
 	// }
 
-	// Schema of state in 3 situations (0, 1, 2))
-	get_ai_state_situation()
+	// Mixes action and state of game to get the key of Q-table
+	get_ai_state(action, predicted_impact)
 	{
-		let state;
-		if (this.gameMode == 1) {
-			if ((this.paddle1.x <= this.ball.x && this.ball.x <= this.paddle1.x + X_PADDLE_HEIGHT) 
-				|| (this.paddle1.x - X_PADDLE_HEIGHT <= this.ball.x && this.ball.x <= this.paddle1.x))
-				state = 0 // Ball is in the paddle range -> Best action = 2
-			else if (this.ball.x < this.paddle1)
-				state = 1 // Ball is under paddle -> Best action is up 0
-			else
-				state = 2 // Ball is over paddle -> Best action is down 1
-		}
-		else if (this.gameMode == 2) {
-			if ((this.paddle2.x <= this.ball.x && this.ball.x <= this.paddle2.x + X_PADDLE_HEIGHT) 
-				|| (this.paddle2.x - X_PADDLE_HEIGHT <= this.ball.x && this.ball.x <= this.paddle2.x))
-				state = 0 // Ball is in the paddle range -> Best action = 2
-			else if (this.ball.x < this.paddle2)
-				state = 1 // Ball is under paddle -> Best action is up 0
-			else
-				state = 2 // Ball is over paddle -> Best action is down 1
-		}
-		return state
+		const ai_area = this.get_ai_position();
+		const impact_area = this.get_predicted_impact_area(predicted_impact);
+		// console.log("impact_area value:", impact_area, "type:", typeof impact_area);
+		const state = `${ai_area}-${impact_area}-${action}`;
+		// String(ai_area) + '-' + String(impact_area) + '-' + str_action;
+		// console.log("State for Q-table :", state, " with ai_area ", ai_area, " / impact area ", impact_area, " and action ", action);
+		return state;
 	}
 
-	// Mixes action and state of game to get the key of Q-table
-	get_ai_state(action)
+	// Takes into account what the AI has previously seen
+	get_state_without_new_view(old_state, action)
 	{
-		const situation = this.get_ai_state_situation()
-		const str_action = action;
-		const state = situation + String(str_action);
-		console.log("State for Q-table :", state, " with situation ", situation, " and action ", str_action);
+		const ai_area = this.get_ai_position();
+		const impact_area = old_state.split('-')[1];
+		// console.log("impact_area value:", impact_area, "type:", typeof impact_area);
+		const state = `${ai_area}-${impact_area}-${action}`;
+		// console.log("State for Q-table :", state, " with ai_area ", ai_area, " / impact area ", impact_area, " and action ", action);
 		return state;
 	}
 
@@ -135,22 +145,25 @@ export class PongGame {
 		return max_index;
 	}
 
-	// get_ai_decision(state)
-	// {
-	// 	if (this.qtable.hasOwnProperty(state) == false)
-	// 	{
-	// 		console.warn("State not found in Q-table :", state);
-	// 		return 2; // Default action
-	// 	}
-	// 	action = this.get_max_arg(this.qtable[state]);
-	// 	if (action == -1) {
-	// 		console.warn("No action found in Q-table for state :", state);
-	// 		return 2; // Default action
-	// 	}
-	// 	console.log("Action from Q-table :", action);
-	// 	console.log(typeof action);
-	// 	return action;
-	// }
+	// Schematization of ball position in AREA_NUMBER areas
+	get_ai_position()
+	{
+		let area_percent = (this.paddle1.x - X_INFERIOR_BALL_LIMIT) / (X_SUPERIOR_BALL_LIMIT - X_INFERIOR_BALL_LIMIT);
+		area_percent = Math.max(0.0, Math.min(1.0, area_percent)); // for security
+		const area_zone = Math.min(AREA_NUMBER, Math.floor(area_percent * AREA_NUMBER) + 1);
+		return area_zone;
+	}
+
+	// Categorizes the ball direction (2 goes away, 1 approaches)
+	get_ball_direction()
+	{
+		let state = 0;
+		if (this.ball.dirZ > 0)
+			state = 2; // Ball goes away
+		else
+			state = 1; // Ball approaches
+		return state;
+	}
 
 	get_ai_decision(state)
 	{
@@ -171,8 +184,62 @@ export class PongGame {
 		return action;
 	}
 
-	update(action, decision = false)
+	// Schematization of ball predicted impact in AREA_NUMBER areas
+	get_predicted_impact_area(predicted_impact)
 	{
+		if (predicted_impact == undefined)
+			return 0;
+		let area_percent = (predicted_impact - X_INFERIOR_BALL_LIMIT) / (X_SUPERIOR_BALL_LIMIT - X_INFERIOR_BALL_LIMIT);
+		area_percent = Math.max(0.0, Math.min(1.0, area_percent)); // security
+		const area_zone = Math.min(AREA_NUMBER, Math.floor(area_percent * AREA_NUMBER) + 1);
+		return area_zone;
+	}
+
+	predictBallImpactX(paddleZ = Z_PADDLE_LEFT) {
+		let x = this.ball.x;
+		let z = this.ball.z;
+		let dx = this.ball.dirX;
+		let dz = this.ball.dirZ;
+		let speed = this.ball.speed;
+
+		// Ball doesn't go to the designated paddle or already crossed paddle
+		if (dz == 0 || speed == 0 || (dz > 0 && paddleZ < 0) || (dz < 0 && paddleZ > 0)) {
+			return undefined;
+		}
+
+		let tx_wall = 0.0;
+		let tz_paddle = 0.0;
+		let x_impact = 0.0;
+		// Calc while there are rebounce
+		while (true) {
+			// Calc time to go to lat wall
+			if (dx > 0)
+				tx_wall = (X_SUPERIOR_BALL_LIMIT - x) / (dx * speed);
+			else
+				tx_wall = (X_INFERIOR_BALL_LIMIT - x) / (dx * speed);
+
+			// Calc time to paddleZ
+			tz_paddle = (paddleZ - z) / (dz * speed);
+			if (tz_paddle < 0)
+				return undefined; // Ball has crossed paddle
+
+			// paddle is reached
+			if (tz_paddle >= 0 && tz_paddle < tx_wall) {
+				x_impact = x + dx * speed * tz_paddle;
+				x_impact = Math.max(X_INFERIOR_BALL_LIMIT, Math.min(X_SUPERIOR_BALL_LIMIT, x_impact));
+				return (x_impact);
+			}
+
+			// Or rebounce
+			x += dx * speed * tx_wall;
+			z += dz * speed * tx_wall;
+			dx *= -1;
+		}
+	}
+
+	update(action, can_see = false)
+	{
+		let chosen_action = action;
 		this.isPausedManagement();
 		if (this.ispaused === false)
 		{
@@ -180,23 +247,56 @@ export class PongGame {
 			if (this.pauseBegin === false)
 			{
 				if (this.gameMode != 0) {
-					let chosen_action = action;
+					if (can_see == true) {
+						const ball_direction = this.get_ball_direction();
+						let paddleZ = 0;
+						switch (ball_direction) {
+							case 1:
+								switch (this.gameMode) {
+									case 1:
+										paddleZ = Z_PADDLE_LEFT;
+										break;
+									case 2:
+										paddleZ = Z_PADDLE_RIGHT;
+										break;
+									default:
+										console.error("Game mode error");
+								}
+								break;
+							case 2:
+								switch (this.gameMode) {
+									case 1: 
+										paddleZ = Z_PADDLE_RIGHT;
+										break;
+									case 2:
+										paddleZ = Z_PADDLE_LEFT;
+										break;
+									default:
+										console.error("Game mode error");
+								}
+								break;
+							default:
+								console.error("Direction error");
+						}
+						this.impact_x = this.predictBallImpactX(paddleZ);
+						this.state = this.get_ai_state(action, this.impact_x);
+					}
+					else {
+						this.state = this.get_state_without_new_view(this.state, action);
+					}
+					chosen_action = this.get_ai_decision(this.state);
 					// console.log("Action is = ", action, typeof action);
-					if (decision) {
-						// console.log("Decision to make")
-						let begin_state = this.get_ai_state(action);
-						chosen_action = this.get_ai_decision(begin_state);
-						action = chosen_action;
-						// console.log("AI chose action :", chosen_action, " for state ", begin_state);
-					}
-					if (this.gameMode == 1) {
-						// console.log("Gamemode = 1");
-						this.movePlayer1(chosen_action);
-						this.movePlayer2();
-					} else if (this.gameMode == 2) {
-						this.movePlayer1();
-						this.movePlayer2(chosen_action);
-					}
+				}
+				if (this.gameMode == 1) {
+					// console.log("Gamemode = 1");
+					this.movePlayer1(chosen_action);
+					this.movePlayer2();
+				} else if (this.gameMode == 2) {
+					this.movePlayer1();
+					this.movePlayer2(chosen_action);
+				} else {
+					this.movePlayer1();
+					this.movePlayer2();
 				}
 				this.moveBall();
 				this.checkCollisionWall();
@@ -207,7 +307,7 @@ export class PongGame {
 					this.crabmehameha();
 			}
 		}
-		return action;
+		return chosen_action;
 	}
 
 	getState()
