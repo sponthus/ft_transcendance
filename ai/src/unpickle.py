@@ -15,11 +15,11 @@ def save_json(qtable, filename="q_table"):
 		json.dump(qtable, f)
 
 if __name__ == '__main__':
-	qtable = load_q_table(filename="q_table_3700.pkl")
+	qtable = load_q_table(filename="q_table_1550.pkl")
 	print(qtable)
 	new_qtable = {}
 	for key, value in qtable.items():
-		new_key = ''.join(str(k) for k in key)  # Convert tuple to string
+		new_key = '-'.join(str(k) for k in key)  # Convert tuple to string with comma
 		if isinstance(value, np.ndarray):
 			new_qtable[new_key] = value.tolist()
 		else:

@@ -10,12 +10,12 @@ def play_a_game(game, i):
 	while tick < max_ticks:
 		if tick % ticks_per_decision == 0:
 			action = game.update(action, can_see=True)
-			# print(f"Tick: {tick}, Score: {game.score.s1} - {game.score.s2}, Epsilon: {game.epsilon}, AI score: {game.ai_score}")
-			# print(f"Ball pos: ({game.ball.x:.2f}X, {game.ball.z:.2f}Z), Ball dir: ({game.ball.dirX:.2f}X, {game.ball.dirZ:.2f}Z)")
-			# print(f"State : {game.get_ai_state_situation()} / reward: {game.reward():.4f}")
-			# print(f"Paddle pos: 1 = {game.paddle1:.2f}X, 2 = {game.paddle2:.2f}X\n")
 		else:
 			action = game.update(action)
+		# print(f"Tick: {tick}, Score: {game.score.s1} - {game.score.s2}, Epsilon: {game.epsilon}, AI score: {game.ai_score}")
+		# print(f"Ball pos: ({game.ball.x:.2f}X, {game.ball.z:.2f}Z), Ball dir: ({game.ball.dirX:.2f}X, {game.ball.dirZ:.2f}Z)")
+		# print(f"State : {game.get_ai_state_situation()} / reward: {game.reward():.4f}")
+		# print(f"Paddle pos: 1 = {game.paddle1:.2f}X, 2 = {game.paddle2:.2f}X\n")
 		tick += 1
 		# time.sleep(game.dt / 3)
 	if ((i % 10) == 0):

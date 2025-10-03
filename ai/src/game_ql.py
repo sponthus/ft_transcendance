@@ -11,13 +11,13 @@ NB_OUTPUTS = 3
 ALPHA = 0.4 # Taux d'apprentissage
 GAMMA = 0.7 # Facteur d'actualisation
 EPSILON_DECAY_FACTOR = 0.0000005
-EPSILON_MIN = 0.005
+EPSILON_MIN = 0.01
 
 # Positions
 X_INFERIOR_BALL_LIMIT = -5.8
 X_SUPERIOR_BALL_LIMIT = 5.8
-X_INFERIOR_PADDLE_LIMIT = -4.5
-X_SUPERIOR_PADDLE_LIMIT = 4.5
+X_INFERIOR_PADDLE_LIMIT = -5.7
+X_SUPERIOR_PADDLE_LIMIT = 5.7
 Z_GOAL_LEFT = -9
 Z_PADDLE_LEFT = -8
 Z_PADDLE_RIGHT = 8
@@ -26,7 +26,7 @@ X_PADDLE_HEIGHT = 1
 Z_PADDLE_WIDTH = 0.5
 X_TOTAL = X_SUPERIOR_BALL_LIMIT * 2
 AREA_SIZE = 0.95
-AREA_NUMBER = 12
+AREA_NUMBER = 16
 
 UP = 0
 DOWN = 1
@@ -99,7 +99,7 @@ class PongGame:
 
 		self.q_table = {} # Q-table for storing state-action values
 
-		self.state = self.get_ai_state(2, self.get_ball_state_situation())
+		self.state = self.get_ai_state(2, None)
 		print(f"Initial state: {self.state}")
 	
 	# Makes epsilon decrease until minimum is reached
@@ -140,7 +140,14 @@ class PongGame:
 
 	def update(self, previous_action_qn: int, can_see=False) :
 		if (can_see == True):
-			self.state = self.get_ai_state(previous_action_qn, self.get_ball_state_situation())
+			ball_dirZ = self.get_ball_direction()
+			if (ball_dirZ == 1):
+				paddleZ = Z_PADDLE_LEFT
+			else:
+				paddleZ = Z_PADDLE_RIGHT
+			self.impact_x = self.predictBallImpactX(paddleZ)
+			# print(f"Predicted impact: {self.impact_x}")
+			self.state = self.get_ai_state(previous_action_qn, self.impact_x)
 		else:
 			self.state = self.get_state_without_new_view(self.state, previous_action_qn)
 		chosen_action = self.get_ai_action(self.state)
@@ -154,8 +161,9 @@ class PongGame:
 		if (self.gameOption == 1):
 			self.crabmehameha(chosen_action)
 		if (self.training == True):
-			reward = self.reward()
-			next_state = self.get_ai_state(chosen_action)
+			reward = self.reward(self.impact_x, chosen_action)
+			# print(f"Reward = {reward} / state = {self.state} / impact = {self.impact_x} / action = {chosen_action}")
+			next_state = self.get_ai_state(chosen_action, self.impact_x)
 			self.update_q_value(self.state, chosen_action, reward, next_state)
 			self.ai_score += reward
 		return chosen_action
@@ -169,7 +177,7 @@ class PongGame:
 
 		# print(f"Predicting impact: x={x}, z={z}, dz={dz}, dx={dx}speed={speed}, paddleZ={paddleZ}, t={(paddleZ - z) / (dz * speed)}")
 
-		# Ball doesn´t go to the paddle
+		# Ball doesn´t go to the paddle or already crossed it
 		if dz == 0 or speed == 0 or (dz > 0 and paddleZ < 0) or (dz < 0 and paddleZ > 0) :
 			return None
 
@@ -199,15 +207,36 @@ class PongGame:
 			dx *= -1
 			# print("Ball will bounce")
 
-	# Calc the reward associated to the position of the paddle compared to the ball
-	def reward(self):
+	# Calc the reward associated to the position of the paddle compared to the ball OR the impact if there is one
+	def reward(self, impact_x, action_qn):
+		if (impact_x == None):
+			objective = self.ball.x 
+		else: 
+			objective = impact_x
+		x_dist_to_paddle = abs(self.paddle1 - objective)
 		
-		# if ()
-		x_ball_dist_to_paddle = abs(self.paddle1 - self.ball.x)
-		reward = -1 * (x_ball_dist_to_paddle / (X_SUPERIOR_PADDLE_LIMIT - X_INFERIOR_BALL_LIMIT)) * MAX_REWARD
-		if (x_ball_dist_to_paddle < X_PADDLE_HEIGHT / 2):
-			reward += MAX_REWARD
-		# Have a minimum reward to avoid too much negative rewards
+		# Penalize actions that go AWAY from the objective
+		if (action_qn == UP) :
+			if (self.paddle1 > objective):  # Already above target, going further up
+				return -MAX_REWARD # Goes AWAY from the objective
+		elif (action_qn == DOWN):
+			if (self.paddle1 < objective):  # Already below target, going further down
+				return -MAX_REWARD # Goes AWAY from the objective
+		
+		base_reward = MAX_REWARD / 4  # +25 good direction
+		
+		# Distance-based reward
+		distance_factor = 1 - (x_dist_to_paddle / (X_SUPERIOR_PADDLE_LIMIT - X_INFERIOR_PADDLE_LIMIT))
+		distance_reward = distance_factor * MAX_REWARD / 2  # max +50
+
+		reward = base_reward + distance_reward
+		if (action_qn == STILL):
+			if (x_dist_to_paddle < X_PADDLE_HEIGHT / 2):
+				reward += MAX_REWARD / 2 # +50 = Bonus very close
+			else:
+				reward -= MAX_REWARD / 2 # -50 = too far + should move
+		
+		
 		return max(-MAX_REWARD, reward)
 
 	# We schematize ball position  : 12 areas from left to right
@@ -218,16 +247,16 @@ class PongGame:
 		area_zone = min(AREA_NUMBER, int(area_percent * AREA_NUMBER) + 1)
 		return area_zone
 
-	def get_ball_state_situation(self):
+	def get_ball_direction(self):
 		if (self.ball.dirZ > 0):
 			state = 2 # Ball going away
 		else:
 			state = 1 # Ball approaching
 		return state
 
-	def get_predicted_impact(self, predicted_impact):
+	def get_predicted_impact_area(self, predicted_impact):
 		if (predicted_impact is None):
-			return 0  # Ball going away
+			return 0 # Problem with calc
 		
 		# Normalize between 0 and 1 the predicted impact
 		area_percent = (predicted_impact - X_INFERIOR_BALL_LIMIT) / (X_SUPERIOR_BALL_LIMIT - X_INFERIOR_BALL_LIMIT)
@@ -237,20 +266,14 @@ class PongGame:
 		return area_zone
 
 	# Full state with situation and action
-	def get_ai_state(self, action_qn: int, ball_dirZ=1):
-		if (ball_dirZ == 1):
-			paddleZ = Z_PADDLE_LEFT
-		else:
-			paddleZ = Z_PADDLE_RIGHT
-		predicted_impact = self.predictBallImpactX(paddleZ)
-		# print(f"Predicted impact: {predicted_impact}")
+	def get_ai_state(self, action_qn: int, predicted_impact):
+
 		state = (
 			self.get_ai_position(),
-			self.get_predicted_impact(predicted_impact),
+			self.get_predicted_impact_area(predicted_impact),
 			action_qn
 		)
 		# print(state)
-		# state = self.get_ai_state_situation()
 		return state
 	
 	def get_state_without_new_view(self, old_state, action):
