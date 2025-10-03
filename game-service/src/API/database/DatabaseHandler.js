@@ -358,7 +358,7 @@ export default class DatabaseHandler {
             }
 
             const result = {
-                tournamentId: tournamentId,
+                tournament_id: tournamentId,
                 numberOfPlayers: playersResult.length,
                 rounds: roundsResults,
                 nextGameId: nextGameId,

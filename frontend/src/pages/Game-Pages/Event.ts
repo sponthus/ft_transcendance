@@ -44,43 +44,11 @@ export class Event {
 	async ManageEvent() {
 		if (this.StatePage === PageState.MOD)
 			this.manageGameModEvent();
-		this.ManageReturnEvent();
-	}
-
-	/*************************************Function for Event Return button*************************************/
-	private async ManageReturnEvent() {
-		const ReturnButton = document.getElementById("Return-btn") as HTMLButtonElement;
-		if (!ReturnButton)
-			console.log("pas de bouton retour");
-		ReturnButton.addEventListener('click', async(e) => {
-			switch(this.StatePage) {
-				case PageState.MOD:
-					this.ReturnToLobby();
-					break;
-				case PageState.PARTY:
-					this.returnToGameMod();
-					break;
-				case PageState.TOURNAMENT:
-					this.returnToGameMod();
-					break;
-				// case PageState.NEWGAME:
-				// 	this.CancelNewGame();
-				// 	break;
-				case PageState.BRACKET:
-					this.returnToTournament();
-					break;
-				case PageState.WIN:
-					this.ReturnToLobby();
-					break;
-				default: break;
-			}
-		})
 	}
 
 	/*********************************function utils for return*********************************/
 	private ReturnToLobby(){
 		this.StatePage = PageState.MOD;
-		this.GamePage.cleanStubborn();
 		this.LaunchPong.returnLobby();
 	}
 
@@ -136,7 +104,7 @@ export class Event {
 			else if (request.ok) {
 				const id:number = request.gameId;
 				console.log("id party = ", request);
-				this.launchGame(id);
+				this.launchGame(id, false);
 			}
 		}
 		catch (error) {
@@ -319,84 +287,49 @@ export class Event {
 	async manageContinueTournamentEvent() {
 		if (this.TournamentPage._backBtn)
 			this.TournamentPage._backBtn.addEventListener('click', async() => {this.returnToTournament();});
+		if (this.TournamentPage._PartyMap)
+			this.TournamentPage._PartyMap.forEach((value, key) => {this.continueOneTournament(value, key)})
 	}
 
-				/*********************************function utils for saving games*********************************/
-	// private async SaveGameMod() {
-	// 	const SelectValue = this.FindSelectValue("GameMod-DropDown-div");
-	// 	if (SelectValue == "1v1") {
-	// 		this.StatePage = PageState.PARTY;
-	// 		await this.GamePage.generate1v1GamePage();
-	// 	}
-	// 	else if (SelectValue == "tournament")
-	// 	{
-	// 		this.StatePage = PageState.TOURNAMENT;
-	// 		await this.GamePage.generateTournamentPage();
-	// 		// alert("tournament in build please choose 1v1 mode");
-	// 	}
-	// 	else if (!SelectValue)
-	// 		alert("Please Select Value");
-	// }
-
-	// private FindSelectValue(Id: string): string | undefined {
-	// 	const Select = (document.getElementById(Id) as HTMLElement)?.querySelector('select');
-
-	// 	return Select?.value;
-	// }
-
-	private PlayTournament() {
-		this.removeDeleteButton();
-		this.LaunchPong.setTournament = true;
-
-		// this.GamePage.generateBracketTournament(0);
-		let found = false;
-	
-		this.TournamentPage._PartyMap?.forEach(async(value: HTMLInputElement, key: number) => {
-			if (value.checked) {
-				this.GamePage.generateBracketTournament(key);
-				found = true;
-				return ;
-			}
+	private continueOneTournament(btn: HTMLButtonElement, id: number){
+		btn.addEventListener('click', async() => {
+			this.setStatePage = PageState.BRACKET;
+			this.GamePage.generateBracketTournament(id);
 		})
-		if (!found)
-			alert("please choose a Party");
+	}
+
+	async manageBracketEvent() {
+		if (this.TournamentPage._backBtn)
+			this.TournamentPage._backBtn.addEventListener('click', async() => {this.returnToTournament();});
+		if (this.TournamentPage._playBtn)
+			this.TournamentPage._playBtn.addEventListener('click', async() => {this.PlayRound()});
+	}
+
+	async manageEndGameEvent() {
+		if (this.GamePage._endGamePage._playBtn)
+			this.GamePage._endGamePage._playBtn.addEventListener('click', async() => {this.returnToGameMod();});
+		if (this.GamePage._endGamePage._backBtn)
+			this.GamePage._endGamePage._backBtn.addEventListener('click', async() => {this.ReturnToLobby();});
 	}
 
 	/***********-*******playing match****************/
 	private PlayRound() {
 		/******************Find Next Round with this.tournamentPage._tournament*************/
 		try {
-			//start round
-			// this.renderGame(); //to delete
-			this.launchGame(this.TournamentPage._NextGameId);
+			this.launchGame(this.TournamentPage._NextGameId, true);
 		} catch (error) {
 			alert('error : ' + error);
 		}
 	}
 
-	private PlayGame() {
-		// let found = false;
-	
-		// this.LocalGamePage._PartyMap?.forEach(async(value: HTMLInputElement, key: number) => {
-		// 	if (value.checked) {
-		// 		this.launchGame(key);
-		// 		found = true;
-		// 		return ;
-		// 	}
-		// })
-		// if (!found)
-		// 	alert("please choose a Party");
-	}
-
-	private async launchGame(gameId: number) {
+	private async launchGame(gameId: number, tournament:boolean) {
 		try {
 			const request = await startGame(gameId);
 			if (!request.ok) {
 				throw new Error('Unable to start game : ' + request.error);
 			}
 			// state.launchGame(gameId);
-			this.StatePage = PageState.MOD;
-			this.renderGame(gameId);
+			this.renderGame(gameId, tournament);
 		} 
 		catch (error) {
 			alert(error);
@@ -404,99 +337,14 @@ export class Event {
 		}
 	}
 
-	private renderGame(gameId: number) {
+	private renderGame(gameId: number, tournament: boolean) {
 		this.StatePage = PageState.WIN;
-		this.removeDeleteButton();
-		this.LaunchPong.render(gameId);
+		this.LaunchPong.render(gameId, tournament);
 		console.log("pagestate = ", this.StatePage);
 	}
 
 
-	private async SaveNewParty() {
-		this.ChangeBackPageButtonText([document.getElementById("Return-btn") as HTMLButtonElement, "Return"]
-		, [document.getElementById("Save-btn")  as HTMLButtonElement, "Play"]);
-		this.addDeleteButton();
-		console.log("state page = ", this.StatePage);
-		// if (this.LocalGamePage._NewGameForm && !this.LocalGamePage._NewGameForm.classList.contains("hidden")) {
-		// 	/**save 1v1**/
-		// 	this.saveParty()
-		// 	this.StatePage = PageState.PARTY;
-		// 	this.LocalGamePage._NewGameForm.classList.add("hidden");
-		// 	await this.LocalGamePage.refreshAvailableGames();
-		// }
-		// if (this.TournamentPage._NewTournamentForm && !this.TournamentPage._NewTournamentForm.classList.contains("hidden")) {
-		// 	/**save tournament**/
-		// 	this.saveTournament();
-		// 	this.StatePage = PageState.TOURNAMENT;
-		// 	this.TournamentPage._NewTournamentForm.classList.add("hidden");
-		// 	await this.TournamentPage.refreshAvailableTournament();
-		// }
-	}
-
-
-	// private async saveTournament() {
-	// 	/****************************function for call API to save tounrnament**********************/
-	// 	const formData = new FormData(document.getElementById('new-tournament-form') as HTMLFormElement);
-
-	// 	// also you can use this.tournamentPage._FormMap
-	// 	// this.TournamentPage._FormMap.forEach((value: HTMLInputElement , key :(string) HTMLElement) => {
-	// 	// 	console.log("key = ", key, "value = ", value);
-	// 	// })
-	// 	const PlayerA = this.GetDataForm('Player1', formData);
-	// 	const PlayerB = this.GetDataForm('Player2', formData);
-	// 	const PlayerC = this.GetDataForm('Player3', formData);
-	// 	const PlayerD = this.GetDataForm('Player4', formData);
-
-	// 	const playersList = [PlayerA, PlayerB, PlayerC, PlayerD];
-	// 	console.log('playerList', playersList);
-		
-	// 	const nameElement = document.getElementById('name-tournament-input') as HTMLInputElement;
-	// 	const tournamentName = nameElement.value;
-	// 	if (!tournamentName)
-	// 		alert("Please enter a tournament name.");
-	// 	console.log('Tournament name is ', tournamentName);
-
-	// 	const res = await createTournament(tournamentName, playersList);
-	// 	if (!res.ok) {
-	// 		alert("Error: " + res.error);
-	// 	}
-	// 	// You can get all the data about the created tournament if you like
-
-	// }
-
-	private GetDataForm(id: string, formData: any): string {
-		const PlayerRaw = formData.get(id);
-		console.log("Raw values: ", PlayerRaw);
-		console.log("types:", typeof PlayerRaw);
-
-		const Player = (PlayerRaw as string)?.trim() || "";
-		console.log('After trim:', Player );
-		console.log('Lengths:', Player.length);
-		if (!Player)
-			alert('Please enter all players names');
-		return Player;
-	}
-
-	/*************************************Function utils*************************************/
-	ChangeBackPageButtonText(Return: [ReturnBtn: HTMLButtonElement, ReturnText: string], Save: [Savebtn: HTMLButtonElement, SaveText: string]) {
-		this.ChangeButtonText(Return[0], Return[1]);
-		this.ChangeButtonText(Save[0], Save[1]);
-	}
-
-	private ChangeButtonText(btn: HTMLButtonElement, TextContent: string) {
-		btn.textContent = TextContent;
-	}
-	
-	addDeleteButton() {
-		const deletebtn = document.getElementById("delete-btn");
-		deletebtn?.classList.remove('hidden');
-	}
-	
-	private removeDeleteButton() {
-		const deletebtn = document.getElementById("delete-btn");
-		deletebtn?.classList.add('hidden');
-	}
-	
+	/*************************************Function utils*************************************/	
 	set setStatePage(State: number) {
 		this.StatePage = State;
 	}

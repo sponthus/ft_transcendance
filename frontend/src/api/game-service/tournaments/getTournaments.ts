@@ -3,7 +3,7 @@ type Success = { ok: true; message: string };
 
 type SimpleResult = Success | Failure;
 
-type TournamentsInfos = {
+export type TournamentsInfos = {
 	id: number;
 	status: 'pending' | 'ongoing_game' | 'between_games' | 'canceled' | 'done';
 	name: string;

@@ -6,10 +6,10 @@ import { Game } from '../../babylon/main.js';
 
 export class TournamentPage {
 	private Page!: HTMLElement;
-	private NewTournamentForm!: HTMLElement;
-	private BracketDiv!: HTMLElement;
+	// private NewTournamentForm!: HTMLElement;
+	// private BracketDiv!: HTMLElement;
 	// private FormMap!: Map<HTMLElement, HTMLInputElement>;
-	private PartyMap!: Map<number, HTMLInputElement>;
+	private PartyMap!: Map<number, HTMLButtonElement>;
 	private AvailableGames: availableGames;
 	private Tournament?: any;
 	private TournamentId?: number;
@@ -28,15 +28,17 @@ export class TournamentPage {
 	private OptionImg!: HTMLImageElement;
 	private TournamentName!: HTMLInputElement;
 
+	private isFinal: boolean;
+
 	/*************************utils div*************************/
 	private TournamentPan!: HTMLElement;
 
 	constructor(Page: HTMLElement, UserName: string) {
+		this.isFinal = false;
 		this.Page = Page;
 		this.nameMap = new Map<number, HTMLInputElement>();
-		// this.FormMap = new Map<HTMLElement, HTMLInputElement>();
-		this.PartyMap = new Map<number, HTMLInputElement>();
-		this.AvailableGames = new availableGames(this.Page, this.PartyMap);
+		this.PartyMap = new Map<number, HTMLButtonElement>();
+		this.AvailableGames = new availableGames(this.PartyMap);
 		this.Username = UserName;
 		this.TournamentMatches = new Map<number, number>();
 		this.NextGameId = 0; // Impossible value, game id never 0
@@ -45,14 +47,16 @@ export class TournamentPage {
 	/****************function for rendering tournament page****************/
 	async render() {
 		this.PlayBtn = (createButton("play", "relative flex items-center z-5 active:scale-95 hover:scale-105 h-[30%] aspect-square transition-all duration-200 translate-x-96", "") as HTMLButtonElement);
-		this.ContinueBtn = (createButton("continue", "relative flex items-center z-5 active:scale-95 hover:scale-105 h-[12%] w-[30%] transition-all duration-200 -translate-x-96", "continue") as HTMLButtonElement);
-		this.BackBtn = (createButton("return", "relative flex items-center z-5 active:scale-95 hover:scale-105 h-[10%] w-[20%] transition-all duration-200 top-16 left-32 -translate-x-96", "") as HTMLButtonElement);
-		append(this.Page, [createImage("1v1", "absolute object-fill object-center h-full w-full opacity-65", 'tournament-page.png')]);
-
 		append(this.PlayBtn, [createImage('Play', 'absolute object-center h-full w-full', 'game_ui/Playebtn.png')]);
+		
+		this.ContinueBtn = (createButton("continue", "relative flex items-center z-5 active:scale-95 hover:scale-105 h-[12%] w-[30%] transition-all duration-200 -translate-x-96", "continue") as HTMLButtonElement);
 		append(this.ContinueBtn, [createImage('continue', 'absolute object-center h-full w-full', 'game_ui/continuesbtn.png')]);
+		
+		this.BackBtn = (createButton("return", "relative flex items-center z-5 active:scale-95 hover:scale-105 h-[10%] w-[20%] transition-all duration-200 top-16 left-32 -translate-x-96", "") as HTMLButtonElement);
 		append(this.BackBtn, [createImage('Back', 'absolute object-center h-full w-full', 'game_ui/Backbtn.png')]);
-
+		
+		append(this.Page, [createImage("1v1", "absolute object-fill object-center h-full w-full opacity-65", 'tournament-page.png')]);
+		
 		append(this.Page, [createImage('bot-text', 'z-10 object-center h-[20%] w-[80%] animate-wiggle margin-top-32', 'game_ui/LocalPongText.png') // change to tournament pong text
 							,this.ContinueBtn , this.PlayBtn , this.BackBtn]);
 
@@ -72,20 +76,22 @@ export class TournamentPage {
 		this.appendTournamentForm(btnDiv);
 	}
 
-		/****************function for rendering tournament page****************/
+	/****************fill panel with create tournament form****************/
 	private fillNewPan() {
-		append(this.TournamentPan, [createImage('player-name', 'absolute z-5 object-center h-[10%] w-[20%] translate-y-16 -translate-x-64', 'game_ui/setting/playerNamestext.png')	
+		append(this.TournamentPan, [createImage('player-name', 'object-center h-[10%] w-[20%] translate-y-24 -translate-x-64', 'game_ui/setting/playerNamestext.png')	
 									, this.addNameForm(), this.createTournamentNameForm() ,this.createcrabmehamehaDiv()]);
 	}
 
+	/****************adding player names input on panel****************/
 	private addNameForm(): HTMLElement {
-		const NameFormDiv: HTMLElement = createDiv('name-form', 'flex flex-col w-full h-[50%] items-center z-10 space-y-4 translate-y-16 translate-x-10');
+		const NameFormDiv: HTMLElement = createDiv('name-form', 'flex flex-col w-full h-[50%] items-center z-10 space-y-4 translate-x-10');
 		for (let i = 0; i < 4; i++) {
 			append(NameFormDiv, [this.createPlayerNameDiv(i)]);
 		}
 		return NameFormDiv
 	}
 
+	/****************create 1 name input****************/
 	private createPlayerNameDiv(index: number): HTMLElement {
 		const playerDiv: HTMLElement = createDiv('players-names', 'flex justify-start items-center h-[20%]');
 
@@ -103,8 +109,9 @@ export class TournamentPage {
 		return playerDiv;
 	}
 
+	/****************create tournament names input****************/
 	private createTournamentNameForm() {
-		const checcrabmehamehaDiv: HTMLElement = createDiv('crabmehameha', 'flex items-center justify-arround h-[10%] translate-y-14 -translate-x-32 space-x-4');
+		const checcrabmehamehaDiv: HTMLElement = createDiv('crabmehameha', 'flex items-center justify-arround h-[10%] -translate-x-32 space-x-4');
 
 		this.TournamentName = createInput(['text', 'tournament-name', 'tournament name', true], 'tournament-name', 'h-[70%] w-[70%]');
 		// this.TournamentName.value = "tournament name";
@@ -115,10 +122,11 @@ export class TournamentPage {
 		return checcrabmehamehaDiv;
 	}
 
+	/****************create crabmehameha input****************/
 	private createcrabmehamehaDiv() : HTMLElement {
-		const checcrabmehamehaDiv: HTMLElement = createDiv('crabmehameha', 'flex items-center justify-arround h-[10%] translate-y-10 -translate-x-28 space-x-4');
+		const checcrabmehamehaDiv: HTMLElement = createDiv('crabmehameha', 'flex items-center justify-arround h-[10%]  -translate-x-28 space-x-4');
 
-		this.OptionBtn = createButton('minus', 'relative flex items-center z-5 active:scale-95 hover:scale-105 transition-all duration-200', '');
+		this.OptionBtn = createButton('minus', 'flex items-center active:scale-95 hover:scale-105 transition-all duration-200', '');
 		let src: string = 'game_ui/setting/checkedValue.png';
 		if (this.Option == 0)
 			src = 'game_ui/setting/uncheckedValue.png';
@@ -134,30 +142,34 @@ export class TournamentPage {
 
 	/****************function for rendering continue tournament page****************/
 	async renderContinueTournament() {
-		const btnDiv = createDiv('btn', 'flex flex-row justify-around w-full h-[20%] z-5 -translate-x-96');
+		const btnDiv = createDiv('btn', 'flex flex-row justify-around w-full h-[20%] -translate-x-96');
 		this.InitTournamentForm(btnDiv);
-		this.fillContinuePan();
+		await this.fillContinuePan();
 		this.appendTournamentForm(btnDiv);
 	}
 
-
-	private fillContinuePan() {
-
+	/****************fill panel with available tournament****************/
+	private async fillContinuePan() {
+		this.AvailableGames.render(this.TournamentPan);
+		await this.AvailableGames.refreshAvailableGames();
 	}
 
+	/****************creating backbtn and playbtn and tournament panel for new and continue tournament****************/
 	private InitTournamentForm(btnDiv: HTMLElement) {
-		this.BackBtn = (createButton("return", "relative flex items-center z-5 active:scale-95 hover:scale-105 h-full w-[20%] transition-all duration-200", "") as HTMLButtonElement);
-		this.PlayBtn = (createButton("play", "relative flex items-center z-5 active:scale-95 hover:scale-105 h-full aspect-square transition-all duration-200", "") as HTMLButtonElement);
+		this.BackBtn = (createButton("return", "relative flex items-center active:scale-95 hover:scale-105 h-full w-[20%] transition-all duration-200", "") as HTMLButtonElement);
+		this.PlayBtn = (createButton("play", "relative flex items-center active:scale-95 hover:scale-105 h-full aspect-square transition-all duration-200", "") as HTMLButtonElement);
 		append(this.PlayBtn, [createImage('Play', 'absolute object-center h-full w-full', 'game_ui/Playebtn.png')]);
 		append(this.BackBtn, [createImage('Back', 'absolute object-center h-full w-full', 'game_ui/Backbtn.png')]);
 
-		
 		append(btnDiv, [this.BackBtn, this.PlayBtn]);
 
-		this.TournamentPan = createDiv('setting-pan', 'relative flex flex-col items-center w-full h-[80%] transition-all duration-200 translate-x-96 space-y-4');
-		append(this.TournamentPan ,[createImage('1v1-setting', 'absolute object-center object-fill h-full w-full', 'game_ui/setting/SettingPan.png')]);
+		this.TournamentPan = createDiv('tournament-pan', 'relative flex flex-col items-center w-full h-[85%] transition-all duration-200 translate-x-96 space-y-4');
+		this.TournamentPan.style.backgroundImage = "url('/game_ui/setting/SettingPan.png')";
+		this.TournamentPan.style.backgroundSize = '100% 100%';
+		this.TournamentPan.style.backgroundPosition = "center";
 	}
 
+	/****************append element for new and continue tournament panel****************/
 	private appendTournamentForm(btnDiv: HTMLElement) {
 		append(this.Page, [createImage("1v1", "absolute object-fill object-center h-full w-full opacity-20", 'tournament-page.png')]);
 
@@ -172,13 +184,23 @@ export class TournamentPage {
 	}
 
 	async renderBracket(IdTournament: number) {
+		this.TournamentId = IdTournament
+		this.Page.classList.remove('opacity-0');
 		this.TournamentId = IdTournament;
+		const btnDiv = createDiv('btn', 'flex flex-row justify-around w-full h-[20%] z-5 -translate-x-96');
+		this.InitTournamentForm(btnDiv);
+		await this.fillTournamentMatch();
+		this.appendTournamentForm(btnDiv);
+
+	}
+
+	private async fillTournamentMatch() {
 		/*******function for rendering bracket tournament**********/
 		try {
-			const data = await getTournamentMatches(IdTournament);
+			const data = await getTournamentMatches(this.TournamentId!);
 			if (!data.ok)
 				throw new Error("Unable to get tournament matches");
-			console.log("tournament bracket rendering");
+				console.log("tournament bracket rendering");
 				this.TournamentMatches.clear(); // On vide avant de remplir
 
 				// Assign key = gameId, value = element in div
@@ -187,26 +209,25 @@ export class TournamentPage {
 				});
 				console.log(this.TournamentMatches);
 			/***********************function to render bracket tournament *************************/
-			this.BracketDiv = createDiv("bracket", "flex justify-between items-center h-full w-full space-x-4") as HTMLElement;
+			this.TournamentPan.className = 'relative flex justify-center items-center w-full h-[80%] transition-all duration-200 translate-x-96 gap-12';
+			// this.TournamentPan = createDiv("bracket", "flex justify-between items-center h-full w-full space-x-4") as HTMLElement;
 			
 			const numberOfMatches = data.matches.length;
-			// TODO = Add 6-players tournament disposition ?
 			if (numberOfMatches == 3) // 4 players tournament
 			{
-				// Give 1 element from the list of matches results as a parameter
-				// Render from left to right
 				this.createRound2(1, data.matches[0]);
 				this.createFinal(3, data.matches[2]);
 				this.createRound2(2, data.matches[1]);
-			} else if (numberOfMatches == 7) // 8-players tournament
-			{
-				this.createRound1([1, 2], [data.matches[0], data.matches[1]]);/** match 1**//** round 2**/
-				this.createRound2(5, data.matches[4]/** match 5**/);
-				this.createFinal(7, data.matches[6]/** match 7**/);
-				this.createRound2(4, data.matches[5]/** match 6**/);
-				this.createRound1([3, 4], [data.matches[2], data.matches[3]]);/** match 3**//** match 4**/
-			}
-			append(this.Page, [this.BracketDiv]);
+			} 
+			// else if (numberOfMatches == 7) 
+			// {
+			// 	this.createRound1([1, 2], [data.matches[0], data.matches[1]]);/** match 1**//** round 2**/
+			// 	this.createRound2(5, data.matches[4]/** match 5**/);
+			// 	this.createFinal(7, data.matches[6]/** match 7**/);
+			// 	this.createRound2(4, data.matches[5]/** match 6**/);
+			// 	this.createRound1([3, 4], [data.matches[2], data.matches[3]]);/** match 3**//** match 4**/
+			// }
+			append(this.Page, [this.TournamentPan]);
 			this.findNextRound();
 		} catch (error) {
 			alert(error);
@@ -218,23 +239,23 @@ export class TournamentPage {
 	private createRound1(Matchs: number[], data: GameInfos[]) {
 		const Round1Div = createDiv("round1", "flex flex-col justify-around h-full w-[20%] space-y-4");
 		for (let i = 0; i < 2; i++) 
-			append(Round1Div, [(this.createMatch(Matchs[i], "flex flex-col items-center justify-around h-[50%] w-full bg-orange-400 rounded-full space-y-4", data[i], true) as HTMLElement)]);
+			append(Round1Div, [(this.createMatch(Matchs[i], "flex flex-col items-center justify-around h-[50%] w-full rounded-full space-y-4", data[i], true) as HTMLElement)]);
 
-		append(this.BracketDiv, [Round1Div]);
+		append(this.TournamentPan, [Round1Div]);
 	}
 	
 	// Create div match for round
 	private createRound2(Match: number, data: GameInfos) {
 		const Round2Div = createDiv("round2", "flex flex-col justify-around h-full w-[20%] space-y-4");
-		append(Round2Div, [(this.createMatch(Match, "flex flex-col items-center justify-around h-[75%] w-full bg-orange-400 rounded-full space-y-4", data, false) as HTMLElement)]);
-		append(this.BracketDiv, [Round2Div]);
+		append(Round2Div, [(this.createMatch(Match, "flex flex-col items-center justify-around h-[75%] w-full space-y-4", data, false) as HTMLElement)]);
+		append(this.TournamentPan, [Round2Div]);
 	}
 
 	// Create the final match 
 	private createFinal(Match: number, data: GameInfos) {
 		const Round2Div = createDiv("round2", "flex flex-col justify-around h-full w-[20%] space-y-4");
-		append(Round2Div, [(this.createMatch(Match, "flex flex-col items-center justify-around h-[50%] w-full bg-orange-400 rounded-full space-y-4", data, true) as HTMLElement)]);
-		append(this.BracketDiv, [Round2Div]);
+		append(Round2Div, [(this.createMatch(Match, "flex flex-col items-center justify-around h-[50%] w-full rounded-full space-y-4", data, true) as HTMLElement)]);
+		append(this.TournamentPan, [Round2Div]);
 	}
 
 	private createMatch(Match: number, ClassName :string, data: GameInfos, final: boolean): HTMLElement {
@@ -242,21 +263,28 @@ export class TournamentPage {
 		const MatchRound = data.round + 1;
 		const MatchNumber = data.match + 1;
 
-		const TabPlayer: [Player1: string, Player2: string] = [data.player_a/**replace by player A Name or "Winner" if there is no player name***/, data.player_b/**replace by player B Name or "Winner" if there is no player name***/];
+		let TabPlayer: [Player1: string, Player2: string] = ["Winner", "Winner"];
+		if (data.player_a != "undefined")
+			TabPlayer[0] = data.player_a;
+		if (data.player_b != "undefined")
+			TabPlayer[1] = data.player_b;
 		
 		for (let i = 0; i < 2; i++) {
 			const PlayerDiv = createDiv(`player-${i + i}`, "border rounded-xl w-[50%] text-center") as HTMLElement;
-			append(PlayerDiv, [createElement('p', `player-${i + i}`, TabPlayer[i],  "text-emerald-600") as HTMLElement]);
+			PlayerDiv.style.backgroundImage = "url('/game_ui/setting/emptyPan.png')";
+			PlayerDiv.style.backgroundPosition = "center";
+			PlayerDiv.style.backgroundSize = '100% 100%';
+			append(PlayerDiv, [createElement('p', `player-${i + i}`, TabPlayer[i],  "text-orange-200") as HTMLElement]);
 			append(MatchDiv, [PlayerDiv]);
 			if (i == 0) {
-				if (final) {
-					append(MatchDiv, [createElement('p', `match-${Match}`, `Final`, "text-emerald-600 font-bold")]);
-				} else {
-					append(MatchDiv, [createElement('p', `match-${Match}`, `Round ${MatchRound}`, "text-emerald-600 font-bold")]);
-				}
+			if (final) {
+				append(MatchDiv, [createElement('p', `match-${Match}`, `Final`, "text-orange-200 font-bold")]);
+			} else {
+				append(MatchDiv, [createElement('p', `match-${Match}`, `Round ${MatchRound}`, "text-orange-200 font-bold")]);
+			}
 			}
 		}
-		return MatchDiv
+		return MatchDiv;
 	}
 
 	// Identifies next game to play in a tournament
@@ -269,17 +297,20 @@ export class TournamentPage {
 			if (!data.ok)
 				throw new Error("Error getting next match: " + data.error);
 			this.NextGameId = data.next_match.game_id;
+			console.log("next round = ", data.next_match); 
+			if (data.next_match.round == 1)
+				this.isFinal = true;
 			if (!this.TournamentMatches.has(this.NextGameId))
 				throw new Error("Next tournament id not found in matches");
 			NextRound = this.TournamentMatches.get(this.NextGameId)!;
 		} catch (error) {
 			alert(error);
 		}
-		(document.getElementById(`match-${NextRound}-div`) as HTMLElement)?.classList.add('bg-orange-500');
+		(document.getElementById(`match-${NextRound}-div`) as HTMLElement)?.classList.add('animate-wiggle');
 	}
 
 
-	get _PartyMap(): Map<number, HTMLInputElement>{
+	get _PartyMap(): Map<number, HTMLButtonElement>{
 		return this.PartyMap;
 	}
 
@@ -324,6 +355,16 @@ export class TournamentPage {
 
 	get _tournamentName(): HTMLInputElement {
 		return this.TournamentName;
+	}
+
+	get _tournamentId(): number | null{
+		if (this.TournamentId)
+			return this.TournamentId;
+		return null;
+	}
+
+	get _isFinal(): boolean {
+		return this.isFinal;
 	}
 
 	set setOption(Option: number){

@@ -16,15 +16,16 @@ type UserData = //VA ETRE CHANGER, le token renvoie le username et l'id du user
 };
 
 export class availableGames {
-	private Page: HTMLElement;
-	private PartyMap: Map<number, HTMLInputElement>;
+	private Page!: HTMLElement;
+	private PartyMap: Map<number, HTMLButtonElement>;
 	private UserData!: any;
+	private bodyParty!: HTMLElement;
+	private TitleParty!: HTMLElement;
+	private AvailableDiv!: HTMLElement;
 
-	constructor(page: HTMLElement,  PartyMap: Map<number, HTMLInputElement>) {
-		this.Page = page;
+	constructor(PartyMap: Map<number, HTMLButtonElement>) {
 		this.PartyMap = PartyMap;
 		this.initUserInfo();
-
 	}
 
 	private async initUserInfo() {
@@ -39,59 +40,34 @@ export class availableGames {
 		}
 	}
 
-	render () {
+	render (parent: HTMLElement) {
+		this.Page = parent
 		this.createAvailableGame();
 	}
 
 	// create div for available games div 
 	private async createAvailableGame() {
-		const AvailableDiv: HTMLElement = createDiv("available-games", "flex flex-col items-center w-[90%] h-[90%] space-y-8  mb-auto");
+		this.AvailableDiv = createDiv("available-games", "flex flex-col items-center w-[90%] h-[90%] space-y-8 mb-auto translate-y-16");
 
+		this.TitleParty = (createElement('p', "Title-Party", "", "text-center text-orange-200 text-2xl text-center w-[50%] h-[10%] font-bold border-4 rounded-xl translate-y-4 border-orange-200 shadow-xl") as HTMLElement)
+
+		this.bodyParty =  (createDiv("Body-Party", "flex flex-wrap justify-around w-[80%] h-64 border-4 border-orange-200 rounded-xl shadow-xl overflow-auto gap-y-4 gap-x-4") as HTMLElement);
 		// Append title, and body
-		append(AvailableDiv, [(createElement('p', "Title-Party", "", "text-center text-emerald-600 w-[50%] font-bold border-4 rounded-xl translate-y-4 border-orange-400 shadow-xl") as HTMLElement)
-							, (createDiv("Body-Party", "flex flex-col w-[90%] h-64 border-4 border-orange-400 rounded-xl -translate-y-2shadow-xl overflow-auto") as HTMLElement)]);
-		append(this.Page, [AvailableDiv]);
+		append(this.AvailableDiv , [this.TitleParty , this.bodyParty]);
+		append(this.Page, [this.AvailableDiv ]);
 	}
+
 
 	async refreshAvailableGames() {
-		this.PartyMap!.clear();
-		const BodyParty = document.getElementById("Body-Party-div")  as HTMLElement;
-		BodyParty.innerHTML = '';
-
-		const availableGamesDiv = document.getElementById('available-games-div');
-		if (!availableGamesDiv || !this.UserData?.id) {
-			console.log('availableGames debug');
-			if(!availableGamesDiv)
-			   this.Page.innerHTML = `Error don't find availables games`;
-			return;
-		}
-
-		try {
-			const result = await getAvailableGames(this.UserData?.slug);
-			if (!result.ok) {
-				availableGamesDiv.innerHTML = 'Error loading games.';
-				return;
-			}
-			const games = result.games;
-			const TitlePartys = document.getElementById('Title-Party-p') as HTMLElement;
-			this.renderParty(games, BodyParty, TitlePartys, false);
-		}
-		catch (error) {
-			console.error('Error fetching games:', error);
-			availableGamesDiv.innerHTML = '<p>Error loading games</p>';
-		}
-	}
-
-	async refreshAvailableTournament() {
 		/*************************here to call API get Availables tounrament********************************/
+		console.log("refresh available games");
 		this.PartyMap!.clear();
-		const BodyParty = document.getElementById("Body-Party-div")  as HTMLElement;
-		BodyParty.innerHTML = '';
-	
-		const availableGamesDiv = document.getElementById('available-games-div');
-		if (!availableGamesDiv || !this.UserData?.id) {
+		// const BodyParty = document.getElementById("Body-Party-div")  as HTMLElement;
+		this.bodyParty.innerHTML = '';
+		// const availableGamesDiv = document.getElementById('available-games-div');
+		if (!this.AvailableDiv  || !this.UserData?.id) {
 			console.log('availableGames debug');
-			if(!availableGamesDiv)
+			if(!this.AvailableDiv )
 			   this.Page.innerHTML = `Error don't find availables games`;
 			return;
 		}
@@ -99,131 +75,78 @@ export class availableGames {
 		try {
 			const result = await getAvailableTournaments(this.UserData?.slug); // change for Available Tournament
 			if (!result.ok) {
-				availableGamesDiv.innerHTML = 'Error loading games.';
+				this.AvailableDiv .innerHTML = 'Error loading games.';
 				return;
 			}
 			const tournaments = result.tournaments;
-			const TitlePartys = document.getElementById('Title-Party-p') as HTMLElement;
-			this.renderParty(tournaments, BodyParty, TitlePartys, true);
+			console.log("tournament :", tournaments);
+			// const TitlePartys = document.getElementById('Title-Party-p') as HTMLElement;
+			this.renderParty(tournaments);
 		}
 		catch (error) {
 			console.error('Error fetching games:', error);
-			availableGamesDiv.innerHTML = '<p>Error loading games</p>';
+			this.AvailableDiv .innerHTML = '<p>Error loading games</p>';
 		}
 	}
 
-	private renderParty(games: any, Parent: HTMLElement , TitlePartys: HTMLElement, tournament: boolean) {
+	private renderParty(games: any) {
 			if (games.length === 0) {
-				TitlePartys.textContent = 'No games available';
+				this.TitleParty.textContent = 'No games available';
 			}
 			else {
-				TitlePartys.textContent = 'available Partys';
+				this.TitleParty.textContent = 'available Partys';
 				games.map((Party: any, index: number) => {
-					const PartyDiv: HTMLElement = createDiv("game-item" + index.toString(), "flex border-2 border-orange-600 w-full h-[40%] space-x-8");
-
+					const PartyDiv: HTMLButtonElement = createButton("game-item" + index.toString(), "flex flex-wrap justify-around active:scale-95 hover:scale-105 w-[40%] h-[50%] gap-x-4 transition-all duration-200", '');
+					PartyDiv.style.backgroundImage = "url('game_ui/setting/emptyPan.png')";
+					PartyDiv.style.backgroundPosition = "center";
+					PartyDiv.style.backgroundSize = '100% 100%';
 					this.CreateGameIdDiv(PartyDiv, index, Party);
-					if (!tournament)
-						this.CreatePlayerNamesDiv(PartyDiv, index, Party);
-					else
-						this.CreateTournamentName(PartyDiv, index, Party);
-					this.createGameStatusDiv(PartyDiv, index, Party);
+					this.CreateTournamentName(PartyDiv, index, Party);
 					this.createCreatedAtDiv(PartyDiv, index, Party);
-					this.createCheckBoxDiv(PartyDiv, index, Party);
-					append(Parent, [PartyDiv]);
+					append(this.bodyParty, [PartyDiv]);
+					this.PartyMap.set(Party.id, PartyDiv);
 				})
-				this.ManagePartyEvent(tournament);
+				this.ManagePartyEvent();
 			}
 	}
 
 	private CreateGameIdDiv(Div: HTMLElement, index: number, Party: any) {
-		const GameIdDivs = createDiv("party-item" + index.toString(), "w-[15%] h-full flex items-center") as HTMLElement;
+		const GameIdDivs = createDiv("party-item" + index.toString(), "w-full  h-[15%] flex items-center justify-center translate-y-4") as HTMLElement;
 
-		append(GameIdDivs, [(createElement('h2', "party-item " + index.toString(), `Game #${Party.id} :` , "text-emerald-600 text-center underline font-bold") as HTMLElement)]);
+		append(GameIdDivs, [(createElement('h2', "party-item " + index.toString(), `Game #${Party.id}` , "text-orange-200  text-center underline font-bold") as HTMLElement)]);
 		append(Div, [GameIdDivs]);
 	}
 
-	private CreatePlayerNamesDiv(Div: HTMLElement, index: number, Party: any) {
-		const PLayersNameDivs = createDiv("party-Players-Name" + index.toString(), "w-[20%] h-full grid grid-rows-4 items-center justify-center") as HTMLElement;
-
-		append(PLayersNameDivs, [(createElement('h2', "party-Players-Name" + index.toString(), "Players : ", "text-emerald-600 text-center font-bold underline") as HTMLElement)
-								, (createElement('h1', "party-Player-a-Name" + index.toString(), `${Party.player_a}`, "text-emerald-600 text-center") as HTMLElement)
-								, (createElement('h1', "party-vs-Name" + index.toString(), `vs`, "text-emerald-600 text-center") as HTMLElement)
-								, (createElement('h1', "party-Player-b-Name" + index.toString(), `${Party.player_b}`, "text-emerald-600 text-center") as HTMLElement)]);
-		append(Div, [PLayersNameDivs]);
-	}
-
 	private CreateTournamentName(Div: HTMLElement, index: number, Party: any) {
-		const TournamentNameDiv = createDiv("party-Players-Name" + index.toString(), "w-[20%] h-full grid grid-rows-4 items-center justify-center") as HTMLElement;
+		const TournamentNameDiv = createDiv("party-Players-Name" + index.toString(), "w-[30%] h-[70%] flex flex-col items-center justify-center overflow-hidden") as HTMLElement;
 
-		append(TournamentNameDiv, [(createElement('h2', "tournament-Name" + index.toString(), "Name : ", "text-emerald-600 text-center font-bold underline") as HTMLElement)
-									, (createElement('h1', "tournament-Name" + index.toString(), `${Party.name}`, "text-emerald-600 text-center") as HTMLElement)])
+		append(TournamentNameDiv, [(createElement('h2', "tournament-Name" + index.toString(), "Name", "text-orange-200 text-center font-bold underline") as HTMLElement)
+									, (createElement('h1', "tournament-Name" + index.toString(), ` ${Party.name}`, "text-orange-200 text-center") as HTMLElement)])
 
 		append(Div, [TournamentNameDiv])
 	}
 
-	private createGameStatusDiv(Div: HTMLElement, index: number, Party: any) {
-		const GamesStatueDivs = createDiv("party-statue" + index.toString(), "w-[20%] h-full grid grid-rows-4 items-center justify-center space-y-12") as HTMLElement;
-
-		append(GamesStatueDivs, [(createElement('h2', "party-statue" + index.toString(), `Status : `, "text-emerald-600 text-center underline font-bold") as HTMLElement)
-								, (createElement('h1', "party-statue" + index.toString(), `${Party.status}`, "text-emerald-600 text-center") as HTMLElement)]);
-		append(Div, [GamesStatueDivs]);
-	}
-
 	private createCreatedAtDiv(Div: HTMLElement, index: number, Party: any) {
-		const CreatedAtDivs = createDiv("party-item" + index.toString(), "w-[20%] h-full grid grid-rows-4 items-center justify-center space-y-12") as HTMLElement;
+		const CreatedAtDivs = createDiv("party-item" + index.toString(), "w-[40%] h-[70%] flex flex-col items-center justify-center overflow-hidden") as HTMLElement;
 		
-		append(CreatedAtDivs, [(createElement('h2', "party-statue" + index.toString(), `Created At : `, "text-emerald-600 text-center underline font-bold") as HTMLElement)
-								, (createElement('h1', "party-statue" + index.toString(), `${Party.created_at}`, "text-emerald-600 text-center") as HTMLElement)]);
+		append(CreatedAtDivs, [(createElement('h2', "party-statue" + index.toString(), `Created At `, "text-orange-200 text-center underline font-bold") as HTMLElement)
+								, (createElement('h1', "party-statue" + index.toString(), `${Party.created_at}`, "text-orange-200") as HTMLElement)]);
 		append(Div, [CreatedAtDivs]);
 	}
 
-	private createCheckBoxDiv(Div: HTMLElement, index: number, Party: any) {
-		const checkboxDiv = createDiv("party-check", "w-[20%] h-full grid grid-rows-4 items-center justify-center space-y-12") as HTMLElement;
-		const checkbox = createCheckBoxLabel(`$(Party.id)`, "choose", "", ["text-emerald-600 space-x-4",""]);
-		this.PartyMap?.set(Party.id as number, (checkbox.querySelector('input')) as HTMLInputElement);
-
-		append(checkboxDiv, [(createElement('h2', "choose", "choose one :", "text-emerald-600 font-bold underline") as HTMLElement)
-							, checkbox]);
-		append(Div, [checkboxDiv]);
+	private ManagePartyEvent() {
+		// document.getElementById("delete-btn")?.addEventListener('click', async(e) => {
+		// 	this.PartyMap?.forEach(async (value, key) => {
+		// 		if (value.checked) {
+		// 			await this.deleteTournament(key);
+		// 			await this.refreshAvailableGames();
+		// 			return ;
+		// 		}
+		// 	})
+		// })
 	}
 
-	private ManagePartyEvent(tournament: boolean) {
-		this.PartyMap?.forEach((value, key) =>{
-			value.addEventListener('change', () => {
-				this.PartyMap?.forEach((value, key) => {
-					value.checked = false; })
-				value.checked = true;
-			})
-		})
-
-		document.getElementById("delete-btn")?.addEventListener('click', async(e) => {
-			this.PartyMap?.forEach(async (value, key) => {
-				if (value.checked) {
-					if (!tournament)
-						await this.deleteGame(key);
-					else
-						await this.deleteTournament(key);
-					await this.refreshAvailableGames();
-					return ;
-				}
-			})
-		})
-	}
-
-	private async deleteGame(gameId: number) {
-		try {
-			const request = await deleteGame(gameId);
-			if (!request.ok) {
-				throw new Error(request.error);
-			}
-			alert(request.message);
-		} catch (error) {
-			alert(error);
-		}
-		await this.refreshAvailableGames();
-	}
-
-		private async deleteTournament(tournamentId: number) {
+	private async deleteTournament(tournamentId: number) {
 		try {
 			const request = await deleteTournament(tournamentId);
 			if (!request.ok) {

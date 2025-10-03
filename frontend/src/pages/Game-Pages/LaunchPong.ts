@@ -15,7 +15,8 @@ export class launchPong {
 		this.tournament = false;
 	}
 
-	render(gameId: number) {
+	render(gameId: number, tournament: boolean) {
+		this.tournament = tournament;
 		this.GamePage.cleanPage();
 		this.GamePage.removeOverlayToWindow();
 		let lastTime = 0;
@@ -45,7 +46,7 @@ export class launchPong {
 			}
 			// console.log("win ?", this.Render.PongGame?.GamePhysics?.Win);
 			if (this.Render.PongGame?.GamePhysics?.Win)
-				this.EndGame();
+				this.EndGame(gameId);
 		})
 	}
 
@@ -58,15 +59,19 @@ export class launchPong {
 		this.Render.callRenderLoop();
 	}
 
-	private EndGame() {
+	private EndGame(id: number) {
 		this.Render.engine?.stopRenderLoop();
 		this.Render.PongGame!.GamePhysics!.stopGame();
 		this.Render.PongGame!.GamePhysics!.SetWin = false;
 		this.GamePage.addOverlayToWindow();
-		if (/**tournament */this.tournament)
-			this.GamePage.generateBracketTournament(0/****replace by id Party****/);
-		else
-			this.GamePage.generateEndGamePage();
+		if (this.tournament && this.GamePage._tournamentPage._tournamentId && !this.GamePage._tournamentPage._isFinal)
+			this.GamePage.generateBracketTournament(this.GamePage._tournamentPage._tournamentId!);
+		else {
+			if (this.tournament && this.GamePage._tournamentPage._tournamentId)
+				this.GamePage.generateEndGamePage(this.tournament, this.GamePage._tournamentPage._tournamentId);
+			else
+				this.GamePage.generateEndGamePage(this.tournament, id);
+		}
 	}
 
 	set setTournament(tournament:boolean) {

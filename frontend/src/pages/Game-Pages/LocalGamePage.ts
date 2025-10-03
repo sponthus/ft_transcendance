@@ -37,7 +37,7 @@ export class LocalGamePage {
 		this.Page = Page;
 		// this.PartyMap = new Map<number, HTMLInputElement>();
 		this.Username = UserName;
-		this.PlayerA = "endoliam "; //this.Username; change to this.username
+		this.PlayerA = this.Username; //this.Username; change to this.username
 	}
 
 	async render() {

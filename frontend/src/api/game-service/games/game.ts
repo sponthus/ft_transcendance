@@ -18,7 +18,7 @@ type PendingGamesInfos = {
 	option: number;
 }
 
-type AllGamesInfos = {
+export type AllGamesInfos = {
     id: number;
     status: 'pending' | 'ongoing' | 'finished' | 'canceled';
     id_user: number,

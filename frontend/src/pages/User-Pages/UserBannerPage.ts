@@ -115,14 +115,14 @@ export class UserBanner {
 	/*************************************Functions for creating Profile botBanner*************************************/
 	private  setButtonsBanner() : HTMLElement {
 		const BotBanner: HTMLElement = createDiv('BotBanner', "flex items-center justify-center bg-sky-500 bg-opacity-50 shadow-md w-full h-[20%] font-sans");
-		append(BotBanner, [(createButton("Profile", "flex items-center justify-center h-full w-1/6 hover:text-emerald-700 hover:font-bold text-emerald-700 font-bold text-center text-2xl", 		"Profile") as HTMLButtonElement)
-							,(createButton("FriendList", "flex items-center justify-center h-full w-1/6 hover:text-emerald-700 hover:font-bold text-emerald-600 text-center text-2xl", "Friends") as HTMLButtonElement)
-							,(createButton("History", "flex items-center justify-center h-full w-1/6 hover:text-emerald-700 hover:font-bold text-emerald-600 text-center text-2xl", "History") as HTMLButtonElement)]);
+		append(BotBanner, [(createButton("FriendList", "flex items-center justify-center h-full w-1/6 hover:text-emerald-700 hover:font-bold text-emerald-600 text-center text-2xl", "Friends") as HTMLButtonElement)
+							,(createButton("History", "flex items-center justify-center h-full w-1/6 hover:text-emerald-700 hover:font-bold text-emerald-600 text-center text-2xl", "History") as HTMLButtonElement)
+							,(createButton("tournament", "flex items-center justify-center h-full w-1/6 hover:text-emerald-700 hover:font-bold text-emerald-700 font-bold text-center text-2xl", 		"tournament") as HTMLButtonElement)]);
 		return BotBanner; 
 	}
 
 	async botBannerEvents() {
-		const Profile = document.getElementById("Profile-btn") as HTMLButtonElement;
+		const Profile = document.getElementById("tournament-btn") as HTMLButtonElement;
 		const Friends = document.getElementById("FriendList-btn") as HTMLButtonElement;
 		const History = document.getElementById("History-btn") as HTMLButtonElement;
 

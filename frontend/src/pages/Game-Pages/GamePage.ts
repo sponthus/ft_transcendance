@@ -5,7 +5,7 @@ import { LocalGamePage } from './LocalGamePage.js';
 import { TournamentPage } from "./tounramentPage.js";
 import { Event } from './Event.js';
 import { PageState } from "./Event.js";
-import { getUserInfo } from '../../api/user-service/user-info/getUserInfo.js';
+import { getUserInfo, UserInfo } from '../../api/user-service/user-info/getUserInfo.js';
 import { endGamePage } from './endGamePage.js';
 
 type UserData = //VA ETRE CHANGER, le token renvoie le username et l'id du user
@@ -35,16 +35,17 @@ export class GamePage extends popUp {
 	private Event!: Event;
 	private render!: renderScene;
 	private userName!: string;
+	private userData!: UserInfo;
 
 	constructor(render: renderScene) {
 		super("Pong Game");
 		this.render = render;
 		this.startGamePage();
+		this.initPage();
 	}
 	
 	async startGamePage() {
-		this.getUsername();
-		this.initPage();
+		await this.getUsername();
 		this.initPopUpPage();
 		this.EndGamePage = new endGamePage(this.Page);
 		this.LocalGamePage = new LocalGamePage(this.Page, this.userName!);
@@ -58,8 +59,8 @@ export class GamePage extends popUp {
 		try {
 			const req = await getUserInfo();
 			if (req.ok) {
-				const userData = req.userInfo;
-				this.userName = userData.username;
+				this.userData = req.userInfo;
+				this.userName = this.userData.username;
 				console.log("add username ", this.userName);
 			}
 		} catch(error) {
@@ -88,7 +89,7 @@ export class GamePage extends popUp {
 		this.Page.className = "flex flex-col items-center w-full h-full transition-all opacity-0 duration-300 rounded-xl space-y-4";
 		setTimeout(async() => {
 			this.cleanPage();
-			this.TournamentPage.render();
+			await this.TournamentPage.render();
 			this.Event.manageTournamentEvent();
 		} ,300);
 	}
@@ -101,7 +102,7 @@ export class GamePage extends popUp {
 		this.Page.className = "flex flex-col items-center w-full h-full transition-all opacity-0 duration-300 rounded-xl space-y-4";
 		setTimeout(async() => {
 			this.cleanPage();
-			this.TournamentPage.renderNewTournament();
+			await this.TournamentPage.renderNewTournament();
 			this.Event.manageNewTournamentEvent();
 			// manage new tournament event
 		} , 300);	
@@ -115,9 +116,9 @@ export class GamePage extends popUp {
 		this.Page.className = "flex flex-col items-center w-full h-full transition-all opacity-0 duration-300 rounded-xl space-y-4";
 		setTimeout(async() => {
 			this.cleanPage();
-			this.TournamentPage.renderContinueTournament();
+			await this.TournamentPage.renderContinueTournament();
+			this.TournamentPage._playBtn.remove();
 			this.Event.manageContinueTournamentEvent();
-			// manage new tournament event
 		} , 300);
 	}
 
@@ -127,7 +128,7 @@ export class GamePage extends popUp {
 		setTimeout(async() => {
 			this.cleanPage();
 			this.TournamentPage.renderBracket(IdTournament);
-			// this.Event.manageContinueTournamentEvent();
+			this.Event.manageBracketEvent();
 			// manage new tournament event
 		} , 300);
 	}
@@ -162,9 +163,14 @@ export class GamePage extends popUp {
 		this.createGamePageDiv();
 	}
 
-	async generateEndGamePage() {
-		this.Event.ChangeBackPageButtonText([(document.getElementById("Return-btn") as HTMLButtonElement), "Return to Lobby"], [(document.getElementById("Save-btn") as HTMLButtonElement), "new game"]);
-		this.EndGamePage.render();
+	async generateEndGamePage(tournament: boolean, id: number) {
+		this._Body.className = "relative flex flex-col items-center justify-center  h-[70%] w-[30%] transition-all duration-300 rounded-xl shadow-2xl";
+		this.Page.className = "flex flex-col items-center w-full h-full transition-all opacity-0 duration-300 rounded-xl space-y-4";
+		setTimeout(async() => {
+			this.cleanPage();
+			this.EndGamePage.render(tournament, id, this.userData);
+			this.Event.manageEndGameEvent();
+		}, 300);
 	}
 
 	/*********************************************function Utils for rendering Game Mod Select Page**********************************************/
@@ -205,12 +211,6 @@ export class GamePage extends popUp {
 		})
 	}
 
-	cleanStubborn() {
-		// Array.from(this._Title.children).forEach((child=> {
-		// 	child.remove();
-		// }))
-	}
-
 	get Body(): HTMLElement {
 		return this._Body;
 	}
@@ -221,5 +221,13 @@ export class GamePage extends popUp {
 
 	get _render(): renderScene {
 		return this.render;
+	}
+	
+	get _tournamentPage(): TournamentPage {
+		return this.TournamentPage;
+	}
+
+	get _endGamePage(): endGamePage {
+		return this.EndGamePage;
 	}
 }
