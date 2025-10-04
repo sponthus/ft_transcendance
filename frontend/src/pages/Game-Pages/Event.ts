@@ -258,10 +258,10 @@ export class Event {
 		this.TournamentPage._nameMap.forEach((value, key) => {PlayersNames.push(value.value);})
 
 		/**************check tournament name**************/
-		if (!this.TournamentPage._tournamentName.value)
-			ErrorPopup("Please enter a tournament name.");
 
 		try {
+			if (!this.TournamentPage._tournamentName.value)
+				throw new Error("Please enter a tournament name.");
 			const res = await createTournament(this.TournamentPage._tournamentName.value, PlayersNames, this.TournamentPage._option);
 			if (res.ok) {
 				console.log('res tournament : ', res.tournament);
@@ -269,7 +269,6 @@ export class Event {
 				this.setStatePage = PageState.BRACKET;
 				this.GamePage.generateBracketTournament(res.tournament.tournament_id);
 			}
-
 		} catch (error) {
 			ErrorPopup(error as string);
 		}
