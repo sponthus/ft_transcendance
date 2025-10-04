@@ -3,6 +3,7 @@ import { createElement, append, createImage, createButton, createDiv } from "../
 import { getAllTournaments, TournamentsInfos } from "../../api/game-service/tournaments/getTournaments";
 import { UserInfo } from "../../api/user-service/user-info/getUserInfo";
 import { AllGamesInfos, AllGamesResult, getAllGames } from "../../api/game-service/games/game";
+import { ErrorPopup } from '../ErrorPage.js';
 
 type UserData = //VA ETRE CHANGER, le token renvoie le username et l'id du user
 {
@@ -55,7 +56,7 @@ export class endGamePage {
 				})
 			}
 		} catch(error) {
-			alert(error);
+			ErrorPopup(error as string);
 		}
 	}
 
@@ -69,7 +70,7 @@ export class endGamePage {
 				})
 			}
 		} catch(error) {
-			alert(error);
+			ErrorPopup(error as string);
 		}
 	}
 

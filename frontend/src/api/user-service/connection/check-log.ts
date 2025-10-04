@@ -1,3 +1,5 @@
+import { ErrorPopup } from "../../../pages/ErrorPage";
+
 type Result =
     | { ok: true }
     | { ok: false; error?: string} //? --> pas forcement la variable
@@ -29,7 +31,7 @@ export async function checkLog(): Promise<Result>
     console.log('status = ', res.status);
     if (res.status === 401)
     {
-        alert(data.error);
+        ErrorPopup(data.error);
         return { ok: false, error: data.error};
     }
     return { ok: false };

@@ -4,6 +4,7 @@ import { createLocalGame, getAvailableGames, startGame, deleteGame } from "../..
 import { getUserInfo } from "../../api/user-service/user-info/getUserInfo.js";
 import { getAvailableTournaments } from  "../../api/game-service/tournaments/getTournaments.js";
 import { deleteTournament } from  "../../api/game-service/tournaments/deleteTournament.js";
+import { ErrorPopup } from '../ErrorPage.js';
 
 type UserData = //VA ETRE CHANGER, le token renvoie le username et l'id du user
 {
@@ -36,7 +37,7 @@ export class availableGames {
 			}
 
 		} catch (error) {
-			alert("error");
+			ErrorPopup("error");
 		}
 	}
 
@@ -152,9 +153,9 @@ export class availableGames {
 			if (!request.ok) {
 				throw new Error(request.error);
 			}
-			alert(request.message);
+			ErrorPopup(request.message);
 		} catch (error) {
-			alert(error);
+			ErrorPopup(error as string);
 		}
 		await this.refreshAvailableGames();
 	}

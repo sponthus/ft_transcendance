@@ -1,8 +1,7 @@
 import { createDiv, createElement, createButton, createImage, createInput, createCheckBoxLabel, append} from '../../Utils/elementMaker.js';
 import { availableGames } from './AvailableGames.js';
 import { getTournamentMatches, GameInfos, getTournamentNextMatch } from "../../api/game-service/tournaments/getTournaments.js" 
-import { Game } from '../../babylon/main.js';
-
+import { ErrorPopup } from '../ErrorPage.js';
 
 export class TournamentPage {
 	private Page!: HTMLElement;
@@ -230,7 +229,7 @@ export class TournamentPage {
 			append(this.Page, [this.TournamentPan]);
 			this.findNextRound();
 		} catch (error) {
-			alert(error);
+			ErrorPopup(error as string);
 			this.Page.innerHTML = `<div class="text-red-500">error : ${error}</div>`
 		}
 	}
@@ -304,7 +303,7 @@ export class TournamentPage {
 				throw new Error("Next tournament id not found in matches");
 			NextRound = this.TournamentMatches.get(this.NextGameId)!;
 		} catch (error) {
-			alert(error);
+			ErrorPopup(error as string);
 		}
 		(document.getElementById(`match-${NextRound}-div`) as HTMLElement)?.classList.add('animate-wiggle');
 	}

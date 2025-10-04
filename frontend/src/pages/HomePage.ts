@@ -35,7 +35,7 @@ export class HomePage extends BasePage {
 			console.log('obj: ', req.status);
 		}
 		else
-			alert(req.error);
+			ErrorPopup(req.error);
 		//*/
 		
 		await this.addInApp();	

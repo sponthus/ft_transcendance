@@ -1,16 +1,11 @@
 import { navigate } from '../../core/router.js';
-import { updateUsername } from "../../api/user-service/user-info/updateUsername.js";
 import { getUserInfo, getUserInfoBySlug, UserInfo } from '../../api/user-service/user-info/getUserInfo.js';
-import { uploadAvatar } from "../../api/avatar.js";
 import { BasePage } from "../BasePage.js";
-import { popUp } from '../../Utils/popUp.js';
-import { sleep } from '../../babylon/displaying/dialogueBox.js';
-import { createDiv, createElement, createButton, createDropdownDiv, createFormDiv, createCheckBoxLabel, append, createImage, createInput} from '../../Utils/elementMaker.js';
-import { getAllGames } from '../../api/game-service/games/game.js';
 import { DisplayHistoryPage } from './HistoryPage.js';
 import { displayFriendlist } from './FriendListPage.js';
 import { UserBanner } from './UserBannerPage.js';
 import { DisplayeTournamentHistoryPage } from './TournamentHistoryPage.js';
+import { ErrorPopup } from '../ErrorPage.js';
 
 enum BodyState {TOURNAMENT = 0, FRIENDS = 1, HISTORY = 2};
 
@@ -73,12 +68,12 @@ export class UserPage extends BasePage {
 				await this.showUserPage();
 			}
 			else {
-				alert('Error While loading Profile' + req.error);
+				ErrorPopup('Error While loading Profile' + req.error);
 				navigate('/');
 			}
 		}
 		catch (error) {
-			alert(error);
+			ErrorPopup(error as string);
 		}
 	}
 
@@ -93,7 +88,7 @@ export class UserPage extends BasePage {
 			}
 
 		} catch (error) {
-			alert(error);
+			ErrorPopup(error as string);
 		}
 	}
 	async showUserPage() {

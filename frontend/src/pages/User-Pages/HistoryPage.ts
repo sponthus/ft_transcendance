@@ -1,8 +1,7 @@
-import { createDiv, createElement, createButton, createDropdownDiv, createFormDiv, createCheckBoxLabel, append} from '../../Utils/elementMaker.js';
-import { getAllGames, getFinishedGames } from '../../api/game-service/games/game.js';
+import { createDiv, createElement, append} from '../../Utils/elementMaker.js';
+import {getFinishedGames } from '../../api/game-service/games/game.js';
 import { UserInfo } from '../../api/user-service/user-info/getUserInfo.js';
-import { UserPage } from './UserPage.js';
-
+import { ErrorPopup } from '../ErrorPage.js';
 
 
 export async function DisplayHistoryPage(Body: HTMLElement, UserData: UserInfo) {
@@ -25,7 +24,7 @@ export async function DisplayHistoryPage(Body: HTMLElement, UserData: UserInfo) 
 
 	}
 	catch (error) {
-		alert("error: " + error);
+		ErrorPopup("error: " + error);
 	}
 }
 

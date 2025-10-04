@@ -1,6 +1,6 @@
 import { renderScene } from '../../babylon/displaying/renderScene.js';
 import { GamePage } from './GamePage.js';
-
+import { ErrorPopup } from '../ErrorPage.js';
 
 export class launchPong {
 
@@ -34,7 +34,7 @@ export class launchPong {
 		try {
 			this.Render.PongGame?.GamePhysics?.launchSocket(gameId);
 		} catch(error) {
-			alert("Error launching pong websocket");
+			ErrorPopup("Error launching pong websocket");
 			this.returnLobby();
 		}
 		this.Render.engine?.runRenderLoop(() => {

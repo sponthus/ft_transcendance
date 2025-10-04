@@ -3,6 +3,7 @@ import { getUserInfoBySlug, UserInfo } from "../api/user-service/user-info/getUs
 import { append, createDiv, createButton, createImage, createAnchorElement } from "./elementMaker";
 import { getAllNotifications, AllNotifs, getReadNotifications, getUnreadNotifications } from "../api/user-service/menu/notifications/getNotifications";
 import { markNotificationsRead } from "../api/user-service/menu/notifications/markNotificationRead";
+import { ErrorPopup } from "../pages/ErrorPage";
 
 const notificationWrapper: HTMLElement = createDiv('notif-wrapper','relative flex items-center');
 let isNotificationOpen: boolean = false;
@@ -44,13 +45,13 @@ function acceptInvitation(acceptBtn: HTMLButtonElement, userData: UserInfo) {
 		try {
 			const req = await acceptRequest(userData.username);
 			if (req.ok) {
-				alert("accept invitation of " + userData.username);
+				ErrorPopup("accept invitation of " + userData.username);
 				console.log("acctp invitation of ", userData.username);
 				refreshNotification();
 			}
 
 		} catch(error) {
-			alert(error);
+			ErrorPopup(error as string);
 		}
 	})
 }
@@ -63,13 +64,13 @@ function declineInvitation(declineBtn: HTMLButtonElement, userData: UserInfo) {
 		try {
 			const req = await rejectRequest(userData.username);
 			if (req.ok) {
-				alert("decline invitation of " + userData.username);
+				ErrorPopup("decline invitation of " + userData.username);
 				console.log("acctp invitation of ", userData.username);
 				refreshNotification();
 			}
 
 		}catch(error) {
-			alert(error);
+			ErrorPopup(error as string);
 		}
 	})
 }
@@ -84,7 +85,7 @@ async function openNotification() {
 		if (req.ok)
 		return ; 
 	} catch(error) {
-		alert(error);
+		ErrorPopup(error as string);
 	}
 	// const notificationPannel = document.getElementById('notification-panel-div') as HTMLElement;
 	// setTimeout(() => {
@@ -128,7 +129,7 @@ async function fillUSerInfo(request: AllNotifs, parent: HTMLElement){
 				append(parent, [addREjectRequest(userData)]);
 		}
 	} catch (error) {
-		alert(error);
+		ErrorPopup(error as string);
 	}
 	addNumberInvitation();
 }
@@ -151,7 +152,7 @@ async function fillReceiveRequest(parent: HTMLElement) {
 		}
 		
 	} catch (error) {
-		alert(error);
+		ErrorPopup(error as string);
 	}
 }
 

@@ -4,9 +4,9 @@ import { createDiv, createElement, createButton, createDropdownDiv, createFormDi
 import { LocalGamePage } from './LocalGamePage.js';
 import { TournamentPage } from "./tounramentPage.js";
 import { Event } from './Event.js';
-import { PageState } from "./Event.js";
 import { getUserInfo, UserInfo } from '../../api/user-service/user-info/getUserInfo.js';
 import { endGamePage } from './endGamePage.js';
+import { ErrorPopup } from '../ErrorPage.js';
 
 type UserData = //VA ETRE CHANGER, le token renvoie le username et l'id du user
 {
@@ -36,6 +36,7 @@ export class GamePage extends popUp {
 	private render!: renderScene;
 	private userName!: string;
 	private userData!: UserInfo;
+	private BackBtn!: HTMLButtonElement;
 
 	constructor(render: renderScene) {
 		super("Pong Game");
@@ -64,7 +65,7 @@ export class GamePage extends popUp {
 				console.log("add username ", this.userName);
 			}
 		} catch(error) {
-			alert (error);
+			ErrorPopup (error as string);
 		}
 	}
 
@@ -175,10 +176,16 @@ export class GamePage extends popUp {
 
 	/*********************************************function Utils for rendering Game Mod Select Page**********************************************/
 	private async createGamePageDiv() {
+		this.cleanPage();
 		this._Body.className = "flex flex-col items-center justify-center h-[70%] w-[70%] bg-orange-300 rounded-xl shadow-2xl transition-all duration-300";
 		this.Page.className = "flex flex-wrap items-center justify-center w-full h-full  text-center transition-all duration-300 space-y-4 rounded-xl shadow-2xl overflow-hidden";
+
+		this.BackBtn = (createButton("return", "absolute flex items-center z-5 active:scale-95 hover:scale-105 h-[10%] w-[10%] transition-all duration-200", "") as HTMLButtonElement);
+		append(this.BackBtn, [createImage('Back', 'absolute object-center h-full w-full', 'game_ui/Backbtn.png')]);
+
+
 		const buttondiv: HTMLElement = createDiv("button-mod", "flex flex-row h-full w-full");
-		append(buttondiv, [this.create1v1button(), this.createTournamentButton()]);
+		append(buttondiv, [this.create1v1button(), this.createTournamentButton(), this.BackBtn]);
 		append(this.Page, [buttondiv]);
 		this.Event.manageGameModEvent();
 	}
@@ -229,5 +236,9 @@ export class GamePage extends popUp {
 
 	get _endGamePage(): endGamePage {
 		return this.EndGamePage;
+	}
+
+	get _backBtn(): HTMLButtonElement {
+		return this.BackBtn;
 	}
 }

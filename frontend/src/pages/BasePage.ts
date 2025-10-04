@@ -43,7 +43,7 @@ export abstract class BasePage {
         }
         else {
             await renderLoggedOutBanner(this.banner);
-            //alert(res.error); pas d'alerte peut etre la 
+            //ErrorPopup(res.error); pas d'ErrorPopupe peut etre la 
         }
     }
 

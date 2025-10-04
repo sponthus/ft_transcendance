@@ -7,6 +7,7 @@ import { launchPong } from './LaunchPong.js';
 import { TournamentPage } from './tounramentPage.js';
 import { getUserInfo } from "../../api/user-service/user-info/getUserInfo.js";
 import { createTournament } from "../../api/game-service/tournaments/newTournament.js";
+import { ErrorPopup } from '../ErrorPage.js';
 
 export enum PageState {MOD = 0, TOURNAMENT = 1, PARTY = 2, LOCALSETTING = 3, NEWTOURNAMENT = 4, CONTINUETOURNAMENT = 5, BRACKET = 6, WIN = 7};
 
@@ -72,6 +73,8 @@ export class Event {
 			this.StatePage = PageState.TOURNAMENT;
 			await this.GamePage.generateTournamentPage();
 		}));
+		if (this.GamePage._backBtn)
+			this.GamePage._backBtn.addEventListener('click', async() => {this.ReturnToLobby();});
 	}
 
 	/*************************************Functions for 1v1 Event*************************************/
@@ -90,7 +93,7 @@ export class Event {
 			if (!req.ok)
 			{
 			    console.log('Error GamePage: ', req.error);
-			    alert("Error GamePage" + req.error);
+			    ErrorPopup("Error GamePage" + req.error);
 			    return ;
 			}
 			const userData = req.userInfo;
@@ -109,7 +112,7 @@ export class Event {
 		}
 		catch (error) {
 			console.log("Error creating Games : ", error);
-			alert('Error creating Game PLease try again: ' + error);
+			ErrorPopup('Error creating Game PLease try again: ' + error);
 		}
 	}
 
@@ -256,7 +259,7 @@ export class Event {
 
 		/**************check tournament name**************/
 		if (!this.TournamentPage._tournamentName.value)
-			alert("Please enter a tournament name.");
+			ErrorPopup("Please enter a tournament name.");
 
 		try {
 			const res = await createTournament(this.TournamentPage._tournamentName.value, PlayersNames, this.TournamentPage._option);
@@ -268,7 +271,7 @@ export class Event {
 			}
 
 		} catch (error) {
-			alert(error);
+			ErrorPopup(error as string);
 		}
 	}
 
@@ -318,7 +321,7 @@ export class Event {
 		try {
 			this.launchGame(this.TournamentPage._NextGameId, true);
 		} catch (error) {
-			alert('error : ' + error);
+			ErrorPopup('error : ' + error);
 		}
 	}
 
@@ -332,7 +335,7 @@ export class Event {
 			this.renderGame(gameId, tournament);
 		} 
 		catch (error) {
-			alert(error);
+			ErrorPopup(error as string);
 			await navigate('/game');
 		}
 	}

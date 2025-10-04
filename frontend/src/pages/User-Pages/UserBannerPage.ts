@@ -2,8 +2,8 @@ import { addFriend, removeFriend } from '../../api/user-service/menu/friendsList
 import { acceptRequest, getSentRequests, rejectRequest } from '../../api/user-service/menu/friendsList/requestHandlers.js';
 import { createDiv, createElement, createButton, append, createImage} from '../../Utils/elementMaker.js';
 import { EditProfile } from './EditProfile.js';
-import { getAllFriends } from '../../api/user-service/menu/friendsList/friendRequest.js';
 import { UserInfo } from '../../api/user-service/user-info/getUserInfo.js';
+import { ErrorPopup } from '../ErrorPage.js';
 
 enum BodyState {PROFILE = 0, FRIENDS = 1, HISTORY = 2};
 
@@ -154,7 +154,7 @@ export class UserBanner {
 					location.reload();
 				}
 			}catch (error) {
-				alert(error);
+				ErrorPopup(error as string);
 			}
 		}));
 		(document.getElementById('remove-friend-btn')?.addEventListener('click', async() => {
@@ -165,33 +165,33 @@ export class UserBanner {
 					location.reload();
 				}
 			} catch (error) {
-				alert(error);
+				ErrorPopup(error as string);
 			}
 		}));
 		(document.getElementById('accept-btn')?.addEventListener('click', async() => {
 			try {
 				const req = await acceptRequest(this.UserData.username);
 				if (req.ok) {
-					alert("accept invitation of " + this.UserData.username);
+					ErrorPopup("accept invitation of " + this.UserData.username);
 					console.log("acctp invitation of ", this.UserData.username);
 					location.reload();
 				}
 
 			} catch(error) {
-				alert(error);
+				ErrorPopup(error as string);
 			}
 		}));
 		(document.getElementById('decline-btn')?.addEventListener('click', async() => {
 			try {
 				const req = await rejectRequest(this.UserData.username);
 				if (req.ok) {
-					alert("decline invitation of " + this.UserData.username);
+					ErrorPopup("decline invitation of " + this.UserData.username);
 					console.log("acctp invitation of ", this.UserData.username);
 					location.reload();
 				}
 
 			} catch(error) {
-				alert(error);
+				ErrorPopup(error as string);
 			}
 		}))
 	}

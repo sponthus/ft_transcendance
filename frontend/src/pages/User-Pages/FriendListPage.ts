@@ -1,6 +1,7 @@
 import { getAllFriends, AllFriends } from "../../api/user-service/menu/friendsList/friendRequest";
 import { UserInfo } from "../../api/user-service/user-info/getUserInfo";
 import { append, createAnchorElement, createDiv, createImage } from "../../Utils/elementMaker";
+import { ErrorPopup } from '../ErrorPage.js';
 
 export async function displayFriendlist(parent: HTMLElement, userData: UserInfo , isOwnProfile: boolean) {
 	parent.className = "flex flex-col items-center bg-orange-300  bg-opacity-50 w-full h-[60%] flex overflow-y-auto";
@@ -15,7 +16,7 @@ export async function displayFriendlist(parent: HTMLElement, userData: UserInfo 
 				})
 			}
 		} catch(error) {
-			alert(error);
+			ErrorPopup(error as string);
 		}
 	}
 	else {
