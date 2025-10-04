@@ -16,17 +16,13 @@ export const getUnreadNotifications = () => getNotifications('/api/user/notifica
 export const getReadNotifications = () => getNotifications('/api/user/notifications/read');
 
 export async function   getNotifications(url: string): Promise<NotifResult>
-{
-    const token = localStorage.getItem("token");
-    if (!token)
-        return {ok: false, error: "No token found"};
-    
+{    
     try 
     {
         const res = await fetch(url, 
         {
             method: 'GET',
-            headers: { 'Authorization': `Bearer ${token}` },
+            credentials: 'include',
         });
         const data = await res.json();    
         if (res.ok) 
@@ -37,6 +33,6 @@ export async function   getNotifications(url: string): Promise<NotifResult>
     }
     catch (err)
     {
-            return { ok: false, error: "Network error" };
+        return { ok: false, error: "Network error" };
     }
 }

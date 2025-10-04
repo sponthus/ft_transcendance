@@ -16,9 +16,12 @@ export function initOAuthGithub(fastify)
         },
         // du coup pas de reply.send ? ca pose probleme ?
         startRedirectPath: '/oauth/github', //route appeler par le front, pas besoin de fastify.get
-        callbackUri: 'http://localhost:5173/api/user/oauth/github/callback',
+        callbackUri: 'http://localhost:3001/api/user/oauth/github/callback',
     });
 }
+
+//utilsie cookie pour envoyer un state a github, qui lui renvoie pour verifier l 'authenticite.
+//le meme concept que github qui envoie un code et que notre service lui renvoie
 
 /*import { Strategy } from "passport-github2"
 

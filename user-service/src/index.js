@@ -20,6 +20,16 @@ const fastify = Fastify({
 
 console.log(`\nFastify user-service listen on port ${env.user_port}\n`); // debug
 
+fastify.register(fastifyCookie,
+{
+    secret: getSecret('cookie_key')
+});
+
+fastify.register(fastifyJwt, 
+{
+	secret: getSecret('hash_key'),
+});
+
 initOAuthGithub(fastify);
 
 export function getSecret(name)
@@ -103,24 +113,6 @@ fastify.setErrorHandler((error, request, reply) => {
     reply.status(error.statusCode || 500).send({
         error: error.message || "Internal Server Error"
     });
-});
-
-if (!fastify.hasDecorator('serializeCookie'))
-{
-    fastify.register(fastifyCookie,
-    {
-        secret: getSecret('cookie_key')
-    });
-}
-
-fastify.register(fastifyJwt, 
-{
-	secret: getSecret('hash_key'),
-    cookie:
-    {
-        cookieName: 'token',
-        signed: true
-    }
 });
 
 fastify.register(dbConnector);

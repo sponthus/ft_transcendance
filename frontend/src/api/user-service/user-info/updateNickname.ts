@@ -6,21 +6,26 @@ export type UpdateNicknameResult = UpdateNicknameSuccess | Failure
 
 export async function   updateNickname(nickname: string): Promise<UpdateNicknameResult>
 {
-    const token = localStorage.getItem("token");
-    if (!token)
-        return { ok: false, error : "No token found" };
-    const res = await fetch('/api/user/user-info/nickname', 
+    try
     {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },    
-        body: JSON.stringify({ nickname }),
-    });
-    if (res.ok)
-    {
-        console.log("Update nickname successful");
-        return ( { ok: true } );
+        const res = await fetch('/api/user/user-info/nickname', 
+        {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify({ nickname }),
+        });
+        if (res.ok)
+        {
+            console.log("Update nickname successful");
+            return ( { ok: true } );
+        }
+        console.log("Update nickname failed");
+        const data = await res.json();
+        return ( { ok: false, error: data.error } );
     }
-    console.log("Update nickname failed");
-    const data = await res.json();
-    return ( { ok: false, error: data.error } );
+    catch (err)
+    {
+        return ( { ok: false, error: "Network error" } );
+    }
 }

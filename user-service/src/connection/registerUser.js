@@ -33,13 +33,15 @@ export default async function registerUser(request, reply)
 
         const idUser = fillInfoUserInDb(db, username, slug, avatar, pw_hash);
         const token = await reply.jwtSign({ idUser, username, slug }, {expiresIn: '1h'});
-        return reply.code(200).setcookie('token', token,
+        return reply.code(200).setCookie('token', token,
             {
                 httpOnly: true, //uniquement accessible protole https
+                signed: true,
                 secure: false, //envoyer que si la co est en https
-                maxAge: 3600
-            }
-        ).send();
+                path: '/', //Cookie dispo sur tout le site, sinon c'est juste cette route et les sous routes
+                maxAge: 3600000
+                //mettre same site
+            }).send();
     }
     catch (err)
     {

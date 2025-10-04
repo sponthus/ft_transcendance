@@ -2,6 +2,8 @@ import { BasePage } from "./BasePage.js";
 import { append, createAnchorElement, createDiv, createImage } from "../Utils/elementMaker.js";
 import { checkLog } from "../api/user-service/connection/check-log.js";
 
+import { activateTwoFa, checkTwoFaCode } from "../api/user-service/2fa.js";
+
 export class HomePage extends BasePage {
 
 	private Background!: HTMLElement;
@@ -29,7 +31,7 @@ export class HomePage extends BasePage {
 		}
 
 		//TEST A SUPPRIMER\
-/*		const req = await desactivateTwoFa();
+/*		const req = await checkTwoFaCode("328550");
 		if (req.ok)
 		{
 			console.log('obj: ', req.status);
