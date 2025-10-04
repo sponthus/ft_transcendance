@@ -1,5 +1,5 @@
 import { addFriend, removeFriend } from '../../api/user-service/menu/friendsList/friendRequest.js';
-import { acceptRequest, getSentRequests, rejectRequest } from '../../api/user-service/menu/friendsList/requestHandlers.js';
+import { acceptRequest, rejectRequest } from '../../api/user-service/menu/friendsList/requestHandlers.js';
 import { createDiv, createElement, createButton, append, createImage} from '../../Utils/elementMaker.js';
 import { EditProfile } from './EditProfile.js';
 import { UserInfo } from '../../api/user-service/user-info/getUserInfo.js';
