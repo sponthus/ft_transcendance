@@ -1,6 +1,5 @@
 /// <reference types="vite/client" />
 import Ajv, { ErrorObject } from "ajv";
-import { ErrorPopup } from "../pages/ErrorPage";
 
 export interface WebSocketMessage {
 	type: string;

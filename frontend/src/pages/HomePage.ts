@@ -35,10 +35,10 @@ export class HomePage extends BasePage {
 			console.log('obj: ', req.status);
 		}
 		else
-			ErrorPopup(req.error);
+			alert(req.error);
 		//*/
 		
-		await this.addInApp();	
+	await this.addInApp();
 	}
 
 	private async InitDivs() {
