@@ -153,7 +153,7 @@ export class GameSocket {
 	constructor(gameId: number) {
 		if (!gameId || gameId == 0) {
 			// TODO make me an error
-			alert("No gameID provided");
+			ErrorPopup("No gameID provided");
 		}
 		this.gameId = gameId;
 		try {

@@ -1,4 +1,4 @@
-import { createDiv, createElement, createButton, createDropdownDiv, createFormDiv, createCheckBoxLabel, append, createImage} from '../../Utils/elementMaker.js';
+import {createFormDiv, append} from '../../Utils/elementMaker.js';
 
 export async function renderProfileSetting(ButtonDiv: HTMLElement, SettingDiv: HTMLElement, ReturnDiv: HTMLElement) {
 	// SettingText.textContent = "Profile Settings";

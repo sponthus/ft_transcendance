@@ -3,6 +3,7 @@ import { registerUser } from "../api/user-service/connection/registerUser.js";
 import { navigate } from '../core/router.js';
 import { BasePage } from "./BasePage.js";
 import { createDiv, createElement, append, createFormDiv, createButton, createAnchorElement } from '../Utils/elementMaker.js';
+import { ErrorPopup } from "./ErrorPage.js";
 
 /*************************************Function for creating Top Text*************************************/
 export function createLogo(Link: string): HTMLElement{
@@ -105,7 +106,7 @@ export class RegisterPage extends BasePage {
 				const ConfirmPassword = formData.get('ConfirmPassword') as string;
 
 				if (password != ConfirmPassword) {
-					alert("Password miss Match");
+					ErrorPopup("Password miss Match");
 					return ;
 				}
 
@@ -115,7 +116,7 @@ export class RegisterPage extends BasePage {
 					return ; // back to home
 				}
 				else {
-					return ; // registerUser already alerts user
+					return ; // registerUser already ErrorPopups user
 				}
 			});
 		}
