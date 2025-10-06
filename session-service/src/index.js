@@ -31,6 +31,11 @@ export function getSecret(name) {
 	}
 }
 
+fastify.register(fastifyCookie,
+{
+    secret: getSecret('cookie_key')
+});
+
 // Register JWT plugin in fastify
 fastify.register(fastifyJwt, {
 	secret: getSecret('hash_key'),

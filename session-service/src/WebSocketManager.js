@@ -23,11 +23,17 @@ export default class WebSocketManager {
 		}
 	}
 
+	/*checkTokenFromCookies(cookies)
+	{
+
+	}*/
+
 	async initializeWebSocket() {
 		this.ws.on('connection', (ws, request) => {
             console.log('🟢 New WebSocket connection');
 
-			this.handleConnexion(ws);
+			this.checkTokenFromCookies(request.headers.cookies);
+			//this.handleConnexion(ws);
 
 			ws.on('message', (data) => {
                 let message;
