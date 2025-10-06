@@ -12,9 +12,33 @@ import routes from "./routes/index.js";
 const __filename = fileURLToPath(import.meta.url); // This filename, from ESM expression to classic path
 export const __dirname = path.dirname(__filename); // Parent folder to this file
 
-const fastify = Fastify({
-    logger: false,
-});
+let fastify;
+if (env.nodeEnv === 'production') {
+	try {
+		fs.accessSync(`/etc/ssl/${env.domain_name}.key`, fs.constants.R_OK);
+		fs.accessSync(`/etc/ssl/${env.domain_name}.crt`, fs.constants.R_OK);
+		console.log("SSL certificates found and accessible");
+	} catch (err) {
+		console.error(err);
+		console.error("❌ Critical error : SSL certificates not found or inaccessible");
+		process.exit(1);
+	}
+
+	fastify = Fastify({
+		logger: logger,
+		https: {
+			key: fs.readFileSync(`/etc/ssl/${env.domain_name}.key`),
+			cert: fs.readFileSync(`/etc/ssl/${env.domain_name}.crt`)
+		}
+	});
+	console.log("App launched in production mode");
+}
+else {
+	fastify = Fastify({
+		logger: false,
+	});
+	console.log("App launched in development mode");
+}
 
 console.log(`\nFastify user-service listen on port ${env.user_port}\n`); // debug
 
@@ -80,7 +104,6 @@ fastify.decorate("authenticate", async function (request, reply)
     
 });
 
-
 fastify.setErrorHandler((error, request, reply) => {
     console.error("⚠️ ERROR GLOBAL CAPTURED");
     console.error("Route:", request.routerPath);
@@ -95,9 +118,6 @@ fastify.setErrorHandler((error, request, reply) => {
     });
 });
 
-
-
-
 //enregistre le plugin JWT dans fastify
 fastify.register(fastifyJwt, {
 	secret: getSecret('hash_key'),
@@ -109,7 +129,8 @@ await fastify.register(routes);
 
 // Health check to synchronize initialization of session service
 fastify.get("/health", async (request, reply) => {
-    return { status: "ok" };
+    console.log("Health check received");
+	return { status: "ok" };
 });
 
 fastify.get('/', async (req, reply) => {

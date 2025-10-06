@@ -1,5 +1,5 @@
-import { getAllUsers } from "./GetUsers.js";
-import { checkWebSocketMessageFormat } from "./CheckWsFormat.js";
+import { getAllUsers } from "./tools/GetUsers.js";
+import { checkWebSocketMessageFormat } from "./tools/CheckWsFormat.js";
 
 export default class WebSocketManager {
     constructor(wss, fastify) {

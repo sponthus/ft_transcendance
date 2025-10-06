@@ -19,9 +19,10 @@ services:
     env_file:
       - ".env"
     depends_on:
-      - user-service
-      - game-service
+      nginx:
+        condition: service_started
     volumes:
+      - ssl_certs:/etc/ssl # For nginx SSL certs
       - ./api-gateway:/app
       - ./config:/app/config
     networks:
@@ -34,6 +35,7 @@ services:
     env_file:
       - ".env"
     volumes:
+      - ssl_certs:/etc/ssl # For nginx SSL certs
       - ./user-service:/app # Dev only,prod = pas de volume, seulement copie des fichiers.
       - ./config:/app/config
     networks:
@@ -42,11 +44,11 @@ services:
       - hash_key
       - api_key
       - auth_key
-    healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:${USER_PORT}/health || exit 1"]
-      interval: 5s
-      timeout: 2s
-      retries: 20
+    # healthcheck:
+    #   test: ["CMD-SHELL", "curl -f https://localhost:${USER_PORT}/health || exit 1"]
+    #   interval: 5s
+    #   timeout: 2s
+    #   retries: 20
     restart: always
 
   game-service:
@@ -58,6 +60,7 @@ services:
     env_file:
       - ".env"
     volumes:
+      - ssl_certs:/etc/ssl # For nginx SSL certs
       - ./game-service:/app # Dev only,prod = pas de volume, seulement copie des fichiers.
       - ./config:/app/config
     networks:
@@ -73,17 +76,15 @@ services:
       context: ./session-service
       args: 
         WS_PORT: ${SESSION_WS_PORT}
-    depends_on:
-      user-service:
-        condition: service_healthy
-    healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:${SESSION_PORT}/health || exit 1"]
-      interval: 5s
-      timeout: 2s
-      retries: 20
+    # healthcheck:
+    #   test: ["CMD-SHELL", "curl -f https://localhost:${SESSION_PORT}/health || exit 1"]
+    #   interval: 5s
+    #   timeout: 2s
+    #   retries: 20
     env_file:
       - ".env"
     volumes:
+      - ssl_certs:/etc/ssl # For nginx SSL certs
       - ./session-service:/app # Dev only,prod = pas de volume, seulement copie des fichiers.
       - ./config:/app/config
     networks:
@@ -101,9 +102,8 @@ services:
     ports:
       - "8080:80"
       - "4443:443"
-    depends_on:
-      - frontend
     volumes:
+      - ssl_certs:/etc/ssl # For nginx SSL certs
       - frontend_dist:/usr/share/nginx/html # necessary in prod
       - avatar_uploads:/app/uploads #share with upload service
     networks:
@@ -116,8 +116,6 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
     env_file: ".env"
-    depends_on:
-      - session-service
     ports:
       - "5173:5173" # Dev only for vite server, in prod = build, nginx serves it
     volumes:
@@ -133,12 +131,10 @@ services:
       - ".env"
     container_name: upload-service
     volumes:
+      - ssl_certs:/etc/ssl # For nginx SSL certs
       - ./upload-service:/app # Dev only,prod = pas de volume, seulement copie des fichiers.
       - avatar_uploads:/app/uploads # share with nginx
       - ./config:/app/config
-    depends_on:
-      - api-gateway
-      - frontend
     secrets:
       - hash_key
       - api_key
@@ -146,60 +142,10 @@ services:
       - pongnet
     restart: always
 
-## Future auth service
-#  backend:
-#    container_name: backend-api
-#    build:
-#      context: ./backend
-#      dockerfile: Dockerfile
-#    volumes:
-#      - ./backend:/app  # Dev only,prod = pas de volume, seulement copie des fichiers.
-#      - ./frontend/dist:/app/dist  # Dev only,prod = pas de volume, seulement copie des fichiers.
-#    depends_on:
-#      - frontend
-#    ports:
-#      - "3000:3000"
-#    networks:
-#      - pongnet
-
-#  nginx:
-#    container_name: nginx
-#    image: nginx
-#    build:
-#      context: ./nginx
-#      dockerfile: Dockerfile
-#    ports:
-#      - "8080:80"
-#      - "4443:443"
-#    restart: always
-#    volumes:
-#      - ./nginx/conf:/etc/nginx/conf.d
-#      - ./nginx/ssl:/etc/nginx/ssl
-#    networks:
-#      - pongnet
-#    depends_on:
-#      - frontend
-#      - backend
-#
-#  game:
-#    container_name: game-api
-#    build:
-#      context: ./game
-#      dockerfile: Dockerfile
-## TO DETERMINE
-##    volumes:
-##      - ./backend:/app  # Dev only,prod = pas de volume, seulement copie des fichiers.
-##      - ./frontend/dist:/app/dist  # Dev only,prod = pas de volume, seulement copie des fichiers.
-#    depends_on:
-#      - frontend
-#    ports:
-#      - "3000:3000"
-#    networks:
-#      - pongnet
-
 volumes:
   frontend_dist:
   avatar_uploads:
+  ssl_certs:
 
 networks:
   pongnet:

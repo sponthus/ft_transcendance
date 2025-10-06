@@ -1,4 +1,4 @@
-import { ErrorPopup } from "../../../pages/ErrorPage";
+import { ErrorPopup } from "../../../pages/ErrorPage.js";
 
 type Failure = { ok: false; error: string };
 type Success = { ok: true; message: string };

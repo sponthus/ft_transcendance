@@ -1,5 +1,7 @@
 import { getSecret } from "../../index.js";
 import env from "../../../config/env.js";
+import prefix from "../../tools/url.js";
+import tlsAgent from "../../tools/tlsAgent.js";
 
 export async function getUserIdFromSlug(slug) {
 	console.log("Requesting userId from slug, ", slug);
@@ -9,12 +11,13 @@ export async function getUserIdFromSlug(slug) {
 
 	const api_key = getSecret('api_key');
 
-    const res = await fetch(`http://user-service:${env.user_port}/internal-service/${slug}`, {
+    const res = await fetch(`${prefix}://user-service:${env.user_port}/internal-service/${slug}`, {
         method: 'GET',
         headers: { 
             'Content-Type': 'application/json',
             'x-internal-api-key': api_key
-        }
+        },
+		dispatcher: tlsAgent
     });
 	const data = await res.json();  
     if (res.ok) {

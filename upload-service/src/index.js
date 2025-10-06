@@ -11,9 +11,33 @@ import routes from "./routes.js";
 const __filename = fileURLToPath(import.meta.url); // This filename, from ESM expression to classic path
 export const __dirname = path.dirname(__filename); // Parent folder to this file
 
-const fastify = Fastify({
-    logger: logger,
-});
+let fastify;
+if (env.nodeEnv === 'production') {
+	try {
+		fs.accessSync(`/etc/ssl/${env.domain_name}.key`, fs.constants.R_OK);
+		fs.accessSync(`/etc/ssl/${env.domain_name}.crt`, fs.constants.R_OK);
+		console.log("SSL certificates found and accessible");
+	} catch (err) {
+		console.error(err);
+		console.error("❌ Critical error : SSL certificates not found or inaccessible");
+		process.exit(1);
+	}
+
+	fastify = Fastify({
+		logger: logger,
+		https: {
+			key: fs.readFileSync(`/etc/ssl/${env.domain_name}.key`),
+			cert: fs.readFileSync(`/etc/ssl/${env.domain_name}.crt`)
+		}
+	});
+	console.log("App launched in production mode");
+}
+else {
+	fastify = Fastify({
+		logger: false,
+	});
+	console.log("App launched in development mode");
+}
 
 await fastify.register(multipart);
 console.log(`multipart loaded`);
@@ -48,12 +72,17 @@ fastify.register(fastifyJwt, {
 await fastify.register(routes);
 
 fastify.get('/', async (req, reply) => {
+	console.log("Msg recieved on /");
     return { message: 'Upload service received your request!' };
 });
 
 // Default handler for undefined routes
 fastify.setNotFoundHandler((req, reply) => {
     reply.status(404).send("Not found");
+});
+
+fastify.get("/health", async (request, reply) => {
+    return { status: "ok" };
 });
 
 // Fastify listens

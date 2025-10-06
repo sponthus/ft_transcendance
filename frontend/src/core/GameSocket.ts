@@ -1,5 +1,6 @@
 /// <reference types="vite/client" />
 import Ajv, { ErrorObject } from "ajv";
+import { ErrorPopup } from "../pages/ErrorPage.js"; 
 
 export interface WebSocketMessage {
 	type: string;
@@ -173,7 +174,7 @@ export class GameSocket {
         if (status === "development")
             return `ws://${import.meta.env.VITE_DOMAIN_NAME}:8080/g-ws/`;
         else
-            return `wss://${import.meta.env.VITE_DOMAIN_NAME}/g-ws/`;
+            return `wss://${import.meta.env.VITE_DOMAIN_NAME}:4443/g-ws/`;
     }
 
 	private setupEventListeners() {
