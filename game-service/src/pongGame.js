@@ -10,13 +10,14 @@ let AREA_NUMBER = 16;
 
 // AI : 0 = no AI, 1 = AI as player1, 2 = AI as player2
 // Option : 0 = classical pong, 1 = with crabmehameha
+// Player : paddle1 = player2 et vice versa
 export class PongGame {
 	constructor(gameId, ai, option) {
 		if (ai == 0)
 			this.gameMode = 0;
 		else {
 			if (ai == 1)
-				this.gameMode = 1
+				this.gameMode = 1;
 			else 
 				this.gameMode = 2;
 			
@@ -388,9 +389,9 @@ export class PongGame {
 		}
 		else
 		{
-			if (this.input1.q && this.paddle1.x > this.groundLimiteNegatif + 0.5)
+			if (this.input1['7'] && this.paddle1.x > this.groundLimiteNegatif + 0.5)
 				this.paddle1.x -= this.speedPaddle * this.dt;
-			if (this.input1.e && this.paddle1.x < this.groundLimitePositif - 0.5)
+			if (this.input1['9'] && this.paddle1.x < this.groundLimitePositif - 0.5)
 				this.paddle1.x += this.speedPaddle * this.dt;
 		}
 	}
@@ -413,20 +414,12 @@ export class PongGame {
 				default:
 					console.warn("ERR: Action inconnue pour l'IA :", ai_action);
 			}
-			
-			// // IA débile
-			// if (this.paddle2.x > this.ball.x)
-			// 	this.paddle2.x -= this.speedPaddle * this.dt;
-			// else if (this.paddle2.x === this.ball.x)
-			// 	;
-			// else
-			// 	this.paddle2.x += this.speedPaddle * this.dt;
 		}
 		else
 		{
-			if (this.input1['7'] && this.paddle2.x > this.groundLimiteNegatif + 0.5)
+			if (this.input1.d && this.paddle2.x > this.groundLimiteNegatif + 0.5)
 				this.paddle2.x -= this.speedPaddle * this.dt;
-			if (this.input1['9'] && this.paddle2.x < this.groundLimitePositif - 0.5)
+			if (this.input1.a && this.paddle2.x < this.groundLimitePositif - 0.5)
 				this.paddle2.x += this.speedPaddle * this.dt;
 		}
 		
@@ -537,7 +530,7 @@ export class PongGame {
 		}
 		else
 		{
-			if (this.input1.x && this.specialCooldown1 < 0 && this.die1 === false)
+			if (this.input1['3'] && this.specialCooldown1 < 0 && this.die1 === false)
 			{
 				this.isSpellGo1 = true;
 				this.specialCooldown1 = 50;
@@ -554,7 +547,7 @@ export class PongGame {
 		}
 		else
 		{
-			if (this.input1['3'] && this.specialCooldown2 < 0)
+			if (this.input1.x && this.specialCooldown2 < 0)
 			{
 				this.isSpellGo2 = true;
 				this.specialCooldown2 = 50;
