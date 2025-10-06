@@ -37,7 +37,10 @@ export default class WebSocketManager {
 				break ;
 			}
 		}
+		token = decodeURIComponent(token); //enleve l'encodage url --> les '/' devenait des : '%2F' par exemple 
 		console.log("token: -" + token + "-");
+		  //if (token.startsWith('s:')) le s n 'existe pas car cookie le signe pas car deja signer par jwt
+			//token = token.slice(2);
 		const result = this.fastify.unsignCookie(token); //verifie manuellement signature cookie
 		console.log('result session service ', result);
         if (!result.valid)
