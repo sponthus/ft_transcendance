@@ -151,8 +151,8 @@ export class PongGame {
 		let area_percent = (this.paddle1.x - X_INFERIOR_BALL_LIMIT) / (X_SUPERIOR_BALL_LIMIT - X_INFERIOR_BALL_LIMIT);
 		area_percent = Math.max(0.0, Math.min(1.0, area_percent)); // for security
 		const area_zone = Math.min(AREA_NUMBER, Math.floor(area_percent * AREA_NUMBER) + 1);
-		if (this.gameMode == 2)
-			return AREA_NUMBER - area_zone + 1; // Reverse area for player 2
+		// if (this.gameMode == 2)
+		// 	return AREA_NUMBER - area_zone + 1; // Reverse area for player 2
 		return area_zone;
 	}
 
@@ -202,8 +202,8 @@ export class PongGame {
 		let area_percent = (predicted_impact - X_INFERIOR_BALL_LIMIT) / (X_SUPERIOR_BALL_LIMIT - X_INFERIOR_BALL_LIMIT);
 		area_percent = Math.max(0.0, Math.min(1.0, area_percent)); // security
 		const area_zone = Math.min(AREA_NUMBER, Math.floor(area_percent * AREA_NUMBER) + 1);
-		if (this.gameMode == 2)
-			return AREA_NUMBER - area_zone + 1; // Reverse area for player 2
+		// if (this.gameMode == 2)
+		// 	return AREA_NUMBER - area_zone + 1; // Reverse area for player 2
 		return area_zone;
 	}
 
@@ -400,11 +400,11 @@ export class PongGame {
 		if (this.gameMode === 2)
 		{
 			switch (ai_action) {
-				case 1: // UP -> Revert = DOWN
+				case 0: // UP -> Revert = DOWN
 					if (this.paddle2.x < this.groundLimitePositif - 0.5)
 						this.paddle2.x += this.speedPaddle * this.dt;
 					break;
-				case 0: // DOWN -> Revert = UP
+				case 1: // DOWN
 					if (this.paddle2.x > this.groundLimiteNegatif + 0.5)
 						this.paddle2.x -= this.speedPaddle * this.dt;
 					break;
