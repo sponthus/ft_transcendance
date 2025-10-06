@@ -5,7 +5,6 @@ import pump from "pump";
 
 // TODO : Check stuff on the file : real img file ? size ?
 export async function uploadAvatar(request, reply) {
-    const { slug } = request.params;
     const user = request.user; // JWT token
 
     // Check if there is a file
@@ -13,10 +12,7 @@ export async function uploadAvatar(request, reply) {
         console.log("Request not multipart");
         return reply.code(400).send({ error: 'Expected multipart/form-data' });
     }
-    console.log("Uploading avatar for user = " + slug);
-
-    if (user.slug !== slug)
-        return reply.code(403).send({ error: "Not authorized to change this avatar" });
+    console.log("Uploading avatar for user = " + user.slug);
 
     // Path of actual dir on the computer
     console.log("dirname = " + __dirname);
@@ -31,7 +27,8 @@ export async function uploadAvatar(request, reply) {
 
     const parts = await request.parts(); // fastify-multipart
     console.log("Parts are = ", parts);
-
+	const slug = user.slug;
+	
     for await (const part of parts) {
         console.log(`me here`);
         // Check it's a file and it's an avatar
