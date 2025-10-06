@@ -1,3 +1,5 @@
+import { ErrorPopup } from "../../../pages/ErrorPage";
+
 type UserBasic = {
     username: string;
     slug: string;
@@ -23,6 +25,6 @@ export async function   registerUser(username: string, password: string): Promis
         localStorage.setItem("token", data.token);
         return { ok: true, token: data.token, user: { username: data.username, slug: data.slug } };
     }
-    alert("Error : " + data.error); //enlever alert ?
+    ErrorPopup("Error : " + data.error); //enlever ErrorPopup ?
     return { ok: false, error: data.error};
 }

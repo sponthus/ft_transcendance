@@ -15,11 +15,13 @@ export abstract class BasePage {
         if (!appDiv)
             throw new Error('App element not found');
         this.app = appDiv;
+		// this.app.className = "min-h-[1080px] min-w-[1920px]";
         const bannerDiv = document.getElementById('banner');
 		bannerDiv!.className = "z-50 relative";
         if (!bannerDiv)
             throw new Error('Banner element not found');
         this.banner = bannerDiv;
+		// window.addEventListener('resize', () => {});
     }
 
     // Mandatory : Implement this in pages
@@ -41,7 +43,7 @@ export abstract class BasePage {
         }
         else {
             await renderLoggedOutBanner(this.banner);
-            //alert(res.error); pas d'alerte peut etre la 
+            //ErrorPopup(res.error); pas d'ErrorPopupe peut etre la 
         }
     }
 

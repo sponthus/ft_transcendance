@@ -2,8 +2,8 @@
 import { getCharacterAsset } from '../../api/user-service/menu/characterAsset.js';
 import { getNpcAsset } from '../../api/user-service/menu/npcAsset.js';
 import {createDiv, createButton, append, createImage} from '../../Utils/elementMaker.js';
+import { ErrorPopup } from '../ErrorPage.js';
 
-UserCharactere: Map<number, HTMLElement>;
 let CurrentAvatarAsset: number = 0;
 let CurrentNpcAsset: number = 0;
 
@@ -36,20 +36,20 @@ function createAvatarBtn(Id: string, MaxI: number, Folder: string, TextContent: 
 async function setCurrentAvatar() {
 	try {
 		const req = await  getCharacterAsset();
-		if (req.ok)
+		if (req.ok && req.asset)
 			CurrentAvatarAsset = req.asset;
 	} catch(error) {
-		alert(error);
+		ErrorPopup(error as string);
 	}
 }
 
 async function setCurrentNpc() {
 	try {
 		const req = await getNpcAsset();
-		if (req.ok)
+		if (req.ok && req.asset)
 			CurrentNpcAsset = req.asset;
 	} catch (error) {
-		alert(error);
+		ErrorPopup(error as string);
 	}
 }
 
