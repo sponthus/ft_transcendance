@@ -1,5 +1,6 @@
 import Fastify from "fastify";
 import fastifyJwt from '@fastify/jwt';
+import fastifyCookie from '@fastify/cookie'
 import { createServer } from "http";
 import { fileURLToPath } from "url";
 import { WebSocketServer } from "ws";
@@ -39,6 +40,7 @@ fastify.register(fastifyCookie,
 // Register JWT plugin in fastify
 fastify.register(fastifyJwt, {
 	secret: getSecret('hash_key'),
+	//console.log
 });
 
 fastify.decorate("authenticate", async function (request, reply)

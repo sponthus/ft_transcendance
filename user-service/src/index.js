@@ -59,9 +59,11 @@ fastify.decorate("authenticate", async function (request, reply)
 {
     try 
     {
+        console.log("\nToken dans le user-service avant unsign cookie : -" + request.cookies.token + "-");
         const result = fastify.unsignCookie(request.cookies.token); //verifie manuellement signature cookie
         if (!result.valid)
             return reply.code(401).send({ error: "Invalid cookie" });
+        console.log("\nToken dans le user-service : " + result.value + "-");
         request.user = await fastify.jwt.verify(result.value); //Décode et verifie le token et stock ses infos dans request
         console.log("Decoded token:", request.user);
         if (request.user.twofa_pending === true)

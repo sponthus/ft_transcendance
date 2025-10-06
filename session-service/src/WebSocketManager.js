@@ -1,5 +1,6 @@
 import { getAllUsers } from "./GetUsers.js";
 import { checkWebSocketMessageFormat } from "./CheckWsFormat.js";
+import { getSecret } from "./index.js";
 
 export default class WebSocketManager {
     constructor(wss, fastify) {
@@ -24,16 +25,38 @@ export default class WebSocketManager {
 		}
 	}
 
-	/*checkTokenFromCookies(cookies)
+	async checkTokenFromCookies(ws, cookies)
 	{
-
-	}*/
+		const cookiesTab = cookies.split('; ');
+		let token;
+		for (let cookie of cookiesTab)
+		{
+			if (cookie.trim().startsWith("token="))
+			{
+				token = cookie.trim().substring(cookie.trim().indexOf('=') + 1);
+				break ;
+			}
+		}
+		console.log("token: -" + token + "-");
+		const result = this.fastify.unsignCookie(token); //verifie manuellement signature cookie
+		console.log('result session service ', result);
+        if (!result.valid)
+		{
+			console.log("❌ Invalid cookie session-service");
+            //return reply.code(401).send({ error: "Invalid cookie" });
+		}
+		console.log('token cote session service', result.value);
+		this.authenticateUser(ws, result.value);
+    }
 
 	async initializeWebSocket() {
 		this.ws.on('connection', (ws, request) => {
             console.log('🟢 New WebSocket connection');
-
-			this.checkTokenFromCookies(request.headers.cookies);
+			console.log('\nJust check\n');
+			console.log('COOKIEES Session service : ', request.headers.cookie);
+			const key = getSecret('cookie_key');
+			console.log('secret cookie session service --> ', key);
+			this.checkTokenFromCookies(ws, request.headers.cookie); //mettre await
 			//this.handleConnexion(ws);
 
 			ws.on('message', (data) => {
@@ -79,9 +102,9 @@ export default class WebSocketManager {
             case 'ping':
                 this.pong(ws);
                 break;
-            case 'auth':
+            /*case 'auth':
                 this.authenticateUser(ws, message.token);
-                break;
+                break;*/
 			default:
 				console.warn("⚠️ Type not recognized");
 		}
