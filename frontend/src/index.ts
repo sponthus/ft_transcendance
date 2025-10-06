@@ -1,6 +1,5 @@
 import { setupRouter } from './core/router.js';
 //import { checkLog } from "./api/check-log.js";
-import { App } from './babylon/main.js';
 
 console.log("JS loaded !");
 

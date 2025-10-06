@@ -5,22 +5,18 @@ type SimpleResult = Success | Failure;
 
 type TournamentInfos = {
 	tournament_id: number;
-	status: 'pending' | 'ongoing_game' | 'between-games' | 'canceled' | 'done';
-	id_user: number;
+	status: 'pending' | 'ongoing_game' | 'between_games' | 'canceled' | 'done';
 	name: string;
-	next_game: number;
-	created_at: Date;
-	began_at: Date;
-	finished_at: Date;
-	winner: string;
-	players: Array<string>;
+	numberOfPlayers: number;
+	rounds: number;
+	nextGameId: number;
 	option: number;
+	players: Array<string>;
 }
 
 type AllGamesInfos = {
     id: number;
     status: 'pending' | 'ongoing' | 'finished' | 'canceled';
-    id_user: number,
     player_a: string;
     player_b: string;
     score_a: number;

@@ -6,6 +6,7 @@ import "@babylonjs/loaders/glTF";
 import { ImportMeshAsync } from "@babylonjs/core/Loading/sceneLoader";
 import { getCharacterAsset } from "../../api/user-service/menu/characterAsset";
 import { getNpcAsset } from "../../api/user-service/menu/npcAsset";
+import { ErrorPopup } from "../../pages/ErrorPage";
 
 export class renderAsset {
 
@@ -53,7 +54,7 @@ export class renderAsset {
 				console.log("AssetData = ", req.asset as number);
 			}
 		} catch(error) {
-			alert(error);
+			ErrorPopup(error as string);
 		}
 		const result = await ImportMeshAsync(`/asset/Characters/Models/GLBformat/character-${AssetNumber}.glb`, this._scene);
 		if (result)
@@ -75,7 +76,7 @@ export class renderAsset {
 				// console.log("AssetNumber NPC = " , AssetNumber);
 			}
 		} catch (error) {
-			alert(error);
+			ErrorPopup(error as string);
 		}
 		const result = await ImportMeshAsync(`/asset/Characters/Models/GLBformat1/character-${AssetNumber}.glb`, this._scene);
 		if (result)

@@ -3,7 +3,7 @@ type Success = { ok: true; message: string };
 
 type SimpleResult = Success | Failure;
 
-type TournamentsInfos = {
+export type TournamentsInfos = {
 	id: number;
 	status: 'pending' | 'ongoing_game' | 'between_games' | 'canceled' | 'done';
 	name: string;
@@ -12,6 +12,7 @@ type TournamentsInfos = {
 	began_at: string;
 	finished_at: string;
 	winner: string;
+	option: number;
 }
 
 type TournamentsList = { ok: true; tournaments: TournamentsInfos[] }
@@ -97,13 +98,45 @@ export async function getAvailableTournaments(slug: string): Promise<Tournaments
 				created_at: tournament.created_at,
 				began_at: tournament.began_at,
 				finished_at: tournament.finished_at,
-				winner: tournament.winner
+				winner: tournament.winner,
+				option: tournament.option
 			}));
 
 		return { ok: true, tournaments: pendingTournaments };
 
 	} catch (error) {
-		console.error('❌ Error filtering pending games', error as string );
+		console.error('❌ Error filtering pending tournaments', error as string );
+		return { ok: false, error: error as string  };
+	}
+}
+
+// GET /:slug/tournaments
+// All available tournaments for a user, filtered = done
+// Security : Accessible for every logged-in user
+export async function getFinishedTournaments(slug: string): Promise<TournamentsResult> {
+	try {
+		const allTournamentsResult = await getAllTournaments(slug);
+		if (!allTournamentsResult.ok) {
+			return { ok: false, error: allTournamentsResult.error };
+		}
+		const finishedTournaments: TournamentsInfos[] = allTournamentsResult.tournaments
+			.filter(tournament => tournament.status === 'done')
+			.map(tournament => ({
+				id: tournament.id,
+				status: tournament.status,
+				name: tournament.name,
+				next_game: tournament.next_game,
+				created_at: tournament.created_at,
+				began_at: tournament.began_at,
+				finished_at: tournament.finished_at,
+				winner: tournament.winner,
+				option: tournament.option
+			}));
+
+		return { ok: true, tournaments: finishedTournaments };
+
+	} catch (error) {
+		console.error('❌ Error filtering finished tournaments', error as string );
 		return { ok: false, error: error as string  };
 	}
 }
@@ -161,7 +194,8 @@ export async function getTournamentNextMatch(tournamentId: number): Promise<Tour
         });
 
         if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+			const data = await response.json();
+            throw new Error(data.error);
         }
 
 		const data = await response.json();

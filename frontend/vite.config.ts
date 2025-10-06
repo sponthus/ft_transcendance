@@ -1,8 +1,8 @@
 import { defineConfig } from 'vite';
 
 const DOMAIN_NAME = process.env.VITE_DOMAIN_NAME;
-const API_PORT = process.env.VITE_API_PORT;
-const VITE_PORT = process.env.VITE_PORT;
+const API_PORT = process.env.VITE_API_PORT ? Number(process.env.VITE_API_PORT) : undefined;
+const VITE_PORT = process.env.VITE_PORT ? Number(process.env.VITE_PORT) : undefined;
 const IP = process.env.VITE_IP;
 
 // For dev mode

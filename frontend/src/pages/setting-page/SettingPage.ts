@@ -5,6 +5,7 @@ import { renderGameSetting, getAvatarAsset, getCurrentNpcAsset } from "./GameSet
 import { renderProfileSetting } from "./ProfileSetting";
 import { changeNpcAsset } from "../../api/user-service/menu/npcAsset";
 import { changeCharacterAsset } from "../../api/user-service/menu/characterAsset";
+import { ErrorPopup } from '../ErrorPage.js';
 
 enum PageState {GAME = 0, PROFILE = 1};
 
@@ -160,10 +161,10 @@ export class SettingPage extends BasePage {
 		try {
 			const reqNpc = await changeNpcAsset(CurrentNpcAsset)
 			if (reqNpc.ok) {
-				alert("change NPC " + CurrentNpcAsset);
+				ErrorPopup("change NPC " + CurrentNpcAsset);
 			}
 		} catch (error) {
-			alert(error);
+			ErrorPopup(error as string);
 		}
 	}
 	private async callApiForChangeAvatar() {
@@ -172,11 +173,11 @@ export class SettingPage extends BasePage {
 			console.log("change the assets " ,CurrentAvatarAsset);
 			const reqAvatar = await changeCharacterAsset(CurrentAvatarAsset);
 			if (reqAvatar.ok) {
-				alert("change avatar " + CurrentAvatarAsset)
+				ErrorPopup("change avatar " + CurrentAvatarAsset)
 			}
  
 		} catch (error) {
-			alert(error);
+			ErrorPopup(error as string);
 		}
 	}
 }

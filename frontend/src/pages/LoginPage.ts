@@ -1,9 +1,9 @@
-import { checkLog } from "../api/user-service/connection/check-log.js";
 import { loginUser } from "../api/user-service/connection/loginUser.js";
 import { navigate } from '../core/router.js';
 import { BasePage } from "./BasePage.js";
 import { createLogo } from './RegisterPage.js';
 import { createDiv, createElement, append, createFormDiv, createButton, createAnchorElement } from '../Utils/elementMaker.js';
+import { ErrorPopup } from "./ErrorPage.js";
 
 export class LoginPage extends BasePage {
 
@@ -87,9 +87,9 @@ export class LoginPage extends BasePage {
 			}
 			else {
 			    if (req.error)
-			        alert("Connexion failure : " + req.error);
+			        ErrorPopup("Connexion failure : " + req.error);
 			    else
-			        alert("Connexion failure");
+			        ErrorPopup("Connexion failure");
 			}
 			});
 		}

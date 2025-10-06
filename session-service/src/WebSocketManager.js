@@ -1,4 +1,5 @@
 import { getAllUsers } from "./GetUsers.js";
+import { checkWebSocketMessageFormat } from "./CheckWsFormat.js";
 
 export default class WebSocketManager {
     constructor(wss, fastify) {
@@ -39,12 +40,20 @@ export default class WebSocketManager {
                 let message;
 				try {
                     message = JSON.parse(data);
-					// TODO: Add a handler for messages that do not contain "type" 
-                    // = 1007 error, do not print token in logs
-					console.log('Message received :', message);
-                } catch (error) {
+				} catch (error) {
                     console.error('❌ Invalid JSON recieved:', error);
                 }
+				
+				const formatCheck = checkWebSocketMessageFormat(message);
+				if (!formatCheck.valid) {
+					console.log('❌ Bad message format received:', formatCheck.errors);
+					this.disconnectWs(ws, 1007, "Invalid message format");
+					return;
+				}
+				if (message.type !== 'auth')
+					console.log('Message received :', message);
+				else
+					console.log('Auth message received');
 
 				try {
 					this.handleMessage(ws, message);
@@ -71,7 +80,6 @@ export default class WebSocketManager {
                 this.pong(ws);
                 break;
             case 'auth':
-				// TODO : Add content check
                 this.authenticateUser(ws, message.token);
                 break;
 			default:
@@ -88,6 +96,27 @@ export default class WebSocketManager {
 
 	/*************************** CONNECT / DISCONNECT ************************/
 	
+	disconnectWs(ws, code, reason) {
+		const userId = this.getUserIdByWs(ws);
+        if (userId) {
+            if (!this.isUserConnected(Number(userId))) {
+				console.warn(`User ${userId} not registered when trying to disconnect`);
+			}
+			const client = this.clients.get(Number(userId));
+			client.ws = client.ws.filter(sock => sock && sock.readyState === 1);
+			if (client.ws.length == 0) {
+				client.status = 'disconnected';
+			}
+		}
+		if (ws.readyState === 1) {
+			ws.close(code, reason);
+			console.log(`🔴 User ${userId} has been disconnected: ${code} - ${reason}`);
+		} else {
+			console.warn("❌ Cannot close WebSocket: already closed");
+		}
+
+	}
+
 	handleDisconnexion(ws) {
         const userId = this.getUserIdByWs(ws);
         if (userId) {
@@ -96,10 +125,10 @@ export default class WebSocketManager {
 				return;
 			}
 			const client = this.clients.get(Number(userId));
-			client.currentGame = 0;
 			client.ws = client.ws.filter(sock => sock && sock.readyState === 1);
 			if (client.ws.length == 0) {
 				client.status = 'disconnected';
+				client.currentGame = 0;
 				console.log(`🔴 User ${userId} is disconnected`)
 			}
         } else {
@@ -171,7 +200,6 @@ export default class WebSocketManager {
 		try {
 			const client = this.getClientByUserId(idUser);
 			if (client !== undefined) {
-				console.log(`User ${idUser} already known`);
 				oldMessages = client.messages;
 			}
 		} catch (error) {
@@ -181,9 +209,7 @@ export default class WebSocketManager {
 		this.registerUser(ws, idUser, username, slug, "online");
 
 		this.sendToWs(ws, {
-			type: 'auth_success',
-			userId: idUser,
-			timestamp: Date.now()
+			type: 'auth_success'
 		});
 		
 
@@ -213,12 +239,9 @@ export default class WebSocketManager {
 	}
 
 	updateUserStatus(userId, status) {
-		console.log("Updating status of ", userId, "with", status);
+		console.log("Updating status of", userId, "with", status);
 		if (this.clients.has(Number(userId))) {
 			const client = this.clients.get(Number(userId));
-			if (client.status == "playing" && status == "online") {
-				status = "playing";
-			}
 			client.status = status;
 			console.log(`✅ User status modification : ${userId} (${status})`);
 			return {

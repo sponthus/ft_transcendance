@@ -10,7 +10,7 @@ import logger from "../config/logger.js";
 import env from "../config/env.js";
 
 import DatabaseConnector from "./API/database/DatabaseConnector.js";
-import routes from "./routes.js";
+import routes from "./API/routes.js";
 import WebSocketManager from "./WebSocketManager.js";
 
 const __filename = fileURLToPath(import.meta.url);
@@ -41,11 +41,11 @@ app.decorate("authenticate", async function (request, reply)
 		const internalApiKey = request.headers['x-internal-api-key'];
 		if (internalApiKey && internalApiKey === getSecret('api_key')) {
 			return;
+		}
+		else 
+			await request.jwtVerify(); // Check external JWT token from users and store their infos in request.user
+		// console.log("Decoded token:", request.user);
     }
-		// Check external JWT token from users and store their infos in request.user
-		await request.jwtVerify();
-        // console.log("Decoded token:", request.user);
-    } 
     catch (err)
     {
 		console.log("❌ Error : ", err.message);

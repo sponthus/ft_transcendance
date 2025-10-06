@@ -17,7 +17,7 @@ export async function	getAllUsers() {
     });
     if (res.ok) {
 		const data = await res.json();
-		console.log(data);   
+		// console.debug(data); // To show the found data
         return { ok: true, data: data.users };
     }
     const data = await res.json();    

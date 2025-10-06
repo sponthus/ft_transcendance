@@ -1,3 +1,5 @@
+import { ErrorPopup } from "../../../pages/ErrorPage";
+
 type AuthSuccess = { ok: true };
 type Failure = { ok: false; error: string };
 
@@ -20,12 +22,11 @@ export async function registerUser(username: string, password: string): Promise<
             return { ok: true };
         }
         const data = await res.json();
-        alert("Error : " + data.error); //enlever alert ?
+        ErrorPopup("Error : " + data.error); //enlever ErrorPopup ?
         return { ok: false, error: data.error };
     }
     catch (err)
     {
-        console.log('ERRRRRREUR: ', err);
         return {ok: false, error: "Network error"};
     }
 }

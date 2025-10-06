@@ -1,9 +1,9 @@
 import { addFriend, removeFriend } from '../../api/user-service/menu/friendsList/friendRequest.js';
-import { acceptRequest, getSentRequests, rejectRequest } from '../../api/user-service/menu/friendsList/requestHandlers.js';
+import { acceptRequest, rejectRequest } from '../../api/user-service/menu/friendsList/requestHandlers.js';
 import { createDiv, createElement, createButton, append, createImage} from '../../Utils/elementMaker.js';
 import { EditProfile } from './EditProfile.js';
-import { getAllFriends } from '../../api/user-service/menu/friendsList/friendRequest.js';
 import { UserInfo } from '../../api/user-service/user-info/getUserInfo.js';
+import { ErrorPopup } from '../ErrorPage.js';
 
 enum BodyState {PROFILE = 0, FRIENDS = 1, HISTORY = 2};
 
@@ -115,14 +115,14 @@ export class UserBanner {
 	/*************************************Functions for creating Profile botBanner*************************************/
 	private  setButtonsBanner() : HTMLElement {
 		const BotBanner: HTMLElement = createDiv('BotBanner', "flex items-center justify-center bg-sky-500 bg-opacity-50 shadow-md w-full h-[20%] font-sans");
-		append(BotBanner, [(createButton("Profile", "flex items-center justify-center h-full w-1/6 hover:text-emerald-700 hover:font-bold text-emerald-700 font-bold text-center text-2xl", 		"Profile") as HTMLButtonElement)
-							,(createButton("FriendList", "flex items-center justify-center h-full w-1/6 hover:text-emerald-700 hover:font-bold text-emerald-600 text-center text-2xl", "Friends") as HTMLButtonElement)
-							,(createButton("History", "flex items-center justify-center h-full w-1/6 hover:text-emerald-700 hover:font-bold text-emerald-600 text-center text-2xl", "History") as HTMLButtonElement)]);
+		append(BotBanner, [(createButton("FriendList", "flex items-center justify-center h-full w-1/6 hover:text-emerald-700 hover:font-bold text-emerald-600 text-center text-2xl", "Friends") as HTMLButtonElement)
+							,(createButton("History", "flex items-center justify-center h-full w-1/6 hover:text-emerald-700 hover:font-bold text-emerald-600 text-center text-2xl", "History") as HTMLButtonElement)
+							,(createButton("tournament", "flex items-center justify-center h-full w-1/6 hover:text-emerald-700 hover:font-bold text-emerald-700 font-bold text-center text-2xl", 		"tournament") as HTMLButtonElement)]);
 		return BotBanner; 
 	}
 
 	async botBannerEvents() {
-		const Profile = document.getElementById("Profile-btn") as HTMLButtonElement;
+		const Profile = document.getElementById("tournament-btn") as HTMLButtonElement;
 		const Friends = document.getElementById("FriendList-btn") as HTMLButtonElement;
 		const History = document.getElementById("History-btn") as HTMLButtonElement;
 
@@ -146,6 +146,7 @@ export class UserBanner {
 		(document.getElementById('friend-request-btn')?.addEventListener('click', async() => {
 			console.log('send a friend request');
 			try {
+				// TODO Emma & Elodie : Backend expects a slug so maj are rejected
 				const req = await addFriend(this.UserData.username);
 				if (req.ok) {
 					document.getElementById('friend-request-btn')!.textContent = "friend request sent...";
@@ -153,7 +154,7 @@ export class UserBanner {
 					location.reload();
 				}
 			}catch (error) {
-				alert(error);
+				ErrorPopup(error as string);
 			}
 		}));
 		(document.getElementById('remove-friend-btn')?.addEventListener('click', async() => {
@@ -164,33 +165,33 @@ export class UserBanner {
 					location.reload();
 				}
 			} catch (error) {
-				alert(error);
+				ErrorPopup(error as string);
 			}
 		}));
 		(document.getElementById('accept-btn')?.addEventListener('click', async() => {
 			try {
 				const req = await acceptRequest(this.UserData.username);
 				if (req.ok) {
-					alert("accept invitation of " + this.UserData.username);
+					ErrorPopup("accept invitation of " + this.UserData.username);
 					console.log("acctp invitation of ", this.UserData.username);
 					location.reload();
 				}
 
 			} catch(error) {
-				alert(error);
+				ErrorPopup(error as string);
 			}
 		}));
 		(document.getElementById('decline-btn')?.addEventListener('click', async() => {
 			try {
 				const req = await rejectRequest(this.UserData.username);
 				if (req.ok) {
-					alert("decline invitation of " + this.UserData.username);
+					ErrorPopup("decline invitation of " + this.UserData.username);
 					console.log("acctp invitation of ", this.UserData.username);
 					location.reload();
 				}
 
 			} catch(error) {
-				alert(error);
+				ErrorPopup(error as string);
 			}
 		}))
 	}

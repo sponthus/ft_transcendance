@@ -3,6 +3,7 @@ import { getUserInfoBySlug, UserInfo } from "../api/user-service/user-info/getUs
 import { append, createDiv, createButton, createImage, createAnchorElement } from "./elementMaker";
 import { getAllNotifications, AllNotifs, getReadNotifications, getUnreadNotifications } from "../api/user-service/menu/notifications/getNotifications";
 import { markNotificationsRead } from "../api/user-service/menu/notifications/markNotificationRead";
+import { ErrorPopup } from "../pages/ErrorPage";
 
 const notificationWrapper: HTMLElement = createDiv('notif-wrapper','relative flex items-center');
 let isNotificationOpen: boolean = false;
@@ -44,13 +45,13 @@ function acceptInvitation(acceptBtn: HTMLButtonElement, userData: UserInfo) {
 		try {
 			const req = await acceptRequest(userData.username);
 			if (req.ok) {
-				alert("accept invitation of " + userData.username);
+				ErrorPopup("accept invitation of " + userData.username);
 				console.log("acctp invitation of ", userData.username);
 				refreshNotification();
 			}
 
 		} catch(error) {
-			alert(error);
+			ErrorPopup(error as string);
 		}
 	})
 }
@@ -63,13 +64,13 @@ function declineInvitation(declineBtn: HTMLButtonElement, userData: UserInfo) {
 		try {
 			const req = await rejectRequest(userData.username);
 			if (req.ok) {
-				alert("decline invitation of " + userData.username);
+				ErrorPopup("decline invitation of " + userData.username);
 				console.log("acctp invitation of ", userData.username);
 				refreshNotification();
 			}
 
 		}catch(error) {
-			alert(error);
+			ErrorPopup(error as string);
 		}
 	})
 }
@@ -84,7 +85,7 @@ async function openNotification() {
 		if (req.ok)
 		return ; 
 	} catch(error) {
-		alert(error);
+		ErrorPopup(error as string);
 	}
 	// const notificationPannel = document.getElementById('notification-panel-div') as HTMLElement;
 	// setTimeout(() => {
@@ -120,15 +121,15 @@ async function fillUSerInfo(request: AllNotifs, parent: HTMLElement){
 		if (req.ok) {
 			userData = req.userInfo;
 			console.log("request is  = ", request.notif_type);
-			if (request.notif_type === "friend_request")
+			if (request.notif_type === "friend_request" && userData)
 				append(parent ,[addInvitation(userData)]);
-			else if (request.notif_type === "friend_accept")
+			else if (request.notif_type === "friend_accept" && userData)
 				append(parent, [addAcceptRequest(userData)]);
-			else if (request.notif_type === "friend_reject")
+			else if (request.notif_type === "friend_reject" && userData)
 				append(parent, [addREjectRequest(userData)]);
 		}
 	} catch (error) {
-		alert(error);
+		ErrorPopup(error as string);
 	}
 	addNumberInvitation();
 }
@@ -151,7 +152,7 @@ async function fillReceiveRequest(parent: HTMLElement) {
 		}
 		
 	} catch (error) {
-		alert(error);
+		ErrorPopup(error as string);
 	}
 }
 
@@ -167,7 +168,6 @@ function addUSerData(userData: UserInfo, parent: HTMLAnchorElement, textContent:
 }
 
 function addInvitation(userdata: UserInfo) : HTMLAnchorElement {
-	console.log("add invitation fonction called");
 	const InvitationDiv: HTMLAnchorElement = createAnchorElement(`notification-${userdata.slug}`, '', `/user/${userData.slug}`, 'group flex items-center justify between w-full h-24 hover:bg-orange-200 space-x-4 shadow-xl w-14 h-14 group-hover:shadow-lg transition-all duration-200 transform');
 
 	const userIcon: HTMLElement = createDiv(`user-notification-icon-${userdata.slug}`, 'flex items-center justify-center bg-orange-300 group-hover:bg-orange-400 rounded-full relative shadow-xl w-14 h-14 group-hover:shadow-lg transition-all duration-200 transform');
