@@ -1,5 +1,5 @@
-import { createDiv, createElement, createButton, createDropdownDiv, createFormDiv, createCheckBoxLabel, append} from '../../Utils/elementMaker.js';
-import { getAllTournaments, getTournamentMatches } from '../../api/game-service/tournaments/getTournaments.js';
+import { createDiv, createElement, createButton, createDropdownDiv, createFormDiv, createCheckBoxLabel, append, setbackgroundImages} from '../../Utils/elementMaker.js';
+import { getAllTournaments, getTournamentMatches, GameInfos } from '../../api/game-service/tournaments/getTournaments.js';
 import { UserInfo } from '../../api/user-service/user-info/getUserInfo.js';
 import { FillHistory } from './HistoryPage.js';
 import { ErrorPopup } from '../ErrorPage.js';
@@ -21,7 +21,7 @@ export async function DisplayeTournamentHistoryPage(Body: HTMLElement, UserData:
 			Body.textContent = "there is no games";
 		}
 		else {
-			fillStubborn(Body);
+			fillTournamentStubborn(Body);
 			games.map((party: any, i: number) => {
 				if (party.status == "done") {
 					const PartyPan = createDiv('tournament-pan', "flex flex-col items-center w-full h-[0%] flex gap-4 opacity-0 transition-all duration-300");
@@ -52,14 +52,14 @@ async function FillPartyTournament(Body: HTMLElement, games:any, UserData: UserI
 		const data = await getTournamentMatches(games.id!);
 		if (data.ok) {
 			const Matchs = data.matches;
-			FillHistory(Body, Matchs, UserData);
+			Matchs.map((mach: GameInfos, i: number) => {FillHistory(Body, Matchs,i, UserData);});
 		}
 	} catch(error) {
 		ErrorPopup(error as string);
 	}
 }
 
-function fillStubborn(body: HTMLElement) {
+function fillTournamentStubborn(body: HTMLElement) {
 	const StubborndDiv = createDiv("Stubborn-div", "flex items-center h-[10%] w-[100%] space-x-8");
 	append(StubborndDiv, [createStubborngameId(), createStubbornBeginAt(), createStubbornFinishedAt(), createStubbornCreatedAt(),createStubbornCreatedBy(), createStubbornWinner()]);
 	append(body, [StubborndDiv]);
@@ -68,9 +68,7 @@ function fillStubborn(body: HTMLElement) {
 
 function crateStubbornDiv(textContent: string): HTMLElement {
 	const Div: HTMLElement = createDiv("", "h-full w-[30%] rounded-xl flex items-center justify-center");
-	Div.style.backgroundImage = "url('/game_ui/setting/emptyPan.png')";
-	Div.style.backgroundSize = "100% 100%";
-	Div.style.backgroundPosition = "center";
+	setbackgroundImages(Div, "url('/game_ui/setting/emptyPan.png')");
 	append(Div, [(createElement('p', "stubborn-id", `${textContent}` , "text-orange-200 text-center font-bold") as HTMLElement)])
 	return Div;
 }

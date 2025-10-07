@@ -1,6 +1,6 @@
 import { popUp } from '../../Utils/popUp.js';
 import { renderScene } from '../../babylon/displaying/renderScene.js';
-import { createDiv, createElement, createButton, createDropdownDiv, createFormDiv, createCheckBoxLabel, append, createImage} from '../../Utils/elementMaker.js';
+import { createDiv, createElement, createButton, createDropdownDiv, createFormDiv, createCheckBoxLabel, append, createImage, setbackgroundImages} from '../../Utils/elementMaker.js';
 import { LocalGamePage } from './LocalGamePage.js';
 import { TournamentPage } from "./tounramentPage.js";
 import { Event } from './Event.js';
@@ -76,9 +76,7 @@ export class GamePage extends popUp {
 
 	private async initPopUpPage() {
 		this._Body.className = "flex flex-col items-center justify-center h-[70%] w-[70%] transition-all duration-300 rounded-xl shadow-2xl";
-		this._Body.style.backgroundImage = "url('/background1.gif')";
-		this._Body.style.backgroundPosition = "center";
-		this._Body.style.backgroundSize = "cover";
+		setbackgroundImages(this._Body, "url('/background1.gif')");
 		this._Title.textContent = "";
 		this.Title.className = "flex items-center justify-between h-[0%]"
 		this._Body.appendChild(this.Page);

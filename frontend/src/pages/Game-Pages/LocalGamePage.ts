@@ -1,4 +1,4 @@
-import { createDiv, createElement, createButton, createDropdownDiv, createFormDiv, createCheckBoxLabel, append, createImage, createInput} from '../../Utils/elementMaker.js';
+import { createDiv, createElement, createButton, createDropdownDiv, createFormDiv, createCheckBoxLabel, append, createImage, createInput, setbackgroundImages} from '../../Utils/elementMaker.js';
 
 export class LocalGamePage {
 
@@ -33,7 +33,7 @@ export class LocalGamePage {
 	/*************************utils div*************************/
 	private SettingPan!: HTMLElement;
 
-	constructor(Page: HTMLElement, UserName: string) {
+	constructor(Page: HTMLElement, UserName: string) { //transition-transform duration-300 ease-out
 		// this.AvailableGames = new availableGames(this.Page, this.PartyMap);
 		this.Page = Page;
 		// this.PartyMap = new Map<number, HTMLInputElement>();
@@ -42,9 +42,9 @@ export class LocalGamePage {
 	}
 
 	async render() {
-		this.PlayBtn = (createButton("play", "relative flex items-center z-5 active:scale-95 hover:scale-105 h-[30%] aspect-square transition-all duration-200 translate-x-96", "") as HTMLButtonElement);
-		this.SettingBtn = (createButton("settings", "relative flex items-center z-5 active:scale-95 hover:scale-105 h-[12%] w-[30%] transition-all duration-200 -translate-x-96", "") as HTMLButtonElement);
-		this.BackBtn = (createButton("return", "relative flex items-center z-5 active:scale-95 hover:scale-105 h-[10%] w-[20%] transition-all duration-200 top-16 left-32 -translate-x-96", "") as HTMLButtonElement);
+		this.PlayBtn = (createButton("play", "relative flex items-center z-5 active:scale-95 hover:scale-105 h-[30%] aspect-square transition-transform duration-200 ease-out translate-x-96", "") as HTMLButtonElement);
+		this.SettingBtn = (createButton("settings", "relative flex items-center z-5 active:scale-95 hover:scale-105 h-[12%] w-[30%] transition-transform duration-200 ease-out -translate-x-96", "") as HTMLButtonElement);
+		this.BackBtn = (createButton("return", "relative flex items-center z-5 active:scale-95 hover:scale-105 h-[10%] w-[20%] transition-transform duration-200 ease-out top-16 left-32 -translate-x-96", "") as HTMLButtonElement);
 		append(this.Page, [createImage("1v1", "absolute object-fill object-center h-full w-full opacity-65", '1v1-page.png')]);
 
 		append(this.PlayBtn, [createImage('Play', 'absolute object-center h-full w-full', 'game_ui/Playebtn.png')]);
@@ -63,10 +63,10 @@ export class LocalGamePage {
 	}
 
 	async renderSetting() {
-		this.BackBtn = (createButton("return", "relative flex items-center z-5 active:scale-95 hover:scale-105 h-[10%] w-[20%] transition-all duration-200 left-32 -translate-x-96", "") as HTMLButtonElement);
+		this.BackBtn = (createButton("return", "relative flex items-center z-5 active:scale-95 hover:scale-105 h-[10%] w-[20%] transition-transform duration-200 ease-out left-32 -translate-x-96", "") as HTMLButtonElement);
 		append(this.BackBtn, [createImage('Back', 'absolute object-center h-full w-full', 'game_ui/Backbtn.png')]);
 
-		this.SettingPan = createDiv('setting-pan', 'relative flex flex-col items-center w-full h-[70%] transition-all duration-200 translate-x-96 space-y-4');
+		this.SettingPan = createDiv('setting-pan', 'relative flex flex-col items-center w-full h-[70%] transition-transform duration-200 ease-out translate-x-96 space-y-4');
 		append(this.SettingPan ,[createImage('1v1-setting', 'absolute object-center object-fill h-full w-full', 'game_ui/setting/SettingPan.png')]);		
 		this.fillSetingPan();
 
@@ -113,9 +113,7 @@ export class LocalGamePage {
 		
 		const PlayerNamePanDiv: HTMLElement = createDiv('player-name', 'flex items-center h-[50%] w-full space-x-16');
 		this.reversbtn = createButton('reverse', 'relative z-5 active:scale-95 hover:scale-110 h-full w-[20%] transition-all duration-200', 'reverse');
-		this.reversbtn.style.backgroundImage = "url('/game_ui/setting/minusValue.png')";
-		this.reversbtn.style.backgroundPosition = 'center';
-		this.reversbtn.style.backgroundSize = '100% 100%';
+		setbackgroundImages(this.reversbtn, "url('/game_ui/setting/minusValue.png')");
 		// append(this.reversbtn, [createImage('reverse', 'absolute object-cover object-center h-full w-full', 'game_ui/reversebtn.png')]);
 
 
@@ -254,6 +252,10 @@ export class LocalGamePage {
 
 	get _reversebtn(): HTMLButtonElement {
 		return this.reversbtn;
+	}
+	
+	get _username(): string {
+		return this.Username;
 	}
 	/******************************************setter*************************************/
 	set setPlayerA(PlayerA: string){

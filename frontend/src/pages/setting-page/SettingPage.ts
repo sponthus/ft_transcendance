@@ -2,7 +2,7 @@ import { navigate } from "../../core/router";
 import { BasePage } from "../BasePage";
 import { createDiv, createElement, createButton, createDropdownDiv, createFormDiv, createCheckBoxLabel, append, createImage} from '../../Utils/elementMaker.js';
 import { renderGameSetting, getAvatarAsset, getCurrentNpcAsset } from "./GameSettings";
-import { renderProfileSetting } from "./ProfileSetting";
+import { cleanForm, renderProfileSetting, saveUserForm } from "./ProfileSetting";
 import { changeNpcAsset } from "../../api/user-service/menu/npcAsset";
 import { changeCharacterAsset } from "../../api/user-service/menu/characterAsset";
 import { ErrorPopup } from '../ErrorPage.js';
@@ -55,18 +55,13 @@ export class SettingPage extends BasePage {
 		this.front = createDiv("grid-Setting-front", "flex flex-wrap items-center  justify-center w-full h-[95%] text-center space-y-4");
 	}
 
-	// private createSettingText() {
-	// 	this.SettingText = createElement('h1', "setting_text", "Settings", "text-emerald-600 text-2xl py-3 px-6");
-	// 	append(this.front, [this.SettingText]);
-	// }
-
 	private createButtonDiv() {
 		this.ButtonDiv = createDiv("Button_setting", "h-full w-full");
 		append(this.front, [this.ButtonDiv]);
 	}
 
 	private async createSettingDiv() {
-		this.SettingDiv = createDiv("setting", "flex flex-col space-y-4");
+		this.SettingDiv = createDiv("setting", "flex flex-col space-y-4 p-4");
 		append(this.front, [this.SettingDiv]);
 	}
 
@@ -91,14 +86,6 @@ export class SettingPage extends BasePage {
 			await renderProfileSetting(this.ButtonDiv, this.SettingDiv, this.ReturnDiv);
 		});
 		append(this.ButtonDiv, [ProfileSettingButton]);
-	}
-
-	/*********************************************function for creating Profile Setting**********************************************/
-	private async renderProfileSetting(): Promise<void> {
-		// this.SettingText.textContent = "Profile Settings";
-		this.ButtonDiv.classList.add('hidden');
-
-		this.ReturnDiv.classList.remove('hidden');
 	}
 
 	/*********************************************function utils**********************************************/
@@ -139,30 +126,33 @@ export class SettingPage extends BasePage {
 	}
 
 	private async Return(): Promise<void> {
-		// this.SettingText.textContent = "Settings";
 		Array.from(this.SettingDiv.children).forEach((child, index)=>{
 			child.remove();
 		})
+		if (this.statePage === PageState.PROFILE)
+			cleanForm();
 		this.ButtonDiv.classList.remove('hidden');
 		this.ReturnDiv.classList.add('hidden');
 	}
 
 	private async Done(): Promise<void> {
 		if (this.statePage == PageState.GAME) {
-			await this.callApiForChangeAvatar(); // don't work hover 12
+			await this.callApiForChangeAvatar();
 			await this.CallApiForChangeNpc();
 		}
+		else if (this.statePage == PageState.PROFILE)
+			await saveUserForm();
 		this.Return();
 		return ;
 	}
+
 	private async CallApiForChangeNpc() {
 			let CurrentNpcAsset: number = getCurrentNpcAsset();
 
 		try {
 			const reqNpc = await changeNpcAsset(CurrentNpcAsset)
-			if (reqNpc.ok) {
-				ErrorPopup("change NPC " + CurrentNpcAsset);
-			}
+			if (reqNpc.ok)
+				return ;
 		} catch (error) {
 			ErrorPopup(error as string);
 		}
@@ -172,9 +162,8 @@ export class SettingPage extends BasePage {
 		try {
 			console.log("change the assets " ,CurrentAvatarAsset);
 			const reqAvatar = await changeCharacterAsset(CurrentAvatarAsset);
-			if (reqAvatar.ok) {
-				ErrorPopup("change avatar " + CurrentAvatarAsset)
-			}
+			if (reqAvatar.ok)
+				return ;
  
 		} catch (error) {
 			ErrorPopup(error as string);

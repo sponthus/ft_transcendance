@@ -4,6 +4,7 @@ import { BasePage } from "./BasePage.js";
 import { createLogo } from './RegisterPage.js';
 import { createDiv, createElement, append, createFormDiv, createButton, createAnchorElement } from '../Utils/elementMaker.js';
 import { ErrorPopup } from "./ErrorPage.js";
+import { loginTwoFa } from "../Utils/2FAPopUp.js";
 
 export class LoginPage extends BasePage {
 
@@ -82,7 +83,11 @@ export class LoginPage extends BasePage {
 
 			const req = await loginUser(username, password);
 			if (req.ok) {
-			    await navigate('/');
+				if (req.twoFaEnabled === 1) {
+					console.log("login twoFA");
+					await loginTwoFa();
+				}
+				// await navigate('/');
 			    return ;
 			}
 			else {

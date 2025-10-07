@@ -157,7 +157,7 @@ export class Event {
 			this.LocalGamePage._botBtn.classList.add('scale-110');
 			this.LocalGamePage._playerBtn.classList.add('hover:scale-110');
 			this.LocalGamePage._playerBtn.classList.remove('scale-110');
-			this.LocalGamePage.setPlayerAInput = "endoliam";
+			this.LocalGamePage.setPlayerAInput = this.LocalGamePage._username; // change to uysername
 			this.LocalGamePage.setPlayerA = this.LocalGamePage._playerAInput.value;
 			this.LocalGamePage.setPlayerAReadonly = true;
 			this.LocalGamePage.setPlayerBInput = "Crabby the bot";
@@ -188,6 +188,8 @@ export class Event {
 		const tmp: string = this.LocalGamePage._playerAInput.value;
 		this.LocalGamePage.setPlayerAInput = this.LocalGamePage._playerBinput.value;
 		this.LocalGamePage.setPlayerBInput = tmp;
+		this.LocalGamePage.setPlayerA = this.LocalGamePage._playerAInput.value;
+		this.LocalGamePage.setPlayerB = this.LocalGamePage._playerBinput.value;
 		if (this.LocalGamePage._Ai === 1)
 			this.LocalGamePage.setAi = 2;
 		else if (this.LocalGamePage._Ai === 2)
