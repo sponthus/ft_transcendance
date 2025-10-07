@@ -24,7 +24,7 @@ services:
     volumes:
       - ssl_certs:/etc/ssl # For nginx SSL certs
       - ./api-gateway:/app
-      - ./config:/app/config
+      - ./config:/app/config # Dev only ? 
     networks:
       - pongnet
     restart: always
@@ -44,11 +44,6 @@ services:
       - hash_key
       - api_key
       - auth_key
-    # healthcheck:
-    #   test: ["CMD-SHELL", "curl -f https://localhost:${USER_PORT}/health || exit 1"]
-    #   interval: 5s
-    #   timeout: 2s
-    #   retries: 20
     restart: always
 
   game-service:
@@ -62,7 +57,7 @@ services:
     volumes:
       - ssl_certs:/etc/ssl # For nginx SSL certs
       - ./game-service:/app # Dev only,prod = pas de volume, seulement copie des fichiers.
-      - ./config:/app/config
+      - ./config:/app/config # Dev only
     networks:
       - pongnet
     secrets:
@@ -76,17 +71,12 @@ services:
       context: ./session-service
       args: 
         WS_PORT: ${SESSION_WS_PORT}
-    # healthcheck:
-    #   test: ["CMD-SHELL", "curl -f https://localhost:${SESSION_PORT}/health || exit 1"]
-    #   interval: 5s
-    #   timeout: 2s
-    #   retries: 20
     env_file:
       - ".env"
     volumes:
       - ssl_certs:/etc/ssl # For nginx SSL certs
       - ./session-service:/app # Dev only,prod = pas de volume, seulement copie des fichiers.
-      - ./config:/app/config
+      - ./config:/app/config # Dev only,prod = pas de volume, seulement copie des fichiers.
     networks:
       - pongnet
     secrets:
@@ -117,11 +107,11 @@ services:
       dockerfile: Dockerfile
     env_file: ".env"
     ports:
-      - "5173:5173" # Dev only for vite server, in prod = build, nginx serves it
+      - "5173:5173" # Dev only
     volumes:
-      - ./frontend:/app # Dev only,prod = pas de volume, seulement copie des fichiers.
-      - frontend_dist:/app/dist # Necessary in prod
-      - ./config:/app/config
+      - ./frontend:/app # Dev only, prod = pas de volume, seulement copie des fichiers.
+      - frontend_dist:/app/dist # Prod volume for nginx
+      - ./config:/app/config # Dev only
     networks:
       - pongnet
 
@@ -134,7 +124,7 @@ services:
       - ssl_certs:/etc/ssl # For nginx SSL certs
       - ./upload-service:/app # Dev only,prod = pas de volume, seulement copie des fichiers.
       - avatar_uploads:/app/uploads # share with nginx
-      - ./config:/app/config
+      - ./config:/app/config # Dev only,prod = pas de volume, seulement copie des fichiers.
     secrets:
       - hash_key
       - api_key
