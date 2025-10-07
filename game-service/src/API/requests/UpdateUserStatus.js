@@ -13,18 +13,22 @@ export async function updateUserStatus(userId, status) {
 	
 	const api_key = getSecret('api_key');
 
-    const res = await fetch(`${prefix}://session-service:${env.session_port}/status/${userId}`, {
-        method: 'PATCH',
-        headers: { 
-            'Content-Type': 'application/json',
-            'x-internal-api-key': api_key
-        },
-        body: JSON.stringify({ status: status }),
-		dispatcher: tlsAgent
-    });
-    if (res.ok) {
-        return { ok: true };
-    }
-    const data = await res.json();    
-    return { ok: false, error: data.error };
+    try {
+		const res = await fetch(`${prefix}://session-service:${env.session_port}/status/${userId}`, {
+			method: 'PATCH',
+			headers: { 
+				'Content-Type': 'application/json',
+				'x-internal-api-key': api_key
+			},
+			body: JSON.stringify({ status: status }),
+			dispatcher: tlsAgent
+		});
+		if (res.ok) {
+			return { ok: true };
+		}
+		const data = await res.json();
+		return { ok: false, error: data.error };
+	} catch (error) {
+		return { ok: false, error: error.message };
+	}
 }

@@ -9,5 +9,6 @@ node_modules/*
 *.db
 secrets
 .env
-.venv*
-__pycache*
+.venv
+data*
+__pycache__

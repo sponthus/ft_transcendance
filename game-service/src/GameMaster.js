@@ -31,9 +31,11 @@ export default class GameMaster {
             game.server.addWs(ws);
 			console.log(`✅ User ${userId} authenticated to game ${gameId}`);
             await updateUserStatus(userId);
+			return true;
 		} 
 		else {
 			console.log(`❌ No game server available for user ${userId}`);
+			return false;
 		}
     }
 
