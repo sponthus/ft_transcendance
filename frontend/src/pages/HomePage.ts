@@ -3,6 +3,7 @@ import { append, createAnchorElement, createDiv, createImage } from "../Utils/el
 import { checkLog } from "../api/user-service/connection/check-log.js";
 
 import { activateTwoFa, checkTwoFaCode } from "../api/user-service/2fa.js";
+import { getAllGames } from "../api/game-service/games/game.js";
 
 export class HomePage extends BasePage {
 
@@ -31,10 +32,10 @@ export class HomePage extends BasePage {
 		}
 
 		//TEST A SUPPRIMER\
-/*		const req = await checkTwoFaCode("328550");
+		const req = await getAllGames("ebriere");
 		if (req.ok)
 		{
-			console.log('obj: ', req.status);
+			console.log('obj: ', req.games);
 		}
 		else
 			alert(req.error);

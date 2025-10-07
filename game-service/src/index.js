@@ -1,5 +1,6 @@
 import Fastify from "fastify";
 import fastifyJwt from '@fastify/jwt';
+import fastifyCookie from '@fastify/cookie';
 import { createServer } from "http";
 import { fileURLToPath } from "url";
 import { WebSocketServer } from "ws";
@@ -43,7 +44,17 @@ app.decorate("authenticate", async function (request, reply)
 			return;
 		}
 		else 
-			await request.jwtVerify(); // Check external JWT token from users and store their infos in request.user
+		{
+			console.log("PASSSSSSEEE LLA");
+			const result = app.unsignCookie(request.cookies.token); //verifie manuellement signature cookie
+  	      	if (!result.valid)
+   	        	return reply.code(401).send({ error: "Invalid cookie" });
+    	    console.log("\nToken dans le game-service : " + result.value + "-");
+    	    request.user = await app.jwt.verify(result.value); //Décode et verifie le token et stock ses infos dans request
+    	    if (request.user.twofa_pending === true)
+            	return reply.code(401).send({ error: "2FA required" });
+		}
+		//	await request.jwtVerify(); // Check external JWT token from users and store their infos in request.user
 		// console.log("Decoded token:", request.user);
     }
     catch (err)
@@ -53,6 +64,10 @@ app.decorate("authenticate", async function (request, reply)
     }
 });
 
+app.register(fastifyCookie,
+{
+    secret: getSecret('cookie_key')
+});
 
 //enregistre le plugin JWT dans fastify
 app.register(fastifyJwt, {

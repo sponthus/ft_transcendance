@@ -47,18 +47,12 @@ export type AllGamesResult = AllGamesList | Failure;
 // POST /game
 // Creates a new game for the user, taking names for players
 // Security : Accessible for every logged-in user
-export async function createLocalGame(player_a: string, player_b: string, maxScore: number = 7, ai: number = 0, option: number = 1): Promise<GameInfoResult> {
-    const token = localStorage.getItem("token");
-    if (!token)
-        return { ok: false, error: "No token"};
-
+export async function createLocalGame(player_a: string, player_b: string, maxScore: number = 7, ai: number = 0, option: number = 1): Promise<GameInfoResult> {    
     console.log(' playA ' + player_a + ' playB ' + player_b);
     const res = await fetch('/api/games/game', {
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-        },
+        headers: {'Content-Type': 'application/json',},
+        credentials: 'include',
         body: JSON.stringify({
             player_a: player_a,
             player_b: player_b,
@@ -97,19 +91,13 @@ export async function createLocalGame(player_a: string, player_b: string, maxSco
 // Launch a game and reserve a game server in backend
 // Security : is gonna be possible only if the logges-in user is the owner of the game
 export async function startGame(gameId: number): Promise<GameInfoResult> {
-	const token = localStorage.getItem("token");
-    if (!token)
-        return { ok: false, error: "No token"};
-    if (!gameId) {
+	if (!gameId) {
         return { ok: false, error: "No game ID given" };
     }
     try {
         const request = await fetch(`/api/games/${gameId}`, {
             method: 'POST',
-            headers: {
-				// 'Content-Type': 'application/json', // Useless because no body provided
-                'Authorization': `Bearer ${token}`
-            }
+            credentials: 'include',
         });
         if (!request.ok) {
             throw new Error('Unable to start game ' + request.status);
@@ -201,19 +189,14 @@ export async function getFinishedGames(slug: string): Promise<AllGamesResult> {
 // Gives all games for a user (useful for history, gives you every info available on each game)
 // Security : Accessible for every logged-in user
 export async function getAllGames(slug: string): Promise<AllGamesResult> {
-    const token = localStorage.getItem("token");
-    if (!token)
-        return { ok: false, error: "No token"};
     if (!slug) {
         return { ok: false, error: 'Slugis required' };
     }
     try {
         const response = await fetch(`/api/games/${slug}/games`, {
             method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-            }
+            headers: {'Content-Type': 'application/json', },
+            credentials: 'include',
         });
 
         if (!response.ok) {
@@ -235,19 +218,12 @@ export async function getAllGames(slug: string): Promise<AllGamesResult> {
 // TODO : Works but in case of an error, writes ErrorPopup("Error: Error:...")
 // Security : is gonna be possible only if the logges-in user is the owner of the game
 export async function deleteGame(gameId: number): Promise<SimpleResult> {
-    const token = localStorage.getItem("token");
-    if (!token)
-        return { ok: false, error: "No token"};
-
     if (!gameId)
         return {ok: false, error: 'gameId required'};
     try {
         const response = await fetch(`/api/games/${gameId}`, {
             method: 'DELETE',
-            headers:  {
-				// 'Content-Type': 'application/json', // Useless because no body provided
-                'Authorization': `Bearer ${token}`
-            }
+            credentials: 'include',
         });
         if (!response.ok) {
 			const data = await response.json();

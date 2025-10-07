@@ -25,43 +25,11 @@ export default class WebSocketManager {
 		}
 	}
 
-	async checkTokenFromCookies(ws, cookies)
-	{
-		const cookiesTab = cookies.split('; ');
-		let token;
-		for (let cookie of cookiesTab)
-		{
-			if (cookie.trim().startsWith("token="))
-			{
-				token = cookie.trim().substring(cookie.trim().indexOf('=') + 1);
-				break ;
-			}
-		}
-		token = decodeURIComponent(token); //enleve l'encodage url --> les '/' devenait des : '%2F' par exemple 
-		console.log("token: -" + token + "-");
-		  //if (token.startsWith('s:')) le s n 'existe pas car cookie le signe pas car deja signer par jwt
-			//token = token.slice(2);
-		const result = this.fastify.unsignCookie(token); //verifie manuellement signature cookie
-		console.log('result session service ', result);
-        if (!result.valid)
-		{
-			console.log("❌ Invalid cookie session-service");
-            //return reply.code(401).send({ error: "Invalid cookie" });
-		}
-		console.log('token cote session service', result.value);
-		this.authenticateUser(ws, result.value);
-    }
-
-	async initializeWebSocket() {
+		async initializeWebSocket() {
 		this.ws.on('connection', (ws, request) => {
             console.log('🟢 New WebSocket connection');
-			console.log('\nJust check\n');
-			console.log('COOKIEES Session service : ', request.headers.cookie);
-			const key = getSecret('cookie_key');
-			console.log('secret cookie session service --> ', key);
-			this.checkTokenFromCookies(ws, request.headers.cookie); //mettre await
-			//this.handleConnexion(ws);
-
+			
+			this.checkTokenFromCookies(ws, request.headers.cookie); //mettre await ???
 			ws.on('message', (data) => {
                 let message;
 				try {
@@ -99,6 +67,37 @@ export default class WebSocketManager {
             });
 		});
 	}
+
+	async checkTokenFromCookies(ws, cookies)
+	{
+		if (!cookies)
+        {
+            console.log("❌ No cookies found in the headers");
+            ws.close(4002, "No cookies");
+            return;
+        }
+		const cookiesTab = cookies.split('; ');
+		let token;
+		for (let cookie of cookiesTab)
+		{
+			if (cookie.trim().startsWith("token="))
+			{
+				token = cookie.trim().substring(cookie.trim().indexOf('=') + 1);
+				break ;
+			}
+		}
+		token = decodeURIComponent(token); //enleve l'encodage url --> les '/' devenait des : '%2F' par exemple 
+		console.log("token: -" + token + "-");
+		const result = this.fastify.unsignCookie(token); //verifie manuellement signature cookie
+		console.log('result session service ', result);
+        if (!result.valid)
+		{
+			ws.close(4002, "Invalid authentication");
+            return ;
+        }
+		console.log('token cote session service', result.value);
+		this.authenticateUser(ws, result.value);
+    }
 
 	handleMessage(ws, message) {
         switch(message.type) {
@@ -167,7 +166,7 @@ export default class WebSocketManager {
 	}
 
 	// At connexion, ws is registered, if not authenticated after 10s it is closed
-	handleConnexion(ws) {
+	/*handleConnexion(ws) {
 		this.unknownClients.push(ws);
 		
 		// Execute once after 10s: check if ws has auth
@@ -178,7 +177,7 @@ export default class WebSocketManager {
 				this.unknownClients = this.unknownClients.filter(c => c !== ws);
 			}
 		}, 10000);
-	}
+	}*/
 
 	// Once auth is ok, register the ws in the clients map
     registerUser(ws, userId, username, slug, status) {

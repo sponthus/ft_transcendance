@@ -90,7 +90,7 @@ export class SessionSocket {
 
         this.sWS.onopen = () => {
             console.log("Connected to WebSocket server");
-            this.authenticate();
+            //this.authenticate();
             this.startHeartbeat();
         };
 
