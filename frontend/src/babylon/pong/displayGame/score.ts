@@ -111,18 +111,16 @@ export class Score {
 	];
 
 	private _goalBob: string[] = [
-    "Mamamilla, quel but !",
-
-    "Oh my Godness!",
+    "MAMAMILLA, QUEL BUT !",
+    "OMYGOD!",
     "CHE PASSSSOOOOO !",
-    "C'est du jamais vu !",
-    "Starfullah !",
+    "C'EST DU JAMAIS VU !",
 	"ROCRABDO !",
 	"Et 1, ET 2, Et 3 ZERO !",
-	"L'humiliation",
-	"Aha, qu'il est mauvais !",
-	"J'ai jamais vu ça",
-	"T’as vu la balle ou pas ?"
+	"L'HUMILIATION",
+	"AHA, QU'IL EST NULL !",
+	"POPOPO !",
+	"UNE DECULOTE !"
 	];
 	
 }
