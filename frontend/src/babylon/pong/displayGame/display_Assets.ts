@@ -25,6 +25,8 @@ export class DisplayAssets {
 	private _scene: Scene;
 	private _crab1: AbstractMesh | null = null;
 	private _crab2: AbstractMesh | null = null;
+	private _crabRobot1: AbstractMesh | null = null;
+	private _crabRobot2: AbstractMesh | null = null;
 	private _bullBob: AbstractMesh | null = null;
 	private _bullPatrick: AbstractMesh | null = null;
 	private _caste: AbstractMesh | null = null;
@@ -41,8 +43,6 @@ export class DisplayAssets {
 
 	//private _skybox: AbstractMesh | null = null;
 
-
-	private _statusCrab: AbstractMesh | null = null;
 	private _pancartePlayer1: AbstractMesh | null = null;
 	private _pancartePlayer2: AbstractMesh | null = null;
 
@@ -148,11 +148,6 @@ export class DisplayAssets {
 		this._bullPatrick.position = new Vector3(7, 3.5, 3.5);
 		this._bullPatrick.billboardMode = Mesh.BILLBOARDMODE_ALL;
 		this._bullPatrick.setEnabled(false);
-
-		const result11 = await ImportMeshAsync("/assets/statusCrabGold.glb", this._scene);
-		this._statusCrab = result11.meshes[0];
-		this._statusCrab.position = new Vector3(10.5, 1.5, 0);
-		this._statusCrab.scaling = new Vector3(5,5,5);
 
 		const result12 = await ImportMeshAsync("/assets/pancarte.glb", this._scene);
 		this._pancartePlayer1 = result12.meshes[0];

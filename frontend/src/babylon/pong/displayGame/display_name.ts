@@ -32,9 +32,9 @@ export class DisplayName
 		// GUI sur le plane
 		this._advancedTexture1 = AdvancedDynamicTexture.CreateForMesh(this._plane1);
 		this._text1 = new TextBlock();
-		this._text1.text = this._namePlayer1;
-		this._text1.color = "blue";
-		this._text1.fontSize = 20;
+		this._text1.text = this._namePlayer2;
+		this._text1.color = "red";
+		this._text1.fontSize = 18;
 		this._text1.fontFamily = "Comic Sans MS";
 		this._text1.fontStyle = "italic";
 		this._text1.fontWeight = "bold";
@@ -50,13 +50,46 @@ export class DisplayName
 		// GUI sur le plane
 		this._advancedTexture2 = AdvancedDynamicTexture.CreateForMesh(this._plane2);
 		this._text2 = new TextBlock();
-		this._text2.text = this._namePlayer2;
-		this._text2.color = "red";
-		this._text2.fontSize = 20;
+		this._text2.text = this._namePlayer1;
+		this._text2.color = "blue";
+		this._text2.fontSize = 18;
 		this._text2.fontFamily = "Comic Sans MS";
 		this._text2.fontStyle = "italic";
 		this._text2.fontWeight = "bold";
 
 		this._advancedTexture2.addControl(this._text2);
     }
+
+	public setNamePlayers(namePlayer1: string, namePlayer2: string)
+	{
+		this._namePlayer1 = namePlayer1;
+		this._namePlayer2 = namePlayer2;
+
+		if (this._namePlayer1 === "Crabby the bot")
+		{
+			this._text1.text = "Crabby\nThe Bot";
+			this._text1.color = "orange";
+			this._text1.fontSize = 22;
+		}
+		else
+		{
+			this._text1.text = this._namePlayer1;
+			this._text1.color = "red";
+			this._text1.fontSize = 18;
+		}
+		
+		if (this._namePlayer2 === "Crabby the bot")
+		{
+			this._text2.text = "Crabby\nThe Bot";
+			this._text2.color = "orange";
+			this._text2.fontSize = 22;
+
+		}
+		else
+		{
+			this._text2.text = this._namePlayer2;
+			this._text2.color = "blue";
+			this._text2.fontSize = 18;
+		}
+	}
 }
