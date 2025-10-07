@@ -135,22 +135,29 @@ export async function getTournamentNextMatch(request, reply) {
 			return reply.status(404).send({error: 'No next match found for this tournament.'});
 		}
 		console.log("Next match found: match " + match.id_match);
-		console.log(match); // To show the found data
-		// TODO test me
-		if (match.player_a[0] === '@') {
-			const player1Id = match.player_a.slice(1);
-			const player1Name = await getUserInfoFromId(player1Id);
-			if (player1Name.ok) {
-				match.player_a = `@${player1Name.nickname}`;
+		// console.debug(match); // To show the found data
+		// Test is ok
+		if (match) {
+			for (let i = 0; i < match.players.length; i++) {
+				const player = match.players[i];
+				if (player[0] === '@') {
+					const playerId = player.slice(1);
+					// console.debug("Resolving slug for id ", playerId);
+					const playerName = await getUserInfoFromId(playerId);
+					if (!playerName.ok) {
+						console.error("❌ Player not found: ", player);
+						return reply.status(500).send({ error: "User not found" });
+					}
+					// console.debug(playerName);
+					// console.debug(playerName.infos);
+					if (playerName.ok) {
+						match.players[i] = `@${playerName.infos.nickname}`;
+					}
+				}
 			}
 		}
-		if (match.player_b[0] === '@') {
-			const player2Id = match.player_b.slice(1);
-			const player2Name = await getUserInfoFromId(player2Id);
-			if (player2Name.ok) {
-				match.player_b = `@${player2Name.nickname}`;
-			}
-		}
+		// console.debug("SENDING RESULT FOR THE MATCH :");
+		// console.debug(match);
 		return reply.status(200).send(match);
 	}
 	catch (error) {

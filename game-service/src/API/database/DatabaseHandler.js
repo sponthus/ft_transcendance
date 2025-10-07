@@ -27,7 +27,7 @@ export default class DatabaseHandler {
 		id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
 		tournament_id INTEGER REFERENCES tournaments(id),
 		name TEXT,
-		has_accepted INTEGER DEFAULT 0 CHECK (has_accepted IN (0, 1, 2)) -- 0 = not a user, 1 = not accepted, 2 = accepted
+		has_accepted INTEGER DEFAULT 0 CHECK (has_accepted IN (0, 1, 2))
 	);
         `);
 
@@ -464,10 +464,10 @@ export default class DatabaseHandler {
 			const stmt = this.db.prepare(`
 	SELECT
 		tm.game_id,
-    	g.player_a,
+		g.player_a,
 		g.player_b,
-    	tm.round,
-    	tm.match_number AS match
+		tm.round,
+		tm.match_number AS match
 	FROM tournaments t
 	JOIN tournament_matches tm ON tm.game_id = t.next_game
 	JOIN games g ON tm.game_id = g.id
@@ -475,11 +475,15 @@ export default class DatabaseHandler {
 	LIMIT 1
 			`);
 			const nextMatch = stmt.get(tournamentId);
+			// console.debug("FOUND MATCH IN DB");
+			// console.debug(nextMatch);
 			if (nextMatch) {
 				nextMatch.players = [nextMatch.player_a, nextMatch.player_b];
 				delete nextMatch.player_a;
 				delete nextMatch.player_b;
 			}
+			// console.debug("After edit : ");
+			// console.debug(nextMatch);
 			return (nextMatch);
 		});
 		const results = transaction(tournamentId);

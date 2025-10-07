@@ -39,8 +39,9 @@ export async function getIdUserFromSlug(request, reply)
 
 export async function getUserInfosFromId(request, reply)
 {
-    const { idUser } = request.params;
+	const { idUser } = request.params;
     const   db = request.server.db;
+	console.debug("➡️ Getting info for user id ", idUser);
 
     try
     {
@@ -50,6 +51,8 @@ export async function getUserInfosFromId(request, reply)
                                         users \
                                     WHERE \
                                         id = ?").get(idUser);
+		if (!userInfo)
+			return reply.code(404).send({ error: "User not found" });
         return reply.code(200).send({ userInfo : userInfo });
     }
     catch (err)
