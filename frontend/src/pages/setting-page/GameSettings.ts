@@ -13,8 +13,7 @@ const NPCMap: Map<number, HTMLButtonElement> = new Map< number, HTMLButtonElemen
 export async function  renderGameSetting(ButtonDiv: HTMLElement, SettingDiv: HTMLElement, ReturnDiv: HTMLElement){
 	await setCurrentAvatar();
 	await setCurrentNpc();
-	// SettingText.textContent = "Game Settings";
-	ButtonDiv.classList.add('hidden');
+	ButtonDiv.classList.add('opacity-0');
 	append(SettingDiv, [createAvatarBtn("Lobby-user-avatar", 18, "/asset/Characters/Previews/Previews/", "change Lobby user Avatar :", true)
 							,createAvatarBtn("Lobby-npc-avatar", 11, "/asset/Characters/Previews/Previews1/", "change Lobby npc Avatar :", false)]);
 	
@@ -22,7 +21,13 @@ export async function  renderGameSetting(ButtonDiv: HTMLElement, SettingDiv: HTM
 	manageClicAvatarkEvent(AvatarMap, true);
 	manageEventAvatar("Lobby-npc-avatar-btn", "Lobby-npc-avatar-btn-div");
 	manageClicAvatarkEvent(NPCMap, false);
-	ReturnDiv.classList.remove('hidden');
+
+	SettingDiv.classList.remove('opacity-0')
+	setTimeout(async() => {
+		ReturnDiv.classList.remove('hidden');
+		ButtonDiv.classList.add('hidden');
+		SettingDiv.classList.remove('hidden');
+	}, 300);
 }
 
 
