@@ -47,7 +47,7 @@ export type AllGamesResult = AllGamesList | Failure;
 // POST /game
 // Creates a new game for the user, taking names for players
 // Security : Accessible for every logged-in user
-export async function createLocalGame(player_a: string, player_b: string, maxScore: number = 7, ai: number = 0, option: number = 1): Promise<GameInfoResult> {
+export async function createLocalGame(player_a: string, player_b: string, maxScore: number = 7, ai: number = 1, option: number = 1): Promise<GameInfoResult> {
     const token = localStorage.getItem("token");
     if (!token)
         return { ok: false, error: "No token"};
