@@ -35,4 +35,25 @@ export async function getIdUserFromSlug(request, reply)
     {
         return reply.code(500).send({ error: "Internal Server Error" });
     }
-}  
+}
+
+export async function getUserInfosFromId(request, reply)
+{
+    const { idUser } = request.params;
+    const   db = request.server.db;
+
+    try
+    {
+        const userInfo = db.prepare(  "SELECT \
+                                        username, slug, nickname \
+                                    FROM \
+                                        users \
+                                    WHERE \
+                                        id = ?").get(idUser);
+        return reply.code(200).send({ userInfo : userInfo });
+    }
+    catch (err)
+    {
+        return reply.code(500).send({ error: "Internal Server Error" });
+    }
+}

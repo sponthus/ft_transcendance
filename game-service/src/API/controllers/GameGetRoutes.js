@@ -40,6 +40,22 @@ export async function getGamesForSlug(request, reply) {
 		if (!games || games.length === 0) {
 			return reply.status(200).send([]);
 		}
+		for (let i = 0; i < games.length; i++) {
+			if (games[i].player_a[0] === '@') {
+				const playerAId = games[i].player_a.slice(1);
+				const playerAName = await getUserIdFromSlug(playerAId);
+				if (playerAName.ok) {
+					games[i].player_a = `@${playerAName.nickname}`;
+				} // TODO check me
+			}
+			if (games[i].player_b[0] === '@') {
+				const playerBId = games[i].player_b.slice(1);
+				const playerBName = await getUserIdFromSlug(playerBId);
+				if (playerBName.ok) {
+					games[i].player_b = `@${playerBName.nickname}`;
+				} // TODO check me
+			}
+		}
 		console.log(`Found ${games.length} games for user ${userId}`);
 		return reply.status(200).send(games);
 	}

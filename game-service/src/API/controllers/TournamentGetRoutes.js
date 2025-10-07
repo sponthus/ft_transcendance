@@ -1,4 +1,5 @@
 import { getUserIdFromSlug } from "../requests/GetUserIdFromSlug.js"
+import { getUserInfoFromId } from "../requests/GetUserInfoFromId.js"
 import { checkIdFormat, checkSlugFormat } from "../../tools/CheckFormat.js"
 
 // Gives the list of tournaments linked to a player
@@ -36,7 +37,14 @@ export async function getTournamentsForSlug(request, reply) {
 			return reply.status(200).send([]);
 		}
 		console.log(`Found ${tournaments.length} tournaments for user ${userId}`);
-		// console.log(tournaments); // To show the found data
+		console.log(tournaments); // To show the found data
+		if (tournaments[0].winner[0] === '@') {
+			const winnerId = tournaments[0].winner.slice(1);
+			const winnerName = await getUserInfoFromId(winnerId);
+			if (winnerName.ok) {
+				tournaments[0].winner = `@${winnerName.nickname}`;
+			} // TODO check me
+		}
 		return reply.status(200).send(tournaments);
 	}
 	catch (error) {
@@ -72,7 +80,25 @@ export async function getTournamentMatches(request, reply) {
 			return reply.status(404).send({ error : 'No tournament found.'});
 		}
 		console.log(`Found ${matches.length} matches for id ${tournamentId}`);
-		// console.log(matches); // To show the found data
+		console.log(matches); // To show the found data
+		// TODO test me
+		for (let i = 0; i < matches.length; i++) {
+			const match = matches[i];
+			if (match.player_a[0] === '@') {
+				const player1Id = match.player_a.slice(1);
+				const player1Name = await getUserInfoFromId(player1Id);
+				if (player1Name.ok) {
+					matches[i].player_a = `@${player1Name.nickname}`;
+				}
+			}
+			if (match.player_b[0] === '@') {
+				const player2Id = match.player_b.slice(1);
+				const player2Name = await getUserInfoFromId(player2Id);
+				if (player2Name.ok) {
+					matches[i].player_b = `@${player2Name.nickname}`;
+				}
+			}
+		}
 		return reply.status(200).send(matches);
 	}
 	catch (error) {
@@ -109,7 +135,22 @@ export async function getTournamentNextMatch(request, reply) {
 			return reply.status(404).send({error: 'No next match found for this tournament.'});
 		}
 		console.log("Next match found: match " + match.id_match);
-		// console.log(match); // To show the found data
+		console.log(match); // To show the found data
+		// TODO test me
+		if (match.player_a[0] === '@') {
+			const player1Id = match.player_a.slice(1);
+			const player1Name = await getUserInfoFromId(player1Id);
+			if (player1Name.ok) {
+				match.player_a = `@${player1Name.nickname}`;
+			}
+		}
+		if (match.player_b[0] === '@') {
+			const player2Id = match.player_b.slice(1);
+			const player2Name = await getUserInfoFromId(player2Id);
+			if (player2Name.ok) {
+				match.player_b = `@${player2Name.nickname}`;
+			}
+		}
 		return reply.status(200).send(match);
 	}
 	catch (error) {

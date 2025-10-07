@@ -1,6 +1,7 @@
 import { format } from 'node:path';
 import GameMaster from '../../GameMaster.js';
 import { checkGameCreationFormat, checkIdFormat } from '../../tools/CheckFormat.js';
+import { getUserIdFromSlug } from '../requests/GetUserIdFromSlug.js';
 
 // Starts a game server
 // Security : Road is protected to logged-in users, only a user can launch his own games, protected versus SQLi
@@ -64,6 +65,20 @@ export async function startGame(request, reply) {
 	if (status !== 'pending')
 		return reply.status(401).send({ error : 'Game is not pending' });
 
+	if (player_a[0] == '@') {
+		const player1Id = player_a.slice(1);
+		const player1Name = await getUserInfoFromId(player1Id);
+		if (player1Name.ok) {
+			player_a = `@${player1Name.nickname}`;
+		} // TODO check me
+	}
+	if (player_b[0] == '@') {
+		const player2Id = player_b.slice(1);
+		const player2Name = await getUserInfoFromId(player2Id);
+		if (player2Name.ok) {
+			player_b = `@${player2Name.nickname}`;
+		} // TODO check me
+	}
     try {
         // console.log("Trying to create game server with gameId " + gameId + " and userId " + userId);
         const gameMaster = GameMaster.getInstance();
@@ -105,6 +120,27 @@ export async function createGame(request, reply) {
 	console.log("Body :");
 	console.log(request.body);
 	const { player_a, player_b, requestedMaxScore, requestedAi, requestedOption } = request.body;
+	
+	if (player_a === player_b) {
+		console.log("Player A cannot be equal to Player B");
+		return reply.status(400).send({error: 'Bad input format - player_a != player_b'});
+	}
+	// TODO = test me
+	if (player_a[0] === '@') {
+		const player1Slug = player_a.slice(1);
+		const player1Id = await getUserIdFromSlug(player1Slug);
+		if (player1Id.ok) {
+			player_a = `@${player1Id.userId}`;
+		}
+	}
+	if (player_b[0] === '@') {
+		const player2Slug = player_b.slice(1);
+		const player2Id = await getUserIdFromSlug(player2Slug);
+		if (player2Id.ok) {
+			player_b = `@${player2Id.userId}`;
+		}
+	}
+
 	const { db } = request.server;
 	if (!db) {
 		console.error('❌ Error while creating game: database connection not found');
@@ -113,10 +149,7 @@ export async function createGame(request, reply) {
 
 	const userId = idUser;
 	console.log('userId = ' + userId + ' playA ' + player_a + ' playB ' + player_b);
-	if (player_a === player_b) {
-		console.log("Player A cannot be equal to Player B");
-		return reply.status(400).send({error: 'Bad input format - player_a != player_b'});
-	}
+
 	if (!db) {
 		console.error('❌ Error while deleting game: database connection not found');
 		return reply.status(500).send({error: 'No database connection found.'});
