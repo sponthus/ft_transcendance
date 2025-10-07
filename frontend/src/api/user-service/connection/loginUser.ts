@@ -19,6 +19,7 @@ export async function loginUser(username: string, password: string): Promise<Log
     const data = await res.json();
     if (res.ok) 
     {
+        console.log('Token tmp : ', data.token);
         localStorage.setItem("token", data.token);
         return { ok: true, twoFaEnabled: data.twoFaEnabled};
     } 

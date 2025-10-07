@@ -1,4 +1,4 @@
-type Success = {ok: true, qrCode?: string, status?: string }
+type Success = {ok: true, qrCode?: string, status?: string, token?: string}
 type Failure = { ok: false; error: string };
 
 export type Result = Success | Failure 
@@ -35,7 +35,14 @@ export async function  checkTwoFaCode(code: string): Promise<Result>
             body: JSON.stringify({ code }),
         });
         const data = await res.json();
-        if (res.ok)
+        if (res.ok && data.token)
+        {
+            console.log("PAS DE SAUVEGARDE :" + data.status);
+            localStorage.removeItem("token");
+            localStorage.setItem("token", data.token);
+            return ({ ok: true, status: data.status, token: data.token});
+        }
+        else if (res.ok)
         {
             return ({ ok: true, status: data.status });
         }

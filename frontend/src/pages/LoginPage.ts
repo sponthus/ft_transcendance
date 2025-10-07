@@ -87,7 +87,8 @@ export class LoginPage extends BasePage {
 					console.log("login twoFA");
 					await loginTwoFa();
 				}
-				// await navigate('/');
+				else
+					await navigate('/');
 			    return ;
 			}
 			else {

@@ -2,6 +2,7 @@ import { activateTwoFa, checkTwoFaCode } from '../api/user-service/2fa.js';
 import {append, createElement, createImage, createButton, createDiv, createInput} from './elementMaker.js';
 import { popUp } from './popUp.js';
 import { ErrorPopup } from '../pages/ErrorPage.js';
+import { navigate } from '../core/router.js';
 
 let Inputs: HTMLInputElement[] = [];
 let Success: boolean;
@@ -39,9 +40,10 @@ async function addPopUpContent(url: string, active: boolean) {
             console.log('str = ', str);
 			const request = await checkTwoFaCode(str);
 			if (request.ok) {
-				console.log('successfully add 2FA');
+				console.log('successfully add 2FA: ' , request.token);
 				QrPop.removeOverlayToWindow();
-                Success = true
+                Success = true;
+				//await navigate('/');
 			}
             else
                 console.log(request.error);

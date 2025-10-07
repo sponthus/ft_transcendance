@@ -111,7 +111,19 @@ export async function checkTwoFaCode(request, reply)
                                 twofa_enabled = 1 \
                             WHERE \
                                 id = ?").run(idUser);
-            status = "2FA enabled";
+            status = "2FA enabled";   
+        }
+        else if (row.twofa_enabled === 1)
+        {
+            const userInfo = db.prepare("   SELECT \
+                                                username, slug \
+                                            FROM \
+                                                users \
+                                            WHERE \
+                                                id = ?").get(idUser);
+            const token = await reply.jwtSign({ idUser: userInfo.id, username: userInfo.username, slug: userInfo.slug }, {expiresIn: '1h'});
+            console.log('Token de la 2fa', token);
+            return reply.code(200).send({ status: status, token: token });
         }
         return reply.code(200).send({ status: status });
     }
