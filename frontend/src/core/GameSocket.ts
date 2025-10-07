@@ -85,17 +85,19 @@ export function checkWebSocketMessageFormat(message: WebSocketMessage): FormatCh
 				type: "string", 
 				minLength: 1, 
 				maxLength: 100,
-				pattern: "^(?=.*[a-zA-ZÀ-ÿ0-9])[a-zA-ZÀ-ÿ0-9 \\-]+$" 
+				pattern: "^(?!@?[_-])(?!.*[_-]$)(?!^\\s)(?!.*\\s$)(?!.*\\s{2})(?!.*(?:\\s.*){3})(?=.*[A-Za-z])(?!@?[0-9_-]+$)@?[A-Za-z0-9 _-]+$" // Updated pattern 
 			},
 			scoreA: { type: "number", minimum: 0 },
 			scoreB: { type: "number", minimum: 0 },
 			playerA: { 
 				type: "string", 
-				minLength: 3
+				minLength: 3,
+				pattern: "^(?!@?[_-])(?!.*[_-]$)(?!^\\s)(?!.*\\s$)(?!.*\\s{2})(?!.*(?:\\s.*){3})(?=.*[A-Za-z])(?!@?[0-9_-]+$)@?[A-Za-z0-9 _-]+$" // Updated pattern
 			},
 			playerB: { 
 				type: "string", 
-				minLength: 3
+				minLength: 3,
+				pattern: "^(?!@?[_-])(?!.*[_-]$)(?!^\\s)(?!.*\\s$)(?!.*\\s{2})(?!.*(?:\\s.*){3})(?=.*[A-Za-z])(?!@?[0-9_-]+$)@?[A-Za-z0-9 _-]+$" // Updated pattern
 			}
 		},
 		additionalProperties: false,

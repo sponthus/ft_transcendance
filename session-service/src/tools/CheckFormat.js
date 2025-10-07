@@ -7,7 +7,7 @@ export function    checkSlugFormat(slug)
         type: "string",
         minLength: 1,
         maxLength: 15,
-        pattern: "^[a-z0-9]+(-[0-9]+)?$"
+        pattern: "^(?![_-])(?!.*[_-]$)(?=.*[a-z])(?![0-9_]+)[a-z0-9_-]+$" // Updated format
     };
     const ajv = new Ajv();
     const contract = ajv.compile(schema);
@@ -28,13 +28,13 @@ export function    checkChangeInfosFormat(request)
 				type: "string", 
 				minLength: 3, 
 				maxLength: 15,
-				pattern: "^[a-z0-9]+(-[0-9]+)?$"
+				pattern: "^(?![_-])(?!.*[_-]$)(?=.*[a-z])(?![0-9_]+)[a-z0-9_-]+$" // Updated pattern
 			},
 			username: { 
 				type: "string",
 				minLength: 3,
 				maxLength: 20,
-				pattern: "^(?=.*[a-zA-Z])[^\\[\\]{}();]+$"
+				pattern: "^(?![_-])(?!.*[_-]$)(?=.*[A-Za-z])(?![0-9_]+)[A-Za-z0-9_-]+$" // Updated pattern
 			}
 		},
 		required: ["slug", "username"],
@@ -86,7 +86,7 @@ export function    checkUsernameFormat(username)
         type: "string", 
 		minLength: 3, 
 		maxLength: 15, 
-		pattern: "^(?=.*[a-zA-Z])[^\\[\\]{}();]+$"
+		pattern: "^(?![_-])(?!.*[_-]$)(?=.*[A-Za-z])(?![0-9_]+)[A-Za-z0-9_-]+$" // Updated pattern
 	};
     const ajv = new Ajv();
     const contract = ajv.compile(schema);

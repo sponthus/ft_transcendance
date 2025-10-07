@@ -7,7 +7,7 @@ export function    checkSlugFormat(slug)
         type: "string",
         minLength: 1,
         maxLength: 15,
-        pattern: "^[a-z0-9]+(-[0-9]+)?$"
+        pattern: "^(?![_-])(?!.*[_-]$)(?=.*[a-z])(?![0-9_]+)[a-z0-9_-]+$" // Same as username without maj
     };
     const ajv = new Ajv();
     const contract = ajv.compile(schema);
@@ -28,7 +28,7 @@ export function	checkTournamentCreationFormat(request)
 				type: "string", 
 				minLength: 3, 
 				maxLength: 30, 
-				pattern: "^(?=.*[a-zA-ZÀ-ÿ0-9])[a-zA-ZÀ-ÿ0-9 \\-]+$" 
+				pattern: "^(?![=+\\-@])(?![ _-])(?!.*[ _-]$)(?!^[ _-]+$)(?!.*[\\r\\n\\t])(?=.*[A-Za-zÀ-ÖØ-öø-ÿ0-9])[A-Za-zÀ-ÖØ-öø-ÿ0-9 _-]+$" 
 			},
 			players: 
 			{ 
@@ -64,12 +64,12 @@ export function	checkGameCreationFormat(request)
 				type: "string", 
 				minLength: 3, 
 				maxLength: 20, 
-				pattern: "^(?=.*[a-zA-ZÀ-ÿ0-9])[a-zA-ZÀ-ÿ0-9 \\-]+$" },
+				pattern: "^(?!@?[_-])(?!.*[_-]$)(?!^\\s)(?!.*\\s$)(?!.*\\s{2})(?!.*(?:\\s.*){3})(?=.*[A-Za-z])(?!@?[0-9_-]+$)@?[A-Za-z0-9 _-]+$" }, // Accepts 2 spaces, @ at beginning
 			player_b: { 
 				type: "string", 
 				minLength: 3, 
 				maxLength: 15, 
-				pattern: "^(?=.*[a-zA-ZÀ-ÿ0-9])[a-zA-ZÀ-ÿ0-9 \\-]+$" },
+				pattern: "^(?!@?[_-])(?!.*[_-]$)(?!^\\s)(?!.*\\s$)(?!.*\\s{2})(?!.*(?:\\s.*){3})(?=.*[A-Za-z])(?!@?[0-9_-]+$)@?[A-Za-z0-9 _-]+$" }, // Accepts 2 spaces, @ at beginning
 			requestedMaxScore: { type: "integer", minimum: 1, maximum: 21 },
 			requestedAi: { type: "number", minimum: 0, maximum: 2 },
 			requestedOption: { type: "number", minimum: 0, maximum: 1 }
@@ -93,7 +93,7 @@ export function    checkUsernameFormat(username)
         type: "string", 
 		minLength: 3, 
 		maxLength: 15, 
-		pattern: "^(?=.*[a-zA-Z])[^\\[\\]{}();]+$"
+		pattern: "^(?![_-])(?!.*[_-]$)(?=.*[A-Za-z])(?![0-9_]+)[A-Za-z0-9_-]+$" // Maj - Min - Nb -_ not at begin/end
 	};
     const ajv = new Ajv();
     const contract = ajv.compile(schema);
@@ -126,7 +126,7 @@ export function checkWebSocketMessageFormat(message) {
 		type: "object",
 		properties: {
 			type: { type: "string", minLength: 3 },
-			token: { type: "string", minLength: 10, maxLength: 500 },
+			token: { type: "string", minLength: 10, maxLength: 500 }, // TODO : Rm me when auth comes through cookie
 			gameId: { type: "number", minimum: 1 },
 			input: {
 				type: "object",
@@ -150,7 +150,7 @@ export function checkWebSocketMessageFormat(message) {
 					properties: { type: { const: "auth" } }
 				},
 				then: {
-					required: ["type", "token", "gameId"]
+					required: ["type", "token", "gameId"] // TODO rm token when auth comes through cookie
 				}
 			},
 			{
