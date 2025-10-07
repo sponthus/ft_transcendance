@@ -59,7 +59,7 @@ export class SettingPage extends BasePage {
 	}
 
 	private async createSettingDiv() {
-		this.SettingDiv = createDiv("setting", "flex flex-col space-y-4 p-4 hidden opacity-0 transition-all duration-300");
+		this.SettingDiv = createDiv("setting", "flex flex-col items-center justifty-center space-y-4 p-24 hidden opacity-0 transition-all duration-300");
 		append(this.front, [this.SettingDiv]);
 	}
 
@@ -126,18 +126,40 @@ export class SettingPage extends BasePage {
 	}
 
 	private async Return(): Promise<void> {
-		if (this.statePage === PageState.PROFILE)
+		if (this.statePage === PageState.PROFILE){
+			this.SettingDiv.classList.add('translate-x-96');
 			cleanForm();
+		}
+		else
+			this.SettingDiv.classList.add('-translate-x-96');
+		this.SettingDiv.classList.add('opacity-0');
+		setTimeout(async() => {
+			this.ReturnDiv.classList.add('hidden');
+			await this.displayButtonDiv();
+			await this.cleanSettingdiv();
+		},300);
+	}
+
+	private async displayButtonDiv() {
 		this.ButtonDiv.classList.remove('hidden');
 		setTimeout(async() => {
 			this.ButtonDiv.classList.remove('opacity-0');
-			this.ReturnDiv.classList.add('hidden');
-			this.SettingDiv.classList.add('hidden');
-			this.SettingDiv.classList.add('opacity-0');
-		},300);
+			if (this.statePage === PageState.PROFILE) {
+				this.SettingDiv.classList.remove('translate-x-96');
+				this.ButtonDiv.classList.remove('-translate-x-96');
+			}
+			else {
+				this.SettingDiv.classList.remove('-translate-x-96');
+				this.ButtonDiv.classList.remove('translate-x-96');
+			}
+		},100);
+	}
+
+	private async cleanSettingdiv() {
 		Array.from(this.SettingDiv.children).forEach((child, index)=>{
 			child.remove();
 		})
+		this.SettingDiv.classList.add('hidden');
 	}
 
 	private async Done(): Promise<void> {
