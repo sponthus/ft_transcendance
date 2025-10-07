@@ -21,6 +21,7 @@ export class LocalGamePage {
 	/*************************button setting*************************/
 	private botBtn!: HTMLButtonElement;
 	private playerBtn!: HTMLButtonElement;
+	private reversbtn!: HTMLButtonElement;
 	private plusbtn!: HTMLButtonElement;
 	private minusBtn!: HTMLButtonElement;
 	private maxScoreP!: HTMLElement;
@@ -109,8 +110,16 @@ export class LocalGamePage {
 
 	private createPlayerNameDiv(): HTMLElement {
 		const PlayerNameDiv: HTMLElement = createDiv('player-name', 'flex flex-col h-[30%] w-[70%] translate-y-16 space-y-4');
+		
+		const PlayerNamePanDiv: HTMLElement = createDiv('player-name', 'flex items-center h-[50%] w-full space-x-16');
+		this.reversbtn = createButton('reverse', 'relative z-5 active:scale-95 hover:scale-110 h-full w-[20%] transition-all duration-200', 'reverse');
+		this.reversbtn.style.backgroundImage = "url('/game_ui/setting/minusValue.png')";
+		this.reversbtn.style.backgroundPosition = 'center';
+		this.reversbtn.style.backgroundSize = '100% 100%';
+		// append(this.reversbtn, [createImage('reverse', 'absolute object-cover object-center h-full w-full', 'game_ui/reversebtn.png')]);
 
-		append(PlayerNameDiv, [createImage('player-name', 'z-5 object-center object-fill h-[30%] w-[40%]', 'game_ui/setting/playerNamestext.png')]);
+
+		append(PlayerNamePanDiv, [createImage('player-name', 'z-5 object-center object-fill h-[30%] w-[40%]', 'game_ui/setting/playerNamestext.png'), this.reversbtn]);
 
 		const playerADiv: HTMLElement = createDiv('player-name', 'relative flex h-[30%] w-full space-x-4');
 		this.PlayerAInput = createInput(['', '', '', true], 'PlayerA', 'h-full w-[40%]');
@@ -126,7 +135,7 @@ export class LocalGamePage {
 			this.PLayerBInput.readOnly = true;
 		append(playerBDiv, [createImage('playerB', 'z-5 object-center object-fill h-full w-[40%]', 'game_ui/setting/playerB.png'), this.PLayerBInput]);
 
-		append(PlayerNameDiv, [playerADiv, playerBDiv]);
+		append(PlayerNameDiv, [PlayerNamePanDiv, playerADiv, playerBDiv]);
 		return PlayerNameDiv;
 	}
 
@@ -241,6 +250,10 @@ export class LocalGamePage {
 
 	get _optionimg(): HTMLImageElement {
 		return this.OptionImg;
+	}
+
+	get _reversebtn(): HTMLButtonElement {
+		return this.reversbtn;
 	}
 	/******************************************setter*************************************/
 	set setPlayerA(PlayerA: string){
