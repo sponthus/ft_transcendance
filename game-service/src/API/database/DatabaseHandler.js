@@ -26,7 +26,8 @@ export default class DatabaseHandler {
 	CREATE TABLE IF NOT EXISTS tournament_players (
 		id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
 		tournament_id INTEGER REFERENCES tournaments(id),
-		name TEXT NOT NULL
+		name TEXT,
+		has_accepted INTEGER DEFAULT 0 CHECK (has_accepted IN (0, 1, 2)) -- 0 = not a user, 1 = not accepted, 2 = accepted
 	);
         `);
 
@@ -299,7 +300,7 @@ export default class DatabaseHandler {
             `);
             
             const createTournamentPlayerStmt = this.db.prepare(`
-	INSERT INTO tournament_players(tournament_id, name) VALUES (?, ?);
+	INSERT INTO tournament_players(tournament_id, name, has_accepted) VALUES (?, ?, ?);
             `);
 
             const updateNextGameStmt = this.db.prepare(`
@@ -322,8 +323,13 @@ export default class DatabaseHandler {
             
             const playersResult = [];
             for (const player of players) {
-                const playerResult = createTournamentPlayerStmt.run(tournamentId, player);
-                playersResult.push(playerResult.lastInsertRowid);
+				let playerResult;
+				if (player[0] === '@') {
+                	playerResult = createTournamentPlayerStmt.run(tournamentId, player, 1);
+				} else {
+					playerResult = createTournamentPlayerStmt.run(tournamentId, player, 0);
+				}
+				playersResult.push(playerResult.lastInsertRowid);
             }
 
             let roundsResults = [];

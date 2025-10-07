@@ -86,14 +86,14 @@ export function	checkGameCreationFormat(request)
     };
 }
 
-export function    checkUsernameFormat(username)
+export function    checkPlayerFormat(username)
 {
     const schema = 
     {
         type: "string", 
 		minLength: 3, 
 		maxLength: 15, 
-		pattern: "^(?![_-])(?!.*[_-]$)(?=.*[A-Za-z])(?![0-9_]+)[A-Za-z0-9_-]+$" // Maj - Min - Nb -_ not at begin/end
+		pattern: "^(?!@?[_-])(?!.*[_-]$)(?!^\\s)(?!.*\\s$)(?!.*\\s{2})(?!.*(?:\\s.*){3})(?=.*[A-Za-z])(?!@?[0-9_-]+$)@?[A-Za-z0-9 _-]+$" // Updated pattern
 	};
     const ajv = new Ajv();
     const contract = ajv.compile(schema);

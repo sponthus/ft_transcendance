@@ -1,4 +1,4 @@
-import { checkTournamentCreationFormat, checkUsernameFormat } from "../../tools/CheckFormat.js";
+import { checkTournamentCreationFormat, checkPlayerFormat } from "../../tools/CheckFormat.js";
 
 // Create a new tournament
 // Security : Road is protected to logged-in users and from SQLi
@@ -13,9 +13,18 @@ export async function createTournament(request, reply) {
 		return reply.status(400).send({ error: 'Bad tournament creation format - expected : name, players[array of 4 or 8 unique names].'});
 	}
     const { name, players } = request.body;
-    for (const player of players) {
-		if (checkUsernameFormat(player) === false) {
+    for (let i = 0; i < players.length; i++) {
+		const player = players[i];
+		if (checkPlayerFormat(player) === false) {
 			return reply.status(400).send({ error: 'Bad player name format.'});
+		}
+		if (player[0] === '@') {
+			const userId = await getUserIdBySlug(player.slice(1));
+			if (!userId) {
+				return reply.status(400).send({ error: `Player ${player} not found.`});
+			} else {
+				players[i] = `@${userId}`;
+			}
 		}
 	}
 
