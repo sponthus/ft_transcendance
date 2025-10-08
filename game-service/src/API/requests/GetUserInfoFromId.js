@@ -11,7 +11,6 @@ export async function getUserInfoFromId(userId) {
 	}
 
 	const api_key = getSecret('api_key');
-
 	try {
 		const res = await fetch(`${prefix}://user-service:${env.user_port}/internal-service/infos/${userId}`, {
 			method: 'GET',
@@ -21,8 +20,8 @@ export async function getUserInfoFromId(userId) {
 			dispatcher: tlsAgent
 		});
 		const data = await res.json();
-		console.debug("Got response : ");
-		console.debug(data.userInfo);
+		// console.debug("Got response : ");
+		// console.debug(data.userInfo);
 		if (res.ok) {
 			return { ok: true, infos: data.userInfo};
 		} 

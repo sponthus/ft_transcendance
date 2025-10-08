@@ -1,5 +1,7 @@
 import { getUserIdFromSlug } from "../requests/GetUserIdFromSlug.js"
 import { checkIdFormat, checkSlugFormat } from "../../tools/CheckFormat.js"
+import { get } from "http";
+import { getUserInfoFromId } from "../requests/GetUserInfoFromId.js";
 
 // Gives the full history of a user
 // Security : Road is protected to logged-in users, protected from SQLi
@@ -17,15 +19,15 @@ export async function getGamesForSlug(request, reply) {
 	let userId = 0; 
 	const req = await getUserIdFromSlug(slug);
 	if (!req.ok) {
-		console.log("❌ Unable to get userId from slug");
-		return reply.status(404).send({ error: "Requested user not found."});
+		console.error("❌ Unable to get userId from slug");
+		return reply.status(404).send({ error: `Requested user ${slug} not found.`});
 	} else {
 		if (checkIdFormat(req.userId) === false) {
-			console.log("❌ Bad userId format got from slug");
+			console.error("❌ Bad userId format got from slug");
 			return reply.status(500).send({ error: 'Internal server error: Wrong user data format.'});
 		}
 		userId = parseInt(req.userId, 10);
-		console.log("Got userId ", userId, " from slug ", slug);
+		// console.debug("Got userId ", userId, " from slug ", slug);
 	}
 
 	const { db } = request.server;
@@ -43,17 +45,25 @@ export async function getGamesForSlug(request, reply) {
 		for (let i = 0; i < games.length; i++) {
 			if (games[i].player_a[0] === '@') {
 				const playerAId = games[i].player_a.slice(1);
-				const playerAName = await getUserIdFromSlug(playerAId);
-				if (playerAName.ok) {
-					games[i].player_a = `@${playerAName.nickname}`;
-				} // TODO check me
+				const playerAName = await getUserInfoFromId(playerAId);
+				if (!playerAName.ok || !playerAName.infos || !playerAName.infos.nickname || playerAName.infos.nickname == undefined) {
+					console.error("❌ Player nickname not found: ", playerAId);
+					return reply.status(404).send({ error: `Player not found.`});
+				}
+				else {
+					games[i].player_a = `@${playerAName.infos.nickname}`;
+				} // TODO check me when it's possible to make a game with @user
 			}
 			if (games[i].player_b[0] === '@') {
 				const playerBId = games[i].player_b.slice(1);
-				const playerBName = await getUserIdFromSlug(playerBId);
-				if (playerBName.ok) {
-					games[i].player_b = `@${playerBName.nickname}`;
-				} // TODO check me
+				const playerBName = await getUserInfoFromId(playerBId);
+				if (!playerBName.ok || !playerBName.infos || !playerBName.infos.nickname || playerBName.infos.nickname == undefined) {
+					console.error("❌ Player nickname not found: ", playerBId);
+					return reply.status(404).send({ error: `Player not found.`});
+				}
+				else {
+					games[i].player_b = `@${playerBName.infos.nickname}`;
+				} // TODO check me when it's possible to make a game with @user
 			}
 		}
 		console.log(`Found ${games.length} games for user ${userId}`);

@@ -38,12 +38,12 @@ export async function getTournamentsForSlug(request, reply) {
 		}
 		console.log(`Found ${tournaments.length} tournaments for user ${userId}`);
 		console.log(tournaments); // To show the found data
-		if (tournaments[0].winner[0] === '@') {
+		if (tournaments[0].winner && tournaments[0].winner[0] === '@') {
 			const winnerId = tournaments[0].winner.slice(1);
 			const winnerName = await getUserInfoFromId(winnerId);
 			if (winnerName.ok) {
-				tournaments[0].winner = `@${winnerName.nickname}`;
-			} // TODO check me
+				tournaments[0].winner = `@${winnerName.infos.nickname}`;
+			}
 		}
 		return reply.status(200).send(tournaments);
 	}
@@ -81,21 +81,34 @@ export async function getTournamentMatches(request, reply) {
 		}
 		console.log(`Found ${matches.length} matches for id ${tournamentId}`);
 		console.log(matches); // To show the found data
-		// TODO test me
+		// Tests OK
 		for (let i = 0; i < matches.length; i++) {
 			const match = matches[i];
 			if (match.player_a[0] === '@') {
 				const player1Id = match.player_a.slice(1);
 				const player1Name = await getUserInfoFromId(player1Id);
-				if (player1Name.ok) {
-					matches[i].player_a = `@${player1Name.nickname}`;
+				console.debug(player1Name);
+				console.debug(player1Name.infos);
+				if (!player1Name.ok) {
+					console.error("❌ Player not found: ", player1Id);
+					return reply.status(404).send({ error: "User in match not found" });
+				}
+				else {
+					matches[i].player_a = `@${player1Name.infos.nickname}`;
+					console.debug(`Replaced @${player1Id} with ${matches[i].player_a}`);
 				}
 			}
 			if (match.player_b[0] === '@') {
 				const player2Id = match.player_b.slice(1);
 				const player2Name = await getUserInfoFromId(player2Id);
-				if (player2Name.ok) {
-					matches[i].player_b = `@${player2Name.nickname}`;
+				console.debug(player2Name);
+				console.debug(player2Name.infos);
+				if (!player2Name.ok) {
+					console.error("❌ Player not found: ", player2Id);
+					return reply.status(404).send({ error: "User in match not found" });
+				} else {
+					matches[i].player_b = `@${player2Name.infos.nickname}`;
+					console.debug(`Replaced @${player2Id} with ${matches[i].player_b}`);
 				}
 			}
 		}
@@ -134,7 +147,7 @@ export async function getTournamentNextMatch(request, reply) {
 			console.log("No next match found.");
 			return reply.status(404).send({error: 'No next match found for this tournament.'});
 		}
-		console.log("Next match found: match " + match.id_match);
+		console.log("Next match found: match " + match.game_id);
 		// console.debug(match); // To show the found data
 		// Test is ok
 		if (match) {
@@ -144,13 +157,13 @@ export async function getTournamentNextMatch(request, reply) {
 					const playerId = player.slice(1);
 					// console.debug("Resolving slug for id ", playerId);
 					const playerName = await getUserInfoFromId(playerId);
+					// console.debug(playerName);
+					// console.debug(playerName.infos);
 					if (!playerName.ok) {
 						console.error("❌ Player not found: ", player);
 						return reply.status(500).send({ error: "User not found" });
 					}
-					// console.debug(playerName);
-					// console.debug(playerName.infos);
-					if (playerName.ok) {
+					else {
 						match.players[i] = `@${playerName.infos.nickname}`;
 					}
 				}
