@@ -15,7 +15,7 @@ export default class WebSocketManager {
             console.log('🟢 New WebSocket connection');
 
             console.log('game-service reception cookie : ', request.headers.cookie);
-            const token = await this.getTokenFromCookies(ws, request.headers.cookie);
+            const token = this.getTokenFromCookies(ws, request.headers.cookie);
             ws.on('message', (data) => {
                 let message;
                 try {
@@ -49,7 +49,7 @@ export default class WebSocketManager {
         });
     }
 
-    async getTokenFromCookies(ws, cookies)
+    getTokenFromCookies(ws, cookies)
 	{
         if (!cookies)
         {
