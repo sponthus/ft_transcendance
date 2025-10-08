@@ -165,15 +165,23 @@ export default class WebSocketManager {
 		}
 		console.log(`Message recieved: auth, from ${data.slug}, for game ${gameId}`);
 
-        gameMaster.addUserToGame(ws, data.idUser, gameId);
+        if (gameMaster.addUserToGame(ws, data.idUser, gameId) == false) {
+			console.error("❌ Game not found or not enough players");
+			ws.close(4003, "Game not found or not enough players");
+			return ;
+		}
 		const players = gameMaster.getPlayersByGameId(gameId);
-		this.sendToWs(ws, {
-            type: 'auth_success',
-            gameId: gameId,
-			playerA: players[0],
-			playerB: players[1]
-        });
-
-        await gameMaster.updateUserStatus(data.idUser);
+		if (!players || players.length != 2) {
+			console.error("❌ Game not found or not enough players");
+			ws.close(4003, "Game not found or not enough players");
+			return ;
+		} else {
+			this.sendToWs(ws, {
+				type: 'auth_success',
+				gameId: gameId,
+				playerA: players[0],
+				playerB: players[1]
+			});
+		}
     }
 }
