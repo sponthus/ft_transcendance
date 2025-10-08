@@ -1,7 +1,7 @@
 
 import { getCharacterAsset } from '../../api/user-service/menu/characterAsset.js';
 import { getNpcAsset } from '../../api/user-service/menu/npcAsset.js';
-import {createDiv, createButton, append, createImage} from '../../Utils/elementMaker.js';
+import {createDiv, createButton, append, createImage, setbackgroundImages} from '../../Utils/elementMaker.js';
 import { ErrorPopup } from '../ErrorPage.js';
 
 let CurrentAvatarAsset: number = 0;
@@ -13,8 +13,11 @@ const NPCMap: Map<number, HTMLButtonElement> = new Map< number, HTMLButtonElemen
 export async function  renderGameSetting(ButtonDiv: HTMLElement, SettingDiv: HTMLElement, ReturnDiv: HTMLElement){
 	await setCurrentAvatar();
 	await setCurrentNpc();
-	// SettingText.textContent = "Game Settings";
-	ButtonDiv.classList.add('hidden');
+	ButtonDiv.classList.add('opacity-0');
+	ButtonDiv.classList.add('translate-x-96');
+	SettingDiv.classList.add('-translate-x-96');
+	SettingDiv.style.backgroundImage = "";
+	// setbackgroundImages(SettingDiv, "url('game_ui/setting/SettingPan.png')");
 	append(SettingDiv, [createAvatarBtn("Lobby-user-avatar", 18, "/asset/Characters/Previews/Previews/", "change Lobby user Avatar :", true)
 							,createAvatarBtn("Lobby-npc-avatar", 11, "/asset/Characters/Previews/Previews1/", "change Lobby npc Avatar :", false)]);
 	
@@ -22,14 +25,22 @@ export async function  renderGameSetting(ButtonDiv: HTMLElement, SettingDiv: HTM
 	manageClicAvatarkEvent(AvatarMap, true);
 	manageEventAvatar("Lobby-npc-avatar-btn", "Lobby-npc-avatar-btn-div");
 	manageClicAvatarkEvent(NPCMap, false);
-	ReturnDiv.classList.remove('hidden');
+
+	SettingDiv.classList.remove('opacity-0')
+	SettingDiv.classList.remove('hidden');
+	setTimeout(async() => {
+		ReturnDiv.classList.remove('hidden');
+		ButtonDiv.classList.add('hidden');
+		SettingDiv.classList.remove('-translate-x-96');
+	}, 300);
 }
 
 
 function createAvatarBtn(Id: string, MaxI: number, Folder: string, TextContent: string, Avatar: boolean) : HTMLElement {
-	const Div: HTMLElement = createDiv(Id, "flex flex-col items-center justify-center space-y-8");
-	append(Div, [createButton(Id, "text-emerald-600 text-center bg-orange-300 hover:bg-orange-400 hover:font-bold py-3 px-6 rounded-xl shadow-md hover:shadow-lg transition-all duration-200 transform hover:scale-105 w-full", TextContent)
-							, createDropdownAvatar(Id, MaxI, Folder, Avatar)]);
+	const Div: HTMLElement = createDiv(Id, "flex flex-col items-center justify-center space-y-8 ");
+	const Btn: HTMLButtonElement = createButton(Id, "text-orange-200 text-center hover:font-bold py-3 px-6 rounded-xl shadow-md hover:shadow-lg transition-all duration-200 transform hover:scale-105 w-[30%]", TextContent);
+	setbackgroundImages(Btn, "url('game_ui/setting/emptyPan.png')");
+	append(Div, [Btn, createDropdownAvatar(Id, MaxI, Folder, Avatar)]);
 	return Div;
 }
 

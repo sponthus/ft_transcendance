@@ -1,6 +1,6 @@
 import { navigate } from "../../core/router";
 import { BasePage } from "../BasePage";
-import { createDiv, createElement, createButton, createDropdownDiv, createFormDiv, createCheckBoxLabel, append, createImage} from '../../Utils/elementMaker.js';
+import { createDiv, createElement, createButton, createDropdownDiv, createFormDiv, createCheckBoxLabel, append, createImage, setbackgroundImages} from '../../Utils/elementMaker.js';
 import { renderGameSetting, getAvatarAsset, getCurrentNpcAsset } from "./GameSettings";
 import { cleanForm, renderProfileSetting, saveUserForm } from "./ProfileSetting";
 import { changeNpcAsset } from "../../api/user-service/menu/npcAsset";
@@ -15,7 +15,6 @@ export class SettingPage extends BasePage {
 	private ButtonDiv!: HTMLElement;
 	private SettingDiv!: HTMLElement;
 	private Background!: HTMLElement;
-	// private SettingText!: HTMLElement;
 
 	private statePage: number;
 	private ReturnDiv!: HTMLElement;
@@ -43,8 +42,7 @@ export class SettingPage extends BasePage {
 			this.Background.className = "h-screen min-h-[1920x] w-screen min-w-[1024px] bg-gradient-to-br from-orange-100 to-orange-300 p-8";
 
 			this.createFrontSettting();
-			// this.createSettingText();
-			this.createButtonDiv();	
+			this.createButtonDiv();
 
 			this.Background.appendChild(this.front);
 
@@ -52,16 +50,16 @@ export class SettingPage extends BasePage {
 	}
 
 	private createFrontSettting() {
-		this.front = createDiv("grid-Setting-front", "flex flex-wrap items-center  justify-center w-full h-[95%] text-center space-y-4");
+		this.front = createDiv("grid-Setting-front", "flex flex-wrap items-center justify-center w-full h-[95%] text-center space-y-4");
 	}
 
 	private createButtonDiv() {
-		this.ButtonDiv = createDiv("Button_setting", "h-full w-full");
+		this.ButtonDiv = createDiv("Button_setting", "h-full w-full space-x-16 transition-all duration-300");
 		append(this.front, [this.ButtonDiv]);
 	}
 
 	private async createSettingDiv() {
-		this.SettingDiv = createDiv("setting", "flex flex-col space-y-4 p-4");
+		this.SettingDiv = createDiv("setting", "flex flex-col items-center justifty-center space-y-4 p-24 hidden opacity-0 transition-all duration-300");
 		append(this.front, [this.SettingDiv]);
 	}
 
@@ -71,7 +69,8 @@ export class SettingPage extends BasePage {
 	}
 
 	private createGameSettingButton() {
-		const gameSettingButton = createButton("Game-Setting", "bg-orange-300 bg-opacity-10 hover:bg-orange-400 hover:bg-opacity-50 text-emerald-600 font-bold h-full w-[50%] rounded-xl shadow-md hover:shadow-lg transition-all duration-200 transform hover:scale-105 text-6xl", "Game-Setting");
+		const gameSettingButton = createButton("Game-Setting", "bg-orange-300 bg-opacity-10 text-orange-200 font-bold h-full w-[48%] h-full rounded-xl shadow-md hover:shadow-lg transition-all duration-200 transform hover:scale-105 text-6xl", "Game-Setting");
+		setbackgroundImages(gameSettingButton, "url('game_ui/setting/SettingPan.png')");
 		gameSettingButton.addEventListener('click', async(e) => {
 			this.statePage = 0;
 			await renderGameSetting(this.ButtonDiv, this.SettingDiv, this.ReturnDiv);
@@ -80,7 +79,8 @@ export class SettingPage extends BasePage {
 	}
 
 	private createProfileSettingButton() {
-		const ProfileSettingButton = createButton("profile-setting", "bg-orange-300 bg-opacity-10 hover:bg-orange-400 hover:bg-opacity-50 text-emerald-600 font-bold h-full w-[50%] rounded-xl shadow-md hover:shadow-lg transition-all duration-200 transform hover:scale-105 text-6xl", "Profile Setting");
+		const ProfileSettingButton = createButton("profile-setting", "bg-orange-300 bg-opacity-10 text-orange-200 font-bold h-full w-[48%] h-full rounded-xl shadow-md hover:shadow-lg transition-all duration-200 transform hover:scale-105 text-6xl", "Profile Setting");
+		setbackgroundImages(ProfileSettingButton, "url('game_ui/setting/SettingPan.png')");
 		ProfileSettingButton.addEventListener('click', async(e) => {
 			this.statePage = 1;
 			await renderProfileSetting(this.ButtonDiv, this.SettingDiv, this.ReturnDiv);
@@ -90,7 +90,7 @@ export class SettingPage extends BasePage {
 
 	/*********************************************function utils**********************************************/
 	private async createReturnDiv() {
-		this.ReturnDiv = createDiv("return", "flex items-center justify-between bg-transparent space-x-4 h-[5%] hidden text-4xl");
+		this.ReturnDiv = createDiv("return", "flex items-center justify-between bg-transparent space-x-4 h-[10%] hidden text-4xl -translate-y-24");
 		
 		this.createReturnBtn();
 		this.createSaveBtn();
@@ -99,13 +99,13 @@ export class SettingPage extends BasePage {
 	}
 
 	private createReturnBtn() {
-		const ReturnButton: HTMLButtonElement = createButton("return", "bg-orange-300 hover:bg-orange-400 text-emerald-600 font-bold rounded-xl shadow-md hover:shadow-lg transition-all duration-200 transform hover:scale-105 w-[80%] h-full", "return");
-
+		const ReturnButton: HTMLButtonElement = createButton("return", "transition-all duration-200 transform hover:scale-105 w-[20%] h-full", " ");
+		setbackgroundImages(ReturnButton, "url('/game_ui/Backbtn.png')");
 		this.ReturnDiv.appendChild(ReturnButton);
 	}
 
 	private createSaveBtn() {
-		const DoneButton: HTMLButtonElement = createButton("done", "bg-orange-300 hover:bg-orange-400 text-emerald-600 font-bold rounded-xl transition-colors shadow-md hover:shadow-lg transition-all duration-200 transform hover:scale-105 w-full h-full", "Done");
+		const DoneButton: HTMLButtonElement = createButton("done", "transition-all duration-200 transform hover:scale-105 w-[20%] h-full", "Done");
 
 		this.ReturnDiv.appendChild(DoneButton);
 	}
@@ -126,13 +126,40 @@ export class SettingPage extends BasePage {
 	}
 
 	private async Return(): Promise<void> {
+		if (this.statePage === PageState.PROFILE){
+			this.SettingDiv.classList.add('translate-x-96');
+			cleanForm();
+		}
+		else
+			this.SettingDiv.classList.add('-translate-x-96');
+		this.SettingDiv.classList.add('opacity-0');
+		setTimeout(async() => {
+			this.ReturnDiv.classList.add('hidden');
+			await this.displayButtonDiv();
+			await this.cleanSettingdiv();
+		},300);
+	}
+
+	private async displayButtonDiv() {
+		this.ButtonDiv.classList.remove('hidden');
+		setTimeout(async() => {
+			this.ButtonDiv.classList.remove('opacity-0');
+			if (this.statePage === PageState.PROFILE) {
+				this.SettingDiv.classList.remove('translate-x-96');
+				this.ButtonDiv.classList.remove('-translate-x-96');
+			}
+			else {
+				this.SettingDiv.classList.remove('-translate-x-96');
+				this.ButtonDiv.classList.remove('translate-x-96');
+			}
+		},100);
+	}
+
+	private async cleanSettingdiv() {
 		Array.from(this.SettingDiv.children).forEach((child, index)=>{
 			child.remove();
 		})
-		if (this.statePage === PageState.PROFILE)
-			cleanForm();
-		this.ButtonDiv.classList.remove('hidden');
-		this.ReturnDiv.classList.add('hidden');
+		this.SettingDiv.classList.add('hidden');
 	}
 
 	private async Done(): Promise<void> {
@@ -157,6 +184,7 @@ export class SettingPage extends BasePage {
 			ErrorPopup(error as string);
 		}
 	}
+
 	private async callApiForChangeAvatar() {
 		let CurrentAvatarAsset: number = getAvatarAsset();
 		try {
