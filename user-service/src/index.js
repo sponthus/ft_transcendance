@@ -44,7 +44,7 @@ fastify.decorate("authenticate_2fa", async function (request, reply)
     try 
     {
         await request.jwtVerify(); //Décode et verifie le token et stock ses infos dans request
-        // console.log("Decoded token:", request.user);
+        console.log("Decoded token 2fa :", request.user);
         if (request.user.twofa_pending === false)
             return reply.code(401).send({ error: "only tmp token" });
     } 

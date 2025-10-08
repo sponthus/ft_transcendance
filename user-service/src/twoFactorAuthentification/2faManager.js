@@ -121,7 +121,7 @@ export async function checkTwoFaCode(request, reply)
                                                 users \
                                             WHERE \
                                                 id = ?").get(idUser);
-            const token = await reply.jwtSign({ idUser: userInfo.id, username: userInfo.username, slug: userInfo.slug }, {expiresIn: '1h'});
+            const token = await reply.jwtSign({ idUser: idUser, username: userInfo.username, slug: userInfo.slug }, {expiresIn: '1h'});
             console.log('Token de la 2fa', token);
             return reply.code(200).send({ status: status, token: token });
         }

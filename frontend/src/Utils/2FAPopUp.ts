@@ -40,10 +40,10 @@ async function addPopUpContent(url: string, active: boolean) {
             console.log('str = ', str);
 			const request = await checkTwoFaCode(str);
 			if (request.ok) {
-				console.log('successfully add 2FA: ' , request.token);
+				console.log('successfully add 2FA: ');
 				QrPop.removeOverlayToWindow();
                 Success = true;
-				//await navigate('/');
+				await navigate('/');
 			}
             else
                 console.log(request.error);
