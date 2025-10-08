@@ -26,12 +26,12 @@ export async function checkLog(): Promise<Result>
         console.log("Log check successful"); // Debug
         return { ok: true }//, user: { username: data.username, slug: data.slug } };
     }
-    localStorage.removeItem("token"); //remove si le token est pas présent ?
+    //localStorage.removeItem("token"); //remove si le token est pas présent ?
     console.log("Log check failure");
     console.log('status = ', res.status);
     if (res.status === 401)
     {
-        ErrorPopup(data.error);
+      //  ErrorPopup(data.error);
         return { ok: false, error: data.error};
     }
     return { ok: false };
