@@ -14,7 +14,6 @@ export default class WebSocketManager {
         this.ws.on('connection', (ws, request) => {
             console.log('🟢 New WebSocket connection');
 
-            console.log('game-service reception cookie : ', request.headers.cookie);
             const token = this.getTokenFromCookies(ws, request.headers.cookie);
             ws.on('message', (data) => {
                 let message;
@@ -68,9 +67,7 @@ export default class WebSocketManager {
 			}
 		}
 		token = decodeURIComponent(token);
-		console.log("game-service token: -" + token + "-");
 		const result = this.fastify.unsignCookie(token);
-		console.log('result game-service ', result);
         if (!result.valid)
 		{
 			console.log("❌ Invalid cookie game-service");
