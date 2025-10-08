@@ -3,6 +3,7 @@ export default async function loginThroughToken(request, reply)
         console.log("Login through token");
         const db = request.server.db;
         const idUser = request.user.idUser;
+        console.log('POPO : ', request.user.idUser);
         try 
         {
                 const userData = db.prepare("   SELECT \

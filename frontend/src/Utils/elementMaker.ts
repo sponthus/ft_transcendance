@@ -112,3 +112,9 @@ export function append(Parent: HTMLElement, Childs: HTMLElement[]) {
 		Parent.appendChild(Child);
 	})
 }
+
+export function setbackgroundImages(parent: HTMLElement, url: string) {
+	parent.style.backgroundImage = url;
+	parent.style.backgroundPosition = 'center';
+	parent.style.backgroundSize = '100% 100%';
+}

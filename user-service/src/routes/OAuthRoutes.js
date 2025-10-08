@@ -1,3 +1,4 @@
+import env from '../../config/env.js'
 import fetch from 'node-fetch'
 import slugify from "slugify";
 import { generateUniqueUsername, generateUniqueSlug } from '../tools/generateUnique.js';
@@ -18,11 +19,15 @@ export default async function OAuthRoutes(fastify)
             console.log("\nslug: : ", userInfo.slug);
             console.log("Le compte github existe deja");
             console.log('GITHUB token : ', token);
+
+            let secure = false;
+            if (env.nodeEnv === 'production')
+                secure = true;
             return reply.code(200).setCookie('token', token,
             {
                 httpOnly: true, //uniquement accessible protole https
                 signed: true,
-                secure: false, //envoyer que si la co est en https
+                secure: secure, //envoyer que si la co est en https
                 path: '/', //Cookie dispo sur tout le site, sinon c'est juste cette route et les sous routes
                 maxAge: 3600000
                 //mettre same site

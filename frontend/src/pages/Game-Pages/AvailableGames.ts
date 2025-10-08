@@ -1,5 +1,5 @@
 
-import { createDiv, createElement, createButton, createDropdownDiv, createFormDiv, createCheckBoxLabel, append} from '../../Utils/elementMaker.js';
+import { createDiv, createElement, createButton, createDropdownDiv, createFormDiv, createCheckBoxLabel, append, setbackgroundImages} from '../../Utils/elementMaker.js';
 import { createLocalGame, getAvailableGames, startGame, deleteGame } from "../../api/game-service/games/game.js"
 import { getUserInfo } from "../../api/user-service/user-info/getUserInfo.js";
 import { getAvailableTournaments } from  "../../api/game-service/tournaments/getTournaments.js";
@@ -98,9 +98,7 @@ export class availableGames {
 				this.TitleParty.textContent = 'available Partys';
 				games.map((Party: any, index: number) => {
 					const PartyDiv: HTMLButtonElement = createButton("game-item" + index.toString(), "flex flex-wrap justify-around active:scale-95 hover:scale-105 w-[40%] h-[50%] gap-x-4 transition-all duration-200", '');
-					PartyDiv.style.backgroundImage = "url('game_ui/setting/emptyPan.png')";
-					PartyDiv.style.backgroundPosition = "center";
-					PartyDiv.style.backgroundSize = '100% 100%';
+					setbackgroundImages(PartyDiv, "url('game_ui/setting/emptyPan.png')")
 					this.CreateGameIdDiv(PartyDiv, index, Party);
 					this.CreateTournamentName(PartyDiv, index, Party);
 					this.createCreatedAtDiv(PartyDiv, index, Party);
