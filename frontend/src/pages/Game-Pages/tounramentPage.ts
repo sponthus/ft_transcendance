@@ -94,16 +94,19 @@ export class TournamentPage {
 	private createPlayerNameDiv(index: number): HTMLElement {
 		const playerDiv: HTMLElement = createDiv('players-names', 'flex justify-start items-center h-[20%]');
 
-		const PlayerInput: HTMLInputElement = createInput(['', '', '', true], 'PlayerA', 'h-[70%] w-[70%]');
+		const containerInput: HTMLElement = createDiv(`container-input-${index + 1}`, 'flex flex-col items-center h-full w-[70%] translate-y-2')
+		const PlayerInput: HTMLInputElement = createInput(['', `player-${index + 1}`, '', true], `player-${index + 1}`, 'h-[50%] w-full');
 		PlayerInput.value = `Player ${(index + 1).toString()}`;
-		this.nameMap.set(index, PlayerInput);
+		this.nameMap.set(index + 1, PlayerInput);
+		const Div: HTMLElement = createDiv(`user-${index + 1}`, 'flex flex-col bg-white border-2 h-[50%] w-full overflow-y-scroll opacity-0 hidden')
+		append(containerInput, [PlayerInput, Div]);
 
 		const container: HTMLElement = createDiv('', 'grid  justify-start place-items-center w-full h-full');
 		const playerPan: HTMLImageElement = createImage(`Player-${(index + 1).toString()}`, ' object-contain col-start-1 row-start-1', 'game_ui/setting/emptyPan.png');
 		append(container, [createElement('p',`Player-${(index + 1).toString()}`, `Player ${(index + 1).toString()}`, 'z-10 text-center col-start-1 row-start-1 text-orange-200')
 						,playerPan]);
 	
-		append(playerDiv, [container, PlayerInput]);
+		append(playerDiv, [container, containerInput]);
 
 		return playerDiv;
 	}

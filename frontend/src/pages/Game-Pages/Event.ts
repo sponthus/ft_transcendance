@@ -8,18 +8,10 @@ import { TournamentPage } from './tounramentPage.js';
 import { getUserInfo } from "../../api/user-service/user-info/getUserInfo.js";
 import { createTournament } from "../../api/game-service/tournaments/newTournament.js";
 import { ErrorPopup } from '../ErrorPage.js';
+import { AllUsers, getAllUsers } from '../../api/user-service/menu/getAllUsers.js';
 
 export enum PageState {MOD = 0, TOURNAMENT = 1, PARTY = 2, LOCALSETTING = 3, NEWTOURNAMENT = 4, CONTINUETOURNAMENT = 5, BRACKET = 6, WIN = 7};
-
-type UserData = //VA ETRE CHANGER, le token renvoie le username et l'id du user
-{
-	id: number
-	username: string;
-	nickname: string;
-	avatar: string;
-	slug: string;
-	created_at: string;
-};
+type USer = {slug: string, username: string};
 
 export class Event {
 
@@ -29,6 +21,8 @@ export class Event {
 	private TournamentPage!: TournamentPage;
 	private GamePage: GamePage;
 	private LaunchPong: launchPong;
+	private UserTab: AllUsers[] = [];
+	private TournamentNameMap: USer[] = [];
 
 	constructor(LocalGamePage: LocalGamePage, TournamentPage: TournamentPage, GamePage: GamePage) {
 		this.StatePage = PageState.MOD;
@@ -36,6 +30,7 @@ export class Event {
 		this.TournamentPage = TournamentPage;
 		this.GamePage = GamePage;
 		this.LaunchPong = new launchPong(this.GamePage._render, this.GamePage);
+		// this.TournamentNameMap = new Map<string, string>();
 	}
 
 	render() {
@@ -43,6 +38,7 @@ export class Event {
 
 	/*************************************Function for Manage Event Return and Save button*************************************/
 	async ManageEvent() {
+		await this.fillUserTab();
 		if (this.StatePage === PageState.MOD)
 			this.manageGameModEvent();
 	}
@@ -260,6 +256,60 @@ export class Event {
 			this.TournamentPage._playBtn.addEventListener('click', async() => {this.saveTournament()});
 		if (this.TournamentPage._optionbtn)
 			this.TournamentPage._optionbtn.addEventListener('click', async() => {this.ClickOptionTournamentEvent();});
+		if (this.TournamentPage._nameMap)
+			await this.searchUSer();
+	}
+
+	private async searchUSer() {
+		this.TournamentPage._nameMap.forEach((value, key) => {
+			this.TournamentNameMap[key - 1] = ({slug: value.value, username: value.value});
+			value.addEventListener('input', () => {
+				const div = document.getElementById(`user-${key}-div`);
+				if (value.value[0] == '@' && value.value.length > 1) {
+					if (div) {
+						div.classList.remove('opacity-0');
+						div.classList.remove('hidden');
+						this.handleInput(div, value, key - 1);
+					}
+				}
+				else {
+					if (div) {
+						Array.from(div.children).forEach(child=> {child.remove();});
+						div.classList.add('opacity-0');
+						div.classList.add('hidden');
+						if (this.TournamentNameMap[key - 1].username != value.value)
+							this.TournamentNameMap[key - 1] = ({slug: value.value, username: value.value});
+					}	
+				}
+			})
+		});
+	}
+
+	private handleInput(div: HTMLElement, input: HTMLInputElement, index: number) {
+		Array.from(div.children).forEach(child=> {child.remove();});
+		this.UserTab.forEach(value => {
+			if (value.username.toLocaleLowerCase().substring(0, input.value.toLocaleLowerCase().length - 1) === input.value.substring(1, input.value.length)) {
+				const btn: HTMLButtonElement = createButton(`${value.username}`, 'activate:scale-95 hover:bg-orange-200', value.username);
+				div.appendChild(btn);
+				btn.addEventListener('click', () => {
+					this.TournamentNameMap[index] = ({slug: '@' + value.slug, username: value.username});
+					input.value = value.username;
+					div.classList.add('opacity-0');
+					div.classList.add('hidden');
+				})
+			}
+		})
+	}
+
+	private async fillUserTab() {
+		try {
+			const req = await getAllUsers();
+			if (req.ok) {
+				this.UserTab = req.users;
+			}
+		} catch(error) {
+			ErrorPopup(error as string);
+		}
 	}
 
 	/**********save new tournament**********/
@@ -267,7 +317,7 @@ export class Event {
 		/****************************function for call API to save tounrnament**********************/
 		/**************add Players Names in one string**************/
 		let PlayersNames: string[] = [];
-		this.TournamentPage._nameMap.forEach((value, key) => {PlayersNames.push(value.value);})
+		this.TournamentNameMap.forEach(name => {PlayersNames.push(name.slug)});
 
 		/**************check tournament name**************/
 
