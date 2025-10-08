@@ -2,9 +2,6 @@ import { BasePage } from "./BasePage.js";
 import { append, createAnchorElement, createDiv, createImage } from "../Utils/elementMaker.js";
 import { checkLog } from "../api/user-service/connection/check-log.js";
 
-import { activateTwoFa, checkTwoFaCode } from "../api/user-service/2fa.js";
-import { getAllGames } from "../api/game-service/games/game.js";
-
 export class HomePage extends BasePage {
 
 	private Background!: HTMLElement;
@@ -30,16 +27,6 @@ export class HomePage extends BasePage {
 		else {
 			await this.rengerLogoutHome();
 		}
-
-		//TEST A SUPPRIMER\
-		const req = await getAllGames("ebriere");
-		if (req.ok)
-		{
-			console.log('obj: ', req.games);
-		}
-		else
-			alert(req.error);
-		//*/
 		
 	await this.addInApp();
 	}
