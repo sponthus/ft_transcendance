@@ -146,6 +146,8 @@ export class Event {
 			this.LocalGamePage._backBtn.classList.add('-translate-x-96');
 		if (this.LocalGamePage._settingPan)
 			this.LocalGamePage._settingPan.classList.add('translate-x-96');
+		this.LocalGamePage.setPlayerA = this.LocalGamePage._playerAInput.value;
+		this.LocalGamePage.setPlayerB = this.LocalGamePage._playerBinput.value;
 		this.StatePage = PageState.PARTY;
 		await this.GamePage.generate1v1GamePage();
 	}
@@ -158,10 +160,8 @@ export class Event {
 			this.LocalGamePage._playerBtn.classList.add('hover:scale-110');
 			this.LocalGamePage._playerBtn.classList.remove('scale-110');
 			this.LocalGamePage.setPlayerAInput = this.LocalGamePage._username; // change to uysername
-			this.LocalGamePage.setPlayerA = this.LocalGamePage._playerAInput.value;
 			this.LocalGamePage.setPlayerAReadonly = true;
 			this.LocalGamePage.setPlayerBInput = "Crabby the bot";
-			this.LocalGamePage.setPlayerB = this.LocalGamePage._playerBinput.value;
 			this.LocalGamePage.setPlayerBReadonly = true;
 			this.LocalGamePage.setAi = 1;
 		}
@@ -175,10 +175,8 @@ export class Event {
 			this.LocalGamePage._botBtn.classList.add('hover:scale-110');
 			this.LocalGamePage._botBtn.classList.remove('scale-110');
 			this.LocalGamePage.setPlayerAInput = "player A";
-			this.LocalGamePage.setPlayerA = this.LocalGamePage._playerAInput.value;
 			this.LocalGamePage.setPlayerAReadonly = false;
 			this.LocalGamePage.setPlayerBInput = "player B";
-			this.LocalGamePage.setPlayerB = this.LocalGamePage._playerBinput.value;
 			this.LocalGamePage.setPlayerBReadonly = false;
 			this.LocalGamePage.setAi = 0;
 		}
