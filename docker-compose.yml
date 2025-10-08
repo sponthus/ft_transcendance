@@ -7,6 +7,8 @@ secrets:
     file: ./secrets/api_key.txt
   auth_key:
     file: ./secrets/auth_key.txt
+  cookie_key:
+    file: ./secrets/cookie_key.txt
 
 services:
 
@@ -42,6 +44,7 @@ services:
       - hash_key
       - api_key
       - auth_key
+      - cookie_key
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:${USER_PORT}/health || exit 1"]
       interval: 5s
@@ -65,6 +68,7 @@ services:
     secrets:
       - hash_key
       - api_key
+      - cookie_key
     restart: always
 
   session-service:
@@ -91,6 +95,7 @@ services:
     secrets:
       - hash_key
       - api_key
+      - cookie_key
     restart: always
 
   nginx:

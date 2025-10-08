@@ -90,7 +90,6 @@ export class SessionSocket {
 
         this.sWS.onopen = () => {
             console.log("Connected to WebSocket server");
-            this.authenticate();
             this.startHeartbeat();
         };
 
@@ -164,18 +163,6 @@ export class SessionSocket {
             clearTimeout(this.heartbeatTimeout);
             this.heartbeatTimeout = null;
         }
-    }
-
-    private authenticate() {
-        const token = localStorage.getItem("token");
-		if (!token) {
-			console.error("Impossible to authenticate for the session websocket, no token.");
-			return ;
-		}
-        this.send(JSON.stringify({
-            type: "auth",
-            token: token
-        }));
     }
 
     public  send(data: string) {

@@ -3,7 +3,6 @@ export async function markNotificationsRead(request, reply)
     const   db = request.server.db;
     const   idUser = request.user.idUser;
 
-    console.log("PAR LA PD");
     try
     {
         db.prepare("    UPDATE \
