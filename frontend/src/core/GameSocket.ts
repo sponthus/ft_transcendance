@@ -221,7 +221,7 @@ export class GameSocket {
             console.log("Connexion WebSocket closed");
             this.stopHeartbeat();
 			// TODO Complete logic here, when the websocket is closed
-			if (this.playing === false)
+			if (this.playing === true)
 				this.reconnect();
 			// Do we reconnect on close if playing ? Websocket can also be closed if backend recompiles
         };
