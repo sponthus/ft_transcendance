@@ -97,7 +97,8 @@ export default class GameMaster {
             ws: null,
 			players: players
 		});
-		console.log(this.games);
+		// console.debug("Games map after creation:");
+		// console.debug(this.games);
     }
 
     // Call when a game is finished to destroy its object completely

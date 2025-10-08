@@ -3,7 +3,7 @@ import env from "../../../config/env.js";
 import prefix from "../../tools/url.js";
 import tlsAgent from "../../tools/tlsAgent.js";
 
-// TODO = Check me
+// Check ok
 export async function getUserInfoFromId(userId) {
 	console.log("➡️ Requesting user infos from userId, ", userId);
 	if (!userId) {

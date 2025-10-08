@@ -31,17 +31,20 @@ export async function getTournamentsForSlug(request, reply) {
 	}
 
 	try {
-		console.log("Trying to find tournaments with userId " + userId);
+		// console.debug("Trying to find tournaments with userId " + userId);
 		const tournaments = db.getTournamentsForUserId(userId);
 		if (!tournaments || tournaments.length === 0) {
 			return reply.status(200).send([]);
 		}
 		console.log(`Found ${tournaments.length} tournaments for user ${userId}`);
-		console.log(tournaments); // To show the found data
+		// console.debug(tournaments); // To show the found data
 		if (tournaments[0].winner && tournaments[0].winner[0] === '@') {
 			const winnerId = tournaments[0].winner.slice(1);
 			const winnerName = await getUserInfoFromId(winnerId);
-			if (winnerName.ok) {
+			if (!winnerName.ok || !winnerName.infos || !winnerName.infos.nickname || winnerName.infos.nickname == undefined) {
+				console.error("❌ Player nickname not found: ", winnerId);
+				return reply.status(404).send({ error: `Player not found.`});
+			} else {
 				tournaments[0].winner = `@${winnerName.infos.nickname}`;
 			}
 		}
@@ -80,35 +83,35 @@ export async function getTournamentMatches(request, reply) {
 			return reply.status(404).send({ error : 'No tournament found.'});
 		}
 		console.log(`Found ${matches.length} matches for id ${tournamentId}`);
-		console.log(matches); // To show the found data
+		// console.log(matches); // To show the found data
 		// Tests OK
 		for (let i = 0; i < matches.length; i++) {
 			const match = matches[i];
 			if (match.player_a[0] === '@') {
 				const player1Id = match.player_a.slice(1);
 				const player1Name = await getUserInfoFromId(player1Id);
-				console.debug(player1Name);
-				console.debug(player1Name.infos);
+				// console.debug(player1Name);
+				// console.debug(player1Name.infos);
 				if (!player1Name.ok) {
 					console.error("❌ Player not found: ", player1Id);
 					return reply.status(404).send({ error: "User in match not found" });
 				}
 				else {
 					matches[i].player_a = `@${player1Name.infos.nickname}`;
-					console.debug(`Replaced @${player1Id} with ${matches[i].player_a}`);
+					// console.debug(`Replaced @${player1Id} with ${matches[i].player_a}`);
 				}
 			}
 			if (match.player_b[0] === '@') {
 				const player2Id = match.player_b.slice(1);
 				const player2Name = await getUserInfoFromId(player2Id);
-				console.debug(player2Name);
-				console.debug(player2Name.infos);
+				// console.debug(player2Name);
+				// console.debug(player2Name.infos);
 				if (!player2Name.ok) {
 					console.error("❌ Player not found: ", player2Id);
 					return reply.status(404).send({ error: "User in match not found" });
 				} else {
 					matches[i].player_b = `@${player2Name.infos.nickname}`;
-					console.debug(`Replaced @${player2Id} with ${matches[i].player_b}`);
+					// console.debug(`Replaced @${player2Id} with ${matches[i].player_b}`);
 				}
 			}
 		}

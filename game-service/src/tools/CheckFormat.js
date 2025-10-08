@@ -98,7 +98,10 @@ export function    checkPlayerFormat(username)
     const ajv = new Ajv();
     const contract = ajv.compile(schema);
     const valid = contract(username);
-	console.log(contract.errors);
+	if (!valid) {
+		console.error("❌ Player format error: ");
+		console.error(contract.errors);
+	}
     if (!valid)
         return (false);
     return (true);

@@ -10,7 +10,7 @@ export default class DatabaseHandler {
         this.db.exec(`
 	CREATE TABLE IF NOT EXISTS tournaments (
 		id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-		status TEXT NOT NULL CHECK (status IN ('pending', 'ongoing_game', 'between_games', 'canceled', 'done')),
+		status TEXT NOT NULL CHECK (status IN ('invitations', 'pending', 'ongoing_game', 'between_games', 'canceled', 'done')),
 		id_user INTEGER NOT NULL,
 		name TEXT NOT NULL,
 		next_game INTEGER REFERENCES games(id),
@@ -27,9 +27,10 @@ export default class DatabaseHandler {
 		id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
 		tournament_id INTEGER REFERENCES tournaments(id),
 		name TEXT,
-		has_accepted INTEGER DEFAULT 0 CHECK (has_accepted IN (0, 1, 2))
+		has_accepted INTEGER DEFAULT 0 CHECK (has_accepted IN (0, 1, 2, 3))
 	);
-        `);
+        `); 
+		// has_accepted = 0 doesn´t need to accept, 1 waiting, 2 accepted, 3 refused
 
         this.db.exec(`
 	CREATE TABLE IF NOT EXISTS games (
@@ -281,8 +282,8 @@ export default class DatabaseHandler {
     } 
 
     // Creates a tournament, and the games for every round in tournament_matches + games
-    createTournament(name, userId, players, option) {
-        const transaction = this.db.transaction((userId, name, players, option = 1) => {          
+    createTournament(name, userId, players, option, has_users_to_wait) {
+        const transaction = this.db.transaction((userId, name, players, option = 1, has_users_to_wait = false) => {          
             const numberOfPlayers = players.length;
             if (numberOfPlayers != 4 && numberOfPlayers != 6 && numberOfPlayers != 8) {
                 throw new Error("Only 4, 6 or 8 players tournament available for now");
@@ -317,15 +318,23 @@ export default class DatabaseHandler {
             const createTournamentMatchesStmt = this.db.prepare(`
 	INSERT INTO tournament_matches(tournament_id, round, match_number, game_id) VALUES (?, ?, ?, ?);
             `);
-
-            const creationResult = createTournamentStmt.run("pending", userId, name, option);
+			
+			let status = "pending";
+			if (has_users_to_wait)
+				status = "invitations";
+			// console.log("status = ", status, "userId = ", userId, " name = ", name, " players = ", players, " option = ", option);
+            const creationResult = createTournamentStmt.run(status, userId, name, Number(option));
             const tournamentId = creationResult.lastInsertRowid;
             
             const playersResult = [];
             for (const player of players) {
 				let playerResult;
 				if (player[0] === '@') {
-                	playerResult = createTournamentPlayerStmt.run(tournamentId, player, 1);
+					const playerId = Number(player.slice(1));
+					let statusValue = 1;
+					if (playerId === userId)
+						statusValue = 2;
+                	playerResult = createTournamentPlayerStmt.run(tournamentId, player, statusValue);
 				} else {
 					playerResult = createTournamentPlayerStmt.run(tournamentId, player, 0);
 				}
@@ -342,7 +351,7 @@ export default class DatabaseHandler {
                     while (players.length != 0) {
                         const player_a = players.pop();
                         const player_b = players.pop();
-                        const gameResult = createTournamentGamesStmt.run("pending", userId, player_a, player_b, tournamentId, option);
+                        const gameResult = createTournamentGamesStmt.run("pending", userId, player_a, player_b, tournamentId, Number(option));
                         gameResults.push(gameResult.lastInsertRowid);
                     }
                     // At 1st round, edit next-game
@@ -351,7 +360,7 @@ export default class DatabaseHandler {
                 } else {
                     // Final round = 1 game
                     if (round == totalRounds) {
-                       const gameResult = createTournamentGamesTBAStmt.run("pending", userId, tournamentId, option);
+                       const gameResult = createTournamentGamesTBAStmt.run("pending", userId, tournamentId, Number(option));
                        gameResults.push(gameResult.lastInsertRowid);
                     } else {
                         // Middle-round = 2 games
@@ -380,7 +389,7 @@ export default class DatabaseHandler {
             const result = {
                 tournament_id: tournamentId,
 				name: name,
-				status: "pending",
+				status: status,
                 numberOfPlayers: playersResult.length,
                 rounds: roundsResults,
                 nextGameId: nextGameId,
@@ -393,7 +402,7 @@ export default class DatabaseHandler {
         this.randomize(players);
         // console.log("len = ", players.length);
 
-        const result = transaction(userId, name, players, option);
+        const result = transaction(userId, name, players, option, has_users_to_wait);
         return (result);
     }
 
@@ -490,57 +499,79 @@ export default class DatabaseHandler {
 		return (results);
 	}
 
-	cancelTournament(tournamentId) {
-			const transaction = this.db.transaction((tournamentId, status) => {
-			const getTournamentStmt = this.db.prepare(`
+	// Can be used in cancel tournament + in decline invitation
+	cancelTournamentLogic(tournamentId, status) {
+		const getTournamentStmt = this.db.prepare(`
 	SELECT status
 	FROM tournaments 
 	WHERE id = ?
-			`);
-			const tournament = getTournamentStmt.get(tournamentId);
-			if (!tournament) {
-				throw new Error("No tournament found to cancel");
-			}
-			let updateStatusStmt = null;
-			if (tournament.status === "pending") {
-				updateStatusStmt = this.db.prepare(`
+		`);
+		const tournament = getTournamentStmt.get(tournamentId);
+		if (!tournament) {
+			return { ok: false, error: "No tournament found to cancel" };
+		}
+		let updateStatusStmt = null;
+		if (tournament.status === "pending" || tournament.status === "invitations") {
+			updateStatusStmt = this.db.prepare(`
 	UPDATE tournaments 
 	SET status = ?, began_at = CURRENT_TIMESTAMP, finished_at = CURRENT_TIMESTAMP
 	WHERE id = ?
-				`);
-			} 
-			else {
-				updateStatusStmt = this.db.prepare(`
+			`);
+		} 
+		else {
+			updateStatusStmt = this.db.prepare(`
 	UPDATE tournaments 
 	SET status = ?, finished_at = CURRENT_TIMESTAMP
 	WHERE id = ?
-				`);
-			}
-			const res = updateStatusStmt.run(status, tournamentId);
-			if (res.changes === 0) {
-				throw new Error("No tournament found with the given tournamentId");
-			}
+			`);
+		}
+		const res = updateStatusStmt.run(status, tournamentId);
+		if (res.changes === 0) {
+			return { ok: false, error: "No tournament found with the given tournamentId" };
+		}
 
-			const cancelGamesStmt = this.db.prepare(`
+		const cancelGamesStmt = this.db.prepare(`
 	UPDATE games
 	SET status = ?
 	WHERE id IN (
 		SELECT game_id
 		FROM tournament_matches
-		WHERE tournament_id = ?
-	)
-			`);
-			cancelGamesStmt.run(status, tournamentId);
+		WHERE tournament_id = ? )
+		`);
+		cancelGamesStmt.run(status, tournamentId);
 
-			const result = {
-				tournamentId: tournamentId,
-				status: status
-			};
-			return (result);
-		});
-
-		const result = transaction(tournamentId, "canceled");
+		const result = {
+			tournamentId: tournamentId,
+			status: status
+		};
 		return (result);
+	}
+
+	cancelTournament(tournamentId) {
+		const transaction = this.db.transaction((tournamentId) => {
+			const res = this.cancelTournamentLogic(tournamentId, "canceled");
+			return (res);
+		});
+		const result = transaction(tournamentId);
+		return (result);
+	}
+
+	updateTournamentStatusLogic(tournamentId, status) {
+		try {
+			updateStatusStmt = this.db.prepare(`
+		UPDATE tournaments 
+		SET status = ?
+		WHERE id = ?
+			`);
+			const res = updateStatusStmt.run(status, tournamentId);
+			if (res.changes === 0) {
+				throw new Error("No tournament found with the given tournamentId");
+			}
+			return { ok: true};
+		}
+		catch (error) {
+			return { ok: false, error: error.message };
+		}
 	}
 
 	updateTournamentStatus(tournamentId, status) {
@@ -561,21 +592,15 @@ export default class DatabaseHandler {
 				`);
 			} 
 			else {
-				updateStatusStmt = this.db.prepare(`
-	UPDATE tournaments 
-	SET status = ?
-	WHERE id = ?
-				`);
+				const update = this.updateTournamentStatusLogic(tournamentId, status);
+				if (!update.ok)
+					return { ok: false, error: update.error };
+				const result = {
+					tournamentId: tournamentId,
+					status: status
+				};
+				return ({ ok: true, data: result });
 			}
-			const res = updateStatusStmt.run(status, tournamentId);
-			if (res.changes === 0) {
-				throw new Error("No tournament found with the given tournamentId");
-			}
-			const result = {
-				tournamentId: tournamentId,
-				status: status
-			};
-			return (result);
 		});
 
 		const result = transaction(tournamentId, status);
@@ -712,12 +737,10 @@ export default class DatabaseHandler {
 					}
 
 					// Update tournament status
-					const updateTournamentStatus = this.db.prepare(`
-	UPDATE tournaments
-	SET status = ?
-	WHERE id = ?	
-					`);
-					updateTournamentStatus.run("between_games", tournamentId);
+					const updateTournamentStatus = this.updateTournamentStatusLogic(tournamentId, "between_games");
+					if (!updateTournamentStatus.ok) {
+						throw new Error("Could not update tournament status: " + updateTournamentStatus.error);
+					} // TODO check throw ?
 				}
 			} 
 			else {
@@ -740,6 +763,114 @@ export default class DatabaseHandler {
 
 		});
 		const result = transaction(tournamentId, gameId);
+		return (result);
+	}
+	
+	// Test ok
+	changeInvitationStatusLogic(userId, tournamentId, newStatus) {
+		const getPlayerStmt = this.db.prepare(`
+	SELECT has_accepted
+	FROM tournament_players
+	WHERE tournament_id = ? AND name = ?
+			`);
+		const player = getPlayerStmt.get(tournamentId, `@${userId}`);
+		if (!player) {
+			return {ok: false, error: "Player not found in the tournament"};
+		}
+		if (player.has_accepted === 0) {
+			return {ok: false, error: "Player does not need to accept invitation"};
+		} else if (player.has_accepted === 2 && newStatus === 2) {
+			return {ok: true, error: "Player already accepted invitation"};
+		} else if (player.has_accepted === 1 && newStatus === 1) {
+			return {ok: true, error: "Player already waiting for invitation"};
+		} else if (player.has_accepted === 2 && newStatus === 3) {
+			return {ok: false, error: "Player already accepted invitation, cannot go back to waiting"};
+		}
+	
+		const updatePlayerStmt = this.db.prepare(`
+	UPDATE tournament_players
+	SET has_accepted = ?
+	WHERE tournament_id = ? AND name = ?
+			`);
+		const res = updatePlayerStmt.run(newStatus, tournamentId, `@${userId}`);
+		if (res.changes === 0) {
+			console.log("No changes made when updating player status");
+			return {ok: true, error: "Player status already set to that value"};
+		}
+		return {ok: true};
+	}
+
+	acceptTournamentInvitation(userId, tournamentId) {
+		const transaction = this.db.transaction((userId, tournamentId) => {
+			const result = this.changeInvitationStatusLogic(userId, tournamentId, 3);
+			const hasAllPlayerAccepted = this.checkAllPlayersAcceptedLogic(tournamentId);
+			if (!hasAllPlayerAccepted.ok) {
+				return ({ok: true, result: result});
+			} else {
+				const changeTournamentStatus = this.updateTournamentStatusLogic(tournamentId, "pending");
+				if (!changeTournamentStatus.ok) {
+					return { ok: false, error: "Could not change tournament status because: " + changeTournamentStatus.error };
+				}
+			}
+			return ({ ok: true, result: result });
+		});
+		const result = transaction(userId, tournamentId);
+		return (result);
+	}
+
+	checkAllPlayersAcceptedLogic(tournamentId) {
+		const stmt = this.db.prepare(`
+	SELECT name
+	FROM tournament_players
+	WHERE tournament_id = ? AND has_accepted = 1
+		`);
+		const rows = stmt.all(tournamentId);
+		console.debug(rows);
+		if (!rows || rows.length === 0) {
+			return {ok: true, waitingFor: []};
+		} 
+		else {
+			const waitingFor = rows.map(row => row.name);
+			return {ok: false, waitingFor: waitingFor};
+		}
+	}
+
+	// Test ok
+	checkAllPlayersAccepted(tournamentId) {
+		const transaction = this.db.transaction((tournamentId) => {
+			const stmt = this.db.prepare(`
+	SELECT name
+	FROM tournament_players
+	WHERE tournament_id = ? AND has_accepted = 1
+			`);
+			const rows = stmt.all(tournamentId);
+			console.debug(rows);
+			if (!rows || rows.length === 0) {
+				return {ok: true, waitingFor: []};
+			} 
+			else {
+				const waitingFor = rows.map(row => row.name);
+				return {ok: false, waitingFor: waitingFor};
+			}
+		});
+		const result = transaction(tournamentId);
+		return (result);
+	}
+
+	// Test ok
+	declineTournamentInvitation(userId, tournamentId) {
+		const transaction = this.db.transaction((userId, tournamentId) => {
+			const result = this.changeInvitationStatusLogic(userId, tournamentId, 1);
+			if (!result.ok) {
+				return (result);
+			}
+			const cancelTournamentResult = this.cancelTournamentLogic(tournamentId, "canceled");
+			if (!cancelTournamentResult) {
+				return { ok: false, error: "Could not cancel the tournament because: " + cancelTournamentResult.error };
+			}
+			return { ok: true, canceledTournament: cancelTournamentResult};
+		});
+		const result = transaction(userId, tournamentId);
 		return (result);
 	}
 }

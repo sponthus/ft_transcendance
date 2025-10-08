@@ -55,8 +55,34 @@ export async function startGame(request, reply) {
         maxScore = game.score;
 		if (game.tournament_id == null)
 			tournament = 0;
-		else
+		else {
 			tournament = game.tournament_id;
+			const tournamentIsReady = await db.checkAllPlayersAccepted(tournament);
+			if (!tournamentIsReady.ok) {
+				// console.debug("❓ Tournament is not ready, waiting for players to accept before completing: ", tournamentIsReady.waitingFor);
+				try {
+					let playersToWait = [];
+					for (let player of tournamentIsReady.waitingFor) {
+						if (player[0] === '@') {
+							const playerId = player.slice(1);
+							const playerName = await getUserInfoFromId(playerId);
+							if (!playerName.ok || !playerName.infos || !playerName.infos.nickname || playerName.infos.nickname == undefined) {
+								console.error("❌ Player nickname not found: ", playerId);
+								playersToWait.push(`@${playerId}`);
+							} else {
+								playersToWait.push(`@${playerName.infos.nickname}`);
+							}
+						}
+					}
+					console.log("❓ Tournament not ready, waiting for: ", playersToWait.join(", "));
+					return reply.status(404).send({ error: `Tournament not ready, waiting for: ${playersToWait.join(", ")}` });
+				} catch (error) {
+					console.error('❌ Error fetching user info: ');
+					console.error(error);
+					return reply.status(500).send({ error: "Internal server error while fetching user info." });
+				}
+			}
+		}
 		ai = game.ai;
 		option = game.option;
 	}
@@ -105,7 +131,7 @@ export async function startGame(request, reply) {
 		return reply.status(500).send({ error: "Internal server error while fetching user info." });
 	}
     try {
-        // console.debug("Trying to create game server with gameId " + gameId + " and userId " + userId);
+        console.debug("Trying to create game server with gameId " + gameId + " and userId " + userId);
         const gameMaster = GameMaster.getInstance();
         if (!gameMaster) {
 			console.error('❌ Error : No GameMaster found while fetching games');
@@ -125,7 +151,7 @@ export async function startGame(request, reply) {
     }
     catch (error) {
         console.error('❌ Error creating game server:')
-		console.log(error);
+		console.error(error);
         return reply.status(500).send({error: 'Internal server error while fetching games.'});
     }
 }
@@ -144,44 +170,52 @@ export async function createGame(request, reply) {
 	}
 	// console.debug("Body :");
 	// console.debug(request.body);
-	const { player_a, player_b, requestedMaxScore, requestedAi, requestedOption } = request.body;
+	let { player_a, player_b, requestedMaxScore, requestedAi, requestedOption } = request.body;
 	
 	if (player_a === player_b) {
 		console.error("❌ Player A cannot be equal to Player B");
 		return reply.status(400).send({error: 'Bad input format - player_a != player_b'});
 	}
-	// TODO = test me when it's possible to make a game with @user
-	if (player_a[0] === '@') {
-		const player1Slug = player_a.slice(1);
-		const player1Id = await getUserIdFromSlug(player1Slug);
-		if (!player1Id.ok) {
-			console.error("❌ Unable to get userId from slug: ", player_a);
-			return reply.status(404).send({ error: `Requested user ${player_a} not found.`});
-		}
-		else {
-			if (checkIdFormat(player1Id.userId) === false) {
-				console.error("❌ Bad userId format got from slug");
-				return reply.status(500).send({ error: 'Internal server error: Wrong user data format.'});
+	// Tests ok
+	try {
+		if (player_a[0] === '@') {
+			const player1Slug = player_a.slice(1);
+			const player1Id = await getUserIdFromSlug(player1Slug);
+			if (!player1Id.ok) {
+				console.error("❌ Unable to get userId from slug: ", player_a);
+				return reply.status(404).send({ error: `Requested user ${player_a} not found.`});
 			}
-			let userId = parseInt(player1Id.userId, 10);
-			player_a = `@${userId}`;
-		}
-	}
-	if (player_b[0] === '@') {
-		const player2Slug = player_b.slice(1);
-		const player2Id = await getUserIdFromSlug(player2Slug);
-		if (!player2Id.ok) {
-			console.error("❌ Unable to get userId from slug: ", player_b);
-			return reply.status(404).send({ error: `Requested user ${player_b} not found.`});
-		}
-		else {
-			if (checkIdFormat(player2Id.userId) === false) {
-				console.error("❌ Bad userId format got from slug");
-				return reply.status(500).send({ error: 'Internal server error: Wrong user data format.'});
+			else {
+				if (checkIdFormat(player1Id.userId) === false) {
+					console.error("❌ Bad userId format got from slug");
+					return reply.status(500).send({ error: 'Internal server error: Wrong user data format.'});
+				}
+				let userId = parseInt(player1Id.userId, 10);
+				player_a = `@${userId}`;
+				// console.debug(`Replaced ${player1Slug} with ${player_a}`);
 			}
-			let userId = parseInt(player2Id.userId, 10);
-			player_b = `@${userId}`;
 		}
+		if (player_b[0] === '@') {
+			const player2Slug = player_b.slice(1);
+			const player2Id = await getUserIdFromSlug(player2Slug);
+			if (!player2Id.ok) {
+				console.error("❌ Unable to get userId from slug: ", player_b);
+				return reply.status(404).send({ error: `Requested user ${player_b} not found.`});
+			}
+			else {
+				if (checkIdFormat(player2Id.userId) === false) {
+					console.error("❌ Bad userId format got from slug");
+					return reply.status(500).send({ error: 'Internal server error: Wrong user data format.'});
+				}
+				let userId = parseInt(player2Id.userId, 10);
+				player_b = `@${userId}`;
+				// console.debug(`Replaced ${player2Slug} with ${player_b}`);
+			}
+		}
+	} catch (error) {
+		console.error('❌ Error fetching userId from slug: ');
+		console.error(error);
+		return reply.status(500).send({ error: "Internal server error while fetching userId from slug." });
 	}
 
 	const { db } = request.server;

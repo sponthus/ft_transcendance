@@ -4,7 +4,7 @@ import prefix from "../../tools/url.js";
 import tlsAgent from "../../tools/tlsAgent.js";
 
 export async function getUserIdFromSlug(slug) {
-	console.log("-> Requesting userId from slug: ", slug);
+	console.log("➡️ Requesting userId from slug: ", slug);
 	if (!slug) {
 		return { ok: false, error: "No userId given while updating user status"};
 	}
@@ -22,7 +22,7 @@ export async function getUserIdFromSlug(slug) {
 		});
 		const data = await res.json();  
 		if (res.ok && data && data.idUser != undefined) {
-			console.log("Found userId ", data.idUser);
+			// console.debug("Found userId ", data.idUser);
 			return { ok: true, userId: String(data.idUser.id) };
 		} else {
 			return { ok: false, error: "User not found" };

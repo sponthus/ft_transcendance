@@ -36,15 +36,19 @@ export async function deleteTournament(request, reply) {
         if (tournamentToDelete.status !== 'pending') {
 			if (tournamentToDelete.status === 'between_games' ) {
 				const result = db.updateTournamentStatus(tournamentId, 'canceled');
-				return reply.status(200).send({
-					action: "canceled",
-					name: tournamentToDelete.name
-				});
+				if (result.ok) {
+					return reply.status(200).send({
+						action: "canceled",
+						name: tournamentToDelete.name
+					});
+				} else {
+					return reply.status(500).send({ error: '❌ Internal server error while canceling tournament.' });
+				}
 			}
             return reply.status(403).send({ error : 'Forbidden, tournament is not pending.' });
         }
 		if (tournamentToDelete.id_user !== requestingUserId) {
-			console.log("Error because found user_id = ", tournamentToDelete.id_user, " VS Request = ", requestingUserId);
+			console.error("❌ Error because found user_id = ", tournamentToDelete.id_user, " VS Request = ", requestingUserId);
 			return reply.status(403).send({ error: "Forbidden, this is not your tournament."});
 		}
 
@@ -55,7 +59,7 @@ export async function deleteTournament(request, reply) {
 		});
     } catch (error) {
         console.error('❌ Error deleting tournament: ');
-		console.log(error);
+		console.error(error);
 		return reply.status(500).send({ error: 'Internal server error while deleting tournament.' });
     }
 }
