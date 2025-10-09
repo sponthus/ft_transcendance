@@ -1,5 +1,10 @@
 import Database from "better-sqlite3";
 
+let NO_NEED = 0
+let WAITING = 1
+let ACCEPTED = 2
+let REFUSED = 3
+
 export default class DatabaseHandler {
     constructor(dbFile) {
         this.db = new Database(dbFile, { verbose: console.log });
@@ -283,8 +288,9 @@ export default class DatabaseHandler {
 
     // Creates a tournament, and the games for every round in tournament_matches + games
     createTournament(name, userId, players, option, has_users_to_wait) {
-        const transaction = this.db.transaction((userId, name, players, option = 1, has_users_to_wait = false) => {          
-            const numberOfPlayers = players.length;
+        const transaction = this.db.transaction((userId, name, players, option, has_users_to_wait) => {          
+            // console.debug(`Players have to accept: ${has_users_to_wait}`);
+			const numberOfPlayers = players.length;
             if (numberOfPlayers != 4 && numberOfPlayers != 6 && numberOfPlayers != 8) {
                 throw new Error("Only 4, 6 or 8 players tournament available for now");
             }
@@ -320,8 +326,9 @@ export default class DatabaseHandler {
             `);
 			
 			let status = "pending";
-			if (has_users_to_wait)
+			if (has_users_to_wait == true)
 				status = "invitations";
+			// console.log("CHOSEN STATUS = ", status);
 			// console.log("status = ", status, "userId = ", userId, " name = ", name, " players = ", players, " option = ", option);
             const creationResult = createTournamentStmt.run(status, userId, name, Number(option));
             const tournamentId = creationResult.lastInsertRowid;
@@ -401,7 +408,7 @@ export default class DatabaseHandler {
 
         this.randomize(players);
         // console.log("len = ", players.length);
-
+		// console.debug(`Players have to accept: ${has_users_to_wait}`);
         const result = transaction(userId, name, players, option, has_users_to_wait);
         return (result);
     }
@@ -502,7 +509,7 @@ export default class DatabaseHandler {
 	// Can be used in cancel tournament + in decline invitation
 	cancelTournamentLogic(tournamentId, status) {
 		const getTournamentStmt = this.db.prepare(`
-	SELECT status
+	SELECT status, name
 	FROM tournaments 
 	WHERE id = ?
 		`);
@@ -542,6 +549,7 @@ export default class DatabaseHandler {
 
 		const result = {
 			tournamentId: tournamentId,
+			name: tournament.name,
 			status: status
 		};
 		return (result);
@@ -768,6 +776,20 @@ export default class DatabaseHandler {
 	
 	// Test ok
 	changeInvitationStatusLogic(userId, tournamentId, newStatus) {
+		const getTournamentStmt = this.db.prepare(`
+	SELECT status
+	FROM tournaments
+	WHERE id = ?
+			`);
+		const tournament = getTournamentStmt.get(tournamentId);
+		if (!tournament) {
+			return {ok: false, error: "Tournament not found"};
+		}
+		if (tournament.status !== "invitations") {
+			console.log(tournament.status);
+			return {ok: false, error: `Tournament is not in a state of invitations`, state: tournament.status};
+		}
+		
 		const getPlayerStmt = this.db.prepare(`
 	SELECT has_accepted
 	FROM tournament_players
@@ -775,16 +797,14 @@ export default class DatabaseHandler {
 			`);
 		const player = getPlayerStmt.get(tournamentId, `@${userId}`);
 		if (!player) {
-			return {ok: false, error: "Player not found in the tournament"};
+			return {ok: false, error: "Player not found in this tournament"};
 		}
-		if (player.has_accepted === 0) {
-			return {ok: false, error: "Player does not need to accept invitation"};
-		} else if (player.has_accepted === 2 && newStatus === 2) {
-			return {ok: true, error: "Player already accepted invitation"};
-		} else if (player.has_accepted === 1 && newStatus === 1) {
-			return {ok: true, error: "Player already waiting for invitation"};
-		} else if (player.has_accepted === 2 && newStatus === 3) {
-			return {ok: false, error: "Player already accepted invitation, cannot go back to waiting"};
+		if (player.has_accepted === NO_NEED) {
+			return {ok: false, error: "Player does not need to accept or refuse invitation"};
+		} else if (player.has_accepted === ACCEPTED && newStatus === ACCEPTED) {
+			return {ok: false, error: "Player already accepted invitation"};
+		} else if (player.has_accepted === ACCEPTED && newStatus === REFUSED) {
+			return {ok: false, error: "Player already accepted invitation, cannot go back"};
 		}
 	
 		const updatePlayerStmt = this.db.prepare(`
@@ -795,63 +815,66 @@ export default class DatabaseHandler {
 		const res = updatePlayerStmt.run(newStatus, tournamentId, `@${userId}`);
 		if (res.changes === 0) {
 			console.log("No changes made when updating player status");
-			return {ok: true, error: "Player status already set to that value"};
+			return {ok: false, error: "Player already accepted or declined invitation"};
 		}
 		return {ok: true};
 	}
 
 	acceptTournamentInvitation(userId, tournamentId) {
-		const transaction = this.db.transaction((userId, tournamentId) => {
-			const result = this.changeInvitationStatusLogic(userId, tournamentId, 3);
-			const hasAllPlayerAccepted = this.checkAllPlayersAcceptedLogic(tournamentId);
-			if (!hasAllPlayerAccepted.ok) {
-				return ({ok: true, result: result});
-			} else {
-				const changeTournamentStatus = this.updateTournamentStatusLogic(tournamentId, "pending");
-				if (!changeTournamentStatus.ok) {
-					return { ok: false, error: "Could not change tournament status because: " + changeTournamentStatus.error };
+		try {
+			const transaction = this.db.transaction((userId, tournamentId) => {
+				const result = this.changeInvitationStatusLogic(userId, tournamentId, 3);
+				if (!result.ok) {
+					return ({ ok: false, ready: false, error: result.error });
 				}
-			}
-			return ({ ok: true, result: result });
-		});
-		const result = transaction(userId, tournamentId);
-		return (result);
+				const hasAllPlayerAccepted = this.checkAllPlayersAcceptedLogic(tournamentId);
+				if (!hasAllPlayerAccepted.ok) {
+					return ({ok: true, ready: false});
+				} else {
+					const changeTournamentStatus = this.updateTournamentStatusLogic(tournamentId, "pending");
+					if (!changeTournamentStatus.ok) {
+						return { ok: false, ready: false, error: "Could not change tournament status because: " + changeTournamentStatus.error };
+					}
+				}
+				return ({ ok: true, ready: true, error: false, result: result, playerIds: hasAllPlayerAccepted.players, owner: hasAllPlayerAccepted.owner });
+			});
+			const result = transaction(userId, tournamentId);
+			return (result);
+		}
+		catch (error) {
+			return { ok: false, ready: false, error: "Internal server error : " + error.message };
+		}
 	}
 
 	checkAllPlayersAcceptedLogic(tournamentId) {
 		const stmt = this.db.prepare(`
-	SELECT name
+	SELECT name, has_accepted
 	FROM tournament_players
-	WHERE tournament_id = ? AND has_accepted = 1
+	WHERE tournament_id = ?
 		`);
 		const rows = stmt.all(tournamentId);
 		console.debug(rows);
 		if (!rows || rows.length === 0) {
-			return {ok: true, waitingFor: []};
+			return {ok: false, waitingFor: [], players: [], error: "No players found" };
 		} 
 		else {
-			const waitingFor = rows.map(row => row.name);
-			return {ok: false, waitingFor: waitingFor};
+			const players = rows
+				.filter(row => row.has_accepted === ACCEPTED || row.has_accepted === NO_NEED)
+				.map(row => row.name);
+			const waitingFor = rows.filter(row => row.has_accepted !== ACCEPTED).map(row => row.name);
+			if (waitingFor.length === 0) {
+				return {ok: true, waitingFor: [], players: players};
+			}
+			else 
+				return {ok: false, waitingFor: waitingFor, players: players};
 		}
 	}
 
 	// Test ok
 	checkAllPlayersAccepted(tournamentId) {
 		const transaction = this.db.transaction((tournamentId) => {
-			const stmt = this.db.prepare(`
-	SELECT name
-	FROM tournament_players
-	WHERE tournament_id = ? AND has_accepted = 1
-			`);
-			const rows = stmt.all(tournamentId);
-			console.debug(rows);
-			if (!rows || rows.length === 0) {
-				return {ok: true, waitingFor: []};
-			} 
-			else {
-				const waitingFor = rows.map(row => row.name);
-				return {ok: false, waitingFor: waitingFor};
-			}
+			const result = this.checkAllPlayersAcceptedLogic(tournamentId);
+			return (result);
 		});
 		const result = transaction(tournamentId);
 		return (result);
@@ -860,15 +883,24 @@ export default class DatabaseHandler {
 	// Test ok
 	declineTournamentInvitation(userId, tournamentId) {
 		const transaction = this.db.transaction((userId, tournamentId) => {
-			const result = this.changeInvitationStatusLogic(userId, tournamentId, 1);
+			const result = this.changeInvitationStatusLogic(userId, tournamentId, REFUSED);
 			if (!result.ok) {
-				return (result);
+				return ({ ok: false, error: result.error });
 			}
 			const cancelTournamentResult = this.cancelTournamentLogic(tournamentId, "canceled");
 			if (!cancelTournamentResult) {
-				return { ok: false, error: "Could not cancel the tournament because: " + cancelTournamentResult.error };
+				return { ok: false, error: "Could not cancel the tournament because: " + cancelTournamentResult.error, name: cancelTournamentResult.name };
 			}
-			return { ok: true, canceledTournament: cancelTournamentResult};
+			const getPlayerStmt = this.db.prepare(`
+	SELECT name, has_accepted
+	FROM tournament_players
+	WHERE tournament_id = ?
+			`);
+			const playersToNotify = getPlayerStmt
+				.all(tournamentId)
+				.filter(row => row.has_accepted === ACCEPTED || row.has_accepted === WAITING)
+				.map(row => row.name);
+			return { ok: true, playersToNotify: playersToNotify };
 		});
 		const result = transaction(userId, tournamentId);
 		return (result);

@@ -1,6 +1,6 @@
 import Fastify from "fastify";
 import fastifyJwt from '@fastify/jwt';
-import fastifyCookie from '@fastify/cookie'
+import fastifyCookie from '@fastify/cookie';
 import { fileURLToPath } from "url";
 import { WebSocketServer } from "ws";
 import path from "path";

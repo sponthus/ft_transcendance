@@ -91,7 +91,8 @@ export function    checkUsernameFormat(username)
     const ajv = new Ajv();
     const contract = ajv.compile(schema);
     const valid = contract(username);
-	console.log(contract.errors);
+	if (!valid)
+		console.warn(contract.errors);
     if (!valid)
         return (false);
     return (true);
@@ -107,7 +108,8 @@ export function    checkStatusFormat(status)
     const ajv = new Ajv();
     const contract = ajv.compile(schema);
     const valid = contract(status);
-	console.log(contract.errors);
+	if (!valid)
+		console.warn(contract.errors);
     if (!valid)
         return (false);
     return (true);

@@ -17,6 +17,23 @@ export function    checkSlugFormat(slug)
     return (true);
 }
 
+export function checkTournamentNameFormat(name)
+{
+	const schema = 
+	{
+		type: "string",
+		minLength: 3,
+		maxLength: 30,
+		pattern: "^(?![=+\\-@])(?![ _-])(?!.*[ _-]$)(?!^[ _-]+$)(?!.*[\\r\\n\\t])(?=.*[A-Za-zÀ-ÖØ-öø-ÿ0-9])[A-Za-zÀ-ÖØ-öø-ÿ0-9 _-]+$"
+	};
+	const ajv = new Ajv();
+	const contract = ajv.compile(schema);
+	const valid = contract(name);
+	if (!valid)
+		return (false);
+	return (true);
+}
+
 export function	checkTournamentCreationFormat(request)
 {
 	const schema = 
@@ -39,9 +56,10 @@ export function	checkTournamentCreationFormat(request)
 				],
 				items: { type: "string" },
 				uniqueItems: true 
-			}
+			},
+			option: { type: "number", minimum: 0, maximum: 1 }
 		},
-		required: ["name", "players"],
+		required: ["name", "players", "option"],
 		additionalProperties: false
 	};
 	const ajv = new Ajv();

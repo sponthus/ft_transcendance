@@ -67,12 +67,11 @@ fastify.decorate("authenticate", async function (request, reply)
 		}
 		else 
 		{
-			console.log("PASSSSSSEEE LLA");
-			const result = app.unsignCookie(request.cookies.token); //verifie manuellement signature cookie
+			const result = fastify.unsignCookie(request.cookies.token); //verifie manuellement signature cookie
   	      	if (!result.valid)
    	        	return reply.code(401).send({ error: "Invalid cookie" });
-    	    console.log("\nToken dans le game-service : " + result.value + "-");
-    	    request.user = await app.jwt.verify(result.value); //Décode et verifie le token et stock ses infos dans request
+    	    // console.debug("\nToken dans le game-service : " + result.value + "-");
+    	    request.user = await fastify.jwt.verify(result.value); //Décode et verifie le token et stock ses infos dans request
     	    if (request.user.twofa_pending === true)
             	return reply.code(401).send({ error: "2FA required" });
 		}
@@ -86,7 +85,7 @@ fastify.decorate("authenticate", async function (request, reply)
     }
 });
 
-app.register(fastifyCookie,
+fastify.register(fastifyCookie,
 {
     secret: getSecret('cookie_key')
 });
@@ -100,7 +99,7 @@ await fastify.register(routes);
 
 // Default handler for undefined routes
 fastify.setNotFoundHandler((req, reply) => {
-    reply.status(404).send("Not found");
+    reply.code(404).send("Not found");
 });
 
 fastify.get("/health", async (request, reply) => {
