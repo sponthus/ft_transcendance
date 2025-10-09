@@ -84,7 +84,7 @@ export async function acceptTournamentInvitation(request, reply) {
 				// Send notification = Tournament is ready to start
 				const notification = await sendTournamentReady(players, ownerUserId, tournamentId, tournamentName);
 				if (notification.ok === false) {
-					console.error("❌ Unable to send tournament ready notification to player ", playerId, ": ", notification.error);
+					console.error("❌ Unable to send tournament ready notification to player ", players, ": ", notification.error);
 					const cancelTournament = await db.cancelTournament(tournamentId);
 					if (cancelTournament.ok === false) {
 						console.error("❌ Unable to cancel tournament after failure to send ready notification: ", cancelTournament.error);
@@ -100,7 +100,7 @@ export async function acceptTournamentInvitation(request, reply) {
 						return reply.code(500).send({ error: 'Internal server error'});
 					}
 				} else {
-					console.log("❓ Tournament ready notification sent to player ", playerId);
+					console.log("❓ Tournament ready notification sent to player ", players);
 				}
 				return reply.code(200).send({ message: 'Tournament invitation accepted. All players have accepted, tournament is ready to start.'});
 			} else {

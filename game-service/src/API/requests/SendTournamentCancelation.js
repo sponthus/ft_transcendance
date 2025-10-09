@@ -21,7 +21,7 @@ export async function sendTournamentCancelation(playersIds, tournamentId, tourna
 				'x-internal-api-key': api_key
 			},
 			body : JSON.stringify({
-				type: "cancelation",
+				type: "tournament_cancel",
 				inviteeIds: playersIds,
 				tournamentId: tournamentId,
 				tournamentName: tournamentName

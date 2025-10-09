@@ -21,7 +21,7 @@ export async function sendTournamentInvitation(userId, inviterId, tournamentId, 
 		// 		'x-internal-api-key': api_key
 		// 	},
 		// 	body : JSON.stringify({
-		//		type: "invitation",
+		//		type: "tournament_invite",
 		// 		inviteeId: userId,
 		// 		inviterId: inviterId,
 		// 		tournamentId: tournamentId,

@@ -60,8 +60,8 @@ async function dbConnector(fastify, options)
             notif_id INTEGER PRIMARY KEY AUTOINCREMENT,
             notif_user_id INTEGER NOT NULL,
             notif_sender_id INTEGER NOT NULL,
-            notif_type TEXT NOT NULL CHECK(notif_type IN ('friend_request', 'friend_accept', 'friend_reject', 'tournament')),
-            notif_tournament TEXT DEFAULT NULL CHECK(notif_type_tournament IN ('accept', 'reject', 'invite', 'ready')),
+            notif_type TEXT NOT NULL CHECK(notif_type IN ('friend_request', 'friend_accept', 'friend_reject', \
+                                                        'tournament_accept', 'tournament_cancel', 'tournament_invite', 'tournament_ready')),
             notif_tournament_id INTEGER DEFAULT NULL,
             notif_tournament_name TEXT DEFAULT NULL,
             notif_status INTEGER DEFAULT 0 CHECK(notif_status BETWEEN 0 AND 1),
