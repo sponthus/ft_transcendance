@@ -81,7 +81,11 @@ export async function createTournament(request, reply) {
 					console.log("❓ No invitation sent to tournament creator ", player);
 			}
 		}
-		return reply.code(201).send(result);
+		if (has_users_to_wait === false) {
+			return reply.code(200).send(result);
+		} else {
+			return reply.code(201).send(result);
+		}
     }
     catch (error) {
 		console.log('❌ Error creating tournament : ');
