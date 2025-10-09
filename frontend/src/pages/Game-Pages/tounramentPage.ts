@@ -1,7 +1,8 @@
-import { createDiv, createElement, createButton, createImage, createInput, createCheckBoxLabel, append, setbackgroundImages} from '../../Utils/elementMaker.js';
+import { createDiv, createElement, createButton, createImage, createInput, createCheckBoxLabel, append, setbackgroundImages, createAnchorElement} from '../../Utils/elementMaker.js';
 import { availableGames } from './AvailableGames.js';
 import { getTournamentMatches, GameInfos, getTournamentNextMatch } from "../../api/game-service/tournaments/getTournaments.js" 
 import { ErrorPopup } from '../ErrorPage.js';
+import { getUserInfoBySlug } from '../../api/user-service/user-info/getUserInfo.js';
 
 export class TournamentPage {
 	private Page!: HTMLElement;
@@ -281,19 +282,34 @@ export class TournamentPage {
 		for (let i = 0; i < 2; i++) {
 			const PlayerDiv = createDiv(`player-${i + i}`, "border rounded-xl w-[50%] text-center") as HTMLElement;
 			setbackgroundImages(PlayerDiv,"url('/game_ui/setting/emptyPan.png')");
-			append(PlayerDiv, [createElement('p', `player-${i + i}`, TabPlayer[i],  "text-orange-200") as HTMLElement]);
+			if (TabPlayer[i][0] == '@')
+				this.appendPlayerNameDiv(PlayerDiv, TabPlayer[i].substring(1, TabPlayer[i].length));
+			else
+				append(PlayerDiv, [createElement('p', `player-${i + i}`, TabPlayer[i],  "text-orange-200") as HTMLElement]);
 			append(MatchDiv, [PlayerDiv]);
 			if (i == 0) {
-			if (final) {
-				append(MatchDiv, [createElement('p', `match-${Match}`, `Final`, "text-orange-200 font-bold")]);
-			} else {
-				append(MatchDiv, [createElement('p', `match-${Match}`, `Round ${MatchRound}`, "text-orange-200 font-bold")]);
-			}
+				if (final) {
+					append(MatchDiv, [createElement('p', `match-${Match}`, `Final`, "text-orange-200 font-bold")]);
+				} else {
+					append(MatchDiv, [createElement('p', `match-${Match}`, `Round ${MatchRound}`, "text-orange-200 font-bold")]);
+				}
 			}
 		}
 		return MatchDiv;
 	}
 
+	private async appendPlayerNameDiv(parent: HTMLElement, slug: string){
+		console.log('slug : ', slug);
+		try {
+			const req = await getUserInfoBySlug(slug);
+			if (req.ok) {
+				append(parent, [createAnchorElement(`${slug}`, req.userInfo.username, `/user/${slug}`, "text-orange-200") as HTMLElement]);
+			}
+		}catch(error) {
+			ErrorPopup(error as string);
+		}
+
+	}
 	// Identifies next game to play in a tournament
 	private async findNextRound() {
 		let NextRound: number = 0;
