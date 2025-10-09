@@ -119,27 +119,35 @@ export async function acceptTournamentInvitation(request, reply) {
 // TODO test
 export async function declineTournamentInvitation(request, reply) {
 	console.log('➡️ User accessed POST /tournament/decline');
-	const userId = request.body.userId;
+	const ownerUserId = request.body.ownerUserId;
 	const tournamentId = request.body.tournamentId;
+	const tournamentName = request.body.tournamentName;
+	const refusingUserId = request.body.refusingUserId;
 
-	if (!userId || !tournamentId) {
-		return reply.code(400).send({ error: 'Bad request - userId and tournamentId are required.'});
+	if (!refusingUserId || !tournamentId || !tournamentName || !ownerUserId) {
+		return reply.code(400).send({ error: 'Bad request, missing arguments.'});
 	}
-	if (checkIdFormat(userId) === false) {
-		return reply.code(400).send({ error: 'Bad userId format.'});
+	if (checkIdFormat(ownerUserId) === false) {
+		return reply.code(400).send({ error: 'Bad ownerUserId format.'});
 	}
 	if (checkIdFormat(tournamentId) === false) {
 		return reply.code(400).send({ error: 'Bad tournamentId format.'});
+	}
+	if (checkIdFormat(refusingUserId) === false) {
+		return reply.code(400).send({ error: 'Bad refusingUserId format.'});
+	}
+	if (checkTournamentNameFormat(tournamentName) === false) {
+		return reply.code(400).send({ error: 'Bad tournamentName format.'});
 	}
 
 	const { db } = request.server;
 	if (!db) {
 		console.error('❌ Error while declining tournament invitation: database connection not found');
-		return reply.code(500).send({ error: 'No database connection found.'});
+		return reply.code(500).send({ error: 'Internal server error' });
 	}
 
 	try {
-		const result = await db.declineTournamentInvitation(userId, tournamentId);
+		const result = await db.declineTournamentInvitation(refusingUserId, tournamentId);
 		if (result.ok === false) {
 			console.error("❌ Unable to decline tournament invitation: ", result.error);
 			switch (result.error) {
@@ -159,13 +167,18 @@ export async function declineTournamentInvitation(request, reply) {
 					return reply.code(500).send({ error: result.error });
 			}
 		} else {
-			console.log("Player ", userId, " declined tournament ", tournamentId, " - Tournament cancelled");
+			console.log("Player ", refusingUserId, " declined tournament ", tournamentId, " - Tournament cancelled");
 			// Send notification = Tournament is cancelled
 			const players = result.playersToNotify;
+			const cancelNotification = await sendTournamentCancelation(players, tournamentId, tournamentName);
+			if (cancelNotification.ok === false) {
+				console.error("❌ Unable to send tournament cancelation notification to players ", players, ": ", cancelNotification.error);
+				// TODO Error 500 ?
+			} else {
+				console.log("❓ Tournament cancelation notification sent to players ", players);
+			}
 			return reply.code(200).send({ message: 'Tournament invitation declined and tournament cancelled.'});
 		}
-		// Send notification = Tournament is cancelled
-		// TODO = Implement me
 	} catch (error) {
 		console.error('❌ Error declining tournament invitation : ');
 		console.error(error);
