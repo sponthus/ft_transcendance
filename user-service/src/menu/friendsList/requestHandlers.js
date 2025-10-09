@@ -34,8 +34,8 @@ export async function   acceptRequest(request, reply)
             return reply.code(404).send({ error: "There is no pending request from " + sender.username });
         if (existingRequest.frie_status === 1)
             return reply.code(409).send({ error: "You're already friend with " + sender.username });
-        addNotification(db, sender.id, idUser, "friend_accept");
-        deleteNotification(db, idUser, sender.id, "friend_request");
+        addNotification(db, sender.id, idUser, "friend_accept"); //TODO ELODIE mettre en bas 
+        deleteNotification(db, idUser, sender.id, "friend_request"); // TODO ELODIE ???
         const acceptFriendship = db.transaction( (idUser, idSender) =>
         {
             db.prepare("    INSERT INTO \
@@ -57,7 +57,9 @@ export async function   acceptRequest(request, reply)
                                             users \
                                         WHERE \
                                             id = ?").get(idUser);
-        await notifyRefresh(sender.id, username.username, "friend_accept");
+        const result = await notifyRefresh(sender.id, username.username, "friend_accept");
+        if (!result.ok)
+            throw new Error(result.error || "Internal Server Error");
         return reply.code(200).send();
     }
     catch (err)
@@ -109,7 +111,9 @@ export async function   rejectRequest(request, reply)
                                             users \
                                         WHERE \
                                             id = ?").get(idUser);
-        await notifyRefresh(sender.id, username.username, "friend_reject");
+        const result = await notifyRefresh(sender.id, username.username, "friend_reject");
+        if (!result.ok)
+            throw new Error(result.error || "Internal Server Error");
         return reply.code(200).send();    
     }
     catch (err)

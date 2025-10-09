@@ -1,4 +1,5 @@
 import { getBasicInfoOnUsers, getIdUserFromSlug, getUserInfosFromId } from "../internal-service/BasicInfoOnUsers.js";
+import { addTournamentNotif } from "../menu/notifications/tournaments/tournaments.js";
 
 export default async function internalRoutes(fastify)
 {
