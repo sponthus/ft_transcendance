@@ -10,17 +10,17 @@ export async function deleteGame(request, reply) {
     
 	let { gameId } = request.params;
     if (!gameId) {
-        return reply.status(400).send({error: 'No gameId found in request.'});
+        return reply.code(400).send({error: 'No gameId found in request.'});
     }
 	if (checkIdFormat(gameId) === false) {
-		return reply.status(400).send({ error: 'Bad gameId format.'});
+		return reply.code(400).send({ error: 'Bad gameId format.'});
 	}
 	gameId = parseInt(gameId, 10);
 
     const { db } = request.server;
     if (!db) {
 		console.error('❌ Error while deleting game: database connection not found');
-		return reply.status(500).send({ error: 'No database connection found.'});
+		return reply.code(500).send({ error: 'No database connection found.'});
 	}
 	
 	console.log("Requesting user = ", requestingUserId, " / Game = ", gameId);
@@ -28,23 +28,23 @@ export async function deleteGame(request, reply) {
     try {
         const gameToDelete = await db.getGame(gameId);
         if (!gameToDelete) {
-			return reply.status(404).send({ error : 'No game found.'});
+			return reply.code(404).send({ error : 'No game found.'});
 		}
         if (gameToDelete.status !== 'pending') {
-            return reply.status(403).send({ error : 'Forbidden, game is not pending.' });
+            return reply.code(403).send({ error : 'Forbidden, game is not pending.' });
         }
 		if (gameToDelete.id_user !== requestingUserId) {
 			// console.log("Error because found user_id = ", gamesToDelete[0].user_id);
-			return reply.status(403).send({ error: "Forbidden, this is not your game."});
+			return reply.code(403).send({ error: "Forbidden, this is not your game."});
 		}
         if (gameToDelete.tournament_id)
-            return reply.status(403).send({ error: 'Forbidden, game is linked to a tournament.' });
+            return reply.code(403).send({ error: 'Forbidden, game is linked to a tournament.' });
 
         const result = db.deleteGame(gameId);
-        return reply.status(200).send(result);
+        return reply.code(200).send(result);
     } catch (error) {
         console.error('❌ Error deleting game: ');
 		console.log(error);
-		return reply.status(500);
+		return reply.code(500);
     }
 }

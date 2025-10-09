@@ -6,40 +6,68 @@ import { fileURLToPath } from "url"; // Transforms ESM paths to system paths
 import path from 'path'; // utilities for working with file and directory paths
 import env from "../config/env.js";
 import logger from "../config/logger.js";
+import fs from "fs";
 
 const __filename = fileURLToPath(import.meta.url); // This filename, from ESM expression to classic path
 export const __dirname = path.dirname(__filename); // Parent folder to this file
 
-const app = Fastify({
-    logger: false, // logger,
-});
+let fastify;
+if (env.nodeEnv === 'production') {
 
-console.log('Parameters for app are being set'); // debug
+	try {
+		fs.accessSync(`/etc/ssl/${env.domain_name}.key`, fs.constants.R_OK);
+		fs.accessSync(`/etc/ssl/${env.domain_name}.crt`, fs.constants.R_OK);
+		console.log("SSL certificates found and accessible");
+	} catch (err) {
+		console.error(err);
+		console.error("❌ Critical error : SSL certificates not found or inaccessible");
+		process.exit(1);
+	}
+
+    fastify = Fastify({
+        logger: logger,
+		https: {
+			key: fs.readFileSync(`/etc/ssl/${env.domain_name}.key`),
+			cert: fs.readFileSync(`/etc/ssl/${env.domain_name}.crt`)
+		}
+    });
+	console.log("fastify launched in production mode");
+}
+else {
+	fastify = Fastify({
+		logger: false,
+	});
+	console.log("fastify launched in development mode");
+}
+
+console.log('Parameters for fastify are being set ...'); // debug
 
 // Protection of
 // Limits requests from a specific IP :: 100 every 100 seconds
 // Otherwise gives a 429 code
-await app.register(rateLimit, {
+await fastify.register(rateLimit, {
     global: true,
     max: 1000, // too change to 100
     timeWindow: '100 seconds'
 });
 
 // Protection of attacks looking for valid URL by hardly protecting 404
-app.setNotFoundHandler({
-    preHandler: app.rateLimit({
+fastify.setNotFoundHandler({
+    preHandler: fastify.rateLimit({
         max: 10,
         timeWindow: '60 seconds'
     })
 }, function (request, reply) {
     reply.code(404).send({ error: 'Not found' })
-})
+});
 
-// app.register(fastifyJwt, {
+console.log('Rate limit set'); // debug
+
+// fastify.register(fastifyJwt, {
 //     secret: env.hashKey,
 // });
 
-// app.decorate("authenticate", async function (request, reply) {
+// fastify.decorate("authenticate", async function (request, reply) {
 //     try {
 //         await request.jwtVerify();
 //     } catch (err) {
@@ -48,40 +76,57 @@ app.setNotFoundHandler({
 //     }
 // });
 
-app.register(proxy, {
-    upstream: `http://user-service:${env.user_port}`,
+fastify.addHook('onRequest', async (request, reply) => {
+    console.log(`[GATEWAY] ${request.method} ${request.url}`);
+    if (request.body) {
+        console.log('[GATEWAY BODY]', request.body);
+    }
+});
+
+let prefix = 'http';
+if (env.nodeEnv === 'production') {
+	prefix = 'https';
+}
+
+fastify.register(proxy, {
+    upstream: `${prefix}://user-service:${env.user_port}`,
     prefix: '/api/user',
     rewritePrefix: '/',
     body: true,
     http2: false // Security
 });
 
-app.register(proxy, {
-    upstream: `http://game-service:${env.game_port}`,
+fastify.register(proxy, {
+    upstream: `${prefix}://game-service:${env.game_port}`,
     prefix: '/api/games',
     rewritePrefix: '/',
     body: true,
     http2: false
 });
 
-app.register(proxy, {
-    upstream: `http://upload-service:${env.upload_port}`,
+fastify.register(proxy, {
+    upstream: `${prefix}://upload-service:${env.upload_port}`,
     prefix: '/api/avatars',
     rewritePrefix: '/',
     http2: false,
 });
 
-app.register(proxy, {
-    upstream: `http://session-service:${env.session_port}`,
+fastify.register(proxy, {
+    upstream: `${prefix}://session-service:${env.session_port}`,
     prefix: '/api/session',
     rewritePrefix: '/',
     http2: false,
 });
 
-// await app.register(routes);
+fastify.get("/health", async (request, reply) => {
+	console.log("Health check received");
+    return { status: "ok" };
+});
+
+console.log("Routes set"); // debug
 
 // // Default handler for undefined routes
-// app.setNotFoundHandler((req, reply) => {
+// fastify.setNotFoundHandler((req, reply) => {
 //     // Extension = file
 //     if (req.raw.url.includes(".")) {
 //         reply.status(404).send("Not found");
@@ -91,10 +136,10 @@ app.register(proxy, {
 // });
 
 // Fastify listens
-app.listen({ port: env.api_port, host: `${env.ip}` }, (err, address) => {
+fastify.listen({ port: env.api_port, host: `${env.ip}` }, (err, address) => {
     if (err) {
-        app.log.error(err);
+        fastify.log.error(err);
         process.exit(1);
     }
-    app.log.info(`Server running in ${env.nodeEnv} mode at ${address}`);
+    fastify.log.info(`Server running in ${env.nodeEnv} mode at ${address}`);
 });

@@ -1,5 +1,7 @@
 import { getSecret } from "../../index.js";
 import env from "../../../config/env.js";
+import prefix from "../../tools/url.js";
+import tlsAgent from "../../tools/tlsAgent.js";
 
 export async function updateUserStatus(userId, status) {
     if (!userId) {
@@ -12,13 +14,14 @@ export async function updateUserStatus(userId, status) {
 	const api_key = getSecret('api_key');
 
     try {
-		const res = await fetch(`http://session-service:${env.session_port}/status/${userId}`, {
+		const res = await fetch(`${prefix}://session-service:${env.session_port}/status/${userId}`, {
 			method: 'PATCH',
 			headers: { 
 				'Content-Type': 'application/json',
 				'x-internal-api-key': api_key
 			},
 			body: JSON.stringify({ status: status }),
+			dispatcher: tlsAgent
 		});
 		if (res.ok) {
 			return { ok: true };

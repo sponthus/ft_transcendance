@@ -145,7 +145,7 @@ export class GamePhysics {
 					type: "start"
 				}));
 				this._displayName.setNamePlayers(data.playerA, data.playerB);
-				// TODO Morgan : You can get playerA and playerB from data here
+				this.socket?.setPlaying(true);
 				return;
 			}
 			

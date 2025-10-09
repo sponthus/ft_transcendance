@@ -11,10 +11,14 @@
 #  C (country)
 # -nodes = no passphrase
 
+
+
 if env | grep -q "^NODE_ENV=development"; then
 	envsubst '${GAME_WS_PORT} ${SESSION_WS_PORT} ${API_PORT} ${DOMAIN_NAME}' < /etc/nginx/nginx.development.conf.template > /etc/nginx/nginx.conf
+	PREFIX="http"
 else
 	envsubst '${GAME_WS_PORT} ${SESSION_WS_PORT} ${API_PORT} ${DOMAIN_NAME}' < /etc/nginx/nginx.production.conf.template > /etc/nginx/nginx.conf
+	PREFIX="https"
 fi
 
 mkdir -p /etc/nginx/sites-enabled
@@ -24,7 +28,7 @@ if [ ! -f /etc/ssl/$DOMAIN_NAME.key ]; then
 	echo "Key generated"
 fi
 
-if [ ! -f /etc/ssl/transcendance.crt ]; then
+if [ ! -f /etc/ssl/$DOMAIN_NAME.crt ]; then
     openssl req -newkey rsa:4096 \
 	-nodes \
 	-x509 \
@@ -42,5 +46,29 @@ fi
 #chmod -R 755 /app/uploads
 
 echo "Launching nginx"
+
+# Wait for services to be up
+
+until curl -ks ${PREFIX}://api-gateway:${API_PORT}/health; do
+  echo "Waiting for api-gateway..."
+  sleep 10
+done
+
+until curl -ks ${PREFIX}://user-service:${USER_PORT}/health; do
+  echo "Waiting for user-service..."
+  sleep 10
+done
+
+until curl -ks ${PREFIX}://game-service:${GAME_PORT}/health; do
+  echo "Waiting for game-service..."
+  sleep 10
+done
+
+until curl -ks ${PREFIX}://session-service:${SESSION_PORT}/health; do
+  echo "Waiting for session-service..."
+  sleep 10
+done
+
+echo "All services are up, launching nginx"
 
 nginx -g "daemon off;"

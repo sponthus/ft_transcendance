@@ -1,4 +1,4 @@
-import { checkSlugFormat } from "../CheckFormat.js";
+import { checkSlugFormat } from "../tools/CheckFormat.js";
 
 // Gives the status of a user : online, playing, disconnected
 // Security : Road is protected to logged-in users and SQLi

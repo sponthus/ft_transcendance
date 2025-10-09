@@ -7,7 +7,7 @@ export function    checkRegistrationFormat(request)
         type: "object",
         properties:
         {
-            username: { type: "string", minLength: 3, maxLength: 15, pattern: "^(?=.*[a-zA-Z])[^\\[\\]{}();]+$"},
+            username: { type: "string", minLength: 3, maxLength: 15, pattern: "^(?![_-])(?!.*[_-]$)(?=.*[A-Za-z])(?![0-9_]+)[A-Za-z0-9_-]+$"}, // Updated pattern
             password: { type: "string", minLength: 6, maxLength: 15, pattern: "^(?=.*[a-zA-Z])[^\\[\\]{}();]+$"},
         },
         required: ["username", "password"],
@@ -28,7 +28,7 @@ export function    checkUsernameFormat(request)
         type: "object",
         properties:
         {
-            username: { type: "string", minLength: 3, maxLength: 15, pattern: "^(?=.*[a-zA-Z])[^\\[\\]{}();]+$"},
+            username: { type: "string", minLength: 3, maxLength: 15, pattern: "^(?![_-])(?!.*[_-]$)(?=.*[A-Za-z])(?![0-9_]+)[A-Za-z0-9_-]+$"}, // Updated pattern
         },
         required: ["username"],
         additionalProperties: false
@@ -68,7 +68,11 @@ export function    checkSlugFormat(request)
         type: "object",
         properties:
         {
-            slug: { type: "string", minLength: 3, maxLength: 15, pattern: "^(?=.*[a-z])[^A-Z\\[\\]{}();]+$"},
+            slug: { 
+				type: "string", 
+				minLength: 3, 
+				maxLength: 15, 
+				pattern: "^(?![_-])(?!.*[_-]$)(?=.*[a-z])(?![0-9_]+)[a-z0-9_-]+$"}, // Updated pattern
         },
         required: ["slug"],
         additionalProperties: false
