@@ -82,27 +82,25 @@ export async function acceptTournamentInvitation(request, reply) {
 				}
 
 				// Send notification = Tournament is ready to start
-				for (let playerId of players) {
-					const notification = await sendTournamentReady(playerId, ownerUserId, tournamentId, tournamentName);
-					if (notification.ok === false) {
-						console.error("❌ Unable to send tournament ready notification to player ", playerId, ": ", notification.error);
-						const cancelTournament = await db.cancelTournament(tournamentId);
-						if (cancelTournament.ok === false) {
-							console.error("❌ Unable to cancel tournament after failure to send ready notification: ", cancelTournament.error);
-						} else {
-							console.log("Tournament ", tournamentId, " cancelled after failure to send ready notification");
-							// Send notification = Tournament is cancelled
-							const cancelNotification = await sendTournamentCancelation(players, tournamentId, tournamentName);
-							if (cancelNotification.ok === false) {
-								console.error("❌ Unable to send tournament cancelation notification to players ", players, ": ", cancelNotification.error);
-							} else {
-								console.log("❓ Tournament cancelation notification sent to players ", players);
-							}
-							return reply.code(500).send({ error: 'Internal server error'});
-						}
+				const notification = await sendTournamentReady(players, ownerUserId, tournamentId, tournamentName);
+				if (notification.ok === false) {
+					console.error("❌ Unable to send tournament ready notification to player ", playerId, ": ", notification.error);
+					const cancelTournament = await db.cancelTournament(tournamentId);
+					if (cancelTournament.ok === false) {
+						console.error("❌ Unable to cancel tournament after failure to send ready notification: ", cancelTournament.error);
 					} else {
-						console.log("❓ Tournament ready notification sent to player ", playerId);
+						console.log("Tournament ", tournamentId, " cancelled after failure to send ready notification");
+						// Send notification = Tournament is cancelled
+						const cancelNotification = await sendTournamentCancelation(players, tournamentId, tournamentName);
+						if (cancelNotification.ok === false) {
+							console.error("❌ Unable to send tournament cancelation notification to players ", players, ": ", cancelNotification.error);
+						} else {
+							console.log("❓ Tournament cancelation notification sent to players ", players);
+						}
+						return reply.code(500).send({ error: 'Internal server error'});
 					}
+				} else {
+					console.log("❓ Tournament ready notification sent to player ", playerId);
 				}
 				return reply.code(200).send({ message: 'Tournament invitation accepted. All players have accepted, tournament is ready to start.'});
 			} else {
