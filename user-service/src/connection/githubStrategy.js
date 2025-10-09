@@ -16,7 +16,7 @@ export function initOAuthGithub(fastify)
         },
         // du coup pas de reply.send ? ca pose probleme ?
         startRedirectPath: '/oauth/github', //route appeler par le front, pas besoin de fastify.get
-        callbackUri: 'http://localhost:3001/api/user/oauth/github/callback',
+        callbackUri: 'http://localhost:5173/api/user/oauth/github/callback',
     });
 }
 

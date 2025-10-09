@@ -1,4 +1,4 @@
-import { createDiv, createElement, append} from '../../Utils/elementMaker.js';
+import { createDiv, createElement, append, setbackgroundImages} from '../../Utils/elementMaker.js';
 import {getFinishedGames } from '../../api/game-service/games/game.js';
 import { UserInfo } from '../../api/user-service/user-info/getUserInfo.js';
 import { ErrorPopup } from '../ErrorPage.js';
@@ -19,37 +19,34 @@ export async function DisplayHistoryPage(Body: HTMLElement, UserData: UserInfo) 
 			Body.textContent = "there is no games";
 		}
 		else {
-			FillHistory(Body, games, UserData);
+			fillHistoryStubborn(Body);
+			games.map((party: any, i: number) => {
+				if(party.tournament_id == 0)
+					FillHistory(Body, party, i, UserData);});
 		}
-
 	}
 	catch (error) {
 		ErrorPopup("error: " + error);
 	}
 }
 
-export async function FillHistory(Body: HTMLElement, games: any, UserData: UserInfo) {
-	fillStubborn(Body);
-	games.map((party: any, i: number) => {
-		console.log("party = ", party);
-		if (party.tournament_id == 0) {
-			const PartyDiv = createDiv("party-div", "flex items-center h-[30%] w-[100%] hover:bg-orange-400 hover:bg-opacity-50 space-x-8");
+export async function FillHistory(Body: HTMLElement, party: any, index:number, UserData: UserInfo) {
+	console.log("party = ", party);
+	const PartyDiv = createDiv("party-div", "flex items-center h-[30%] w-[100%] hover:bg-orange-400 hover:bg-opacity-50 space-x-8");
 
-			createGameId(PartyDiv, i, party);
-			createPlayers(PartyDiv, i, party);
-			createBeginAt(PartyDiv, i, party);
-			createFinishAt(PartyDiv, i, party);
-			createCreatedAt(PartyDiv, i, party);
-			createCreatedBy(PartyDiv, i, UserData.username);
-			createScore(PartyDiv, i, party);;
-			createWinner(PartyDiv, i, party);
-				
-			append(Body, [PartyDiv]);
-		}
-	})
+	createGameId(PartyDiv, index, party);
+	createPlayers(PartyDiv, index, party);
+	createBeginAt(PartyDiv, index, party);
+	createFinishAt(PartyDiv, index, party);
+	createCreatedAt(PartyDiv, index, party);
+	createCreatedBy(PartyDiv, index, UserData.username);
+	createScore(PartyDiv, index, party);;
+	createWinner(PartyDiv, index, party);
+		
+	append(Body, [PartyDiv]);
 }
 
-function fillStubborn(body: HTMLElement) {
+export function fillHistoryStubborn(body: HTMLElement) {
 	const StubborndDiv = createDiv("Stubborn-div", "flex items-center h-[10%] w-[100%] space-x-8");
 	append(StubborndDiv, [createStubborngameId(), createStubbornPlayer(), createStubbornBeginAt(), createStubbornFinishedAt(), createStubbornCreatedAt(),createStubbornCreatedBy(), createStubbornScore(), createStubbornWinner()]);
 	append(body, [StubborndDiv]);
@@ -58,9 +55,7 @@ function fillStubborn(body: HTMLElement) {
 
 function crateStubbornDiv(textContent: string): HTMLElement {
 	const Div: HTMLElement = createDiv("", "h-full w-[11%] rounded-xl flex items-center justify-center");
-	Div.style.backgroundImage = "url('/game_ui/setting/emptyPan.png')";
-	Div.style.backgroundSize = "100% 100%";
-	Div.style.backgroundPosition = "center";
+	setbackgroundImages(Div, "url('/game_ui/setting/emptyPan.png')");
 	append(Div, [(createElement('p', "stubborn-id", `${textContent}` , "text-orange-200 text-center font-bold") as HTMLElement)])
 	return Div;
 }

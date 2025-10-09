@@ -1,5 +1,6 @@
 import { checkRegistrationFormat } from "../tools/checkFormat.js";
 import { generateUniqueSlug } from "../tools/generateUnique.js";
+import env from '../../config/env.js';
 import bcrypt from "bcrypt";
 import slugify from "slugify";
 
@@ -33,11 +34,14 @@ export default async function registerUser(request, reply)
 
         const idUser = fillInfoUserInDb(db, username, slug, avatar, pw_hash);
         const token = await reply.jwtSign({ idUser, username, slug }, {expiresIn: '1h'});
+        let secure = false;
+            if (env.nodeEnv === 'production')
+                secure = true;
         return reply.code(200).setCookie('token', token,
             {
                 httpOnly: true, //uniquement accessible protole https
                 signed: true,
-                secure: false, //envoyer que si la co est en https
+                secure: secure, //envoyer que si la co est en https
                 path: '/', //Cookie dispo sur tout le site, sinon c'est juste cette route et les sous routes
                 maxAge: 3600000
                 //mettre same site

@@ -20,6 +20,7 @@ export class HomePage extends BasePage {
 		await this.InitDivs();
 		await this.createLogo();
 
+		console.log("IL PASSE PAR LA HOME PAGE");
 		const res = await checkLog();
 		if (res.ok) {
 			await this.renderLogInHome();

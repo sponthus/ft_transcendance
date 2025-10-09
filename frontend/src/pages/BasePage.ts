@@ -4,6 +4,7 @@ import { renderBaseBanner, renderLoggedInBanner, renderLoggedOutBanner } from ".
 import { checkLog } from "../api/user-service/connection/check-log";
 import { getUserInfo } from "../api/user-service/user-info/getUserInfo";
 import { SessionSocket } from "../core/SessionSocket.js";
+import { setbackgroundImages } from "../Utils/elementMaker";
 
 export abstract class BasePage {
     protected app: HTMLElement;
@@ -50,9 +51,7 @@ export abstract class BasePage {
 	protected initBackground(): HTMLElement {
 		const BackgroundHome = document.createElement('div');
 		BackgroundHome.className = "grid grid-col place-items-center h-screen min-h-[1080px] w-screen min-w-[1920px] p-8 overflow-hidden";
-		BackgroundHome.style.backgroundImage = "url('/background1.gif')";
-		BackgroundHome.style.backgroundSize = "cover";
-		BackgroundHome.style.backgroundPosition = "center";
+        setbackgroundImages(BackgroundHome, "url('/background1.gif')");
 		return BackgroundHome;
 	}
     // Optional : does nothing, can be overloaded if needed, to destroy listeners
