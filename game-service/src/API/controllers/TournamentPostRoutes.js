@@ -48,7 +48,7 @@ export async function createTournament(request, reply) {
 		return reply.code(500).send({ error: 'No database connection found.'});
 	}
 
-    console.log('userId = ' + requestingUserId + ' / name ' + name + ' / players ' + players);
+    console.debug('userId = ' + requestingUserId + ' / name ' + name + ' / players ' + players);
     
     try {
 		console.debug("Players = ", players);
