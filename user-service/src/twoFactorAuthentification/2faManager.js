@@ -135,7 +135,6 @@ export async function checkTwoFaCode(request, reply)
                     path: '/', 
                     maxAge: 3600000
                 }).send({ status: status});
-            //return reply.code(200).send({ status: status, token: token });
         }
         return reply.code(200).send({ status: status });
     }
