@@ -9,6 +9,7 @@ export type TournamentsInfos = {
 	name: string;
 	next_game: number;
 	created_at: string;
+	created_by: string;
 	began_at: string;
 	finished_at: string;
 	winner: string;
@@ -27,6 +28,8 @@ export type GameInfos = {
     player_b: string;
     score_a: number;
     score_b: number;
+	created_at: string;
+	created_by: string;
     began_at: string;
     finished_at: string;
     winner: string;
@@ -90,18 +93,21 @@ export async function getAvailableTournaments(slug: string): Promise<Tournaments
 		}
 		const pendingTournaments: TournamentsInfos[] = allTournamentsResult.tournaments
 			.filter(tournament => tournament.status === 'pending' || tournament.status === 'invitations' || tournament.status === 'between_games')
+			.filter(tournament => tournament.created_by && tournament.created_by.slice(1) == slug) // Exclude tournaments not created by the user
 			.map(tournament => ({
 				id: tournament.id,
 				status: tournament.status,
 				name: tournament.name,
 				next_game: tournament.next_game,
 				created_at: tournament.created_at,
+				created_by: tournament.created_by,
 				began_at: tournament.began_at,
 				finished_at: tournament.finished_at,
 				winner: tournament.winner,
 				option: tournament.option
 			}));
-
+		console.log("Available Tournaments : ");
+		console.log(pendingTournaments);
 		return { ok: true, tournaments: pendingTournaments };
 
 	} catch (error) {
@@ -127,12 +133,14 @@ export async function getFinishedTournaments(slug: string): Promise<TournamentsR
 				name: tournament.name,
 				next_game: tournament.next_game,
 				created_at: tournament.created_at,
+				created_by: tournament.created_by,
 				began_at: tournament.began_at,
 				finished_at: tournament.finished_at,
 				winner: tournament.winner,
 				option: tournament.option
 			}));
-
+		console.log("Finished Tournaments : ");
+		console.log(finishedTournaments);
 		return { ok: true, tournaments: finishedTournaments };
 
 	} catch (error) {
@@ -165,7 +173,8 @@ export async function getTournamentMatches(tournamentId: number): Promise<Tourna
         }
 
         const games: GameInfos[] = await response.json();
-
+		console.log("Matches : ");
+		console.log(games);
         return { ok: true, matches: games };
 
     } catch (error) {

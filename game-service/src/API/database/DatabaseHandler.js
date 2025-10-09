@@ -432,18 +432,32 @@ export default class DatabaseHandler {
 
 	// Gives all informations except userId
 	getTournamentsForUserId(userId) {
-		const transaction = this.db.transaction((userId) => {
-			const stmt = this.db.prepare(`
-	SELECT id, status, name, next_game, created_at, began_at, finished_at, winner, option
-	FROM tournaments
-	WHERE id_user = ?
-	ORDER BY created_at DESC
-			`);
-			const results = stmt.all(userId);
-			return (results);
-		});
-		const results = transaction(userId);
-		return (results);
+        const transaction = this.db.transaction((userId) => {
+            const stmtCreated = this.db.prepare(`
+    SELECT id, status, name, next_game, created_at, began_at, finished_at, winner, option, id_user AS created_by
+    FROM tournaments
+    WHERE id_user = ?
+            `); // created by user
+            const created = stmtCreated.all(userId);
+
+            const stmtJoined = this.db.prepare(`
+    SELECT t.id, t.status, t.name, t.next_game, t.created_at, t.began_at, t.finished_at, t.winner, t.option, t.id_user AS created_by
+    FROM tournaments t
+    JOIN tournament_players tp ON tp.tournament_id = t.id
+    WHERE tp.name = ? AND t.id_user != ?
+            `); // user is player not creator
+            const joined = stmtJoined.all(`@${userId}`, userId);
+
+            const combined = created.concat(joined);
+            combined.sort((a, b) => {
+                const da = new Date(a.created_at || 0).getTime();
+                const db = new Date(b.created_at || 0).getTime();
+                return db - da;
+            });
+            return (combined);
+        });
+        const results = transaction(userId);
+        return (results);
     }
 
 	getMatchesForTournamentId(tournamentId) {
@@ -451,6 +465,7 @@ export default class DatabaseHandler {
 			const stmt = this.db.prepare(`
 	SELECT
 		g.id,
+		g.id_user AS created_by,
 		tm.round,
 		tm.match_number AS match,
 		g.status,
@@ -459,6 +474,7 @@ export default class DatabaseHandler {
 		g.score_a,
 		g.score_b,
 		g.began_at,
+		g.created_at,
 		g.finished_at,
 		g.winner,
 		g.score,

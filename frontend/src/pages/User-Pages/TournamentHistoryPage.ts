@@ -1,5 +1,5 @@
 import { createDiv, createElement, createButton, createDropdownDiv, createFormDiv, createCheckBoxLabel, append, setbackgroundImages} from '../../Utils/elementMaker.js';
-import { getAllTournaments, getTournamentMatches, GameInfos } from '../../api/game-service/tournaments/getTournaments.js';
+import { getAllTournaments, getTournamentMatches, GameInfos, getFinishedTournaments } from '../../api/game-service/tournaments/getTournaments.js';
 import { UserInfo } from '../../api/user-service/user-info/getUserInfo.js';
 import { FillHistory } from './HistoryPage.js';
 import { ErrorPopup } from '../ErrorPage.js';
@@ -11,7 +11,7 @@ export async function DisplayeTournamentHistoryPage(Body: HTMLElement, UserData:
 	isopen = false;
 	Body.className = "flex flex-col items-center bg-orange-300  bg-opacity-50 w-full h-[60%] flex overflow-auto";
 	try {
-		const res = await getAllTournaments(UserData.slug!);
+		const res = await getFinishedTournaments(UserData.slug!);
 		if (!res.ok) {
 			Body.textContent = "Error loading games... please retry ";
 			return ;
@@ -52,7 +52,8 @@ async function FillPartyTournament(Body: HTMLElement, games:any, UserData: UserI
 		const data = await getTournamentMatches(games.id!);
 		if (data.ok) {
 			const Matchs = data.matches;
-			Matchs.map((mach: GameInfos, i: number) => {FillHistory(Body, Matchs,i, UserData);});
+			console.log("Matchs = ", Matchs);
+			Matchs.map((match: GameInfos, i: number) => {FillHistory(Body, match,i, UserData);});
 		}
 	} catch(error) {
 		ErrorPopup(error as string);
