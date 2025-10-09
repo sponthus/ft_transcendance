@@ -5,12 +5,12 @@ import tlsAgent from "../../tools/tlsAgent.js";
 
 // TODO tests
 // TODO Elodie : change URL when ready
-export async function sendTournamentReady(userId, inviterId, tournamentId, tournamentName) {
-	if (!userId || !inviterId || !tournamentId || !tournamentName) {
+export async function sendTournamentReady(userIds, inviterId, tournamentId, tournamentName) {
+	if (!userIds || !inviterId || !tournamentId || !tournamentName) {
 		console.error("❌ Error while sending tournament ready notification: missing parameters");
 		return { ok: false, error: "Error while sending tournament ready notification: missing parameters"};
 	}
-	console.log(`➡️ Sending notification for a tournament ready to ${userId} from ${inviterId} about tournament ${tournamentId}`);
+	console.log(`➡️ Sending notification for a tournament ready to ${userIds} from ${inviterId} about tournament ${tournamentId}`);
 
 	const api_key = getSecret('api_key');
 	try {
@@ -23,6 +23,7 @@ export async function sendTournamentReady(userId, inviterId, tournamentId, tourn
 		// 	body : JSON.stringify({
 				// type: "ready",
 				// inviterId: inviterId,
+				// inviteeId: userIds,
 				// tournamentId: tournamentId,
 				// tournamentName: tournamentName
 		// 	}),

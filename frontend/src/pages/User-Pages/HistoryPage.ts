@@ -39,7 +39,7 @@ export async function FillHistory(Body: HTMLElement, party: any, index:number, U
 	createBeginAt(PartyDiv, index, party);
 	createFinishAt(PartyDiv, index, party);
 	createCreatedAt(PartyDiv, index, party);
-	createCreatedBy(PartyDiv, index, UserData.username);
+	createCreatedBy(PartyDiv, index, party);
 	createScore(PartyDiv, index, party);;
 	createWinner(PartyDiv, index, party);
 		
@@ -141,9 +141,9 @@ function createCreatedAt(PartyDiv: HTMLElement, i: number, Party: any) {
 	append(PartyDiv, [CreatedAtDivs]);
 }
 
-function createCreatedBy(PartyDiv: HTMLElement, i: number, UserName: string) {
+function createCreatedBy(PartyDiv: HTMLElement, i: number, Party: any) {
 	const CreatedBytDivs = createHistoryDiv("created-by" + i.toString()) as HTMLElement;
-	append(CreatedBytDivs, [(createElement('h2', "created" + i.toString(), `${UserName}` , "text-emerald-600 text-center") as HTMLElement)]);
+	append(CreatedBytDivs, [(createElement('h2', "created" + i.toString(), `${Party.created_by}` , "text-emerald-600 text-center") as HTMLElement)]);
 
 	append(PartyDiv, [CreatedBytDivs]);
 }

@@ -22,7 +22,7 @@ export async function sendTournamentInvitation(userId, inviterId, tournamentId, 
 		// 	},
 		// 	body : JSON.stringify({
 		//		type: "invitation",
-		// 		inviteeId: inviteeId,
+		// 		inviteeId: userId,
 		// 		inviterId: inviterId,
 		// 		tournamentId: tournamentId,
 		// 		tournamentName: tournamentName
