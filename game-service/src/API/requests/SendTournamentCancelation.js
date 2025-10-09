@@ -10,7 +10,7 @@ export async function sendTournamentCancelation(playersIds, tournamentId, tourna
 		console.error("❌ Error while sending tournament cancelation notification: missing parameters");
 		return { ok: false, error: "Error while sending tournament cancelation notification: missing parameters"};
 	}
-	console.log(`➡️ Sending notification for a tournament cancelation to ${ownerId} from ${refusingId} about tournament ${tournamentId}`);
+	console.log(`➡️ Sending notification for a tournament cancelation to ${playersIds} about tournament ${tournamentId} ${tournamentName}`);
 
 	const api_key = getSecret('api_key');
 	try {
@@ -29,11 +29,11 @@ export async function sendTournamentCancelation(playersIds, tournamentId, tourna
 			dispatcher: tlsAgent
 		});
 		const data = await res.json();
-		if (res.ok) {
+		if (res.ok)
 			return { ok: true };
-		} 
 		return { ok: false, error: data.error };
-	} catch (error) {
+	}
+	catch (error) {
 		console.error("❌ Error while sending tournament cancelation notice: ", error);
 		return { ok: false, error: "Internal error while sending tournament cancelation notice"};
 	}

@@ -35,10 +35,13 @@ export async function acceptTournamentInvitation(request, reply) {
 
 	try {
 		const result = await db.acceptTournamentInvitation(acceptingUserId, tournamentId);
+		console.debug(result);
 		if (result.ok === false) {
-			console.log("❌ Unable to accept tournament invitation: ", result.error);
+			console.log(`❌ Unable to accept tournament invitation: /${result.error}/`);
 			switch (result.error) {
-				case "not found":
+				case "Player not found in this tournament":
+					return reply.code(404).send({ error: result.error });
+				case "Tournament not found":
 					return reply.code(404).send({ error: result.error });
 				case "Player already accepted invitation":
 					return reply.code(409).send({ error: result.error });
@@ -84,7 +87,7 @@ export async function acceptTournamentInvitation(request, reply) {
 				// Send notification = Tournament is ready to start
 				const notification = await sendTournamentReady(players, ownerUserId, tournamentId, tournamentName);
 				if (notification.ok === false) {
-					console.error("❌ Unable to send tournament ready notification to player ", players, ": ", notification.error);
+					console.error("❌ Unable to send tournament ready notification to players ", players, ": ", notification.error);
 					const cancelTournament = await db.cancelTournament(tournamentId);
 					if (cancelTournament.ok === false) {
 						console.error("❌ Unable to cancel tournament after failure to send ready notification: ", cancelTournament.error);
@@ -100,7 +103,7 @@ export async function acceptTournamentInvitation(request, reply) {
 						return reply.code(500).send({ error: 'Internal server error'});
 					}
 				} else {
-					console.log("❓ Tournament ready notification sent to player ", players);
+					console.log("❓ Tournament ready notification sent to players ", players);
 				}
 				return reply.code(200).send({ message: 'Tournament invitation accepted. All players have accepted, tournament is ready to start.'});
 			} else {
@@ -147,7 +150,7 @@ export async function declineTournamentInvitation(request, reply) {
 	try {
 		const result = await db.declineTournamentInvitation(refusingUserId, tournamentId);
 		if (result.ok === false) {
-			console.error("❌ Unable to decline tournament invitation: ", result.error);
+			console.error(`❌ Unable to decline tournament invitation: /${result.error}/`);
 			switch (result.error) {
 				case "Tournament not found":
 					return reply.code(404).send({ error: result.error });
@@ -156,7 +159,7 @@ export async function declineTournamentInvitation(request, reply) {
 				case "Player does not need to accept or refuse invitation":
 					return reply.code(400).send({ error: result.error });
 				case "Tournament is not in a state of invitations":
-					return reply.code(400).send({ error: result.error + " (" + result.state + ")" });
+					return reply.code(400).send({ error: result.error });
 				case "Player already accepted invitation, cannot go back":
 					return reply.code(400).send({ error: result.error });
 				case "Player already accepted or declined invitation":
