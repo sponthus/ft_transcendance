@@ -71,7 +71,7 @@ export function    checkSlugFormat(request)
             slug: { 
 				type: "string", 
 				minLength: 3, 
-				maxLength: 15, 
+				maxLength: 20, 
 				pattern: "^(?![_-])(?!.*[_-]$)(?=.*[a-z])(?![0-9_]+)[a-z0-9_-]+$"}, // Updated pattern
         },
         required: ["slug"],
