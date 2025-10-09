@@ -96,7 +96,12 @@ export class TournamentPage {
 
 		const containerInput: HTMLElement = createDiv(`container-input-${index + 1}`, 'flex flex-col items-center h-full w-[70%] translate-y-2')
 		const PlayerInput: HTMLInputElement = createInput(['', `player-${index + 1}`, '', true], `player-${index + 1}`, 'h-[50%] w-full');
-		PlayerInput.value = `Player ${(index + 1).toString()}`;
+		if (index === 0){
+			PlayerInput.value = this.Username;
+			PlayerInput.readOnly = true;
+		}
+		else
+			PlayerInput.value = `Player ${(index + 1).toString()}`;
 		this.nameMap.set(index + 1, PlayerInput);
 		const Div: HTMLElement = createDiv(`user-${index + 1}`, 'flex flex-col bg-white border-2 h-[50%] w-full overflow-y-scroll opacity-0 hidden')
 		append(containerInput, [PlayerInput, Div]);
@@ -181,6 +186,10 @@ export class TournamentPage {
 			this.TournamentPan.classList.remove('translate-x-96');
 			btnDiv.classList.remove('-translate-x-96');
 		}, 300);
+	}
+
+	async renderWaitinScreen(IdTournament: number) {
+
 	}
 
 	async renderBracket(IdTournament: number) {

@@ -10,7 +10,7 @@ import { createTournament } from "../../api/game-service/tournaments/newTourname
 import { ErrorPopup } from '../ErrorPage.js';
 import { AllUsers, getAllUsers } from '../../api/user-service/menu/getAllUsers.js';
 
-export enum PageState {MOD = 0, TOURNAMENT = 1, PARTY = 2, LOCALSETTING = 3, NEWTOURNAMENT = 4, CONTINUETOURNAMENT = 5, BRACKET = 6, WIN = 7};
+export enum PageState {MOD = 0, TOURNAMENT = 1, PARTY = 2, LOCALSETTING = 3, NEWTOURNAMENT = 4, CONTINUETOURNAMENT = 5, BRACKET = 6, WAITING = 7, WIN = 8};
 type USer = {slug: string, username: string};
 
 export class Event {
@@ -30,7 +30,6 @@ export class Event {
 		this.TournamentPage = TournamentPage;
 		this.GamePage = GamePage;
 		this.LaunchPong = new launchPong(this.GamePage._render, this.GamePage);
-		// this.TournamentNameMap = new Map<string, string>();
 	}
 
 	render() {
@@ -326,8 +325,7 @@ export class Event {
 				throw new Error("Please enter a tournament name.");
 			const res = await createTournament(this.TournamentPage._tournamentName.value, PlayersNames, this.TournamentPage._option);
 			if (res.ok) {
-				console.log('res tournament : ', res.tournament);
-				console.log('id tournament : ', res.tournament.tournament_id);
+				console.log(res);
 				this.setStatePage = PageState.BRACKET;
 				this.GamePage.generateBracketTournament(res.tournament.tournament_id);
 			}
