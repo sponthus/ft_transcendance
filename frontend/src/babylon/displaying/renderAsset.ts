@@ -35,13 +35,26 @@ export class renderAsset {
 	}
 
 	public async _load(): Promise<void> {
-	
+		
+		await this._loadGround();
 		await this._loadPlayer();
 		await this._loadNpc();
 		await this._loadSanCastle();
 		await this._loadChest();
 		await this._loadMap();
 		await this.__loadStageSet();
+	}
+
+	private async _loadGround(){
+		const ground = BABYLON.MeshBuilder.CreateGround("ground", {width:100, height:100, subdivisions: 4}, this._scene);
+		ground.position = new BABYLON.Vector3(0, -0.5 , 0);
+		ground.checkCollisions = true;
+
+		const groundMaterial = new BABYLON.StandardMaterial("ground-material", this._scene);
+		groundMaterial.alpha = 0.0;
+		groundMaterial.transparencyMode = BABYLON.Material.MATERIAL_ALPHABLEND;
+
+		ground.material = groundMaterial;
 	}
 
 	private async _loadPlayer() {
@@ -85,8 +98,8 @@ export class renderAsset {
 		this._addColisionForEach(result);
 		this._setUpMesh(result, BABYLON.Vector3.Zero(), 2);
 		this._npc = result.meshes[0] as BABYLON.Mesh;
-		this._npc.rotation = new BABYLON.Vector3(0, -1, 0);
-		this._npc.position = new BABYLON.Vector3(-20, 0, 0);
+		this._npc.rotation = new BABYLON.Vector3(0, 1, 0);
+		this._npc.position = new BABYLON.Vector3(35, 0, -10);
 	}
 
 	private async _loadSanCastle() {
@@ -95,7 +108,7 @@ export class renderAsset {
 		this._addColisionForEach(result);
 		this._sandcastle = result.meshes[0] as BABYLON.Mesh;
 		this._sandcastle.scaling.scaleInPlace(0.3);
-		this._sandcastle.position = new BABYLON.Vector3(35, 1, -10);
+		this._sandcastle.position = new BABYLON.Vector3(-25, 1, -25);
 		this._sandcastle.rotation = new BABYLON.Vector3(0, 0, 0);	
 	}
 

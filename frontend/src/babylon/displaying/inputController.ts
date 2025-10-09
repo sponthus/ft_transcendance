@@ -49,43 +49,51 @@ export class PlayerInput {
 	private _setInput() {
 		/**********************check event***********************/
 		this._scene!.actionManager = new BABYLON.ActionManager(this._scene);
+
 		this._scene!.actionManager.registerAction(
 			new BABYLON.ExecuteCodeAction(BABYLON.ActionManager.OnKeyDownTrigger, evt => {
 				this._inputMap[evt.sourceEvent.key.toLowerCase()] = true; }));
+	
 		this._scene!.actionManager.registerAction(
 			new BABYLON.ExecuteCodeAction(BABYLON.ActionManager.OnKeyUpTrigger, evt => {
-				this._inputMap[evt.sourceEvent.key.toLowerCase()] = false;
-			}));
-		this._scene?.onBeforeRenderObservable.add(() => {
-			this._updateFromKeyboard();
-			this._interactsandCastle();
-			this._interactNpc();
-			this._interactChest();
+				this._inputMap[evt.sourceEvent.key.toLowerCase()] = false;}));
+
+		this._scene?.onBeforeRenderObservable.add(async() => {
+			await this._updateFromKeyboard();
+			await this._interactsandCastle();
+			await this._interactNpc();
+			await this._interactChest();
 		});
 	}
 
-	private _updateFromKeyboard() {
+	private async _updateFromKeyboard() {
 		if (!this._player)
 		    return ;
 		const speed = 0.2;
+
 		let move = new BABYLON.Vector3(0, 0, 0);
 		let direction = BABYLON.Vector3.Zero();
+
 		if (this._inputMap['w'] || this._inputMap["arrowup"]) {
 			direction.x += 1;
 			move.z += speed;
 		}
+	
 		if (this._inputMap['s'] || this._inputMap["arrowdown"]) {
 			direction.x -= 1;
 			move.z -= speed;
 		}
+	
 		if (this._inputMap['a'] || this._inputMap["arrowleft"]) {
 			direction.z += 1;
 			move.x -= speed;
 		}
+
 		if (this._inputMap['d'] || this._inputMap["arrowright"]) {
 			direction.z -= 1;
 			move.x += speed;
 		}
+
 		var tmp = this._player.position;
 		tmp.add(move);
 		if (direction.equals(BABYLON.Vector3.Zero())) {
@@ -112,13 +120,15 @@ export class PlayerInput {
 		const proximityThreshold = 10;
 		if (this._player && this._sandCastle) {
 			const distance = BABYLON.Vector3.Distance(this._sandCastle.position, this._player.position);
+			if (distance > proximityThreshold && this._dialoguePong?._isvisible()) {
+				this._dialoguePong!.hideDialogue();
+				this._dialoguePong.clearDialogue();
+			}
+			else if (distance > proximityThreshold)
+				return ;
 			if (distance < proximityThreshold && !this._dialoguePong?._isvisible()) {
 				this._dialoguePong!.showDialogue();
 				console.log("showing dialogue", this._dialoguePong?._isvisible());
-			}
-			else if (distance > proximityThreshold && this._dialoguePong?._isvisible()) {
-				this._dialoguePong!.hideDialogue();
-				this._dialoguePong.clearDialogue();
 			}
 			if (this._dialoguePong?._isvisible()) {
 				if (this._inputMap['e'] ||  this._inputMap['E']){
@@ -128,9 +138,6 @@ export class PlayerInput {
 					this._inputMap['e'] = false;
 					this._inputMap['E'] = false;
 					this._renderscene.setState = 1;
-					// this._scene?.getEngine().displayLoadingUI();
-					// await sleep(500);
-					// this._scene?.getEngine().hideLoadingUI();
 				}
 			}
 		}
@@ -141,35 +148,36 @@ export class PlayerInput {
 		if (this._player && this._npc) {
 			const distance = BABYLON.Vector3.Distance(this._player.position, this._npc.getAbsolutePosition())
 			// console.log("distance between player and npc", distance);
-			if (distance < proximityThreshold && !this._dialogueNpc?._isvisible()) {
+			if (distance > proximityThreshold) {
+				this._dialogueNpc?.hideDialogue();
+				this._dialogueNpc?.changeDialogue("Hi friend !");
+				return ;
+			}
+			else if (distance < proximityThreshold && !this._dialogueNpc?._isvisible()) {
 				this._dialogueNpc?.showDialogue();
 				await sleep(2000);
 				if (this._dialogueNpc?.msg != "How are you\n today ?")
 					this._dialogueNpc?.changeDialogue("How are you\n today ?");
 			}
-			else if (distance > proximityThreshold) {
-				this._dialogueNpc?.hideDialogue();
-				this._dialogueNpc?.changeDialogue("Hi friend !");
-				await sleep(5000);
-			}
 		}
 	}
 
-	private _interactChest() {
+	private async _interactChest() {
 		const proximityThreshold = 5;
 		if (this._player && this._chest) {
-			const distance = BABYLON.Vector3.Distance(this._player.position, this._chest.position) 
-			// console.log("distance between player and chest", distance, this._dialogueChest?._isvisible);
-			if (distance < proximityThreshold && !this._dialogueChest?._isvisible()) {
-				console.log('showing chest dialogue');
-				this._dialogueChest.showDialogue();
-			}
-			else if (distance > proximityThreshold) {
+			const distance = BABYLON.Vector3.Distance(this._player.position, this._chest.position);
+			if (distance > proximityThreshold) {
 				this._dialogueChest.hideDialogue();
 				if (this._isOpen) {
 					this._animation.startClose();
 					this._isOpen = false;
 				}
+				return;
+			}
+			// console.log("distance between player and chest", distance, this._dialogueChest?._isvisible);
+			else if (distance < proximityThreshold && !this._dialogueChest?._isvisible()) {
+				console.log('showing chest dialogue');
+				this._dialogueChest.showDialogue();
 			}
 			if (this._dialogueChest?._isvisible()) {
 				if (this._inputMap['e'] ||  this._inputMap['E']) {

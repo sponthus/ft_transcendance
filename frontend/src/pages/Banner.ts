@@ -139,7 +139,7 @@ function setAvatarLoginUserInfo(userData: UserInfo) {
 async function SetUserImg(userIcon: HTMLElement, userData: UserInfo) {
 	console.log(`user data = ` + JSON.stringify(userData));
 	const avatar: string = userData.avatar;
-	const srcImg: string = `https://localhost:4443/uploads/${avatar}`; // problem firefox https autosignate certificate 
+	const srcImg: string = `https://localhost:4443/uploads/${avatar}`;
 
 	append(userIcon, [(createImage('user', 'w-12 h-12 rounded-full object-cover object-center', srcImg) as HTMLImageElement)]);
 }

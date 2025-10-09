@@ -9,6 +9,7 @@ import { getUserInfo } from "../../api/user-service/user-info/getUserInfo.js";
 import { createTournament } from "../../api/game-service/tournaments/newTournament.js";
 import { ErrorPopup } from '../ErrorPage.js';
 import { AllUsers, getAllUsers } from '../../api/user-service/menu/getAllUsers.js';
+import { SessionSocket } from '../../core/SessionSocket.js';
 
 export enum PageState {MOD = 0, TOURNAMENT = 1, PARTY = 2, LOCALSETTING = 3, NEWTOURNAMENT = 4, CONTINUETOURNAMENT = 5, BRACKET = 6, WAITING = 7, WIN = 8};
 type USer = {slug: string, username: string};
@@ -329,8 +330,15 @@ export class Event {
 				throw new Error("Please enter a tournament name.");
 			const res = await createTournament(this.TournamentPage._tournamentName.value, PlayersNames, this.TournamentPage._option);
 			if (res.ok) {
-				this.setStatePage = PageState.BRACKET;
-				this.GamePage.generateBracketTournament(res.tournament.tournament_id);
+				console.log(res);
+				if (res.tournament.status === "invitations") {
+					this.StatePage = PageState.WAITING;
+					this.GamePage.generateWaitingScreen(res.tournament.tournament_id);
+				}
+				else {
+					this.setStatePage = PageState.BRACKET;
+					this.GamePage.generateBracketTournament(res.tournament.tournament_id);
+				}
 			}
 			if (!res.ok)
 				throw new Error(res.error);

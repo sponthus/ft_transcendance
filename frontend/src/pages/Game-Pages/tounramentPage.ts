@@ -189,8 +189,30 @@ export class TournamentPage {
 		}, 300);
 	}
 
-	async renderWaitinScreen(IdTournament: number) {
-		
+	async renderWaitingScreen(IdTournament: number) {
+		this.Page.innerHTML = `<div class="flex flex-col h-full w-full items-center justify-center space-y-16">
+ 											<div class="">
+												<img class="mx-auto object-cover rounded-full object-center h-32 w-18 transition-all duration-200 transform animate-wiggle" src="/logo/logoIlsandWorld.png">
+												</img>
+												<h1 class="animate-typing  overflow-hidden whitespace-nowrap border-r-4 border-r-white pr-5 text-5xl text-emerald-600 font-bold">
+													waiting ...
+												</h1>
+											</div>
+											<div>
+												<h2 class="animate-bounce text-emerald-600 font-bold text-2xl h-hull w-full">
+													Waiting for all users to be ready ready
+												</h2>
+											</div>
+										</div>`;
+	
+		this.BackBtn = (createButton("return", "relative flex items-center z-5 active:scale-95 hover:scale-105 h-[10%] w-[20%] transition-transform duration-200 ease-out top-16 left-32 -translate-x-96", "") as HTMLButtonElement);
+		append(this.PlayBtn, [createImage('Play', 'absolute object-center h-full w-full', 'game_ui/Playebtn.png')]);
+		append(this.Page, [this.BackBtn]);
+
+		this.Page.className = "flex flex-col items-center w-full h-full transition-all duration-300 rounded-xl space-y-4";
+		setTimeout(async => {
+			this.BackBtn.classList.remove('-translate-x-96');
+		}, 300);
 	}
 
 	async renderBracket(IdTournament: number) {
@@ -229,14 +251,6 @@ export class TournamentPage {
 				this.createFinal(3, data.matches[2]);
 				this.createRound2(2, data.matches[1]);
 			} 
-			// else if (numberOfMatches == 7) 
-			// {
-			// 	this.createRound1([1, 2], [data.matches[0], data.matches[1]]);/** match 1**//** round 2**/
-			// 	this.createRound2(5, data.matches[4]/** match 5**/);
-			// 	this.createFinal(7, data.matches[6]/** match 7**/);
-			// 	this.createRound2(4, data.matches[5]/** match 6**/);
-			// 	this.createRound1([3, 4], [data.matches[2], data.matches[3]]);/** match 3**//** match 4**/
-			// }
 			append(this.Page, [this.TournamentPan]);
 			this.findNextRound();
 		} catch (error) {

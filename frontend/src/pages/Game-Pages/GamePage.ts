@@ -121,6 +121,17 @@ export class GamePage extends popUp {
 		} , 300);
 	}
 
+	async generateWaitingScreen(IdTournament: number) {
+		this._Body.className = "relative flex flex-col items-center justify-center  h-[90%] w-[50%] transition-all duration-300 rounded-xl shadow-2xl";
+		this.Page.className = "flex flex-col items-center w-full h-full transition-all opacity-0 duration-300 rounded-xl space-y-4";
+		setTimeout(async() => {
+			this.cleanPage();
+			this.TournamentPage.renderWaitingScreen(IdTournament);
+			// manage Event waiting
+
+		},300);
+	}
+
 	async generateBracketTournament(IdTournament: number) {
 		this._Body.className = "relative flex flex-col items-center justify-center  h-[90%] w-[50%] transition-all duration-300 rounded-xl shadow-2xl";
 		this.Page.className = "flex flex-col items-center w-full h-full transition-all opacity-0 duration-300 rounded-xl space-y-4";
@@ -128,7 +139,6 @@ export class GamePage extends popUp {
 			this.cleanPage();
 			this.TournamentPage.renderBracket(IdTournament);
 			this.Event.manageBracketEvent();
-			// manage new tournament event
 		} , 300);
 	}
 

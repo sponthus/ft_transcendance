@@ -249,14 +249,18 @@ export class DisplayAssets {
 		this._waterMaterial = new WaterMaterial("water_material", this._scene, new Vector2(512, 512));
 
 		this._waterMaterial.bumpTexture = new Texture("/asset/pic/26672.jpg", this._scene);
-		this._waterMaterial.bumpHeight = 1;
+		this._waterMaterial.bumpHeight = 9;
+		this._waterMaterial.bumpAffectsReflection = true;
+		this._waterMaterial.bumpSuperimpose = true;
+
 		this._waterMaterial.windForce = 1;
-		
+		this._waterMaterial.windDirection = new Vector2(-1, 0);
+
 		this._waterMaterial.waveHeight = 0.5;
 		this._waterMaterial.waveLength = 0.05;
 		this._waterMaterial.waterColor = new Color3(0.1, 0.4, 1.4);
 		this._waterMaterial.colorBlendFactor = 0.1;
-
+		this._waterMaterial.alpha = 1.6;
 		// Pour les reflets, on ajoute simplement les objets visibles à la liste de rendu
 		if (this._skybox) this._waterMaterial.addToRenderList(this._skybox);
 

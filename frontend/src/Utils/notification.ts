@@ -117,7 +117,7 @@ function createSlidingNotificationPan(): HTMLElement {
 
 async function fillUSerInfo(request: AllNotifs, parent: HTMLElement){
 	try {
-		const req = await getUserInfoBySlug(request.username); // replace by slug
+		const req = await getUserInfoBySlug(request.slug); // replace by slug
 		if (req.ok) {
 			userData = req.userInfo;
 			console.log("request is  = ", request.notif_type);
