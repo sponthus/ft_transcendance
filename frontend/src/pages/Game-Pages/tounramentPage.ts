@@ -189,7 +189,7 @@ export class TournamentPage {
 	}
 
 	async renderWaitinScreen(IdTournament: number) {
-
+		
 	}
 
 	async renderBracket(IdTournament: number) {

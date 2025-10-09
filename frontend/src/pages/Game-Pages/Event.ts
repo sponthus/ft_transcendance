@@ -261,7 +261,12 @@ export class Event {
 
 	private async searchUSer() {
 		this.TournamentPage._nameMap.forEach((value, key) => {
-			this.TournamentNameMap[key - 1] = ({slug: value.value, username: value.value});
+			if (key === 1) {
+				this.UserTab.forEach(users => {
+					if (value.value === users.username)
+						this.TournamentNameMap[key - 1] = ({slug: '@'+ users.slug, username: users.username});})}
+			else
+				this.TournamentNameMap[key - 1] = ({slug: value.value, username: value.value});
 			value.addEventListener('input', () => {
 				const div = document.getElementById(`user-${key}-div`);
 				if (value.value[0] == '@' && value.value.length > 1) {
@@ -317,18 +322,18 @@ export class Event {
 		/**************add Players Names in one string**************/
 		let PlayersNames: string[] = [];
 		this.TournamentNameMap.forEach(name => {PlayersNames.push(name.slug)});
-
-		/**************check tournament name**************/
+		console.log(PlayersNames);
 
 		try {
 			if (!this.TournamentPage._tournamentName.value)
 				throw new Error("Please enter a tournament name.");
 			const res = await createTournament(this.TournamentPage._tournamentName.value, PlayersNames, this.TournamentPage._option);
 			if (res.ok) {
-				console.log(res);
 				this.setStatePage = PageState.BRACKET;
 				this.GamePage.generateBracketTournament(res.tournament.tournament_id);
 			}
+			if (!res.ok)
+				throw new Error(res.error);
 		} catch (error) {
 			ErrorPopup(error as string);
 		}

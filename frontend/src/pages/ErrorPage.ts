@@ -12,7 +12,7 @@ export function ErrorPopup(Error: string) {
 	const Div: HTMLElement = createDiv('error', 'border-2 p-4 border-red-500 flex items-center justify-center');
 	append(Div, [createElement('p', 'error', Error, 'text-red-500')]);
 
-	const Btn: HTMLButtonElement = createButton('ok', 'bg-red-500 p-2 rounded-full text-white hover:scale-105 active:scale-95 transition-all duration-300', 'ok');
+	const Btn: HTMLButtonElement = createButton(`ok-${Error}`, 'bg-red-500 p-2 rounded-full text-white hover:scale-105 active:scale-95 transition-all duration-300', 'ok');
 
 	ErrPopup.appendsToBody([Div, Btn]);
 	ErrPopup.addOverlayToWindow();
