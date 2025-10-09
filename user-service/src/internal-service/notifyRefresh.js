@@ -1,5 +1,5 @@
 import env from "../../config/env.js";
-import { getSecret } from "../index.js";
+import { getSecret } from "../../index.js";
 
 export async function notifyRefresh(idReceiver, sender, message) 
 {
