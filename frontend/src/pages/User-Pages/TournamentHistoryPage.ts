@@ -32,7 +32,7 @@ export async function DisplayeTournamentHistoryPage(Body: HTMLElement, UserData:
 					createBeginAt(PartyDiv, i, party);
 					createFinishAt(PartyDiv, i, party);
 					createCreatedAt(PartyDiv, i, party);
-					createCreatedBy(PartyDiv, i, UserData.username);
+					createCreatedBy(PartyDiv, i, party);
 					createWinner(PartyDiv, i, party);
 					
 					btnsMap.set(PartyDiv, PartyPan);
@@ -137,9 +137,9 @@ function createCreatedAt(PartyDiv: HTMLElement, i: number, Party: any) {
 	append(PartyDiv, [CreatedAtDivs]);
 }
 
-function createCreatedBy(PartyDiv: HTMLElement, i: number, UserName: string) {
+function createCreatedBy(PartyDiv: HTMLElement, i: number, Party: any) {
 	const CreatedBytDivs = createHistoryDiv("created-by" + i.toString()) as HTMLElement;
-	append(CreatedBytDivs, [(createElement('h2', "created" + i.toString(), `${UserName}` , "text-emerald-600 text-center row-start-3") as HTMLElement)]);
+	append(CreatedBytDivs, [(createElement('h2', "created" + i.toString(), `${Party.created_by}` , "text-emerald-600 text-center row-start-3") as HTMLElement)]);
 
 	append(PartyDiv, [CreatedBytDivs]);
 }
