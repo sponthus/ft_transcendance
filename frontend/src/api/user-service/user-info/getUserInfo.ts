@@ -16,40 +16,44 @@ export type GetUserInfoResult = getUserInfoSuccess | Failure
 
 export async function   getUserInfo() : Promise<GetUserInfoResult>
 {
-    const token = localStorage.getItem("token");
-    if (!token) {
-        console.log("getUserInfo : no token found");
-		return { ok: false };
-	}
-    const res = await fetch('/api/user/user-info', 
+    try
     {
-        method: 'GET',
-        headers: { 'Authorization': `Bearer ${token}` },    
-    });
-    const data = await res.json();
-    if (res.ok)
-    {
-        return ({ ok: true, userInfo: data.userInfo })   
+        const res = await fetch('/api/user/user-info', 
+        {
+            method: 'GET',
+            credentials: 'include',
+        });
+        const data = await res.json();
+        if (res.ok)
+        {
+            return ({ ok: true, userInfo: data.userInfo })   
+        }
+        return ({ ok: false, error: data.error });
     }
-    return ({ ok: false, error: data.error });
+    catch (err)
+    {
+        return ({ ok: false, error: "Network error" });
+    }
 }
 
 export async function   getUserInfoBySlug(slug: string) : Promise<GetUserInfoResult>
 {
-    const token = localStorage.getItem("token");
-    if (!token) {
-        console.log("getUserInfo : no token found");
-		return { ok: false };
-	}
-    const res = await fetch(`/api/user/user-info/other/${slug}`, 
+    try
     {
-        method: 'GET',
-        headers: { 'Authorization': `Bearer ${token}` }, 
-    });
-    const data = await res.json();
-    if (res.ok)
-    {
-        return ({ ok: true, userInfo: data.userInfo })   
+        const res = await fetch(`/api/user/user-info/other/${slug}`, 
+        {
+            method: 'GET',
+            credentials: 'include',
+        });
+        const data = await res.json();
+        if (res.ok)
+        {
+            return ({ ok: true, userInfo: data.userInfo })   
+        }
+        return ({ ok: false, error: data.error });
     }
-    return ({ ok: false, error: data.error });
+    catch (err)
+    {
+        return ({ ok: false, error: "Network error" });
+    }
 }

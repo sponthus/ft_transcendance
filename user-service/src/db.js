@@ -19,12 +19,13 @@ async function dbConnector(fastify, options)
             username TEXT UNIQUE NOT NULL COLLATE BINARY,
             slug TEXT UNIQUE NOT NULL,
             avatar TEXT NOT NULL,
-            pw_hash TEXT NOT NULL,
+            pw_hash TEXT DEFAULT NULL,
             last_username_change DATETIME,
             nickname DEFAULT TEXT NULL,
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
             twofa_enabled INTEGER DEFAULT 0 CHECK(twofa_enabled BETWEEN 0 AND 1),
-            twofa_secret TEXT DEFAULT NULL
+            twofa_secret TEXT DEFAULT NULL,
+            github_username TEXT DEFAULT NULL
         );
     `);
 

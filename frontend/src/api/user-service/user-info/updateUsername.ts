@@ -4,24 +4,26 @@ type UserModificationSuccess = { ok: true; token: string}
 export type UserModificationResult = UserModificationSuccess | Failure;
 
 export async function updateUsername(username: string): Promise<UserModificationResult> 
-{
-    const token = localStorage.getItem("token");
-    if (!token) {
-        return { ok: false, error: "No token found" };
-    }
-    const res = await fetch(`/api/user/user-info/username`, {
-        method: 'PATCH',
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({ username }),
-    });
-    const data = await res.json();
-    if (res.ok) 
+{ 
+    try
     {
-        localStorage.setItem("token", data.token);
-        return {ok: true, token: data.token};
+        const res = await fetch(`/api/user/user-info/username`,
+        {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify({ username }),
+        });
+        const data = await res.json();
+        if (res.ok) 
+        {
+            localStorage.setItem("token", data.token);
+            return {ok: true, token: data.token};
+        }
+        return { ok: false, error: data.error};
     }
-    return { ok: false, error: data.error};
+    catch (err)
+    {
+        return { ok: false, error: "Network error"};
+    }
 }

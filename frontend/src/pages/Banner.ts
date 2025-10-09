@@ -5,6 +5,7 @@ import { getUserInfo, UserInfo } from '../api/user-service/user-info/getUserInfo
 import { append, createAnchorElement, createButton, createDiv, createImage, createInput, createElement } from '../Utils/elementMaker.js';
 import { createSearchBarDiv } from '../Utils/slidingSearch.js';
 import { createNotificationDiv } from '../Utils/notification.js';
+import { logoutUser } from '../api/user-service/connection/logoutUser.js';
 
 type UserData = //VA ETRE CHANGER, le token renvoie le username et l'id du user
 {
@@ -149,7 +150,7 @@ function SetLogOutEvent() {
 		return ;
 	logoutLink.addEventListener('click', async (e) => {
 		e.preventDefault();
-		localStorage.removeItem("token");
+		await logoutUser();
 	//	socket.close();
 		navigate('/');
 		location.reload();

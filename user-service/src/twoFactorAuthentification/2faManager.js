@@ -1,5 +1,6 @@
 import speakeasy from "speakeasy";
 import qrcode from 'qrcode';
+import env from '../../config/env.js';
 import { checkCodeFormat } from "../tools/checkFormat.js";
 import { decrypt, encrypt,  } from "./cryptSecret.js";
 
@@ -123,7 +124,17 @@ export async function checkTwoFaCode(request, reply)
                                                 id = ?").get(idUser);
             const token = await reply.jwtSign({ idUser: idUser, username: userInfo.username, slug: userInfo.slug }, {expiresIn: '1h'});
             console.log('Token de la 2fa', token);
-            return reply.code(200).send({ status: status, token: token });
+            let secure = false;
+            if (env.nodeEnv === 'production')
+                secure = true;
+            return reply.code(200).setCookie('token', token,
+                {
+                    httpOnly: true, 
+                    signed: true,
+                    secure: secure, 
+                    path: '/', 
+                    maxAge: 3600000
+                }).send({ status: status});
         }
         return reply.code(200).send({ status: status });
     }

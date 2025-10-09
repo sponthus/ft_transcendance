@@ -75,7 +75,6 @@ export async function  countUnreadNotifications(request, reply)
                                         notif_user_id = ? \
                                     AND \
                                         notif_status = 0").get(idUser);
-        console.log('\ncount = ', row.unread_count);
         return reply.code(200).send({ count: row.unread_count });
     }
     catch (err)

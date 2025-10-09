@@ -126,7 +126,6 @@ export function checkWebSocketMessageFormat(message) {
 		type: "object",
 		properties: {
 			type: { type: "string", minLength: 3 },
-			token: { type: "string", minLength: 10, maxLength: 500 },
 			gameId: { type: "number", minimum: 1 },
 			input: {
 				type: "object",
@@ -150,7 +149,7 @@ export function checkWebSocketMessageFormat(message) {
 					properties: { type: { const: "auth" } }
 				},
 				then: {
-					required: ["type", "token", "gameId"]
+					required: ["type", "gameId"]
 				}
 			},
 			{

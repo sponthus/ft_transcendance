@@ -1,6 +1,6 @@
 import slugify from "slugify";
 import { checkUsernameFormat } from "../tools/checkFormat.js";
-import generateUniqueSlug from "../tools/generateUniqueSlug.js";
+import { generateUniqueSlug } from "../tools/generateUnique.js";
 
 export default async function updateUsername (request, reply)
 {

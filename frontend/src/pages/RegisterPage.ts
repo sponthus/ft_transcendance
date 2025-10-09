@@ -112,6 +112,7 @@ export class RegisterPage extends BasePage {
 
 				const req = await registerUser(username, password);
 				if (req.ok) {
+					console.log("RRRRRRRRegister validate");
 					await navigate('/');
 					return ; // back to home
 				}

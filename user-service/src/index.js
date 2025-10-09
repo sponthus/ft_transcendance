@@ -1,5 +1,6 @@
 import Fastify from "fastify";
 import fastifyJwt from '@fastify/jwt';
+import fastifyCookie from "@fastify/cookie";
 import { fileURLToPath } from "url"; // Transforms ESM paths to system paths
 import path from 'path'; // utilities for working with file and directory paths
 import env from "../config/env.js";
@@ -7,6 +8,7 @@ import fs from "fs";
 import dbConnector from "./db.js";
 import logger from "../config/logger.js";
 import routes from "./routes/index.js";
+import { initOAuthGithub } from "./connection/githubStrategy.js";
 //import { getSecret } from "./tools/getSecret.js";
 
 const __filename = fileURLToPath(import.meta.url); // This filename, from ESM expression to classic path
@@ -17,6 +19,18 @@ const fastify = Fastify({
 });
 
 console.log(`\nFastify user-service listen on port ${env.user_port}\n`); // debug
+
+fastify.register(fastifyCookie,
+{
+    secret: getSecret('cookie_key')
+});
+
+fastify.register(fastifyJwt, 
+{
+	secret: getSecret('hash_key'),
+});
+
+initOAuthGithub(fastify);
 
 export function getSecret(name)
 {
@@ -43,7 +57,10 @@ fastify.decorate("authenticate_2fa", async function (request, reply)
 {
     try 
     {
-        await request.jwtVerify(); //Décode et verifie le token et stock ses infos dans request
+        const result = fastify.unsignCookie(request.cookies.token); //verifie manuellement signature cookie
+        if (!result.valid)
+            return reply.code(401).send({ error: "Invalid cookie" });
+        request.user = await fastify.jwt.verify(result.value); //Décode et verifie le token et stock ses infos dans request
         console.log("Decoded token 2fa :", request.user);
         if (request.user.twofa_pending === false)
             return reply.code(401).send({ error: "only tmp token" });
@@ -65,8 +82,13 @@ fastify.decorate("authenticate", async function (request, reply)
 {
     try 
     {
-        await request.jwtVerify(); //Décode et verifie le token et stock ses infos dans request
-        // console.log("Decoded token:", request.user);
+        console.log("\nToken dans le user-service avant unsign cookie : -" + request.cookies.token + "-");
+        const result = fastify.unsignCookie(request.cookies.token); //verifie manuellement signature cookie
+        if (!result.valid)
+            return reply.code(401).send({ error: "Invalid cookie" });
+        console.log("\nToken dans le user-service : " + result.value + "-");
+        request.user = await fastify.jwt.verify(result.value); //Décode et verifie le token et stock ses infos dans request
+        console.log("Decoded token:", request.user);
         if (request.user.twofa_pending === true)
             return reply.code(401).send({ error: "2FA required" });
     } 
@@ -103,6 +125,7 @@ fastify.decorate("authenticate", async function (request, reply)
 });
 
 
+
 fastify.setErrorHandler((error, request, reply) => {
     console.error("⚠️ ERROR GLOBAL CAPTURED");
     console.error("Route:", request.routerPath);
@@ -115,14 +138,6 @@ fastify.setErrorHandler((error, request, reply) => {
     reply.status(error.statusCode || 500).send({
         error: error.message || "Internal Server Error"
     });
-});
-
-
-
-
-//enregistre le plugin JWT dans fastify
-fastify.register(fastifyJwt, {
-	secret: getSecret('hash_key'),
 });
 
 fastify.register(dbConnector);
