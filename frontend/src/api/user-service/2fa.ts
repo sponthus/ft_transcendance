@@ -1,4 +1,4 @@
-type Success = {ok: true, qrCode?: string, status?: string }
+type Success = {ok: true, qrCode?: string, status?: string, token?: string}
 type Failure = { ok: false; error: string };
 
 export type Result = Success | Failure 

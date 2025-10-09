@@ -3,6 +3,6 @@ import { activateTwoFa, checkTwoFaCode, desactivateTwoFa } from "../twoFactorAut
 export default async function routes2FA(fastify) 
 {
     fastify.post("/2fa/setup", { preHandler: [fastify.authenticate] }, activateTwoFa);
-    fastify.post("/2fa/check", { preHandler: [fastify.authenticate] }, checkTwoFaCode);
+    fastify.post("/2fa/check", { preHandler: [fastify.authenticate_2fa] }, checkTwoFaCode);
     fastify.post("/2fa/desactivate", { preHandler: [fastify.authenticate] }, desactivateTwoFa);
 }

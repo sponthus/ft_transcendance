@@ -77,8 +77,31 @@ fastify.decorate("verifyApiKey", async function (request, reply)
 		return reply.code(401).send({ error: 'Unauthorized: Invalid API Key' });
 });
 
-
-
+fastify.decorate("authenticate_2fa", async function (request, reply)
+{
+    try 
+    {
+        const result = fastify.unsignCookie(request.cookies.token); //verifie manuellement signature cookie
+        if (!result.valid)
+            return reply.code(401).send({ error: "Invalid cookie" });
+        request.user = await fastify.jwt.verify(result.value); //Décode et verifie le token et stock ses infos dans request
+        console.log("Decoded token 2fa :", request.user);
+        if (request.user.twofa_pending === false)
+            return reply.code(401).send({ error: "only tmp token" });
+    } 
+    catch (err)
+    {
+        if (err.message === "Authorization token expired")
+        {
+            return reply.code(401).send({error : err.message});
+        }
+        else
+        {
+            return reply.code(400).send({error : err.message});
+        }
+    }
+});
+ 
 fastify.decorate("authenticate", async function (request, reply)
 {
     try 

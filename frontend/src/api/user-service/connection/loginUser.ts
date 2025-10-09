@@ -4,7 +4,7 @@ type UserBasic =
     slug: string;
 };
 
-type AuthSuccess = { ok: true, twoFaEnabled: boolean };
+type AuthSuccess = { ok: true, twoFaEnabled: number};
 type Failure = { ok: false; error: string };
 
 export type LoginResult = AuthSuccess | Failure;

@@ -1,4 +1,4 @@
-import { createDiv, createElement, createButton, createImage, createInput, createCheckBoxLabel, append} from '../../Utils/elementMaker.js';
+import { createDiv, createElement, createButton, createImage, createInput, createCheckBoxLabel, append, setbackgroundImages} from '../../Utils/elementMaker.js';
 import { availableGames } from './AvailableGames.js';
 import { getTournamentMatches, GameInfos, getTournamentNextMatch } from "../../api/game-service/tournaments/getTournaments.js" 
 import { ErrorPopup } from '../ErrorPage.js';
@@ -45,13 +45,13 @@ export class TournamentPage {
 
 	/****************function for rendering tournament page****************/
 	async render() {
-		this.PlayBtn = (createButton("play", "relative flex items-center z-5 active:scale-95 hover:scale-105 h-[30%] aspect-square transition-all duration-200 translate-x-96", "") as HTMLButtonElement);
+		this.PlayBtn = (createButton("play", "relative flex items-center z-5 active:scale-95 hover:scale-105 h-[30%] aspect-square transition-transform duration-200 ease-out translate-x-96", "") as HTMLButtonElement);
 		append(this.PlayBtn, [createImage('Play', 'absolute object-center h-full w-full', 'game_ui/Playebtn.png')]);
 		
-		this.ContinueBtn = (createButton("continue", "relative flex items-center z-5 active:scale-95 hover:scale-105 h-[12%] w-[30%] transition-all duration-200 -translate-x-96", "continue") as HTMLButtonElement);
+		this.ContinueBtn = (createButton("continue", "relative flex items-center z-5 active:scale-95 hover:scale-105 h-[12%] w-[30%] transition-transform duration-200 ease-out -translate-x-96", "continue") as HTMLButtonElement);
 		append(this.ContinueBtn, [createImage('continue', 'absolute object-center h-full w-full', 'game_ui/continuesbtn.png')]);
 		
-		this.BackBtn = (createButton("return", "relative flex items-center z-5 active:scale-95 hover:scale-105 h-[10%] w-[20%] transition-all duration-200 top-16 left-32 -translate-x-96", "") as HTMLButtonElement);
+		this.BackBtn = (createButton("return", "relative flex items-center z-5 active:scale-95 hover:scale-105 h-[10%] w-[20%] transition-transform duration-200 ease-out top-16 left-32 -translate-x-96", "") as HTMLButtonElement);
 		append(this.BackBtn, [createImage('Back', 'absolute object-center h-full w-full', 'game_ui/Backbtn.png')]);
 		
 		append(this.Page, [createImage("1v1", "absolute object-fill object-center h-full w-full opacity-65", 'tournament-page.png')]);
@@ -69,7 +69,7 @@ export class TournamentPage {
 
 	/****************function for rendering new tournament page****************/
 	async renderNewTournament() {
-		const btnDiv = createDiv('btn', 'flex flex-row justify-around w-full h-[20%] z-5 -translate-x-96');
+		const btnDiv = createDiv('btn', 'flex flex-row justify-around w-full h-[20%] z-5 transition-transform duration-200 ease-out -translate-x-96');
 		this.InitTournamentForm(btnDiv);
 		this.fillNewPan();
 		this.appendTournamentForm(btnDiv);
@@ -77,7 +77,7 @@ export class TournamentPage {
 
 	/****************fill panel with create tournament form****************/
 	private fillNewPan() {
-		append(this.TournamentPan, [createImage('player-name', 'object-center h-[10%] w-[20%] translate-y-24 -translate-x-64', 'game_ui/setting/playerNamestext.png')	
+		append(this.TournamentPan, [createImage('player-name', 'object-center h-[10%] w-[20%] transition-transform duration-200 ease-out translate-y-24 -translate-x-64', 'game_ui/setting/playerNamestext.png')	
 									, this.addNameForm(), this.createTournamentNameForm() ,this.createcrabmehamehaDiv()]);
 	}
 
@@ -141,7 +141,7 @@ export class TournamentPage {
 
 	/****************function for rendering continue tournament page****************/
 	async renderContinueTournament() {
-		const btnDiv = createDiv('btn', 'flex flex-row justify-around w-full h-[20%] -translate-x-96');
+		const btnDiv = createDiv('btn', 'flex flex-row justify-around w-full h-[20%] -translate-x-96 transition-transform duration-200 ease-out');
 		this.InitTournamentForm(btnDiv);
 		await this.fillContinuePan();
 		this.appendTournamentForm(btnDiv);
@@ -162,10 +162,8 @@ export class TournamentPage {
 
 		append(btnDiv, [this.BackBtn, this.PlayBtn]);
 
-		this.TournamentPan = createDiv('tournament-pan', 'relative flex flex-col items-center w-full h-[85%] transition-all duration-200 translate-x-96 space-y-4');
-		this.TournamentPan.style.backgroundImage = "url('/game_ui/setting/SettingPan.png')";
-		this.TournamentPan.style.backgroundSize = '100% 100%';
-		this.TournamentPan.style.backgroundPosition = "center";
+		this.TournamentPan = createDiv('tournament-pan', 'relative flex flex-col items-center w-full h-[85%] transition-transform duration-200 ease-out translate-x-96 space-y-4');
+		setbackgroundImages(this.TournamentPan, "url('/game_ui/setting/SettingPan.png')");
 	}
 
 	/****************append element for new and continue tournament panel****************/
@@ -186,7 +184,7 @@ export class TournamentPage {
 		this.TournamentId = IdTournament
 		this.Page.classList.remove('opacity-0');
 		this.TournamentId = IdTournament;
-		const btnDiv = createDiv('btn', 'flex flex-row justify-around w-full h-[20%] z-5 -translate-x-96');
+		const btnDiv = createDiv('btn', 'flex flex-row justify-around w-full h-[20%] z-5 -translate-x-96 transition-transform duration-200 ease-out');
 		this.InitTournamentForm(btnDiv);
 		await this.fillTournamentMatch();
 		this.appendTournamentForm(btnDiv);
@@ -270,9 +268,7 @@ export class TournamentPage {
 		
 		for (let i = 0; i < 2; i++) {
 			const PlayerDiv = createDiv(`player-${i + i}`, "border rounded-xl w-[50%] text-center") as HTMLElement;
-			PlayerDiv.style.backgroundImage = "url('/game_ui/setting/emptyPan.png')";
-			PlayerDiv.style.backgroundPosition = "center";
-			PlayerDiv.style.backgroundSize = '100% 100%';
+			setbackgroundImages(PlayerDiv,"url('/game_ui/setting/emptyPan.png')");
 			append(PlayerDiv, [createElement('p', `player-${i + i}`, TabPlayer[i],  "text-orange-200") as HTMLElement]);
 			append(MatchDiv, [PlayerDiv]);
 			if (i == 0) {

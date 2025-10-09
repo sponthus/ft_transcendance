@@ -1,5 +1,5 @@
 import { createDetailMapPlugin } from "@babylonjs/core";
-import { createElement, append, createImage, createButton, createDiv } from "../../Utils/elementMaker";
+import { createElement, append, createImage, createButton, createDiv, setbackgroundImages } from "../../Utils/elementMaker";
 import { getAllTournaments, TournamentsInfos } from "../../api/game-service/tournaments/getTournaments";
 import { UserInfo } from "../../api/user-service/user-info/getUserInfo";
 import { AllGamesInfos, AllGamesResult, getAllGames } from "../../api/game-service/games/game";
@@ -85,9 +85,7 @@ export class endGamePage {
 	private createWinnerPan(Party: any): HTMLElement {
 		const WinnerDiv = createDiv('winner', 'flex flex-col items-center justify-center translate-y-24 gap-4');
 		const winnerPan: HTMLElement = createDiv('winner-pan', 'flex items-center justify-center w-full h-[50%] animate-bounce');
-		winnerPan.style.backgroundImage = "url('/game_ui/setting/emptyPan.png')";
-		winnerPan.style.backgroundPosition = "center";
-		winnerPan.style.backgroundSize = '100% 100%';
+		setbackgroundImages(winnerPan, "url('/game_ui/setting/emptyPan.png')");
 		winnerPan.appendChild(createElement('p', 'winner', `${Party.winner}`, "text-orange-200 text-2xl"))
 
 		append(WinnerDiv, [createElement('p', 'Winner', 'Winner', 'text-6xl text-orange-200')
@@ -99,9 +97,7 @@ export class endGamePage {
 	private createScorePan(Party: any) {
 		const Scorediv = createDiv('Score', 'flex flex-col items-center justify-center translate-y-24 gap-4');
 		const ScorePan: HTMLElement = createDiv('Score-pan', 'flex items-center justify-center w-full h-[50%]');
-		ScorePan.style.backgroundImage = "url('/game_ui/setting/emptyPan.png')";
-		ScorePan.style.backgroundPosition = "center";
-		ScorePan.style.backgroundSize = '100% 100%';
+		setbackgroundImages(ScorePan, "url('/game_ui/setting/emptyPan.png')");
 		ScorePan.appendChild(createElement('p', 'Score', `${Party.score_a} - ${Party.score_b}`, "text-orange-200 text-2xl"))
 
 		append(Scorediv, [createElement('p', 'Score', 'Score', 'text-6xl text-orange-200')
@@ -120,9 +116,7 @@ export class endGamePage {
 		append(btnDiv, [this.BackBtn, this.PlayBtn]);
 
 		this.endGamePan = createDiv('EndGame-pan', 'relative flex flex-col items-center w-full h-[85%] transition-all duration-200 translate-x-96 space-y-4');
-		this.endGamePan.style.backgroundImage = "url('game_ui/setting/SettingPan.png')";
-		this.endGamePan.style.backgroundSize = '100% 100%';
-		this.endGamePan.style.backgroundPosition = "center";
+		setbackgroundImages(this.endGamePan, "url('game_ui/setting/SettingPan.png')");
 	}
 
 	/****************append element for  EndGame panel****************/

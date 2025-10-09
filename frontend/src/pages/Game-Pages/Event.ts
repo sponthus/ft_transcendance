@@ -130,6 +130,8 @@ export class Event {
 			this.LocalGamePage._botBtn.addEventListener('click', async() => {this.ActiveBotBtn();});
 		if (this.LocalGamePage._playerBtn)
 			this.LocalGamePage._playerBtn.addEventListener('click', async() => {this.activePlayervsBtn();});
+		if (this.LocalGamePage._reversebtn)
+			this.LocalGamePage._reversebtn.addEventListener('click', async() => {this.reversePlayer();});
 		if (this.LocalGamePage._optionbtn)
 			this.LocalGamePage._optionbtn.addEventListener('click', async() => {this.ClickOptionEvent();});
 		if (this.LocalGamePage._minusbtn)
@@ -157,7 +159,7 @@ export class Event {
 			this.LocalGamePage._botBtn.classList.add('scale-110');
 			this.LocalGamePage._playerBtn.classList.add('hover:scale-110');
 			this.LocalGamePage._playerBtn.classList.remove('scale-110');
-			this.LocalGamePage.setPlayerAInput = "endoliam";
+			this.LocalGamePage.setPlayerAInput = this.LocalGamePage._username; // change to uysername
 			this.LocalGamePage.setPlayerA = this.LocalGamePage._playerAInput.value;
 			this.LocalGamePage.setPlayerAReadonly = true;
 			this.LocalGamePage.setPlayerBInput = "Crabby the bot";
@@ -182,6 +184,18 @@ export class Event {
 			this.LocalGamePage.setPlayerBReadonly = false;
 			this.LocalGamePage.setAi = 0;
 		}
+	}
+
+	private reversePlayer() {
+		const tmp: string = this.LocalGamePage._playerAInput.value;
+		this.LocalGamePage.setPlayerAInput = this.LocalGamePage._playerBinput.value;
+		this.LocalGamePage.setPlayerBInput = tmp;
+		this.LocalGamePage.setPlayerA = this.LocalGamePage._playerAInput.value;
+		this.LocalGamePage.setPlayerB = this.LocalGamePage._playerBinput.value;
+		if (this.LocalGamePage._Ai === 1)
+			this.LocalGamePage.setAi = 2;
+		else if (this.LocalGamePage._Ai === 2)
+			this.LocalGamePage.setAi = 1;
 	}
 
 	/**********increase score limit**********/
