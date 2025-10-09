@@ -5,7 +5,7 @@ type SimpleResult = Success | Failure;
 
 export type TournamentsInfos = {
 	id: number;
-	status: 'pending' | 'ongoing_game' | 'between_games' | 'canceled' | 'done';
+	status: 'pending' | 'invitations' | 'ongoing_game' | 'between_games' | 'canceled' | 'done';
 	name: string;
 	next_game: number;
 	created_at: string;
@@ -89,7 +89,7 @@ export async function getAvailableTournaments(slug: string): Promise<Tournaments
 			return { ok: false, error: allTournamentsResult.error };
 		}
 		const pendingTournaments: TournamentsInfos[] = allTournamentsResult.tournaments
-			.filter(tournament => tournament.status === 'pending' || tournament.status === 'between_games')
+			.filter(tournament => tournament.status === 'pending' || tournament.status === 'invitations' || tournament.status === 'between_games')
 			.map(tournament => ({
 				id: tournament.id,
 				status: tournament.status,
