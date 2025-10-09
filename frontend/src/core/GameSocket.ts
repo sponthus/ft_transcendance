@@ -1,6 +1,7 @@
 /// <reference types="vite/client" />
 import Ajv, { ErrorObject } from "ajv";
 import { ErrorPopup } from "../pages/ErrorPage.js"; 
+import { kMaxLength } from "buffer";
 
 export interface WebSocketMessage {
 	type: string;
@@ -84,7 +85,7 @@ export function checkWebSocketMessageFormat(message: WebSocketMessage): FormatCh
 			winner: { 
 				type: "string", 
 				minLength: 1, 
-				maxLength: 100,
+				maxLength: 21,
 				pattern: "^(?!@?[_-])(?!.*[_-]$)(?!^\\s)(?!.*\\s$)(?!.*\\s{2})(?!.*(?:\\s.*){3})(?=.*[A-Za-z])(?!@?[0-9_-]+$)@?[A-Za-z0-9 _-]+$" // Updated pattern 
 			},
 			scoreA: { type: "number", minimum: 0 },
@@ -92,11 +93,13 @@ export function checkWebSocketMessageFormat(message: WebSocketMessage): FormatCh
 			playerA: { 
 				type: "string", 
 				minLength: 3,
+				maxLength: 21,
 				pattern: "^(?!@?[_-])(?!.*[_-]$)(?!^\\s)(?!.*\\s$)(?!.*\\s{2})(?!.*(?:\\s.*){3})(?=.*[A-Za-z])(?!@?[0-9_-]+$)@?[A-Za-z0-9 _-]+$" // Updated pattern
 			},
 			playerB: { 
 				type: "string", 
 				minLength: 3,
+				maxLength: 21,
 				pattern: "^(?!@?[_-])(?!.*[_-]$)(?!^\\s)(?!.*\\s$)(?!.*\\s{2})(?!.*(?:\\s.*){3})(?=.*[A-Za-z])(?!@?[0-9_-]+$)@?[A-Za-z0-9 _-]+$" // Updated pattern
 			}
 		},

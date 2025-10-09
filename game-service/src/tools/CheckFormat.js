@@ -6,7 +6,7 @@ export function    checkSlugFormat(slug)
     {
         type: "string",
         minLength: 1,
-        maxLength: 15,
+        maxLength: 20,
         pattern: "^(?![_-])(?!.*[_-]$)(?=.*[a-z])(?![0-9_]+)[a-z0-9_-]+$" // Same as username without maj
     };
     const ajv = new Ajv();
@@ -81,12 +81,12 @@ export function	checkGameCreationFormat(request)
 			player_a: { 
 				type: "string", 
 				minLength: 3, 
-				maxLength: 20, 
+				maxLength: 21, 
 				pattern: "^(?!@?[_-])(?!.*[_-]$)(?!^\\s)(?!.*\\s$)(?!.*\\s{2})(?!.*(?:\\s.*){3})(?=.*[A-Za-z])(?!@?[0-9_-]+$)@?[A-Za-z0-9 _-]+$" }, // Accepts 2 spaces, @ at beginning
 			player_b: { 
 				type: "string", 
 				minLength: 3, 
-				maxLength: 15, 
+				maxLength: 21, 
 				pattern: "^(?!@?[_-])(?!.*[_-]$)(?!^\\s)(?!.*\\s$)(?!.*\\s{2})(?!.*(?:\\s.*){3})(?=.*[A-Za-z])(?!@?[0-9_-]+$)@?[A-Za-z0-9 _-]+$" }, // Accepts 2 spaces, @ at beginning
 			requestedMaxScore: { type: "integer", minimum: 1, maximum: 21 },
 			requestedAi: { type: "number", minimum: 0, maximum: 2 },
@@ -110,7 +110,7 @@ export function    checkPlayerFormat(username)
     {
         type: "string", 
 		minLength: 3, 
-		maxLength: 15, 
+		maxLength: 21, 
 		pattern: "^(?!@?[_-])(?!.*[_-]$)(?!^\\s)(?!.*\\s$)(?!.*\\s{2})(?!.*(?:\\s.*){3})(?=.*[A-Za-z])(?!@?[0-9_-]+$)@?[A-Za-z0-9 _-]+$" // Updated pattern
 	};
     const ajv = new Ajv();

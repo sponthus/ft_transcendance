@@ -174,46 +174,50 @@ export default class DatabaseHandler {
     updateGameStatus(gameId, status) {
         console.log('updating game ' + gameId + ' with status ' + status);
         
-		let transaction;
-		if (status === 'ongoing') {
-            transaction = this.db.transaction((gameId, status) => {
-				const stmt = this.db.prepare(`
-	UPDATE games 
-	SET status = ?, began_at = CURRENT_TIMESTAMP
-	WHERE id = ?
-				`);
-				const res = stmt.run(status, gameId);
-				if (res.changes === 0) {
-					throw new Error("No game found with the given gameId");
-				}
-				return {
-					gameId: gameId,
-					status: status
-				};
-			});
-        }
-        else if (status === 'finished' || status === 'canceled') {
-            transaction = this.db.transaction((gameId, status) => {
-				const stmt = this.db.prepare(`
-	UPDATE games 
-	SET status = ?, finished_at = CURRENT_TIMESTAMP
-	WHERE id = ?
-				`);
-				const res = stmt.run(status, gameId);
-				if (res.changes === 0) {
-					throw new Error("No game found with the given gameId");
-				}
-				return {
-					gameId: gameId,
-					status: status
-				};
-			});
-        }
-        else
-        	throw new Error("Unknown game status");
-
-		const result = transaction(gameId, status);
-		return (result);
+		try {
+			let transaction;
+			if (status === 'ongoing') {
+				transaction = this.db.transaction((gameId, status) => {
+					const stmt = this.db.prepare(`
+		UPDATE games 
+		SET status = ?, began_at = CURRENT_TIMESTAMP
+		WHERE id = ?
+					`);
+					const res = stmt.run(status, gameId);
+					if (res.changes === 0) {
+						throw new Error("No game found with the given gameId");
+					}
+					return {
+						gameId: gameId,
+						status: status
+					};
+				});
+			}
+			else if (status === 'finished' || status === 'canceled') {
+				transaction = this.db.transaction((gameId, status) => {
+					const stmt = this.db.prepare(`
+		UPDATE games 
+		SET status = ?, finished_at = CURRENT_TIMESTAMP
+		WHERE id = ?
+					`);
+					const res = stmt.run(status, gameId);
+					if (res.changes === 0) {
+						throw new Error("No game found with the given gameId");
+					}
+					return {
+						gameId: gameId,
+						status: status
+					};
+				});
+			}
+			else
+				throw new Error("Unknown game status");
+	
+			const result = transaction(gameId, status);
+			return (result);
+		} catch (error) {
+			return ({ ok: false, error: error.message });
+		}
     }
 
 	// Test ok
@@ -587,6 +591,24 @@ export default class DatabaseHandler {
 		SET status = ?
 		WHERE id = ?
 			`);
+			if (status == "ongoing_game") {
+				// console.debug("Maybe tournament is beginning ?");
+				const getTournamentStmt = this.db.prepare(`
+		SELECT status
+		FROM tournaments
+		WHERE id = ?
+				`);
+				const tournament = getTournamentStmt.get(tournamentId);
+				// console.debug("tournament = ", tournament);
+				if (tournament.status === "pending") {
+					const updateBeganAtStmt = this.db.prepare(`
+		UPDATE tournaments 
+		SET began_at = CURRENT_TIMESTAMP
+		WHERE id = ?
+					`);
+					updateBeganAtStmt.run(tournamentId);		
+				}
+			}
 			const res = updateStatusStmt.run(status, tournamentId);
 			if (res.changes === 0) {
 				throw new Error("No tournament found with the given tournamentId");
@@ -599,6 +621,7 @@ export default class DatabaseHandler {
 	}
 
 	updateTournamentStatus(tournamentId, status) {
+		// console.debug("Updating tournament ", tournamentId, " to status ", status);
         try {
 			const transaction = this.db.transaction((tournamentId, status) => {
 				const getTournamentStmt = this.db.prepare(`
@@ -610,29 +633,40 @@ export default class DatabaseHandler {
 				
 				let updateStatusStmt = null;
 				if (tournament.status === "pending") {
+					// console.debug("Tournament is pending, setting began_at...");
 					updateStatusStmt = this.db.prepare(`
 		UPDATE tournaments 
 		SET status = ?, began_at = CURRENT_TIMESTAMP
 		WHERE id = ?
 					`);
+					// console.debug("Running update stmt...");
+					const res = updateStatusStmt.run(status, tournamentId);
+					// console.debug("Update stmt run, res = ", res);
+					if (res.changes === 0) {
+						// console.debug("Error in updateTournamentStatus: No tournament found with the given tournamentId");
+						throw new Error("No tournament found with the given tournamentId");
+					}
 				} 
 				else {
 					const update = this.updateTournamentStatusLogic(tournamentId, status);
-					if (!update.ok)
+					if (!update.ok) {
+						// console.debug("Error in updateTournamentStatus: ", update.error);
 						throw new Error(update.error);
-					const result = {
-						tournamentId: tournamentId,
-						status: status
-					};
-					return ({ ok: true, data: result });
+					}
 				}
+				const result = {
+					tournamentId: tournamentId,
+					status: status
+				};
+				return ({ ok: true, data: result });
 			});
+			const result = transaction(tournamentId, status);
+			// console.debug("Result of updateTournamentStatus: ", result);
+			return (result);
 		} catch (error) {
-			return { ok: false, error: error.error };
+			// console.debug("Error in updateTournamentStatus: ", error);
+			return { ok: false, error: error.message };
 		}
-
-		const result = transaction(tournamentId, status);
-		return (result);
 	}
 
 	deleteTournament(tournamentId) {
@@ -876,7 +910,7 @@ export default class DatabaseHandler {
 		WHERE tournament_id = ?
 			`);
 			const rows = stmt.all(tournamentId);
-			console.debug(rows);
+			// console.debug(rows);
 			if (!rows || rows.length === 0) {
 				throw new Error("No players found");
 			} 

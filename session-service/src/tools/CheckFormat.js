@@ -6,7 +6,7 @@ export function    checkSlugFormat(slug)
     {
         type: "string",
         minLength: 1,
-        maxLength: 15,
+        maxLength: 20,
         pattern: "^(?![_-])(?!.*[_-]$)(?=.*[a-z])(?![0-9_]+)[a-z0-9_-]+$" // Updated format
     };
     const ajv = new Ajv();
@@ -27,13 +27,13 @@ export function    checkChangeInfosFormat(request)
 			slug: { 
 				type: "string", 
 				minLength: 3, 
-				maxLength: 15,
+				maxLength: 20,
 				pattern: "^(?![_-])(?!.*[_-]$)(?=.*[a-z])(?![0-9_]+)[a-z0-9_-]+$" // Updated pattern
 			},
 			username: { 
 				type: "string",
 				minLength: 3,
-				maxLength: 20,
+				maxLength: 15,
 				pattern: "^(?![_-])(?!.*[_-]$)(?=.*[A-Za-z])(?![0-9_]+)[A-Za-z0-9_-]+$" // Updated pattern
 			}
 		},
@@ -58,7 +58,7 @@ export function    checkSendMessageFormat(request)
 			sender: { 
 				type: "string", 
 				minLength: 3, 
-				maxLength: 15,
+				maxLength: 20,
 				pattern: "^[a-z0-9]+(-[0-9]+)?$"
 			},
 			message: { 
@@ -85,7 +85,7 @@ export function    checkUsernameFormat(username)
     {
         type: "string", 
 		minLength: 3, 
-		maxLength: 15, 
+		maxLength: 20, 
 		pattern: "^(?![_-])(?!.*[_-]$)(?=.*[A-Za-z])(?![0-9_]+)[A-Za-z0-9_-]+$" // Updated pattern
 	};
     const ajv = new Ajv();
