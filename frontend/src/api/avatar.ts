@@ -17,7 +17,7 @@ export async function uploadAvatar(slug: string, formData: FormData): Promise<Av
     // for (const [key, value] of formData.entries()) {
     //     console.log(`${key}:`, value);
     // } // Debug
-    const res = await fetch(`/api/avatars/${slug}`, {
+    const res = await fetch(`/api/avatars/`, {
         method: 'PUT',
         headers: {
             'Authorization': `Bearer ${token}`

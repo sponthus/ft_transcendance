@@ -1,11 +1,13 @@
 
 import { createGame, startGame } from "./controllers/GamePostRoutes.js"
 import { createTournament } from "./controllers/TournamentPostRoutes.js"
+import { acceptTournamentInvitation, declineTournamentInvitation } from "./controllers/TournamentInvitationsRoutes.js"
 import { getGamesForSlug } from "./controllers/GameGetRoutes.js"
 import { deleteGame } from "./controllers/GameDeleteRoutes.js"
 import { getTournamentsForSlug, getTournamentMatches, getTournamentNextMatch } from "./controllers/TournamentGetRoutes.js"
 import { deleteTournament } from "./controllers/TournamentDeleteRoutes.js"
 
+// Prefix : /api/games
 export default async function routes (fastify, options) {
     console.log(`Registering routes`);
 
@@ -20,6 +22,12 @@ export default async function routes (fastify, options) {
             postRoutes.post("/tournament",
                 {onRequest: [fastify.authenticate]},
                 createTournament);
+			postRoutes.post("/tournament/accept",
+				{onRequest: [fastify.authenticate]},
+				acceptTournamentInvitation);
+			postRoutes.post("/tournament/decline",
+				{onRequest: [fastify.authenticate]},
+				declineTournamentInvitation);
         }
     );
 

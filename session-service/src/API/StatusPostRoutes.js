@@ -1,4 +1,4 @@
-import { checkIdFormat, checkSendMessageFormat } from '../CheckFormat.js';
+import { checkIdFormat, checkSendMessageFormat } from '../tools/CheckFormat.js';
 
 // Sends a message to a user on his websocket, this user needs to be connected
 // Security : Road is protected to service-only, and from SQLi

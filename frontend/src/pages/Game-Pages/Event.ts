@@ -146,6 +146,8 @@ export class Event {
 			this.LocalGamePage._backBtn.classList.add('-translate-x-96');
 		if (this.LocalGamePage._settingPan)
 			this.LocalGamePage._settingPan.classList.add('translate-x-96');
+		this.LocalGamePage.setPlayerA = this.LocalGamePage._playerAInput.value;
+		this.LocalGamePage.setPlayerB = this.LocalGamePage._playerBinput.value;
 		this.StatePage = PageState.PARTY;
 		await this.GamePage.generate1v1GamePage();
 	}

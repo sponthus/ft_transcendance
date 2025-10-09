@@ -74,7 +74,7 @@ export default class WebSocketManager {
             ws.close(4002, "Invalid authentication");
             return ;
         }
-		console.log('token cote session service', result.value);
+		// console.debug('token cote session service', result.value);
 		return (result.value);
     }
 

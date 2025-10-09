@@ -1,5 +1,5 @@
-import { getAllUsers } from "./GetUsers.js";
-import { checkWebSocketMessageFormat } from "./CheckWsFormat.js";
+import { getAllUsers } from "./tools/GetUsers.js";
+import { checkWebSocketMessageFormat } from "./tools/CheckWsFormat.js";
 import { getSecret } from "./index.js";
 
 export default class WebSocketManager {
@@ -87,15 +87,15 @@ export default class WebSocketManager {
 			}
 		}
 		token = decodeURIComponent(token); //enleve l'encodage url --> les '/' devenait des : '%2F' par exemple 
-		console.log("token: -" + token + "-");
+		// console.debug("token: -" + token + "-");
 		const result = this.fastify.unsignCookie(token); //verifie manuellement signature cookie
-		console.log('result session service ', result);
+		// console.debug('result session service ', result);
         if (!result.valid)
 		{
 			ws.close(4002, "Invalid authentication");
             return ;
         }
-		console.log('token cote session service', result.value);
+		// console.debug('token cote session service', result.value);
 		this.authenticateUser(ws, result.value);
     }
 
@@ -104,9 +104,6 @@ export default class WebSocketManager {
             case 'ping':
                 this.pong(ws);
                 break;
-            /*case 'auth':
-                this.authenticateUser(ws, message.token);
-                break;*/
 			default:
 				console.warn("⚠️ Type not recognized");
 		}
@@ -164,20 +161,6 @@ export default class WebSocketManager {
 	async sleep(ms) {
 		return new Promise(resolve => setTimeout(resolve, ms));
 	}
-
-	// At connexion, ws is registered, if not authenticated after 10s it is closed
-	/*handleConnexion(ws) {
-		this.unknownClients.push(ws);
-		
-		// Execute once after 10s: check if ws has auth
-		setTimeout(() => {
-			if (this.getUserIdByWs(ws) == null) {
-				ws.close(4001, "Authentication timeout");
-			} else {
-				this.unknownClients = this.unknownClients.filter(c => c !== ws);
-			}
-		}, 10000);
-	}*/
 
 	// Once auth is ok, register the ws in the clients map
     registerUser(ws, userId, username, slug, status) {
@@ -353,20 +336,9 @@ export default class WebSocketManager {
 		}
 		return sent;
     }
-
-	// sendToWs(ws, message) {
-	// 	if (ws && ws.readyState === 1) { // WebSocket.OPEN
-    //         ws.send(JSON.stringify(message));
-    //         console.log(`Message sent to ws:`, message);
-    //         return true;
-    //     } else {
-    //         console.warn(`❌ Cannot send message to ws : not connected`);
-    //         return false;
-    //     }
-	// }
 	
 	sendToWs(ws, message) {
-		if (ws.readyState == 1) {
+		if (ws && ws.readyState == 1) {
 			ws.send(JSON.stringify(message));
 			console.log(`Message sent to socket:`, message);
 		} else {
