@@ -66,7 +66,7 @@ export function getSecret(name)
     catch (error)
     {
 		console.log("❌ Critical error : Unable to read secret ", name);
-		process.exit(0);
+		process.exit(1);
 	}
 }
 

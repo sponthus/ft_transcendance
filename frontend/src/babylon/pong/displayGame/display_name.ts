@@ -75,6 +75,7 @@ export class DisplayName
 		{
 			this._text1.text = this._namePlayer1;
 			this._text1.color = "red";
+			if (this._text1.text)
 			this._text1.fontSize = 18;
 		}
 		

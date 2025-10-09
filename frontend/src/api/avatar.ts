@@ -6,12 +6,7 @@ type Failure = { ok: false; error?: string };
 export type AvatarUploadResult = AvatarUploadSuccess | Failure;
 
 // POST /api/user/:slug to upload a new avatar file to the system
-export async function uploadAvatar(slug: string, formData: FormData): Promise<AvatarUploadResult> {
-    // TODO = Better log check
-    const token = localStorage.getItem("token");
-    if (!token) {
-        return { ok: false };
-    }
+export async function uploadAvatar(formData: FormData): Promise<AvatarUploadResult> {
 
     // TODO = Check the file here ?
     // for (const [key, value] of formData.entries()) {
@@ -19,9 +14,7 @@ export async function uploadAvatar(slug: string, formData: FormData): Promise<Av
     // } // Debug
     const res = await fetch(`/api/avatars/`, {
         method: 'PUT',
-        headers: {
-            'Authorization': `Bearer ${token}`
-        },
+        credentials: 'include',
         body: formData,
     });
 
