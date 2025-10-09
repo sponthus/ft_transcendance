@@ -12,37 +12,31 @@ export type AllFriends =
 
 export type FriendsResult = FriendsSuccess | Failure;
 
-//marche mais beaucoup de cas pas gérer (doublon par exemple), faire attention
 export async function   addFriend(slug: string): Promise<FriendsResult>
 {
-	const token = localStorage.getItem("token");
-	if (!token)
-		return {ok: false, error: "No token found"};
-	const res = await fetch('/api/user/menu/friendslist', 
-	{
-		method: 'POST',
-		headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-		body: JSON.stringify({ slug }),
-	});
-	if (res.ok) 
-	{
-		return { ok: true };
-	}
-	const data = await res.json(); // il est la car au dessus le JSON envoye est vide  
-	console.error("Error adding friend:", data.error);
-	return { ok: false, error: data.error};
+    const res = await fetch('/api/user/menu/friendslist', 
+    {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ slug }),
+    });
+    if (res.ok) 
+    {
+        return { ok: true };
+    }
+    const data = await res.json(); 
+    return { ok: false, error: data.error};
 }
 
 export async function   removeFriend(slug: string): Promise<FriendsResult>
 {
-    const token = localStorage.getItem("token");
-    if (!token)
-        return {ok: false, error: "No token found"};
     console.log("FRONT remove friend");
     const res = await fetch('/api/user/menu/friendslist', 
     {
         method: 'DELETE',
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({ slug }),
     });
     if (res.ok) 
@@ -55,13 +49,10 @@ export async function   removeFriend(slug: string): Promise<FriendsResult>
 
 export async function   getAllFriends(): Promise<FriendsResult>
 {
-    const token = localStorage.getItem("token");
-    if (!token)
-        return {ok: false, error: "No token found"};
     const res = await fetch('/api/user/menu/friendslist/', 
     {
         method: 'GET',
-        headers: { 'Authorization': `Bearer ${token}` },
+        credentials: 'include',
     });
     const data = await res.json();    
     if (res.ok) 

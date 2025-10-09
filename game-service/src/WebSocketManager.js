@@ -14,12 +14,13 @@ export default class WebSocketManager {
         this.ws.on('connection', (ws, request) => {
             console.log('🟢 New WebSocket connection');
 
+            const token = this.getTokenFromCookies(ws, request.headers.cookie);
             ws.on('message', (data) => {
                 let message;
                 try {
                     message = JSON.parse(data);
 				} catch (error) {
-                    console.error('❌ Invalid JSON recieved:', error);
+                    console.error('❌ Invalid JSON received:', error);
                 }
 				const formatCheck = checkWebSocketMessageFormat(message);
                 if (!formatCheck.valid) {
@@ -31,7 +32,7 @@ export default class WebSocketManager {
 					console.log('Message received :', message);
 				}
                 try {
-                    this.handleMessage(ws, message);
+                    this.handleMessage(ws, message, token);
                 } catch (error) {
                     console.error('❌ Error treating message:', error);
                 }
@@ -47,13 +48,44 @@ export default class WebSocketManager {
         });
     }
 
-    async handleMessage(ws, message) {
+    getTokenFromCookies(ws, cookies)
+	{
+        if (!cookies)
+        {
+            console.log("❌ No cookies found in the headers");
+            ws.close(4002, "No cookies");
+            return;
+        }
+		const cookiesTab = cookies.split('; ');
+		let token;
+		for (let cookie of cookiesTab)
+		{
+			if (cookie.trim().startsWith("token="))
+			{
+				token = cookie.trim().substring(cookie.trim().indexOf('=') + 1);
+				break ;
+			}
+		}
+		token = decodeURIComponent(token);
+		const result = this.fastify.unsignCookie(token);
+        if (!result.valid)
+		{
+			console.log("❌ Invalid cookie game-service");
+            ws.close(4002, "Invalid authentication");
+            return ;
+        }
+		console.log('token cote session service', result.value);
+		return (result.value);
+    }
+
+    async handleMessage(ws, message, token) {
         switch(message.type) {
             case 'ping':
                 this.pong(ws);
                 break;
             case 'auth':
-                await this.authenticateUser(ws, message.token, message.gameId);
+                console.log('Handle message token: ', token);
+                await this.authenticateUser(ws, token, message.gameId);
                 break;
             case 'input':
                 break;

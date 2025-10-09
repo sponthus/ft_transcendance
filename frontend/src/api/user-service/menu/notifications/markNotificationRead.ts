@@ -5,16 +5,12 @@ type NotifResult = NotifSuccess | Failure;
 
 export async function   markNotificationsRead(): Promise<NotifResult>
 {
-    const token = localStorage.getItem("token");
-    if (!token)
-        return {ok: false, error: "No token found"};
-    
     try 
     {
         const res = await fetch("/api/user/notifications/mark", 
         {
             method: 'POST',
-            headers: { 'Authorization': `Bearer ${token}` },
+            credentials: 'include',
         });
         if (res.ok) 
         {
@@ -25,6 +21,6 @@ export async function   markNotificationsRead(): Promise<NotifResult>
     }
     catch (err)
     {
-            return { ok: false, error: "Network error" };
+        return { ok: false, error: "Network error" };
     }
 }

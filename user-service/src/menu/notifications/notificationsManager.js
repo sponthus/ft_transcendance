@@ -6,7 +6,6 @@ export function addNotification(db, receiverId, senderId, type)
                                         notifications \
                                     WHERE \
                                         notif_user_id = ?").get(receiverId);
-    console.log('Nombre de notif = ', countRow.notif_count);
     const addNotif = db.transaction((receiverId, senderId, type) => 
     {
         if (countRow.notif_count > 20)

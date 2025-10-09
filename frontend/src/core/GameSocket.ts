@@ -264,14 +264,8 @@ export class GameSocket {
     }
 
 	private authenticate() {
-        const token = localStorage.getItem("token");
-		if (!token) {
-			console.error("Impossible to authenticate for the session websocket, no token.");
-			return ;
-		}
         this.send(JSON.stringify({
             type: "auth",
-            token: token,
 			gameId: this.gameId
         }));
     }

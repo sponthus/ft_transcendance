@@ -27,16 +27,6 @@ export class HomePage extends BasePage {
 		else {
 			await this.rengerLogoutHome();
 		}
-
-		//TEST A SUPPRIMER\
-/*		const req = await desactivateTwoFa();
-		if (req.ok)
-		{
-			console.log('obj: ', req.status);
-		}
-		else
-			alert(req.error);
-		//*/
 		
 	await this.addInApp();
 	}

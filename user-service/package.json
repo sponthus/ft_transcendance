@@ -21,6 +21,9 @@
     "qrcode": "^1.5.4",
     "slugify": "^1.6.6",
     "speakeasy": "^2.0.0",
+    "@fastify/oauth2": "^8.1.2",
+    "node-fetch": "^3.3.2",
+    "@fastify/cookie": "^11.0.2",
     "undici": "^7.16.0"
   }
 }

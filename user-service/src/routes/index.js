@@ -5,6 +5,7 @@ import friendsRoutes from './friendsRoutes.js';
 import internalRoutes from './internalRoutes.js';
 import notificationsRoutes from './notificationsRoutes.js';
 import routes2FA from './2faRoutes.js';
+import OAuthRoutes from './OAuthRoutes.js';
 
 export default async function newRoutes(fastify, options)
 {
@@ -15,4 +16,5 @@ export default async function newRoutes(fastify, options)
     await internalRoutes(fastify);
     await notificationsRoutes(fastify);
     await routes2FA(fastify);
+    await OAuthRoutes(fastify); // a mettre ailleurs ??
 }

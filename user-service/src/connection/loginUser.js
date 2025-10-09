@@ -31,7 +31,14 @@ export default async function loginUser (request, reply)
             token = await reply.jwtSign({ idUser, username, slug, twofa_pending: true }, {expiresIn: '3m'});
         else
             token = await reply.jwtSign({ idUser, username, slug }, {expiresIn: '1h'});
-        return reply.code(200).send({ token: token, twoFaEnabled: userData.twofa_enabled });
+        return reply.code(200).setCookie('token', token,
+            {
+                httpOnly: true, 
+                signed: true,
+                secure: false, 
+                path: '/', 
+                maxAge: 3600000
+            }).send({ twoFaEnabled: userData.twofa_enabled });
     }
     catch (err)
     {

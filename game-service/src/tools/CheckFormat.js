@@ -129,7 +129,6 @@ export function checkWebSocketMessageFormat(message) {
 		type: "object",
 		properties: {
 			type: { type: "string", minLength: 3 },
-			token: { type: "string", minLength: 10, maxLength: 500 }, // TODO : Rm me when auth comes through cookie
 			gameId: { type: "number", minimum: 1 },
 			input: {
 				type: "object",
@@ -153,7 +152,7 @@ export function checkWebSocketMessageFormat(message) {
 					properties: { type: { const: "auth" } }
 				},
 				then: {
-					required: ["type", "token", "gameId"] // TODO rm token when auth comes through cookie
+					required: ["type", "gameId"]
 				}
 			},
 			{
