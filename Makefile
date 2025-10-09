@@ -6,6 +6,7 @@ USERS_DIR = user-service
 UPLOAD_DIR = upload-service
 GAMES_DIR = game-service
 API_DIR = api-gateway
+SESSIONS_DIR = session-service
 
 USERS_DB_NAME = users.db
 GAMES_DB_NAME = games.db
@@ -139,7 +140,8 @@ clean-modules:
 		$(USERS_DIR)/node_modules \
 		$(UPLOAD_DIR)/node_modules \
 		$(GAMES_DIR)/node_modules \
-		$(API_DIR)/node_modules
+		$(API_DIR)/node_modules \
+		$(SESSIONS_DIR)/node_modules
 	@rm -f $(FRONTEND_DIR)/package-lock.json \
     	$(USERS_DIR)/package-lock.json \
     	$(UPLOAD_DIR)/package-lock.json \

@@ -24,18 +24,19 @@ export class PongGame {
 			// Load Q-table from JSON file
 			const data = fs.readFileSync("q_table.json", "utf-8");
 			this.qtable = JSON.parse(data);
-			console.log(this.qtable);
-			console.log(typeof this.qtable);
-			console.log(typeof this.qtable["00"]);
+			console.debug("Q-Table loaded");
+			console.debug(this.qtable);
+			// console.debug(typeof this.qtable);
+			// console.debug(typeof this.qtable["00"]);
 		}
-
-		console.log("LAUNCHING A GAME WITH AI MODE ", this.gameMode);
+		
 		if (option)
 			this.gameOption = 1;
 		else
 			this.gameOption = 0;
-
+		
 		this.gameId = gameId;
+		console.debug("➡️ Launching game ", this.gameId, " with AI mode ", this.gameMode, " and option ", this.gameOption);
 
 		this.inputs = {}; // { player1: {...}, player2: {...} }
 		this.input1 = {};

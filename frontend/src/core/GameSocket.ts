@@ -1,6 +1,6 @@
 /// <reference types="vite/client" />
 import Ajv, { ErrorObject } from "ajv";
-import { ErrorPopup } from "../pages/ErrorPage";
+import { ErrorPopup } from "../pages/ErrorPage.js"; 
 
 export interface WebSocketMessage {
 	type: string;
@@ -85,17 +85,19 @@ export function checkWebSocketMessageFormat(message: WebSocketMessage): FormatCh
 				type: "string", 
 				minLength: 1, 
 				maxLength: 100,
-				pattern: "^(?=.*[a-zA-ZÀ-ÿ0-9])[a-zA-ZÀ-ÿ0-9 \\-]+$" 
+				pattern: "^(?!@?[_-])(?!.*[_-]$)(?!^\\s)(?!.*\\s$)(?!.*\\s{2})(?!.*(?:\\s.*){3})(?=.*[A-Za-z])(?!@?[0-9_-]+$)@?[A-Za-z0-9 _-]+$" // Updated pattern 
 			},
 			scoreA: { type: "number", minimum: 0 },
 			scoreB: { type: "number", minimum: 0 },
 			playerA: { 
 				type: "string", 
-				minLength: 3
+				minLength: 3,
+				pattern: "^(?!@?[_-])(?!.*[_-]$)(?!^\\s)(?!.*\\s$)(?!.*\\s{2})(?!.*(?:\\s.*){3})(?=.*[A-Za-z])(?!@?[0-9_-]+$)@?[A-Za-z0-9 _-]+$" // Updated pattern
 			},
 			playerB: { 
 				type: "string", 
-				minLength: 3
+				minLength: 3,
+				pattern: "^(?!@?[_-])(?!.*[_-]$)(?!^\\s)(?!.*\\s$)(?!.*\\s{2})(?!.*(?:\\s.*){3})(?=.*[A-Za-z])(?!@?[0-9_-]+$)@?[A-Za-z0-9 _-]+$" // Updated pattern
 			}
 		},
 		additionalProperties: false,
@@ -174,7 +176,7 @@ export class GameSocket {
         if (status === "development")
             return `ws://${import.meta.env.VITE_DOMAIN_NAME}:8080/g-ws/`;
         else
-            return `wss://${import.meta.env.VITE_DOMAIN_NAME}/g-ws/`;
+            return `wss://${import.meta.env.VITE_DOMAIN_NAME}:4443/g-ws/`;
     }
 
 	private setupEventListeners() {
@@ -219,7 +221,7 @@ export class GameSocket {
             console.log("Connexion WebSocket closed");
             this.stopHeartbeat();
 			// TODO Complete logic here, when the websocket is closed
-			if (this.playing === false)
+			if (this.playing === true)
 				this.reconnect();
 			// Do we reconnect on close if playing ? Websocket can also be closed if backend recompiles
         };

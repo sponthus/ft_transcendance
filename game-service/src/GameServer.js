@@ -46,7 +46,7 @@ export default class GameServer {
 	}
 
     setHandlers(game) {
-		console.log("Handlers are set");
+		// console.debug("Handlers are set");
         this.ws.on('close', () => {
             if (this.end == false) {
 				gameEventEmitter.emitGameEvent('player:disconnected', this.gameId, {

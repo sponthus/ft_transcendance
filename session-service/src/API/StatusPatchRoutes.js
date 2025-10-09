@@ -1,4 +1,4 @@
-import { checkChangeInfosFormat, checkIdFormat, checkStatusFormat } from "../CheckFormat.js";
+import { checkChangeInfosFormat, checkIdFormat, checkStatusFormat } from "../tools/CheckFormat.js";
 
 // Updates the infos of a user (in case of a change of username/slug)
 // Expecting in the body: username, slug

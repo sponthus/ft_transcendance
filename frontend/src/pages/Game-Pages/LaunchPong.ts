@@ -61,7 +61,7 @@ export class launchPong {
 
 	private EndGame(id: number) {
 		this.Render.engine?.stopRenderLoop();
-		this.Render.PongGame!.GamePhysics!.stopGame();
+		this.Render.PongGame!.GamePhysics!.stopGame(); // Close socket
 		this.Render.PongGame!.GamePhysics!.SetWin = false;
 		this.GamePage.addOverlayToWindow();
 		if (this.tournament && this.GamePage._tournamentPage._tournamentId && !this.GamePage._tournamentPage._isFinal)
