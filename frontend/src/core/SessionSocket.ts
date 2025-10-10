@@ -1,6 +1,8 @@
 /// <reference types="vite/client" />
 import { refreshNotification } from "../Utils/notification";
 import Ajv, { ErrorObject } from "ajv";
+import { navigate } from "./router";
+import { ErrorPopup } from "../pages/ErrorPage.js";
 
 export interface WebSocketMessage {
 	type: string;
@@ -119,11 +121,16 @@ export class SessionSocket {
             console.error("Error WebSocket:", error);
         };
 
-        this.sWS.onclose = () => {
+        this.sWS.onclose = (event) => {
             console.log("Connexion WebSocket closed");
             this.stopHeartbeat();
-            // TODO Add logic here, when the websocket is closed
-			this.reconnect(); // Do we reconnect on close ? Websocket can also be closed if backend recompiles
+			if (event.code == 4002) {
+				console.error("WebSocket closed due to authentication failure");
+				ErrorPopup("Session expired, please log in again");
+				navigate('/login');
+			} else {
+            	this.reconnect();
+			}
         };
     }
 
