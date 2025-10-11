@@ -615,7 +615,7 @@ export default class DatabaseHandler {
 			return { ok: false, error: error.error };
 		}
 
-		const result = transaction(tournamentId, status);
+		const result = this.db.transaction(tournamentId, status); // mit this.db, ELODIE 
 		return (result);
 	}
 

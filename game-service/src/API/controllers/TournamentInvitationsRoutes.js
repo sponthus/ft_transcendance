@@ -6,7 +6,7 @@ import { sendTournamentAcceptation } from "../requests/SendTournamentAcceptation
 
 export async function acceptTournamentInvitation(request, reply) {
 	console.log('➡️ User accessed POST /tournament/accept');
-	const acceptingUserId = request.body.acceptingUserId;
+	const acceptingUserId = request.body.userId; //Changer par rapport au JSON envoyer, Elodie
 	const ownerUserId = request.body.ownerUserId;
 	const tournamentName = request.body.tournamentName;
 	const tournamentId = request.body.tournamentId;
@@ -123,7 +123,7 @@ export async function declineTournamentInvitation(request, reply) {
 	const ownerUserId = request.body.ownerUserId;
 	const tournamentId = request.body.tournamentId;
 	const tournamentName = request.body.tournamentName;
-	const refusingUserId = request.body.refusingUserId;
+	const refusingUserId = request.body.userId;
 
 	if (!refusingUserId || !tournamentId || !tournamentName || !ownerUserId) {
 		return reply.code(400).send({ error: 'Bad request, missing arguments.'});

@@ -3,9 +3,11 @@ type Failure = { ok: false; error: string };
 
 export type AllNotifs = 
 {
-    username: string; // change for slug
+    slug: string;
     notif_type: string;
     notif_status: number;
+    //tournament_name: string;
+    //sender_slug: string;
     created_at: string;
 };
 

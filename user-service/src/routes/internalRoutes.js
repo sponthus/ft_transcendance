@@ -1,10 +1,8 @@
 import { getBasicInfoOnUsers, getIdUserFromSlug, getUserInfosFromId } from "../internal-service/BasicInfoOnUsers.js";
-import { addTournamentNotif } from "../menu/notifications/tournaments/tournaments.js";
 
 export default async function internalRoutes(fastify)
 {
     fastify.get("/internal-service/users-info", { preHandler: [fastify.verifyApiKey] }, getBasicInfoOnUsers);
     fastify.get("/internal-service/:slug", { preHandler: [fastify.verifyApiKey] }, getIdUserFromSlug);
 	fastify.get("/internal-service/infos/:idUser", { preHandler: [fastify.verifyApiKey] }, getUserInfosFromId);
-	fastify.get("/internal-service/post-tournament-notification/:idUser", { preHandler: [fastify.verifyApiKey] }, addTournamentNotif);
 }

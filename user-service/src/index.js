@@ -72,19 +72,25 @@ export function getSecret(name)
 
 fastify.decorate("verifyApiKey", async function (request, reply)
 {
+    console.log('PASSSSSEEEE PAR LA VERIFICATION API KEY');
     const   apiKey = request.headers['x-internal-api-key'];
     if (!apiKey || apiKey !== getSecret('api_key'))
 		return reply.code(401).send({ error: 'Unauthorized: Invalid API Key' });
+
+    console.log('request.body :', request.body);
+    console.log('request.body type :', typeof request.body);
+
+    console.log('FINNNIII  LA VERIFICATION API KEY');
 });
 
 fastify.decorate("authenticate_2fa", async function (request, reply)
 {
     try 
     {
-        const result = fastify.unsignCookie(request.cookies.token); //verifie manuellement signature cookie
+        const result = fastify.unsignCookie(request.cookies.token); 
         if (!result.valid)
             return reply.code(401).send({ error: "Invalid cookie" });
-        request.user = await fastify.jwt.verify(result.value); //Décode et verifie le token et stock ses infos dans request
+        request.user = await fastify.jwt.verify(result.value);
         console.log("Decoded token 2fa :", request.user);
         if (request.user.twofa_pending === false)
             return reply.code(401).send({ error: "only tmp token" });
@@ -104,6 +110,7 @@ fastify.decorate("authenticate_2fa", async function (request, reply)
  
 fastify.decorate("authenticate", async function (request, reply)
 {
+    //TODO PENSEZ A VERIFIER SI LE USER EXISTE ET LE RESTE DES TABLLES ?
     try 
     {
         // console.debug("\nToken dans le user-service avant unsign cookie : -" + request.cookies.token + "-");

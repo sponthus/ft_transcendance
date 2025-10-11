@@ -14,11 +14,11 @@ export async function sendTournamentAcceptation(inviterId, inviteeId, tournament
 
 	const api_key = getSecret('api_key');
 	try {
-		const res = await fetch(`${prefix}://user-service:${env.user_port}/internal-service/post-tournament-notification`, // TODO change URL
+		const res = await fetch(`${prefix}://user-service:${env.user_port}/notifications/tournament/post-notification`,
 		{
 			method: 'POST',
 			headers: {
-				'x-internal-api-key': api_key
+				'x-internal-api-key': api_key, 'Content-Type': 'application/json'
 			},
 			body : JSON.stringify({
 				type: "tournament_accept",
@@ -29,9 +29,9 @@ export async function sendTournamentAcceptation(inviterId, inviteeId, tournament
 			}),
 			dispatcher: tlsAgent
 		});
-		const data = await res.json();
 		if (res.ok)
 			return { ok: true };
+		const data = await res.json();
 		return { ok: false, error: data.error };
 	} catch (error) {
 		console.error("❌ Error while sending tournament ready notice: ", error);
