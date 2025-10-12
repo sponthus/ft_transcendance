@@ -73,7 +73,7 @@ async function dbConnector(fastify, options)
     }
     catch (err)
     {
-        console.log("Error : database init failed " + err.message);
+        console.log("Error : database init failed ");
         //si db pas creer que faire ?
     }
     fastify.decorate("db", db); // Makes db connection accessible throughout application as fastify.db

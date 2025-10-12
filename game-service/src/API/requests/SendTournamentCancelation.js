@@ -23,6 +23,7 @@ export async function sendTournamentCancelation(playersIds, tournamentId, tourna
 			body : JSON.stringify({
 				type: "tournament_cancel",
 				receiverId: playersIds,
+				senderId: 0, //pourquoi que lui sans ? J'ai rajouter le 0. ELODIE
 				tournamentId: tournamentId,
 				tournamentName: tournamentName
 			}),

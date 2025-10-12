@@ -17,8 +17,8 @@ export async function addTournamentNotif (request, reply)
         {
             for (const id of receiverIds)
             {
-                // if type === ready || cancel
-                //fonction qui check les notifications --> si ready ou annuler enlever les notifs
+                if (type === 'tournament_ready' || type === 'tournament_cancel')
+                    clearNotif(db, id, tournamentId);
                 addNotif(db, id, senderId, type, tournamentId, tournamentName);
             }
         });
@@ -40,11 +40,20 @@ export async function addTournamentNotif (request, reply)
     }
 }
 
+function clearNotif(db, receiverId, tournamentId)
+{
+    db.prepare( "   DELETE FROM \
+                        notifications \
+                    WHERE \
+                        notif_user_id = ? \
+                    AND \
+                        notif_tournament_id = ? \
+                    AND \
+                        notif_type IN('tournament_invite', 'tournament_accept')").run(receiverId, tournamentId);
+}
+
 function addNotif(db, receiverId, senderId, type, tournamentId, tournamentName)
 {
-    console.log('\nreceiverId = ', receiverId);
-    console.log('\nsenderId = ', senderId);
-    console.log('\ntype = ', type);
     const countRow = db.prepare("   SELECT COUNT(*) AS \
                                         notif_count \
                                     FROM \

@@ -1,7 +1,7 @@
 import { BasePage } from "./BasePage.js";
 import { append, createAnchorElement, createDiv, createImage } from "../Utils/elementMaker.js";
 import { checkLog } from "../api/user-service/connection/check-log.js";
-import { answerTournament } from "../api/user-service/menu/tournaments.js";
+import { answerTournament } from "../api/user-service/menu/notifications/tournaments.js";
 
 export class HomePage extends BasePage {
 
@@ -29,13 +29,13 @@ export class HomePage extends BasePage {
 		else {
 			await this.rengerLogoutHome();
 		}
-		const req = await answerTournament('ebriere', 'asd', 'accept');
+		const req = await answerTournament('ebriere2', 'asd', 'accept');
 		if (req.ok)
 		{
 			console.log('congraaatss :)');
 		}
 		else
-			console.log('EH BAH NON');
+			alert(req.error);
 		
 	await this.addInApp();
 	}

@@ -4,5 +4,5 @@ import { userAnswerTournament } from "../menu/notifications/tournaments/userAnsw
 export default async function tournamentRoutes(fastify) 
 {
 	fastify.post("/notifications/tournament/post-notification", { preHandler: [fastify.verifyApiKey] }, addTournamentNotif);
-	fastify.get("/notifications/tournament/answer", { preHandler: [fastify.authenticate] }, userAnswerTournament);
+	fastify.post("/notifications/tournament/answer", { preHandler: [fastify.authenticate] }, userAnswerTournament);
 }
