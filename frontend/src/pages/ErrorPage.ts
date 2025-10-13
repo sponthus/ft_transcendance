@@ -4,7 +4,7 @@ import { append, createButton, createDiv, createElement } from "../Utils/element
 
 let ErrPopup: popUp;
 
-export function ErrorPopup(Error: string) {
+export async function ErrorPopup(Error: string) {
 	ErrPopup = new popUp("Error");
 	ErrPopup.Body.className = 'flex flex-col items-center justify-center bg-white rounded-xl shadow-xl p-6 w-80 h-[25%] w-[25%] gap-4 -translate-y-96 transition-transform duration-300 ease-out';
 	ErrPopup.Title.className = 'text-lg font-bold mb-4 text-red-500 text-center';

@@ -1,5 +1,5 @@
 import { createDiv, createElement, createButton, createDropdownDiv, createFormDiv, createCheckBoxLabel, append, setbackgroundImages} from '../../Utils/elementMaker.js';
-import { getAllTournaments, getTournamentMatches, GameInfos } from '../../api/game-service/tournaments/getTournaments.js';
+import { getAllTournaments, getTournamentMatches, GameInfos, getFinishedTournaments } from '../../api/game-service/tournaments/getTournaments.js';
 import { UserInfo } from '../../api/user-service/user-info/getUserInfo.js';
 import { FillHistory } from './HistoryPage.js';
 import { ErrorPopup } from '../ErrorPage.js';
@@ -11,7 +11,7 @@ export async function DisplayeTournamentHistoryPage(Body: HTMLElement, UserData:
 	isopen = false;
 	Body.className = "flex flex-col items-center bg-orange-300  bg-opacity-50 w-full h-[60%] flex overflow-auto";
 	try {
-		const res = await getAllTournaments(UserData.slug!);
+		const res = await getFinishedTournaments(UserData.slug!);
 		if (!res.ok) {
 			Body.textContent = "Error loading games... please retry ";
 			return ;
@@ -32,7 +32,7 @@ export async function DisplayeTournamentHistoryPage(Body: HTMLElement, UserData:
 					createBeginAt(PartyDiv, i, party);
 					createFinishAt(PartyDiv, i, party);
 					createCreatedAt(PartyDiv, i, party);
-					createCreatedBy(PartyDiv, i, UserData.username);
+					createCreatedBy(PartyDiv, i, party);
 					createWinner(PartyDiv, i, party);
 					
 					btnsMap.set(PartyDiv, PartyPan);
@@ -52,7 +52,8 @@ async function FillPartyTournament(Body: HTMLElement, games:any, UserData: UserI
 		const data = await getTournamentMatches(games.id!);
 		if (data.ok) {
 			const Matchs = data.matches;
-			Matchs.map((mach: GameInfos, i: number) => {FillHistory(Body, Matchs,i, UserData);});
+			console.log("Matchs = ", Matchs);
+			Matchs.map((match: GameInfos, i: number) => {FillHistory(Body, match,i, UserData);});
 		}
 	} catch(error) {
 		ErrorPopup(error as string);
@@ -136,9 +137,9 @@ function createCreatedAt(PartyDiv: HTMLElement, i: number, Party: any) {
 	append(PartyDiv, [CreatedAtDivs]);
 }
 
-function createCreatedBy(PartyDiv: HTMLElement, i: number, UserName: string) {
+function createCreatedBy(PartyDiv: HTMLElement, i: number, Party: any) {
 	const CreatedBytDivs = createHistoryDiv("created-by" + i.toString()) as HTMLElement;
-	append(CreatedBytDivs, [(createElement('h2', "created" + i.toString(), `${UserName}` , "text-emerald-600 text-center row-start-3") as HTMLElement)]);
+	append(CreatedBytDivs, [(createElement('h2', "created" + i.toString(), `${Party.created_by}` , "text-emerald-600 text-center row-start-3") as HTMLElement)]);
 
 	append(PartyDiv, [CreatedBytDivs]);
 }

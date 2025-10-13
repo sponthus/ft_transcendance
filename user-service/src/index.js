@@ -107,26 +107,61 @@ fastify.decorate("authenticate_2fa", async function (request, reply)
         }
     }
 });
- 
+
+// Refresh token
+function refreshToken(user, reply)
+{
+	const newToken = fastify.jwt.sign(
+	{
+		idUser: user.idUser,
+		username: user.username,
+		slug: user.slug
+	}, 
+	{ expiresIn: '1h' });
+	let secure = false;
+	if (env.nodeEnv === 'production')
+		secure = true;
+	reply.setCookie('token', newToken, {
+		httpOnly: true,
+		signed: true,
+		secure: secure,
+		path: '/',
+		maxAge: 3600000
+	});
+	console.log("Token refreshed in user-service" + newToken);
+}
+
 fastify.decorate("authenticate", async function (request, reply)
 {
     //TODO PENSEZ A VERIFIER SI LE USER EXISTE ET LE RESTE DES TABLLES ?
     try 
     {
-        // console.debug("\nToken dans le user-service avant unsign cookie : -" + request.cookies.token + "-");
+        // console.debug("⚡️⚡️⚡️⚡️⚡️⚡️ ⚡️⚡️⚡️⚡️⚡️⚡️ ");
+		// console.debug("\nToken dans le user-service avant unsign cookie : -" + request.cookies.token + "-");
         const result = fastify.unsignCookie(request.cookies.token); //verifie manuellement signature cookie
         if (!result.valid)
             return reply.code(401).send({ error: "Invalid cookie" });
         // console.debug("\nToken dans le user-service : " + result.value + "-");
         request.user = await fastify.jwt.verify(result.value); //Décode et verifie le token et stock ses infos dans request
         // console.debug("Decoded token:", request.user);
+
         if (request.user.twofa_pending === true)
             return reply.code(401).send({ error: "2FA required" });
-    } 
-    catch (err)
-    {
-        if (err.message === "Authorization token expired")
-        {
+
+		// Refresh token if it's about to expire soon
+		const now = Date.now() / 1000;
+		const expThreshold = 900; // 15 minutes * 60s
+		if (request.user.exp - now < expThreshold) {
+			refreshToken(request.user, reply);
+		} 
+		// else {
+		// 	console.debug("Token still valid, no need to refresh");
+		// }
+	}
+	catch (err)
+	{
+		if (err.message === "Authorization token expired")
+		{
             return reply.code(401).send({error : err.message});
         }
         else

@@ -34,7 +34,7 @@ export default class GameMaster {
 			return true;
 		} 
 		else {
-			console.log(`❌ No game server available for user ${userId}`);
+			// console.debug(`❌ No game server available for user ${userId}`);
 			return false;
 		}
     }

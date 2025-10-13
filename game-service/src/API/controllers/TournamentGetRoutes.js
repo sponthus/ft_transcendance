@@ -32,20 +32,32 @@ export async function getTournamentsForSlug(request, reply) {
 
 	try {
 		// console.debug("Trying to find tournaments with userId " + userId);
-		const tournaments = db.getTournamentsForUserId(userId);
+		let tournaments = db.getTournamentsForUserId(userId);
 		if (!tournaments || tournaments.length === 0) {
 			return reply.code(200).send([]);
 		}
 		console.log(`Found ${tournaments.length} tournaments for user ${userId}`);
 		// console.debug(tournaments); // To show the found data
-		if (tournaments[0].winner && tournaments[0].winner[0] === '@') {
-			const winnerId = tournaments[0].winner.slice(1);
-			const winnerName = await getUserInfoFromId(winnerId);
-			if (!winnerName.ok || !winnerName.infos || !winnerName.infos.slug || winnerName.infos.slug == undefined) {
-				console.error("❌ Player slug not found: ", winnerId);
-				return reply.code(404).send({ error: `Player not found.`});
-			} else {
-				tournaments[0].winner = `@${winnerName.infos.slug}`;
+		for (let tournament of tournaments) {
+			if (tournament.created_by) {
+				const creatorId = tournament.created_by;
+				const creatorName = await getUserInfoFromId(creatorId);
+				if (!creatorName.ok || !creatorName.infos || !creatorName.infos.slug || creatorName.infos.slug == undefined) {
+					console.error("❌ Player slug not found: ", creatorId);
+					return reply.code(404).send({ error: `Player not found.`});
+				} else {
+					tournament.created_by = `@${creatorName.infos.slug}`;
+				}
+			}
+			if (tournament.winner && tournament.winner[0] === '@') {
+				const winnerId = tournament.winner.slice(1);
+				const winnerName = await getUserInfoFromId(winnerId);
+				if (!winnerName.ok || !winnerName.infos || !winnerName.infos.slug || winnerName.infos.slug == undefined) {
+					console.error("❌ Player slug not found: ", winnerId);
+					return reply.code(404).send({ error: `Player not found.`});
+				} else {
+					tournament.winner = `@${winnerName.infos.slug}`;
+				}
 			}
 		}
 		return reply.code(200).send(tournaments);
@@ -78,7 +90,7 @@ export async function getTournamentMatches(request, reply) {
 
 	try {
 		console.log("Trying to find tournaments with tournamentId " + tournamentId);
-		const matches = db.getMatchesForTournamentId(tournamentId);
+		let matches = db.getMatchesForTournamentId(tournamentId);
 		if (!matches || matches.length === 0) {
 			return reply.code(404).send({ error : 'No tournament found.'});
 		}
@@ -87,6 +99,30 @@ export async function getTournamentMatches(request, reply) {
 		// Tests OK
 		for (let i = 0; i < matches.length; i++) {
 			const match = matches[i];
+			const creatorName = await getUserInfoFromId(match.created_by);
+			// console.debug(player1Name);
+			// console.debug(player1Name.infos);
+			if (!creatorName.ok) {
+				console.error("❌ Player not found: ", player1Id);
+				return reply.code(404).send({ error: "Match user owner not found" });
+			}
+			else {
+				match.created_by = `@${creatorName.infos.slug}`;
+				// console.debug(`Replaced @${player1Id} with ${matches[i].player_a}`);
+			}
+			if (match.winner && match.winner[0] === '@') {
+				const winnerId = match.winner.slice(1);
+				const winnerName = await getUserInfoFromId(winnerId);
+				// console.debug(winnerId);
+				// console.debug(winnerName.infos);
+				if (!winnerName.ok) {
+					console.error("❌ Player not found: ", winnerId);
+					return reply.code(404).send({ error: "User winner not found" });
+				} else {
+					match.winner = `@${winnerName.infos.slug}`;
+					// console.debug(`Replaced @${winnerId} with ${matches[i].winner}`);
+				}
+			}
 			if (match.player_a[0] === '@') {
 				const player1Id = match.player_a.slice(1);
 				const player1Name = await getUserInfoFromId(player1Id);
@@ -115,6 +151,8 @@ export async function getTournamentMatches(request, reply) {
 				}
 			}
 		}
+		// console.debug("SENDING RESULT FOR THE MATCHES :");
+		// console.debug(matches);
 		return reply.code(200).send(matches);
 	}
 	catch (error) {

@@ -174,46 +174,50 @@ export default class DatabaseHandler {
     updateGameStatus(gameId, status) {
         console.log('updating game ' + gameId + ' with status ' + status);
         
-		let transaction;
-		if (status === 'ongoing') {
-            transaction = this.db.transaction((gameId, status) => {
-				const stmt = this.db.prepare(`
-	UPDATE games 
-	SET status = ?, began_at = CURRENT_TIMESTAMP
-	WHERE id = ?
-				`);
-				const res = stmt.run(status, gameId);
-				if (res.changes === 0) {
-					throw new Error("No game found with the given gameId");
-				}
-				return {
-					gameId: gameId,
-					status: status
-				};
-			});
-        }
-        else if (status === 'finished' || status === 'canceled') {
-            transaction = this.db.transaction((gameId, status) => {
-				const stmt = this.db.prepare(`
-	UPDATE games 
-	SET status = ?, finished_at = CURRENT_TIMESTAMP
-	WHERE id = ?
-				`);
-				const res = stmt.run(status, gameId);
-				if (res.changes === 0) {
-					throw new Error("No game found with the given gameId");
-				}
-				return {
-					gameId: gameId,
-					status: status
-				};
-			});
-        }
-        else
-        	throw new Error("Unknown game status");
-
-		const result = transaction(gameId, status);
-		return (result);
+		try {
+			let transaction;
+			if (status === 'ongoing') {
+				transaction = this.db.transaction((gameId, status) => {
+					const stmt = this.db.prepare(`
+		UPDATE games 
+		SET status = ?, began_at = CURRENT_TIMESTAMP
+		WHERE id = ?
+					`);
+					const res = stmt.run(status, gameId);
+					if (res.changes === 0) {
+						throw new Error("No game found with the given gameId");
+					}
+					return {
+						gameId: gameId,
+						status: status
+					};
+				});
+			}
+			else if (status === 'finished' || status === 'canceled') {
+				transaction = this.db.transaction((gameId, status) => {
+					const stmt = this.db.prepare(`
+		UPDATE games 
+		SET status = ?, finished_at = CURRENT_TIMESTAMP
+		WHERE id = ?
+					`);
+					const res = stmt.run(status, gameId);
+					if (res.changes === 0) {
+						throw new Error("No game found with the given gameId");
+					}
+					return {
+						gameId: gameId,
+						status: status
+					};
+				});
+			}
+			else
+				throw new Error("Unknown game status");
+	
+			const result = transaction(gameId, status);
+			return (result);
+		} catch (error) {
+			return ({ ok: false, error: error.message });
+		}
     }
 
 	// Test ok
@@ -432,18 +436,32 @@ export default class DatabaseHandler {
 
 	// Gives all informations except userId
 	getTournamentsForUserId(userId) {
-		const transaction = this.db.transaction((userId) => {
-			const stmt = this.db.prepare(`
-	SELECT id, status, name, next_game, created_at, began_at, finished_at, winner, option
-	FROM tournaments
-	WHERE id_user = ?
-	ORDER BY created_at DESC
-			`);
-			const results = stmt.all(userId);
-			return (results);
-		});
-		const results = transaction(userId);
-		return (results);
+        const transaction = this.db.transaction((userId) => {
+            const stmtCreated = this.db.prepare(`
+    SELECT id, status, name, next_game, created_at, began_at, finished_at, winner, option, id_user AS created_by
+    FROM tournaments
+    WHERE id_user = ?
+            `); // created by user
+            const created = stmtCreated.all(userId);
+
+            const stmtJoined = this.db.prepare(`
+    SELECT t.id, t.status, t.name, t.next_game, t.created_at, t.began_at, t.finished_at, t.winner, t.option, t.id_user AS created_by
+    FROM tournaments t
+    JOIN tournament_players tp ON tp.tournament_id = t.id
+    WHERE tp.name = ? AND t.id_user != ?
+            `); // user is player not creator
+            const joined = stmtJoined.all(`@${userId}`, userId);
+
+            const combined = created.concat(joined);
+            combined.sort((a, b) => {
+                const da = new Date(a.created_at || 0).getTime();
+                const db = new Date(b.created_at || 0).getTime();
+                return db - da;
+            });
+            return (combined);
+        });
+        const results = transaction(userId);
+        return (results);
     }
 
 	getMatchesForTournamentId(tournamentId) {
@@ -451,6 +469,7 @@ export default class DatabaseHandler {
 			const stmt = this.db.prepare(`
 	SELECT
 		g.id,
+		g.id_user AS created_by,
 		tm.round,
 		tm.match_number AS match,
 		g.status,
@@ -459,6 +478,7 @@ export default class DatabaseHandler {
 		g.score_a,
 		g.score_b,
 		g.began_at,
+		g.created_at,
 		g.finished_at,
 		g.winner,
 		g.score,
@@ -571,6 +591,24 @@ export default class DatabaseHandler {
 		SET status = ?
 		WHERE id = ?
 			`);
+			if (status == "ongoing_game") {
+				// console.debug("Maybe tournament is beginning ?");
+				const getTournamentStmt = this.db.prepare(`
+		SELECT status
+		FROM tournaments
+		WHERE id = ?
+				`);
+				const tournament = getTournamentStmt.get(tournamentId);
+				// console.debug("tournament = ", tournament);
+				if (tournament.status === "pending") {
+					const updateBeganAtStmt = this.db.prepare(`
+		UPDATE tournaments 
+		SET began_at = CURRENT_TIMESTAMP
+		WHERE id = ?
+					`);
+					updateBeganAtStmt.run(tournamentId);		
+				}
+			}
 			const res = updateStatusStmt.run(status, tournamentId);
 			if (res.changes === 0) {
 				throw new Error("No tournament found with the given tournamentId");
@@ -583,6 +621,7 @@ export default class DatabaseHandler {
 	}
 
 	updateTournamentStatus(tournamentId, status) {
+		// console.debug("Updating tournament ", tournamentId, " to status ", status);
         try {
 			const transaction = this.db.transaction((tournamentId, status) => {
 				const getTournamentStmt = this.db.prepare(`
@@ -594,29 +633,40 @@ export default class DatabaseHandler {
 				
 				let updateStatusStmt = null;
 				if (tournament.status === "pending") {
+					// console.debug("Tournament is pending, setting began_at...");
 					updateStatusStmt = this.db.prepare(`
 		UPDATE tournaments 
 		SET status = ?, began_at = CURRENT_TIMESTAMP
 		WHERE id = ?
 					`);
+					// console.debug("Running update stmt...");
+					const res = updateStatusStmt.run(status, tournamentId);
+					// console.debug("Update stmt run, res = ", res);
+					if (res.changes === 0) {
+						// console.debug("Error in updateTournamentStatus: No tournament found with the given tournamentId");
+						throw new Error("No tournament found with the given tournamentId");
+					}
 				} 
 				else {
 					const update = this.updateTournamentStatusLogic(tournamentId, status);
-					if (!update.ok)
+					if (!update.ok) {
+						// console.debug("Error in updateTournamentStatus: ", update.error);
 						throw new Error(update.error);
-					const result = {
-						tournamentId: tournamentId,
-						status: status
-					};
-					return ({ ok: true, data: result });
+					}
 				}
+				const result = {
+					tournamentId: tournamentId,
+					status: status
+				};
+				return ({ ok: true, data: result });
 			});
+			const result = this.db.transaction(tournamentId, status); // mit this.db, ELODIE 
+			// console.debug("Result of updateTournamentStatus: ", result);
+			return (result);
 		} catch (error) {
-			return { ok: false, error: error.error };
+			// console.debug("Error in updateTournamentStatus: ", error);
+			return { ok: false, error: error.message };
 		}
-
-		const result = this.db.transaction(tournamentId, status); // mit this.db, ELODIE 
-		return (result);
 	}
 
 	deleteTournament(tournamentId) {
@@ -861,7 +911,7 @@ export default class DatabaseHandler {
 		WHERE tournament_id = ?
 			`);
 			const rows = stmt.all(tournamentId);
-			console.debug(rows);
+			// console.debug(rows);
 			if (!rows || rows.length === 0) {
 				throw new Error("No players found");
 			} 

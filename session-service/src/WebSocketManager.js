@@ -118,6 +118,40 @@ export default class WebSocketManager {
 
 	/*************************** CONNECT / DISCONNECT ************************/
 	
+	checkDelog() {
+		// console.debug("Checking for users to delog...");
+		const now = Date.now() / 1000;
+		for (const [userId, client] of this.clients.entries()) {
+			if (client.status !== 'disconnected' && client.exp > 0) {
+				// console.debug(now, client.exp);
+				if (now > client.exp) {
+					console.log(`User ${userId} has been connected for too long without navigating, disconnecting`);
+					this.disconnectUser(client, 4003, "Session expired");
+				}
+			}
+		}
+	}
+
+	async watchDelog() {
+		while (true) {
+			try { 
+				this.checkDelog();
+			} catch (error) {
+				console.error("Error in watchDelog:", error);
+			}
+			await this.sleep(60000); // Check every minute
+		}
+	}
+
+	disconnectUser(client, code, reason) {
+		for (const ws of client.ws) {
+			this.disconnectWs(ws, code, reason);
+		}
+		client.ws = [];
+		client.status = 'disconnected';
+		client.currentGame = 0;
+	}
+
 	disconnectWs(ws, code, reason) {
 		const userId = this.getUserIdByWs(ws);
         if (userId) {
@@ -163,7 +197,7 @@ export default class WebSocketManager {
 	}
 
 	// Once auth is ok, register the ws in the clients map
-    registerUser(ws, userId, username, slug, status) {
+    registerUser(ws, userId, username, slug, status, exp = 0) {
 		if (this.clients.has(Number(userId))) {
 			const client = this.clients.get(Number(userId));
 			if (ws)
@@ -173,17 +207,21 @@ export default class WebSocketManager {
 			client.currentGame = 0;
 			client.username = username;
 			client.slug = slug;
-			console.log(`✅ Known user authenticated: ${userId} (${username}) / slug=${slug} / status=${status}`);
-		} 
+			if (client.exp < exp)
+				client.exp = exp;
+			console.log(`✅ Known user authenticated: ${userId} (${username}) / slug=${slug} / status=${status} / exp=${exp}`);
+		}
 		else {
 			this.clients.set(Number(userId), {
 				ws: [ws],
 				username: username,
+				slug: slug,
 				status: status,
 				currentGame: 0,
-				messages: []
+				messages: [],
+				exp: exp
 			});
-			console.log(`✅ New user authenticated: ${userId} (${username}) / slug=${slug} / status=${status}`);
+			console.log(`✅ New user authenticated: ${userId} (${username}) / slug=${slug} / status=${status} / exp=${exp}`);
 		}
     }
 
@@ -203,7 +241,14 @@ export default class WebSocketManager {
 			return ;
 		}
 		
-		const { idUser, username, slug } = data;
+		console.debug("Decoded token data:", data);
+		if (!data.idUser || !data.username || !data.slug || !data.exp) {
+			console.error("❌ Incomplete token data");
+			ws.close(4002, "Invalid authentication");
+			return ;
+		}
+		
+		const { idUser, username, slug, iat, exp } = data;
 		let oldMessages = [];
 		try {
 			const client = this.getClientByUserId(idUser);
@@ -214,7 +259,7 @@ export default class WebSocketManager {
 			console.error("Error fetching old messages", error);
 		}
 
-		this.registerUser(ws, idUser, username, slug, "online");
+		this.registerUser(ws, idUser, username, slug, "online", exp);
 
 		this.sendToWs(ws, {
 			type: 'auth_success'

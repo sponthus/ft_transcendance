@@ -38,11 +38,22 @@ export async function getGamesForSlug(request, reply) {
 
 	try {
 		// console.log("Trying to find games with userId " + userId);
-		const games = db.getGamesForUserId(userId);
+		let games = db.getGamesForUserId(userId);
 		if (!games || games.length === 0) {
 			return reply.code(200).send([]);
 		}
 		for (let i = 0; i < games.length; i++) {
+			if (games[i].created_by) {
+				const creatorId = games[i].created_by;
+				const creatorName = await getUserInfoFromId(creatorId);
+				if (!creatorName.ok || !creatorName.infos || !creatorName.infos.slug || creatorName.infos.slug == undefined) {
+					console.error("❌ Player slug not found: ", creatorId);
+					return reply.code(404).send({ error: `Player not found.`});
+				}
+				else {
+					games[i].created_by = `@${creatorName.infos.slug}`;
+				} // TODO check me when it's possible to make a game with @user
+			}
 			if (games[i].player_a[0] === '@') {
 				const playerAId = games[i].player_a.slice(1);
 				const playerAName = await getUserInfoFromId(playerAId);
