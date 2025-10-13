@@ -23,7 +23,7 @@ export async function addTournamentNotif (request, reply)
             }
         });
         addNotifTournament(type, receiverIds, senderId, tournamentId, tournamentName);
-        await Promise.all(receiverIds.map(async (id) => //.map parcout chaque id
+      /*  await Promise.all(receiverIds.map(async (id) => //.map parcout chaque id
             {
                 const result = await notifyRefresh(id, username.username, type);
                 if (!result.ok)
@@ -31,7 +31,7 @@ export async function addTournamentNotif (request, reply)
                         console.log("erreur notifiy refresh");
                         throw new Error(result.error || "Internal Server Error");
                     }
-            })); 
+            })); */
         return reply.code(200).send();
     }
     catch (err)

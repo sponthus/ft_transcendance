@@ -37,10 +37,6 @@ type TournamentSuccess = { ok: true; tournament: TournamentInfos }
 export type TournamentResult = TournamentSuccess | Failure;
 
 export async function createTournament(name: string, playersList: Array<string>, option: number = 1): Promise<TournamentResult> {
-	const token = localStorage.getItem("token");
-    if (!token)
-        return { ok: false, error: "No token"};
-
 	console.log('name', name, 'players list', playersList);
 
 	try {
@@ -48,8 +44,8 @@ export async function createTournament(name: string, playersList: Array<string>,
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
-				'Authorization': `Bearer ${token}`
 			},
+            credentials: 'include',
 			body: JSON.stringify({
 				name: name,
 				players: playersList,

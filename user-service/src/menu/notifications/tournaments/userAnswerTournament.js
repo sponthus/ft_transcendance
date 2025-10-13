@@ -1,4 +1,4 @@
-//import env from "../../../config/env.js";
+import env from "../../../../config/env.js";
 import { getSecret } from "../../../index.js";
 import prefix from "../../../tools/url.js";
 import tlsAgent from "../../../tools/tlsAgent.js";
@@ -46,13 +46,13 @@ export async function   userAnswerTournament(request, reply)
         let url;
         if (answer === "decline")
         {;
-            //url = `${prefix}://session-service:${env.session_port}/tournament/decline`;
-            url = `http://session-service:3004/tournament/decline`;
+            url = `${prefix}://game-service:${env.game_port}/tournament/decline`;
+            //url = `http://session-service:3004/tournament/decline`;
         }
         else
         {
-            //url = `${prefix}://session-service:${env.session_port}/tournament/accept`;
-            url = `http://session-service:3004/tournament/accept`;
+            url = `${prefix}://game-service:${env.game_port}/tournament/accept`;
+            //url = `http://session-service:3004/tournament/accept`;
         }
         answerTournament(idUser, ownerId.id, tournamentId.notif_tournament_id, tournamentName, url);
         return reply.code(200).send();
