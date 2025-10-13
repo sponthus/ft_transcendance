@@ -98,30 +98,30 @@ export class Score {
 	// }
 
 	private _phrases: string[] = [
-    "Combien au score Patrick ?",
-    "C’est moi ou il triche lui ?",
-    "Passe la balle, cousin !",
-    "On est là pour gagner !",
+    "What's the score Patrick ?",
+    "He's a cheater right ?",
+    "Pass the ball cousin !",
+    "We are here to win !",
 	"PATRIIICK !!!!",
-	"Je suis un glouton Barjot",
-	"T'aurais pas vu Garry ?",
-	"Paté de crab !",
-	"On se fait chier nan ?",
-	"Crabméhaméha !!",
+	"I'm a Goofy Goober 🎵",
+	"Have you seen Garry ?",
+	"Krabby patty 🎵 !",
+	"Boring, right ?",
+	"Crabmehameha !!",
 	" La🎵lala🎵🎵.. "
 	];
 
 	private _goalBob: string[] = [
-    "MAMAMILLA, QUEL BUT!",
+    "MAMMA MIA, WHAT A GOAL!",
     "OMYGOD!",
-    "CHE PASSSSOOOOO !",
-    "C'EST DU JAMAIS VU !",
+    "CHE PASSOOOOO !",
+    "UNPRECEDENTED !",
 	"ROCRABDO !",
-	"1, 2 ET 3 ZERO🎵!",
-	"L'HUMILIATION",
-	"AHA, QU'IL EST NULL!",
+	"1, 2 AND 3 ZERO🎵!",
+	"HUMILIATION",
+	"AHA, HE SUCKS!",
 	"POPOPO !",
-	"UNE DECULOTE !"
+	"WOW"
 	];
 	
 }
