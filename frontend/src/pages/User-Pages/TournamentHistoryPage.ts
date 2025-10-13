@@ -52,9 +52,9 @@ async function FillPartyTournament(Body: HTMLElement, games:any, UserData: UserI
 		const data = await getTournamentMatches(games.id!);
 		if (data.ok) {
 			const Matchs = data.matches;
-			Matchs.map((match: GameInfos, i: number) => {
-				fillHistoryStubborn(Body);
-				FillHistory(Body, match, i, UserData);});
+			console.log("Matchs = ", Matchs);
+			fillHistoryStubborn(Body);
+			Matchs.map((match: GameInfos, i: number) => {FillHistory(Body, match,i, UserData);});
 		}
 	} catch(error) {
 		await ErrorPopup(error as string);
