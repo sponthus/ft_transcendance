@@ -27,7 +27,7 @@ export class Score {
 		// plane pour mesh
 		this._bobSpeak = MeshBuilder.CreatePlane("textPlane", { size: 4 }, this._scene);
 		this._bobSpeak.parent = this._bullBob;
-		this._bobSpeak.position = new Vector3(-2, 1.8, -0.1); // décalé au-dessus de ton mesh
+		this._bobSpeak.position = new Vector3(0, 0, -0.1); // décalé au-dessus de ton mesh
 		this._bobSpeak.rotation = new Vector3(0, Math.PI, 0); // 180° sur Y
 		// GUI sur le plane
 		this._advancedTextureBob = AdvancedDynamicTexture.CreateForMesh(this._bobSpeak);
