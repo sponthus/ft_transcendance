@@ -9,6 +9,7 @@ import dbConnector from "./db.js";
 import logger from "../config/logger.js";
 import routes from "./routes/index.js";
 import { initOAuthGithub } from "./connection/githubStrategy.js";
+import { refreshToken } from "./tools/refreshToken.js";
 //import { getSecret } from "./tools/getSecret.js";
 
 const __filename = fileURLToPath(import.meta.url); // This filename, from ESM expression to classic path
@@ -108,29 +109,6 @@ fastify.decorate("authenticate_2fa", async function (request, reply)
     }
 });
 
-// Refresh token
-function refreshToken(user, reply)
-{
-	const newToken = fastify.jwt.sign(
-	{
-		idUser: user.idUser,
-		username: user.username,
-		slug: user.slug
-	}, 
-	{ expiresIn: '1h' });
-	let secure = false;
-	if (env.nodeEnv === 'production')
-		secure = true;
-	reply.setCookie('token', newToken, {
-		httpOnly: true,
-		signed: true,
-		secure: secure,
-		path: '/',
-		maxAge: 3600000
-	});
-	console.log("Token refreshed in user-service" + newToken);
-}
-
 fastify.decorate("authenticate", async function (request, reply)
 {
     //TODO PENSEZ A VERIFIER SI LE USER EXISTE ET LE RESTE DES TABLLES ?
@@ -152,7 +130,7 @@ fastify.decorate("authenticate", async function (request, reply)
 		const now = Date.now() / 1000;
 		const expThreshold = 900; // 15 minutes * 60s
 		if (request.user.exp - now < expThreshold) {
-			refreshToken(request.user, reply);
+			refreshToken(fastify, request.user, reply);
 		} 
 		// else {
 		// 	console.debug("Token still valid, no need to refresh");

@@ -33,7 +33,7 @@ export default async function registerUser(request, reply)
         const pw_hash = bcrypt.hashSync(password, saltRounds);
 
         const idUser = fillInfoUserInDb(db, username, slug, avatar, pw_hash);
-        const token = await reply.jwtSign({ idUser, username, slug }, {expiresIn: '1h'});
+        const token = await reply.jwtSign({ idUser, username, slug }, {expiresIn: '1m'});
         let secure = false;
             if (env.nodeEnv === 'production')
                 secure = true;
