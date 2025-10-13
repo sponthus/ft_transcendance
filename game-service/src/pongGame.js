@@ -25,7 +25,7 @@ export class PongGame {
 			const data = fs.readFileSync("q_table.json", "utf-8");
 			this.qtable = JSON.parse(data);
 			console.debug("Q-Table loaded");
-			console.debug(this.qtable);
+			// console.debug(this.qtable);
 			// console.debug(typeof this.qtable);
 			// console.debug(typeof this.qtable["00"]);
 		}
