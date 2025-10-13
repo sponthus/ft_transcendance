@@ -125,9 +125,14 @@ export class SessionSocket {
             console.log("Connexion WebSocket closed");
             this.stopHeartbeat();
 			if (event.code == 4002) {
+				console.error("Websocket closed due to authentication error");
+				alert("Authentication error, please log in again");
+				navigate('/login'); // TODO Emma : The popup can't show so I put an alert
+			}
+			else if (event.code == 4003) {
 				console.error("WebSocket closed due to authentication failure");
-				ErrorPopup("Session expired, please log in again");
-				navigate('/login');
+				alert("Session expired, please log in again");
+				navigate('/login'); // TODO Emma : The popup can't show so I put an alert
 			} else {
             	this.reconnect();
 			}

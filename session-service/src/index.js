@@ -176,7 +176,7 @@ async function launch_app() {
         console.info('WebSocket server listening on port ', env.session_ws_port);
     });
 
-	WSManager.watchDelog();
+	await WSManager.watchDelog();
 }
 
 launch_app();

@@ -118,19 +118,38 @@ export default class WebSocketManager {
 
 	/*************************** CONNECT / DISCONNECT ************************/
 	
-	watchDelog() {
-		while (true) {
-			for (const [userId, client] of this.clients.entries()) {
-				if (client.status === 'in-game') {
-					const now = Math.floor(Date.now() / 1000);
-					if (now > client.exp) { // 5 minutes after exp
-						console.log(`User ${userId} has been connected  for too long, disconnecting`);
-						this.disconnectWs(null, 4003, "In-game timeout");
-					}
+	checkDelog() {
+		// console.debug("Checking for users to delog...");
+		const now = Date.now() / 1000;
+		for (const [userId, client] of this.clients.entries()) {
+			if (client.status !== 'disconnected' && client.exp > 0) {
+				// console.debug(now, client.exp);
+				if (now > client.exp) {
+					console.log(`User ${userId} has been connected for too long without navigating, disconnecting`);
+					this.disconnectUser(client, 4003, "Session expired");
 				}
 			}
-			this.sleep(60000); // Check every minute
 		}
+	}
+
+	async watchDelog() {
+		while (true) {
+			try { 
+				this.checkDelog();
+			} catch (error) {
+				console.error("Error in watchDelog:", error);
+			}
+			await this.sleep(60000); // Check every minute
+		}
+	}
+
+	disconnectUser(client, code, reason) {
+		for (const ws of client.ws) {
+			this.disconnectWs(ws, code, reason);
+		}
+		client.ws = [];
+		client.status = 'disconnected';
+		client.currentGame = 0;
 	}
 
 	disconnectWs(ws, code, reason) {
