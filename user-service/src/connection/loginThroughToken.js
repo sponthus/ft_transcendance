@@ -3,7 +3,7 @@ export default async function loginThroughToken(request, reply)
         console.log("Login through token");
         const db = request.server.db;
         const idUser = request.user.idUser;
-        console.log('POPO : ', request.user.idUser);
+        // console.debug('POPO : ', request.user.idUser);
         try 
         {
                 const userData = db.prepare("   SELECT \
@@ -13,7 +13,7 @@ export default async function loginThroughToken(request, reply)
                                                 WHERE \
                                                         id = ?").get(idUser);
                 if (!userData)
-                        return reply.code(404).send({ error: "User not found" });
+					return reply.code(404).send({ error: "User not found" });
                 return reply.code(200).send({ username: userData.username, slug: userData.slug });
         }
         catch (err)
