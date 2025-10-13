@@ -5,7 +5,7 @@ import tlsAgent from "../../tools/tlsAgent.js";
 
 // TODO tests
 // TODO Elodie : change URL when ready
-export async function sendTournamentCancelation(playersIds, tournamentId, tournamentName) {
+export async function sendTournamentCancelation(ownerUserId, playersIds, tournamentId, tournamentName) {
 	if (!playersIds || !tournamentId || !tournamentName) {
 		console.error("❌ Error while sending tournament cancelation notification: missing parameters");
 		return { ok: false, error: "Error while sending tournament cancelation notification: missing parameters"};
@@ -23,7 +23,7 @@ export async function sendTournamentCancelation(playersIds, tournamentId, tourna
 			body : JSON.stringify({
 				type: "tournament_cancel",
 				receiverId: playersIds,
-				senderId: 0, //pourquoi que lui sans ? J'ai rajouter le 0. ELODIE
+				senderId: ownerUserId, //pourquoi que lui sans ? J'ai rajouter le 0. ELODIE
 				tournamentId: tournamentId,
 				tournamentName: tournamentName
 			}),

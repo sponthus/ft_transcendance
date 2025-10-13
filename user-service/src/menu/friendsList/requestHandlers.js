@@ -59,7 +59,7 @@ export async function   acceptRequest(request, reply)
                                             id = ?").get(idUser);
         const result = await notifyRefresh(sender.id, username.username, "friend_accept");
         if (!result.ok)
-            throw new Error(result.error || "Internal Server Error");
+            return reply.code(result.status).send({ error: result.error });
         return reply.code(200).send();
     }
     catch (err)
@@ -113,7 +113,7 @@ export async function   rejectRequest(request, reply)
                                             id = ?").get(idUser);
         const result = await notifyRefresh(sender.id, username.username, "friend_reject");
         if (!result.ok)
-            throw new Error(result.error || "Internal Server Error");
+            return reply.code(result.status).send({ error: result.error });
         return reply.code(200).send();    
     }
     catch (err)

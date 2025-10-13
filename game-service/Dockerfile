@@ -11,4 +11,6 @@ ENV WS_PORT=${WS_PORT}
 
 EXPOSE $WS_PORT
 
+RUN apk add --no-cache sqlite sqlite-libs bash vim curl
+
 ENTRYPOINT ["entrypoint.sh"]

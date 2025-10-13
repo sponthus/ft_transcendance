@@ -152,7 +152,6 @@ fastify.decorate("authenticate", async function (request, reply)
     {
         return reply.code(500).send( {error : "Internal Server Error" + err.message} );
     }*/
-    
 });
 
 

@@ -22,6 +22,7 @@ export async function addTournamentNotif (request, reply)
                 addNotif(db, id, senderId, type, tournamentId, tournamentName);
             }
         });
+        console.log(type)
         addNotifTournament(type, receiverIds, senderId, tournamentId, tournamentName);
       /*  await Promise.all(receiverIds.map(async (id) => //.map parcout chaque id
             {
@@ -29,14 +30,14 @@ export async function addTournamentNotif (request, reply)
                 if (!result.ok)
                     {
                         console.log("erreur notifiy refresh");
-                        throw new Error(result.error || "Internal Server Error");
+                        return reply.code(result.status).send({ error: result.error });
                     }
             })); */
         return reply.code(200).send();
     }
     catch (err)
     { 
-        return reply.code(500).send({ error: "Internal Server Error" });
+        return reply.code(500).send({ error: "Internal Server Error" + err.message });
     }
 }
 

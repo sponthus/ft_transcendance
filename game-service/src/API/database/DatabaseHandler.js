@@ -842,6 +842,7 @@ export default class DatabaseHandler {
 						return { ok: false, ready: false, error: "Could not change tournament status because: " + changeTournamentStatus.error };
 					}
 				}
+				console.log('ICIIIIIIIIIIIIIIIIIIIIIIII :)', hasAllPlayerAccepted);
 				return ({ ok: true, ready: true, error: false, result: result, playerIds: hasAllPlayerAccepted.players, owner: hasAllPlayerAccepted.owner });
 			});
 			const result = transaction(userId, tournamentId);
@@ -865,10 +866,11 @@ export default class DatabaseHandler {
 				throw new Error("No players found");
 			} 
 			else {
-				const players = rows
-					.filter(row => row.has_accepted === ACCEPTED || row.has_accepted === NO_NEED)
-					.map(row => row.name);
-				const waitingFor = rows.filter(row => row.has_accepted !== ACCEPTED && row.has_accepted !== NO_NEED).map(row => row.name);
+				let players = rows
+					.filter(row => row.has_accepted === ACCEPTED)
+					.map(row => row.name.slice(1));
+
+				const waitingFor = rows.filter(row => row.has_accepted === WAITING).map(row => row.name);
 				if (waitingFor.length === 0) {
 					return {ok: true, waitingFor: [], players: players};
 				}
@@ -890,7 +892,7 @@ export default class DatabaseHandler {
 		return (result);
 	}
 
-	// Test ok
+	// Test ok:
 	declineTournamentInvitation(userId, tournamentId) {
 		try {
 			const transaction = this.db.transaction((userId, tournamentId) => {
@@ -910,7 +912,7 @@ export default class DatabaseHandler {
 				const playersToNotify = getPlayerStmt
 					.all(tournamentId)
 					.filter(row => row.has_accepted === ACCEPTED || row.has_accepted === WAITING)
-					.map(row => row.name);
+					.map(row => row.name.slice(1));
 				return { ok: true, playersToNotify: playersToNotify };
 			});
 			const result = transaction(userId, tournamentId);

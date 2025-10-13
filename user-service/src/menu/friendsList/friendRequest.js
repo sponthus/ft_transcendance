@@ -52,7 +52,7 @@ export async function   addFriend(request, reply)
                                             id = ?").get(idUser);
         const result = await notifyRefresh(friend.id, username.username, "friend_request");
         if (!result.ok)
-            throw new Error(result.error || "Internal Server Error");
+            return reply.code(result.status).send({ error: result.error });
         statement.run(idUser, friend.id);
         return reply.code(200).send();
     }

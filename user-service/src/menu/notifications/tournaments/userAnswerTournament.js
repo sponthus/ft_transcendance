@@ -2,13 +2,16 @@ import env from "../../../../config/env.js";
 import { getSecret } from "../../../index.js";
 import prefix from "../../../tools/url.js";
 import tlsAgent from "../../../tools/tlsAgent.js";
+import { checkAnswerFormat } from "../../../tools/checkFormat.js";
 
 export async function   userAnswerTournament(request, reply)
 {
     const db = request.server.db;
     const idUser = request.user.idUser;
-    const { ownerSlug, tournamentName, answer } = request.body;
+    const { ownerSlug, tournamentId, tournamentName, answer } = request.body;
 
+    if (checkAnswerFormat(request) == false)
+        return reply.code(400).send( {error : "Invalid format for user answer"} );
     try
     {   
         const ownerId = db.prepare("    SELECT \
@@ -18,21 +21,20 @@ export async function   userAnswerTournament(request, reply)
                                         WHERE \
                                             slug = ?").get(ownerSlug);
         if (!ownerId || !ownerId.id)
-            return reply.code(404).send({ error: "Resource not found ICI " });
+            return reply.code(404).send({ error: "Resource not found" });
 
-        const tournamentId = db.prepare("   SELECT \
+        /*const tournamentId = db.prepare("   SELECT \
                                                 notif_tournament_id \
                                             FROM \
                                                 notifications \
                                             WHERE \
-                                                notif_tournament_name = ?").get(tournamentName); //PROETGER AUSSI POUR LE TOURNAMENT ID
+                                                notif_tournament_name = ? \
+                                            AND \
+                                                notif_type = 'tournament_invite'").get(tournamentName); *///PROETGER AUSSI POUR LE TOURNAMENT ID
 
-        if (!tournamentId || !tournamentId.notif_tournament_id)
-            return reply.code(404).send({ error: "Resource not found ID TOUANMENT" });
+        /*if (!tournamentId || !tournamentId.notif_tournament_id)
+            return reply.code(404).send({ error: "Resource not found" });*/
 
-        console.log('\ntournamentId : ', tournamentId);
-        console.log('\nownerId : ', ownerId);
-        console.log('\nidUser : ', idUser);
         db.prepare(     "DELETE FROM \
                             notifications \
                         WHERE \
@@ -45,28 +47,27 @@ export async function   userAnswerTournament(request, reply)
                             notif_type = 'tournament_invite'").run(idUser, ownerId.id, tournamentId.notif_tournament_id);
         let url;
         if (answer === "decline")
-        {;
+        {
+            console.log("decline invitation")
             url = `${prefix}://game-service:${env.game_port}/tournament/decline`;
             //url = `http://session-service:3004/tournament/decline`;
         }
         else
         {
+            console.log("accept invitation")
             url = `${prefix}://game-service:${env.game_port}/tournament/accept`;
             //url = `http://session-service:3004/tournament/accept`;
         }
-        const req = await answerTournament(idUser, ownerId.id, tournamentId.notif_tournament_id, tournamentName, url);
+        const req = await answerTournament(idUser, ownerId.id, tournamentId, tournamentName, url);
 		if (req.ok)
 		{
 			return reply.code(200).send();
 		}
-		else
-		{
-			console.error("Error answering tournament:", req.error);
-		}
+        return reply.code(req.status).send({ error: req.error });
     }
     catch(err)
     {
-        return reply.code(500).send({ error: "Internal Server Error" });
+        return reply.code(500).send({ error: "Internal Server Error"});
     }
 }
 
@@ -74,8 +75,7 @@ export async function answerTournament(userId, ownerId, tournamentId, tournament
 {
     const api_key = getSecret('api_key');
 
-
-    console.log('info avant le FECTH: ', userId, ownerId, tournamentId, tournamentName, url);
+    console.debug('info avant le FECTH: ', userId, ownerId, tournamentId, tournamentName, url);
     const res = await fetch(url, 
     {
         method: 'POST',
@@ -87,7 +87,7 @@ export async function answerTournament(userId, ownerId, tournamentId, tournament
         body: JSON.stringify(
         { 
             userId: userId,
-            ownerId: ownerId,
+            ownerUserId: ownerId,
             tournamentId: tournamentId,
             tournamentName: tournamentName
         }),
@@ -97,5 +97,5 @@ export async function answerTournament(userId, ownerId, tournamentId, tournament
         return { ok: true };
     }
     const data = await res.json();    
-    return { ok: false, error: data.error };
+    return { ok: false, error: data.error, status: res.status };
 }

@@ -2,6 +2,7 @@ import { BasePage } from "./BasePage.js";
 import { append, createAnchorElement, createDiv, createImage } from "../Utils/elementMaker.js";
 import { checkLog } from "../api/user-service/connection/check-log.js";
 import { answerTournament } from "../api/user-service/menu/notifications/tournaments.js";
+import { getAllNotifications } from "../api/user-service/menu/notifications/getNotifications.js";
 
 export class HomePage extends BasePage {
 
@@ -29,10 +30,11 @@ export class HomePage extends BasePage {
 		else {
 			await this.rengerLogoutHome();
 		}
-		const req = await answerTournament('ebriere2', 'asd', 'accept');
+		/*TESSSTTT A SUPPRIMER*/
+		const req = await getAllNotifications();
 		if (req.ok)
 		{
-			console.log(req);
+			console.log('notifs: ', req.notifs);
 			console.log('congraaatss :)');
 		}
 		else

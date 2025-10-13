@@ -4,7 +4,7 @@ type Failure = { ok: false; error: string };
 export type Result = Success | Failure;
 
 
-export async function   answerTournament(senderSlug: string, tournamentName: string, answer: string): Promise<Result>
+export async function   answerTournament(senderSlug: string, tournamentId: number, tournamentName: string, answer: string): Promise<Result>
 {
     try
     {
@@ -13,7 +13,13 @@ export async function   answerTournament(senderSlug: string, tournamentName: str
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             credentials: 'include',
-            body: JSON.stringify({ ownerSlug: senderSlug, tournamentName:tournamentName, answer: answer }),
+            body: JSON.stringify(
+            {   
+                ownerSlug: senderSlug, 
+                tournamentId: tournamentId,
+                tournamentName: tournamentName,
+                answer: answer 
+            }),
         });
         if (res.ok)
         {
