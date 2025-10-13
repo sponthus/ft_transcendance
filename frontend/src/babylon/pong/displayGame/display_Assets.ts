@@ -94,7 +94,7 @@ export class DisplayAssets {
 
 		const result5 = await ImportMeshAsync("/assets/bob.glb", this._scene);
 		this._bob = result5.meshes[0];
-		this._bob.position.x = 7;
+		this._bob.position.x = 7.5;
 		this._bob.position.y = -0.3;
 		this._bob.position.z = -2;
 		this._bob.scaling = new Vector3(0.4, 0.4, 0.4);
