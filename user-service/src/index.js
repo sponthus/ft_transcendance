@@ -129,7 +129,8 @@ fastify.decorate("authenticate", async function (request, reply)
 {
     try 
     {
-        // console.debug("\nToken dans le user-service avant unsign cookie : -" + request.cookies.token + "-");
+        // console.debug("⚡️⚡️⚡️⚡️⚡️⚡️ ⚡️⚡️⚡️⚡️⚡️⚡️ ");
+		// console.debug("\nToken dans le user-service avant unsign cookie : -" + request.cookies.token + "-");
         const result = fastify.unsignCookie(request.cookies.token); //verifie manuellement signature cookie
         if (!result.valid)
             return reply.code(401).send({ error: "Invalid cookie" });

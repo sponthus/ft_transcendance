@@ -84,7 +84,7 @@ export default class WebSocketManager {
                 this.pong(ws);
                 break;
             case 'auth':
-                console.log('Handle message token: ', token);
+                // console.debug('Handle message token: ', token);
                 await this.authenticateUser(ws, token, message.gameId);
                 break;
             case 'input':
