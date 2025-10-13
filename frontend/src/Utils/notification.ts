@@ -45,13 +45,13 @@ function acceptInvitation(acceptBtn: HTMLButtonElement, userData: UserInfo) {
 		try {
 			const req = await acceptRequest(userData.username);
 			if (req.ok) {
-				ErrorPopup("accept invitation of " + userData.username);
+				await ErrorPopup("accept invitation of " + userData.username);
 				console.log("acctp invitation of ", userData.username);
 				refreshNotification();
 			}
 
 		} catch(error) {
-			ErrorPopup(error as string);
+			await ErrorPopup(error as string);
 		}
 	})
 }
@@ -64,13 +64,13 @@ function declineInvitation(declineBtn: HTMLButtonElement, userData: UserInfo) {
 		try {
 			const req = await rejectRequest(userData.username);
 			if (req.ok) {
-				ErrorPopup("decline invitation of " + userData.username);
+				await ErrorPopup("decline invitation of " + userData.username);
 				console.log("acctp invitation of ", userData.username);
 				refreshNotification();
 			}
 
 		}catch(error) {
-			ErrorPopup(error as string);
+			await ErrorPopup(error as string);
 		}
 	})
 }
@@ -85,7 +85,7 @@ async function openNotification() {
 		if (req.ok)
 		return ; 
 	} catch(error) {
-		ErrorPopup(error as string);
+		await ErrorPopup(error as string);
 	}
 	// const notificationPannel = document.getElementById('notification-panel-div') as HTMLElement;
 	// setTimeout(() => {
@@ -129,7 +129,7 @@ async function fillUSerInfo(request: AllNotifs, parent: HTMLElement){
 				append(parent, [addREjectRequest(userData)]);
 		}
 	} catch (error) {
-		ErrorPopup(error as string);
+		await ErrorPopup(error as string);
 	}
 	addNumberInvitation();
 }
@@ -152,7 +152,7 @@ async function fillReceiveRequest(parent: HTMLElement) {
 		}
 		
 	} catch (error) {
-		ErrorPopup(error as string);
+		await ErrorPopup(error as string);
 	}
 }
 

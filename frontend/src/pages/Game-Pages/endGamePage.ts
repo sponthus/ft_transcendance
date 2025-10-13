@@ -56,7 +56,7 @@ export class endGamePage {
 				})
 			}
 		} catch(error) {
-			ErrorPopup(error as string);
+			await ErrorPopup(error as string);
 		}
 	}
 
@@ -70,7 +70,7 @@ export class endGamePage {
 				})
 			}
 		} catch(error) {
-			ErrorPopup(error as string);
+			await ErrorPopup(error as string);
 		}
 	}
 

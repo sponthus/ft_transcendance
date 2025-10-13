@@ -15,7 +15,7 @@ export class launchPong {
 		this.tournament = false;
 	}
 
-	render(gameId: number, tournament: boolean) {
+	async render(gameId: number, tournament: boolean) {
 		this.tournament = tournament;
 		this.GamePage.cleanPage();
 		this.GamePage.removeOverlayToWindow();
@@ -34,7 +34,7 @@ export class launchPong {
 		try {
 			this.Render.PongGame?.GamePhysics?.launchSocket(gameId);
 		} catch(error) {
-			ErrorPopup("Error launching pong websocket");
+			await ErrorPopup("Error launching pong websocket");
 			this.returnLobby();
 		}
 		this.Render.engine?.runRenderLoop(() => {

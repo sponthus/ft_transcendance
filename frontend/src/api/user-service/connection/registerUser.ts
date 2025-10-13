@@ -22,7 +22,7 @@ export async function registerUser(username: string, password: string): Promise<
             return { ok: true };
         }
         const data = await res.json();
-        ErrorPopup("Error : " + data.error); //enlever ErrorPopup ?
+        await ErrorPopup("Error : " + data.error); //enlever await ErrorPopup ?
         return { ok: false, error: data.error };
     }
     catch (err)

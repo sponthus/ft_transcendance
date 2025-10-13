@@ -59,7 +59,8 @@ export class popUp{
 	}
 
 	removeOverlayToWindow() {
-		document.body.removeChild(this._Overlay);
+		if (this._Overlay && this._Overlay.parentNode)
+			document.body.removeChild(this._Overlay);
 	}
 
 	changeTitleText(Title: string) {

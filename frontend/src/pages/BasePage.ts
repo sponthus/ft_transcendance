@@ -15,6 +15,7 @@ export abstract class BasePage {
         const appDiv = document.getElementById('app');
         if (!appDiv)
             throw new Error('App element not found');
+		// appDiv.className = "transform scale-100"
         this.app = appDiv;
 		// this.app.className = "min-h-[1080px] min-w-[1920px]";
         const bannerDiv = document.getElementById('banner');
@@ -44,7 +45,7 @@ export abstract class BasePage {
         }
         else {
             await renderLoggedOutBanner(this.banner);
-            //ErrorPopup(res.error); pas d'ErrorPopupe peut etre la 
+            //await ErrorPopup(res.error); pas d'await ErrorPopupe peut etre la 
         }
     }
 

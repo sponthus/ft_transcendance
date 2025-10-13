@@ -3,6 +3,7 @@
 import "@babylonjs/core/Debug/debugLayer";
 import * as BABYLON from "@babylonjs/core";
 import "@babylonjs/loaders/glTF";
+import { renderAsset } from "./renderAsset";
 
 export class renderAnimation {
 
@@ -17,8 +18,11 @@ export class renderAnimation {
 	private _openChest: BABYLON.AnimationGroup | null = null;
 	private _closeChest: BABYLON.AnimationGroup | null = null;
 
-	constructor (scene: BABYLON.Scene) {
+	private _renderAsset!: renderAsset;
+
+	constructor (scene: BABYLON.Scene, renderAsset: renderAsset) {
 		this._scene = scene;
+		this._renderAsset = renderAsset;
 
 		this._walkAnimation = this._scene?.getAnimationGroupByName("walk");
 		if (!this._walkAnimation)
@@ -40,6 +44,58 @@ export class renderAnimation {
 		this._closeChest = this._scene?.getAnimationGroupByName("chest_close");
 		if (!this._closeChest)
 			throw new Error("failed to load close animation");
+	}
+
+	animateTrees() {
+		if (!this._renderAsset.bendTrees)
+			return ;
+		const T = performance.now() * 0.003;
+		
+		this._renderAsset.bendTrees.forEach((tree, i) => {
+			const sway = Math.sin(T + i * 0.3) * 0.05;
+			const tilt = Math.cos(T * 0.8 + i * 0.5) * 0.02;
+
+			tree.rotationQuaternion = BABYLON.Quaternion.RotationYawPitchRoll(sway, tilt, 0);
+		})
+
+		if (!this._renderAsset.straightTrees)
+			return ;
+
+		this._renderAsset.straightTrees.forEach((tree, i ) =>{
+			const sway = Math.sin(T + i * 0.3) * 0.05;
+			const tilt = Math.cos(T * 0.8 + i * 0.5) * 0.02;
+
+			tree.rotationQuaternion = BABYLON.Quaternion.RotationYawPitchRoll(sway, tilt, 0);
+		})
+
+		if (this._renderAsset.leafShader)
+			this._renderAsset.leafShader.setFloat("time", performance.now() * 0.004);
+	}
+
+	animateBoat() {
+		if (!this._renderAsset.pirateBoat)
+			return ;
+
+		const T = performance.now() * 0.002;
+		const sway = Math.sin(T * 0.3) * 0.04;
+		const tilt = Math.cos(T * 0.4) * 0.01;
+		const bob = Math.sin(T * 0.5) * 0.05;
+		
+		this._renderAsset.pirateBoat.rotation.y = sway;
+		this._renderAsset.pirateBoat.rotation.x = tilt;
+		this._renderAsset.pirateBoat.position.y += bob * 0.01;
+
+
+		if (!this._renderAsset.sandcastle)
+			return ;
+
+		const T2 = performance.now() * 0.002;
+		const sway2 = Math.sin(T2 * 0.3) * 0.04;
+		const tilt2 = Math.cos(T2 * 0.4) * 0.01;
+		const bob2 = Math.sin(T2 * 0.5) * 0.05;
+		this._renderAsset.sandcastle.rotation.y = sway2;
+		this._renderAsset.sandcastle.rotation.x = tilt2;
+		this._renderAsset.sandcastle.position.y += bob2 * 0.01;
 	}
 
 	startWalk() {

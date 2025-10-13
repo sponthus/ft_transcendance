@@ -7,6 +7,7 @@ import { ImportMeshAsync } from "@babylonjs/core/Loading/sceneLoader";
 import { getCharacterAsset } from "../../api/user-service/menu/characterAsset";
 import { getNpcAsset } from "../../api/user-service/menu/npcAsset";
 import { ErrorPopup } from "../../pages/ErrorPage";
+import { createLeafShader } from "./shaders/leafShader";
 
 export class renderAsset {
 
@@ -16,8 +17,16 @@ export class renderAsset {
 	private _chest?: BABYLON.Mesh;
 	private _sandcastle ?: BABYLON.Mesh;
 
-	private _loadedMap?: Record<string, BABYLON.AbstractMesh>;
+	private _pirateBoat?: BABYLON.Mesh;
+	private _bendTrees?: BABYLON.TransformNode[] = [];
+	private _straighTrees?: BABYLON.TransformNode[] = [];
 
+	private _leafShader?: BABYLON.ShaderMaterial;
+
+
+	
+	
+	private _loadedMap?: Record<string, BABYLON.AbstractMesh>;
 	private _titleType: Record<number, string> = {
 			0: "nothing",
 			1: "/asset/environements/Models/GLBformat/patch-sand-foliage.glb",
@@ -32,6 +41,8 @@ export class renderAsset {
 	
 	constructor (scene: BABYLON.Scene) {
 		this._scene = scene;
+		// this._leafShader = createLeafShader(this._scene);
+		// this._leafShader.backFaceCulling = false;
 	}
 
 	public async _load(): Promise<void> {
@@ -46,15 +57,32 @@ export class renderAsset {
 	}
 
 	private async _loadGround(){
-		const ground = BABYLON.MeshBuilder.CreateGround("ground", {width:100, height:100, subdivisions: 4}, this._scene);
+		const ground: BABYLON.Mesh = BABYLON.MeshBuilder.CreateGround("ground", {width:100, height:100, subdivisions: 4}, this._scene);
 		ground.position = new BABYLON.Vector3(0, -0.5 , 0);
 		ground.checkCollisions = true;
 
 		const groundMaterial = new BABYLON.StandardMaterial("ground-material", this._scene);
-		groundMaterial.alpha = 0.0;
+		groundMaterial.alpha = 0;
 		groundMaterial.transparencyMode = BABYLON.Material.MATERIAL_ALPHABLEND;
 
 		ground.material = groundMaterial;
+
+		const Wall_S: BABYLON.Mesh = BABYLON.MeshBuilder.CreateBox("wall", {width: 100, height: 5, depth:0.2}, this._scene);
+		Wall_S.position.set(10, 0, -30);
+		Wall_S.isVisible = false;
+		Wall_S.checkCollisions = true;
+
+		const Wall_W: BABYLON.Mesh = BABYLON.MeshBuilder.CreateBox("wall", {width: 70, height: 5, depth:0.2}, this._scene);
+		Wall_W.position.set(-30, 0, 0);
+		Wall_W.isVisible = false;
+		Wall_W.rotation.set(0, -1.5, 0);
+		Wall_W.checkCollisions = true;
+
+		const Wall_E: BABYLON.Mesh = BABYLON.MeshBuilder.CreateBox("wall", {width: 70, height: 5, depth:0.2}, this._scene);
+		Wall_E.position.set(42, 0, 0);
+		Wall_E.isVisible = false;
+		Wall_E.rotation.set(0, -1.7, 0);
+		Wall_E.checkCollisions = true;
 	}
 
 	private async _loadPlayer() {
@@ -67,7 +95,7 @@ export class renderAsset {
 				console.log("AssetData = ", req.asset as number);
 			}
 		} catch(error) {
-			ErrorPopup(error as string);
+			await ErrorPopup(error as string);
 		}
 		const result = await ImportMeshAsync(`/asset/Characters/Models/GLBformat/character-${AssetNumber}.glb`, this._scene);
 		if (result)
@@ -89,7 +117,7 @@ export class renderAsset {
 				// console.log("AssetNumber NPC = " , AssetNumber);
 			}
 		} catch (error) {
-			ErrorPopup(error as string);
+			await ErrorPopup(error as string);
 		}
 		const result = await ImportMeshAsync(`/asset/Characters/Models/GLBformat1/character-${AssetNumber}.glb`, this._scene);
 		if (result)
@@ -158,10 +186,13 @@ export class renderAsset {
 		/**************************for boat 1**************************/
 		const resBoat1 = await ImportMeshAsync("/asset/environements/Models/GLBformat/ship-pirate-large.glb", this._scene)
 		this._addColisionForEach(resBoat1);
-		var boat1 = resBoat1.meshes[0];
-		boat1.position = new BABYLON.Vector3(-30 , -1, -5);
-		boat1.rotation = BABYLON.Vector3.Zero();
-		boat1.scaling.scaleInPlace(2);
+		this._pirateBoat = resBoat1.meshes[0] as BABYLON.Mesh;
+		this._pirateBoat.getChildMeshes().forEach(child => {
+			console.log('child boat : ', child.name);
+		});
+		this._pirateBoat.position = new BABYLON.Vector3(-30 , -1, -5);
+		this._pirateBoat.rotation = BABYLON.Vector3.Zero();
+		this._pirateBoat.scaling.scaleInPlace(2);
 
 		/**************************for boat 2**************************/
 		const resBoat2 = await ImportMeshAsync("/asset/environements/Models/GLBformat/ship-ghost.glb", this._scene)
@@ -215,62 +246,96 @@ export class renderAsset {
 
 	private async _loadStraightTrees() {
 		/**************************for straight tree**************************/
-		const result = await  ImportMeshAsync("/asset/environements/Models/GLBformat/palm-straight.glb", this._scene).then(function (result) {
+		const result = await  ImportMeshAsync("/asset/environements/Models/GLBformat/palm-straight.glb", this._scene)
 			var mesh: BABYLON.AbstractMesh = result.meshes[0];
-			mesh.setEnabled(false);
+
+			if (!this._leafShader)
+				this._initLeafShader(mesh);
+
 			for (let index:number = 0; index < 2; index++) {
-				var instance = mesh.instantiateHierarchy() as BABYLON.TransformNode;
+				var instance = mesh.clone("", null) as BABYLON.TransformNode;
 				instance.position = new BABYLON.Vector3(-23, 0,( index + 1) * 4);
 				instance.setEnabled(true);
 				instance.scaling.scaleInPlace(1.5);
 				instance.getChildMeshes().forEach(child => {
 					child.checkCollisions = true;
-				});
+					if (this._leafShader)
+						child.material = this._leafShader;});
+				this._straighTrees?.push(instance);
 			}
 			for (let index:number = 0; index < 3; index++) {
-				var instance = mesh.instantiateHierarchy() as BABYLON.TransformNode;
+				var instance = mesh.clone("", null) as BABYLON.TransformNode;
 				instance.position = new BABYLON.Vector3((index - 3) * 2, 0, 25);
 				instance.setEnabled(true);
 				instance.scaling.scaleInPlace(1.5);
 				instance.getChildMeshes().forEach(child => {
 					child.checkCollisions = true;
-				});
+					if (this._leafShader)
+						child.material = this._leafShader;});
+				this._straighTrees?.push(instance);
 			}
 			for (let index:number = 0; index < 2; index++) {
-				var instance = mesh.instantiateHierarchy() as BABYLON.TransformNode;
+				var instance = mesh.clone("", null) as BABYLON.TransformNode;
 				instance.position = new BABYLON.Vector3(25 * index, 0 , (index ) * 15);
 				instance.setEnabled(true);
 				instance.scaling.scaleInPlace(1.5);
 				instance.getChildMeshes().forEach(child => {
 					child.checkCollisions = true;
-				});
+					if (this._leafShader)
+						child.material = this._leafShader;});
+				this._straighTrees?.push(instance);
 			}
-		})
+			mesh.setEnabled(false);
 	}
 
 	private async _loadBendTrees() {
 		/**************************for bend tree**************************/
-		const result = await  ImportMeshAsync("/asset/environements/Models/GLBformat/palm-detailed-bend.glb", this._scene).then(function (result) {
+		const result = await ImportMeshAsync("/asset/environements/Models/GLBformat/palm-detailed-bend.glb", this._scene) 
 			var mesh: BABYLON.AbstractMesh = result.meshes[0];
-			mesh.setEnabled(false);
+
 			for (let index:number = 0; index < 2; index++) {
-				var instance = mesh.instantiateHierarchy() as BABYLON.TransformNode;
-				instance.position = new BABYLON.Vector3((index)* 30, 0,( index - 2) * 4);
+				var instance = mesh.clone("", null) as BABYLON.TransformNode;
+				instance.position = new BABYLON.Vector3((index)* 30, 0, (index - 5) * 4);
 				instance.setEnabled(true);
 				instance.scaling.scaleInPlace(1.5);
 				instance.getChildMeshes().forEach(child => {
 					child.checkCollisions = true;
-				});
+					if (this._leafShader)
+						child.material = this._leafShader;});
+				if (this._bendTrees)
+					this._bendTrees.push(instance);
 			}
 			for (let index:number = 0; index < 2; index++) {
-				var instance = mesh.instantiateHierarchy() as BABYLON.TransformNode;
+				var instance = mesh.clone("", null) as BABYLON.TransformNode;
 				instance.position = new BABYLON.Vector3((index - 2) * 3 , 0, 29);
 				instance.setEnabled(true);
 				instance.scaling.scaleInPlace(1.5);
 				instance.getChildMeshes().forEach(child => {
 					child.checkCollisions = true;
+					if (this._leafShader)
+						child.material = this._leafShader;
 				});
+				if (this._bendTrees)
+					this._bendTrees.push(instance);
 			}
+			mesh.setEnabled(false);
+	}
+
+	private _initLeafShader(mesh: BABYLON.AbstractMesh) {
+		mesh.getChildMeshes().forEach(child => {
+				const originalMaterial = child.material as BABYLON.StandardMaterial | BABYLON.PBRMaterial;
+			
+				let leafTexture: BABYLON.Texture | undefined;
+			
+				if (originalMaterial instanceof BABYLON.StandardMaterial && originalMaterial.diffuseTexture) {
+					if (originalMaterial.diffuseTexture instanceof BABYLON.Texture) {
+						leafTexture = originalMaterial.diffuseTexture;
+					}} 
+				else if (originalMaterial instanceof BABYLON.PBRMaterial && originalMaterial.albedoTexture) {
+					if (originalMaterial.albedoTexture instanceof BABYLON.Texture) {
+						leafTexture = originalMaterial.albedoTexture;}}
+				if (leafTexture) 
+					this._leafShader = createLeafShader(this._scene, leafTexture);
 		})
 	}
 
@@ -359,5 +424,29 @@ export class renderAsset {
 		if (!this._npc)
 			throw new Error("npc asset not initialized");
 		return this._npc;
+	}
+
+	get bendTrees(): BABYLON.TransformNode[] {
+		if (!this._bendTrees)
+			throw new Error("bend trees asset not initialized");
+		return this._bendTrees;
+	}
+
+	get straightTrees(): BABYLON.TransformNode[] {
+		if (!this._straighTrees)
+			throw new Error("bend trees asset not initialized");
+		return this._straighTrees;
+	}
+
+	get leafShader(): BABYLON.ShaderMaterial {
+		if (!this._leafShader)
+			throw new Error("no Leaf Shader found");
+		return this._leafShader;
+	}
+
+	get pirateBoat(): BABYLON.Mesh {
+		if (!this._pirateBoat)
+			throw new Error("pirate boat asset not initialized");
+		return this._pirateBoat;
 	}
 }

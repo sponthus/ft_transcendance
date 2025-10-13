@@ -39,8 +39,7 @@ export class SettingPage extends BasePage {
 	private async createHomeSetting() {
 	
 			this.Background = this.initBackground();
-			this.Background.className = "h-screen min-h-[1920x] w-screen min-w-[1024px] bg-gradient-to-br from-orange-100 to-orange-300 p-8";
-
+			this.Background.className = "flex flex-col items-center justify-center h-screen w-screen";
 			this.createFrontSettting();
 			this.createButtonDiv();
 
@@ -69,7 +68,7 @@ export class SettingPage extends BasePage {
 	}
 
 	private createGameSettingButton() {
-		const gameSettingButton = createButton("Game-Setting", "bg-orange-300 bg-opacity-10 text-orange-200 font-bold h-full w-[48%] h-full rounded-xl shadow-md hover:shadow-lg transition-all duration-200 transform hover:scale-105 text-6xl", "Game-Setting");
+		const gameSettingButton = createButton("Game-Setting", "bg-orange-300 bg-opacity-10 text-orange-200 font-bold h-full w-[40%] rounded-xl shadow-md hover:shadow-lg transition-all duration-200 transform hover:scale-105 text-6xl", "Game-Setting");
 		setbackgroundImages(gameSettingButton, "url('game_ui/setting/SettingPan.png')");
 		gameSettingButton.addEventListener('click', async(e) => {
 			this.statePage = 0;
@@ -79,7 +78,7 @@ export class SettingPage extends BasePage {
 	}
 
 	private createProfileSettingButton() {
-		const ProfileSettingButton = createButton("profile-setting", "bg-orange-300 bg-opacity-10 text-orange-200 font-bold h-full w-[48%] h-full rounded-xl shadow-md hover:shadow-lg transition-all duration-200 transform hover:scale-105 text-6xl", "Profile Setting");
+		const ProfileSettingButton = createButton("profile-setting", "bg-orange-300 bg-opacity-10 text-orange-200 font-bold h-full w-[40%] rounded-xl shadow-md hover:shadow-lg transition-all duration-200 transform hover:scale-105 text-6xl", "Profile Setting");
 		setbackgroundImages(ProfileSettingButton, "url('game_ui/setting/SettingPan.png')");
 		ProfileSettingButton.addEventListener('click', async(e) => {
 			this.statePage = 1;
@@ -90,8 +89,8 @@ export class SettingPage extends BasePage {
 
 	/*********************************************function utils**********************************************/
 	private async createReturnDiv() {
-		this.ReturnDiv = createDiv("return", "flex items-center justify-between bg-transparent space-x-4 h-[10%] hidden text-4xl -translate-y-24");
-		
+		this.ReturnDiv = createDiv("return", "flex items-center justify-around bg-transparent space-x-4 h-[10%] w-full hidden text-4xl -translate-y-24");
+
 		this.createReturnBtn();
 		this.createSaveBtn();
 		this.Background.appendChild(this.ReturnDiv);
@@ -99,14 +98,14 @@ export class SettingPage extends BasePage {
 	}
 
 	private createReturnBtn() {
-		const ReturnButton: HTMLButtonElement = createButton("return", "transition-all duration-200 transform hover:scale-105 w-[20%] h-full", " ");
+		const ReturnButton: HTMLButtonElement = createButton("return", "transition-all duration-200 transform hover:scale-105 w-[15%] h-full", " ");
 		setbackgroundImages(ReturnButton, "url('/game_ui/Backbtn.png')");
 		this.ReturnDiv.appendChild(ReturnButton);
 	}
 
 	private createSaveBtn() {
-		const DoneButton: HTMLButtonElement = createButton("done", "transition-all duration-200 transform hover:scale-105 w-[20%] h-full", "Done");
-
+		const DoneButton: HTMLButtonElement = createButton("done", "transition-all duration-200 transform hover:scale-105 w-[15%] h-full", " ");
+		setbackgroundImages(DoneButton, "url('/game_ui/saveBtn.png')")
 		this.ReturnDiv.appendChild(DoneButton);
 	}
 
@@ -181,7 +180,7 @@ export class SettingPage extends BasePage {
 			if (reqNpc.ok)
 				return ;
 		} catch (error) {
-			ErrorPopup(error as string);
+			await ErrorPopup(error as string);
 		}
 	}
 
@@ -194,7 +193,7 @@ export class SettingPage extends BasePage {
 				return ;
  
 		} catch (error) {
-			ErrorPopup(error as string);
+			await ErrorPopup(error as string);
 		}
 	}
 }

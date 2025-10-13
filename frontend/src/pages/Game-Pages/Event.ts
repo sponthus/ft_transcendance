@@ -10,6 +10,7 @@ import { createTournament } from "../../api/game-service/tournaments/newTourname
 import { ErrorPopup } from '../ErrorPage.js';
 import { AllUsers, getAllUsers } from '../../api/user-service/menu/getAllUsers.js';
 import { SessionSocket } from '../../core/SessionSocket.js';
+import { TournamentsInfos } from '../../api/game-service/tournaments/getTournaments.js';
 
 export enum PageState {MOD = 0, TOURNAMENT = 1, PARTY = 2, LOCALSETTING = 3, NEWTOURNAMENT = 4, CONTINUETOURNAMENT = 5, BRACKET = 6, WAITING = 7, WIN = 8};
 type USer = {slug: string, username: string};
@@ -89,7 +90,7 @@ export class Event {
 			if (!req.ok)
 			{
 			    console.log('Error GamePage: ', req.error);
-			    ErrorPopup("Error GamePage" + req.error);
+			    await ErrorPopup("Error GamePage" + req.error);
 			    return ;
 			}
 			const userData = req.userInfo;
@@ -108,7 +109,7 @@ export class Event {
 		}
 		catch (error) {
 			console.log("Error creating Games : ", error);
-			ErrorPopup('Error creating Game PLease try again: ' + error);
+			await ErrorPopup('Error creating Game PLease try again: ' + error);
 		}
 	}
 
@@ -313,9 +314,15 @@ export class Event {
 				this.UserTab = req.users;
 			}
 		} catch(error) {
-			ErrorPopup(error as string);
+			await ErrorPopup(error as string);
 		}
 	}
+
+	async manageWaitingScreenEvent() {
+		if (this.TournamentPage._backBtn)
+			this.TournamentPage._backBtn.addEventListener('click', async() => {this.continueTournament();});
+	}
+
 
 	/**********save new tournament**********/
 	private async saveTournament() {
@@ -330,7 +337,6 @@ export class Event {
 				throw new Error("Please enter a tournament name.");
 			const res = await createTournament(this.TournamentPage._tournamentName.value, PlayersNames, this.TournamentPage._option);
 			if (res.ok) {
-				console.log(res);
 				if (res.tournament.status === "invitations") {
 					this.StatePage = PageState.WAITING;
 					this.GamePage.generateWaitingScreen(res.tournament.tournament_id);
@@ -343,7 +349,7 @@ export class Event {
 			if (!res.ok)
 				throw new Error(res.error);
 		} catch (error) {
-			ErrorPopup(error as string);
+			await ErrorPopup(error as string);
 		}
 	}
 
@@ -366,10 +372,16 @@ export class Event {
 			this.TournamentPage._PartyMap.forEach((value, key) => {this.continueOneTournament(value, key)})
 	}
 
-	private continueOneTournament(btn: HTMLButtonElement, id: number){
+	private continueOneTournament(btn: HTMLButtonElement, game: TournamentsInfos){
 		btn.addEventListener('click', async() => {
-			this.setStatePage = PageState.BRACKET;
-			this.GamePage.generateBracketTournament(id);
+			if (game.status == 'invitations') {
+				this.StatePage = PageState.WAITING;
+				this.GamePage.generateWaitingScreen(game.id);
+			}
+			else {
+				this.setStatePage = PageState.BRACKET;
+				this.GamePage.generateBracketTournament(game.id);
+			}
 		})
 	}
 
@@ -388,12 +400,12 @@ export class Event {
 	}
 
 	/***********-*******playing match****************/
-	private PlayRound() {
+	private async PlayRound() {
 		/******************Find Next Round with this.tournamentPage._tournament*************/
 		try {
 			this.launchGame(this.TournamentPage._NextGameId, true);
 		} catch (error) {
-			ErrorPopup('error : ' + error);
+			await ErrorPopup('error : ' + error);
 		}
 	}
 
@@ -407,7 +419,7 @@ export class Event {
 			this.renderGame(gameId, tournament);
 		} 
 		catch (error) {
-			ErrorPopup(error as string);
+			await ErrorPopup(error as string);
 			await navigate('/game');
 		}
 	}

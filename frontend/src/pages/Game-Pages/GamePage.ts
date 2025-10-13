@@ -65,7 +65,7 @@ export class GamePage extends popUp {
 				console.log("add username ", this.userName);
 			}
 		} catch(error) {
-			ErrorPopup (error as string);
+			await ErrorPopup (error as string);
 		}
 	}
 
@@ -84,7 +84,7 @@ export class GamePage extends popUp {
 
 	/*********************************************function for rendering tournament Mod Page**********************************************/
 	async generateTournamentPage() {
-		this._Body.className = "relative flex flex-col items-center justify-center  h-[70%] w-[30%] transition-all duration-300 rounded-xl shadow-2xl";
+		this._Body.className = "relative flex flex-col items-center justify-center h-[70%] min-h-[590px] min-w-[576px] w-[30%] transition-all duration-300 rounded-xl shadow-2xl";
 		this.Page.className = "flex flex-col items-center w-full h-full transition-all opacity-0 duration-300 rounded-xl space-y-4";
 		setTimeout(async() => {
 			this.cleanPage();
@@ -97,7 +97,7 @@ export class GamePage extends popUp {
 		this.TournamentPage._playBtn.classList.add('translate-x-96');
 		this.TournamentPage._continueBtn.classList.add('-translate-x-96');
 		this.TournamentPage._backBtn.classList.add('-translate-x-96');
-		this._Body.className = "relative flex flex-col items-center justify-center  h-[90%] w-[50%] transition-all duration-300 rounded-xl shadow-2xl";
+		this._Body.className = "relative flex flex-col items-center justify-center h-[90%] min-h-[813px] w-[50%] min-w-[960px] transition-all duration-300 rounded-xl shadow-2xl";
 		this.Page.className = "flex flex-col items-center w-full h-full transition-all opacity-0 duration-300 rounded-xl space-y-4";
 		setTimeout(async() => {
 			this.cleanPage();
@@ -111,7 +111,7 @@ export class GamePage extends popUp {
 		this.TournamentPage._playBtn.classList.add('translate-x-96');
 		this.TournamentPage._continueBtn.classList.add('-translate-x-96');
 		this.TournamentPage._backBtn.classList.add('-translate-x-96');
-		this._Body.className = "relative flex flex-col items-center justify-center  h-[90%] w-[50%] transition-all duration-300 rounded-xl shadow-2xl";
+		this._Body.className = "relative flex flex-col items-center justify-center h-[90%] min-h-[813px] w-[50%] min-w-[960px] transition-all duration-300 rounded-xl shadow-2xl";
 		this.Page.className = "flex flex-col items-center w-full h-full transition-all opacity-0 duration-300 rounded-xl space-y-4";
 		setTimeout(async() => {
 			this.cleanPage();
@@ -122,18 +122,19 @@ export class GamePage extends popUp {
 	}
 
 	async generateWaitingScreen(IdTournament: number) {
-		this._Body.className = "relative flex flex-col items-center justify-center  h-[90%] w-[50%] transition-all duration-300 rounded-xl shadow-2xl";
+		this._Body.className = "relative flex flex-col items-center justify-center h-[90%] min-h-[813px] w-[50%] min-w-[960px] transition-all duration-300 rounded-xl shadow-2xl";
 		this.Page.className = "flex flex-col items-center w-full h-full transition-all opacity-0 duration-300 rounded-xl space-y-4";
 		setTimeout(async() => {
 			this.cleanPage();
 			this.TournamentPage.renderWaitingScreen(IdTournament);
+			this.Event.manageWaitingScreenEvent();
 			// manage Event waiting
 
 		},300);
 	}
 
 	async generateBracketTournament(IdTournament: number) {
-		this._Body.className = "relative flex flex-col items-center justify-center  h-[90%] w-[50%] transition-all duration-300 rounded-xl shadow-2xl";
+		this._Body.className = "relative flex flex-col items-center justify-center h-[90%] min-h-[813px] w-[50%] min-w-[960px] transition-all duration-300 rounded-xl shadow-2xl";
 		this.Page.className = "flex flex-col items-center w-full h-full transition-all opacity-0 duration-300 rounded-xl space-y-4";
 		setTimeout(async() => {
 			this.cleanPage();
@@ -144,7 +145,7 @@ export class GamePage extends popUp {
 
 	/*********************************************function for rendering 1v1 Mod Page**********************************************/
 	async generate1v1GamePage() {
-		this._Body.className = "relative flex flex-col items-center justify-center  h-[70%] w-[30%] transition-all duration-300 rounded-xl shadow-2xl";
+		this._Body.className = "relative flex flex-col items-center justify-center  h-[70%] min-h-[590px] min-w-[576px] w-[30%] transition-all duration-300 rounded-xl shadow-2xl";
 		this.Page.className = "flex flex-col items-center w-full h-full transition-all opacity-0 duration-300 rounded-xl space-y-4";
 		setTimeout(async() => {
 			this.cleanPage();
@@ -154,7 +155,7 @@ export class GamePage extends popUp {
     }
 	
 	async generate1v1SettingPage(){
-		this._Body.className = "relative flex flex-col items-center justify-center h-[80%] w-[35%] transition-all duration-300 rounded-xl shadow-2xl";
+		this._Body.className = "relative flex flex-col items-center justify-center h-[80%] min-h-[723px] w-[35%] min-w-[672px] transition-all duration-300 rounded-xl shadow-2xl";
 		this.LocalGamePage._playBtn.classList.add('translate-x-96');
 		this.LocalGamePage._settingBtn.classList.add('-translate-x-96');
 		this.LocalGamePage._backBtn.classList.add('-translate-x-96');
@@ -173,7 +174,7 @@ export class GamePage extends popUp {
 	}
 
 	async generateEndGamePage(tournament: boolean, id: number) {
-		this._Body.className = "relative flex flex-col items-center justify-center  h-[70%] w-[30%] transition-all duration-300 rounded-xl shadow-2xl";
+		this._Body.className = "relative flex flex-col items-center justify-center  h-[70%] min-h-[590px] min-w-[576px] w-[30%] transition-all duration-300 rounded-xl shadow-2xl";
 		this.Page.className = "flex flex-col items-center w-full h-full transition-all opacity-0 duration-300 rounded-xl space-y-4";
 		setTimeout(async() => {
 			this.cleanPage();
@@ -185,7 +186,7 @@ export class GamePage extends popUp {
 	/*********************************************function Utils for rendering Game Mod Select Page**********************************************/
 	private async createGamePageDiv() {
 		this.cleanPage();
-		this._Body.className = "flex flex-col items-center justify-center h-[70%] w-[70%] bg-orange-300 rounded-xl shadow-2xl transition-all duration-300";
+		this._Body.className = "flex flex-col items-center justify-center h-[70%] min-h-[580px] w-[70%] min-w-[1344px] bg-orange-300 rounded-xl shadow-2xl transition-all duration-300";
 		this.Page.className = "flex flex-wrap items-center justify-center w-full h-full  text-center transition-all duration-300 space-y-4 rounded-xl shadow-2xl overflow-hidden";
 
 		this.BackBtn = (createButton("return", "absolute flex items-center z-5 active:scale-95 hover:scale-105 h-[10%] w-[10%] transition-all duration-200", "") as HTMLButtonElement);

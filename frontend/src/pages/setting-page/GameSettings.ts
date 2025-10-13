@@ -50,7 +50,7 @@ async function setCurrentAvatar() {
 		if (req.ok && req.asset)
 			CurrentAvatarAsset = req.asset;
 	} catch(error) {
-		ErrorPopup(error as string);
+		await ErrorPopup(error as string);
 	}
 }
 
@@ -60,7 +60,7 @@ async function setCurrentNpc() {
 		if (req.ok && req.asset)
 			CurrentNpcAsset = req.asset;
 	} catch (error) {
-		ErrorPopup(error as string);
+		await ErrorPopup(error as string);
 	}
 }
 

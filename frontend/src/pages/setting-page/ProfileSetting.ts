@@ -66,7 +66,7 @@ export async function saveUserForm() {
 			}
 
 		} catch(error) {
-			ErrorPopup(error as string);
+			await ErrorPopup(error as string);
 		}
 	}
 }

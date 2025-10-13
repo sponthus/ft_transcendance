@@ -43,7 +43,7 @@ export async function DisplayeTournamentHistoryPage(Body: HTMLElement, UserData:
 		}
 	}
 	catch (error) {
-		ErrorPopup("error: " + error);
+		await ErrorPopup("error: " + error);
 	}
 }
 
@@ -57,7 +57,7 @@ async function FillPartyTournament(Body: HTMLElement, games:any, UserData: UserI
 				FillHistory(Body, match, i, UserData);});
 		}
 	} catch(error) {
-		ErrorPopup(error as string);
+		await ErrorPopup(error as string);
 	}
 }
 

@@ -1,6 +1,6 @@
 import { createDiv, createElement, createButton, createImage, createInput, createCheckBoxLabel, append, setbackgroundImages, createAnchorElement} from '../../Utils/elementMaker.js';
 import { availableGames } from './AvailableGames.js';
-import { getTournamentMatches, GameInfos, getTournamentNextMatch } from "../../api/game-service/tournaments/getTournaments.js" 
+import { getTournamentMatches, GameInfos, getTournamentNextMatch, TournamentsInfos } from "../../api/game-service/tournaments/getTournaments.js" 
 import { ErrorPopup } from '../ErrorPage.js';
 import { getUserInfoBySlug } from '../../api/user-service/user-info/getUserInfo.js';
 
@@ -9,7 +9,7 @@ export class TournamentPage {
 	// private NewTournamentForm!: HTMLElement;
 	// private BracketDiv!: HTMLElement;
 	// private FormMap!: Map<HTMLElement, HTMLInputElement>;
-	private PartyMap!: Map<number, HTMLButtonElement>;
+	private PartyMap!: Map<TournamentsInfos, HTMLButtonElement>;
 	private AvailableGames: availableGames;
 	private Tournament?: any;
 	private TournamentId?: number;
@@ -37,7 +37,7 @@ export class TournamentPage {
 		this.isFinal = false;
 		this.Page = Page;
 		this.nameMap = new Map<number, HTMLInputElement>();
-		this.PartyMap = new Map<number, HTMLButtonElement>();
+		this.PartyMap = new Map<TournamentsInfos, HTMLButtonElement>();
 		this.AvailableGames = new availableGames(this.PartyMap);
 		this.Username = UserName;
 		this.TournamentMatches = new Map<number, number>();
@@ -46,14 +46,14 @@ export class TournamentPage {
 
 	/****************function for rendering tournament page****************/
 	async render() {
-		this.PlayBtn = (createButton("play", "relative flex items-center z-5 active:scale-95 hover:scale-105 h-[30%] aspect-square transition-transform duration-200 ease-out translate-x-96", "") as HTMLButtonElement);
-		append(this.PlayBtn, [createImage('Play', 'absolute object-center h-full w-full', 'game_ui/Playebtn.png')]);
+		this.PlayBtn = (createButton("play", "relative flex items-center z-5 active:scale-95 hover:scale-105 h-[30%] w-[35%] aspect-square transition-transform duration-200 ease-out translate-x-96", "") as HTMLButtonElement);
+		setbackgroundImages(this.PlayBtn, "url('/game_ui/Playebtn.png')");
 		
-		this.ContinueBtn = (createButton("continue", "relative flex items-center z-5 active:scale-95 hover:scale-105 h-[12%] w-[30%] transition-transform duration-200 ease-out -translate-x-96", "continue") as HTMLButtonElement);
-		append(this.ContinueBtn, [createImage('continue', 'absolute object-center h-full w-full', 'game_ui/continuesbtn.png')]);
-		
+		this.ContinueBtn = (createButton("continue", "relative flex items-center z-5 active:scale-95 hover:scale-105 h-[12%] w-[30%] transition-transform duration-200 ease-out -translate-x-96", "") as HTMLButtonElement);
+		setbackgroundImages(this.ContinueBtn, "url('/game_ui/continueBtn.png')");
+
 		this.BackBtn = (createButton("return", "relative flex items-center z-5 active:scale-95 hover:scale-105 h-[10%] w-[20%] transition-transform duration-200 ease-out top-16 left-32 -translate-x-96", "") as HTMLButtonElement);
-		append(this.BackBtn, [createImage('Back', 'absolute object-center h-full w-full', 'game_ui/Backbtn.png')]);
+		setbackgroundImages(this.BackBtn, "url('/game_ui/Backbtn.png')");
 		
 		append(this.Page, [createImage("1v1", "absolute object-fill object-center h-full w-full opacity-65", 'tournament-page.png')]);
 		
@@ -190,7 +190,7 @@ export class TournamentPage {
 	}
 
 	async renderWaitingScreen(IdTournament: number) {
-		this.Page.innerHTML = `<div class="flex flex-col h-full w-full items-center justify-center space-y-16">
+		this.Page.innerHTML = `<div class="flex flex-col h-[70%] w-full items-center justify-center space-y-16">
  											<div class="">
 												<img class="mx-auto object-cover rounded-full object-center h-32 w-18 transition-all duration-200 transform animate-wiggle" src="/logo/logoIlsandWorld.png">
 												</img>
@@ -205,12 +205,12 @@ export class TournamentPage {
 											</div>
 										</div>`;
 	
-		this.BackBtn = (createButton("return", "relative flex items-center z-5 active:scale-95 hover:scale-105 h-[10%] w-[20%] transition-transform duration-200 ease-out top-16 left-32 -translate-x-96", "") as HTMLButtonElement);
-		append(this.PlayBtn, [createImage('Play', 'absolute object-center h-full w-full', 'game_ui/Playebtn.png')]);
+		this.BackBtn = (createButton("return", "relative flex items-center z-5 active:scale-95 hover:scale-105 h-[10%] w-[20%] transition-transform duration-200 ease-out left-32 -translate-x-96", "") as HTMLButtonElement);
+		setbackgroundImages(this.BackBtn, "url('/game_ui/Backbtn.png')");
 		append(this.Page, [this.BackBtn]);
 
 		this.Page.className = "flex flex-col items-center w-full h-full transition-all duration-300 rounded-xl space-y-4";
-		setTimeout(async => {
+		setTimeout(async() => {
 			this.BackBtn.classList.remove('-translate-x-96');
 		}, 300);
 	}
@@ -254,7 +254,7 @@ export class TournamentPage {
 			append(this.Page, [this.TournamentPan]);
 			this.findNextRound();
 		} catch (error) {
-			ErrorPopup(error as string);
+			await ErrorPopup(error as string);
 			this.Page.innerHTML = `<div class="text-red-500">error : ${error}</div>`
 		}
 	}
@@ -320,7 +320,7 @@ export class TournamentPage {
 				append(parent, [createAnchorElement(`${slug}`, req.userInfo.username, `/user/${slug}`, "text-orange-200") as HTMLElement]);
 			}
 		}catch(error) {
-			ErrorPopup(error as string);
+			await ErrorPopup(error as string);
 		}
 
 	}
@@ -341,13 +341,13 @@ export class TournamentPage {
 				throw new Error("Next tournament id not found in matches");
 			NextRound = this.TournamentMatches.get(this.NextGameId)!;
 		} catch (error) {
-			ErrorPopup(error as string);
+			await ErrorPopup(error as string);
 		}
 		(document.getElementById(`match-${NextRound}-div`) as HTMLElement)?.classList.add('animate-wiggle');
 	}
 
 
-	get _PartyMap(): Map<number, HTMLButtonElement>{
+	get _PartyMap(): Map<TournamentsInfos, HTMLButtonElement>{
 		return this.PartyMap;
 	}
 
