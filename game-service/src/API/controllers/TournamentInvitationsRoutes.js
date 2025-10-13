@@ -6,14 +6,17 @@ import { sendTournamentAcceptation } from "../requests/SendTournamentAcceptation
 
 export async function acceptTournamentInvitation(request, reply) {
 	console.log('➡️ User accessed POST /tournament/accept');
+	console.debug(request.body);
 	const acceptingUserId = request.body.userId; //Changer par rapport au JSON envoyer, Elodie
 	const ownerUserId = request.body.ownerUserId;
 	const tournamentName = request.body.tournamentName;
 	const tournamentId = request.body.tournamentId;
 
+	console.debug()('Body:', request.body);
 	if (!acceptingUserId || !tournamentId) {
 		return reply.code(400).send({ error: 'Bad request - acceptingUserId and tournamentId are required.'});
 	}
+	// console.debug("Accepting user ", acceptingUserId, " for tournament ", tournamentId);
 	if (checkIdFormat(acceptingUserId) === false) {
 		return reply.code(400).send({ error: 'Bad acceptingUserId format.'});
 	}

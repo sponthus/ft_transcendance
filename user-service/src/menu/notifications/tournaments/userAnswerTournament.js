@@ -54,8 +54,15 @@ export async function   userAnswerTournament(request, reply)
             url = `${prefix}://game-service:${env.game_port}/tournament/accept`;
             //url = `http://session-service:3004/tournament/accept`;
         }
-        answerTournament(idUser, ownerId.id, tournamentId.notif_tournament_id, tournamentName, url);
-        return reply.code(200).send();
+        const req = await answerTournament(idUser, ownerId.id, tournamentId.notif_tournament_id, tournamentName, url);
+		if (req.ok)
+		{
+			return reply.code(200).send();
+		}
+		else
+		{
+			console.error("Error answering tournament:", req.error);
+		}
     }
     catch(err)
     {

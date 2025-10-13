@@ -32,6 +32,7 @@ export class HomePage extends BasePage {
 		const req = await answerTournament('ebriere2', 'asd', 'accept');
 		if (req.ok)
 		{
+			console.log(req);
 			console.log('congraaatss :)');
 		}
 		else
