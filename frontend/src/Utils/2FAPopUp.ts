@@ -48,7 +48,7 @@ async function addPopUpContent(url: string, active: boolean) {
             else
                 console.log(request.error);
 		} catch(error) {
-			ErrorPopup(error as string);
+			await ErrorPopup(error as string);
 		}
 	})
 }

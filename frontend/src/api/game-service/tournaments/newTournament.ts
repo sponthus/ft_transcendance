@@ -5,7 +5,7 @@ type SimpleResult = Success | Failure;
 
 type TournamentInfos = {
 	tournament_id: number;
-	status: 'pending' | 'ongoing_game' | 'between_games' | 'canceled' | 'done';
+	status: 'pending' | 'ongoing_game' | 'between_games' | 'canceled' | 'done' | 'invitations';
 	name: string;
 	numberOfPlayers: number;
 	rounds: number;
@@ -16,7 +16,7 @@ type TournamentInfos = {
 
 type AllGamesInfos = {
     id: number;
-    status: 'pending' | 'ongoing' | 'finished' | 'canceled';
+    status: 'pending' | 'ongoing' | 'finished' | 'canceled' | 'invitations';
     player_a: string;
     player_b: string;
     score_a: number;

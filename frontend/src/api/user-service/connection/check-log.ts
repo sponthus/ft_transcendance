@@ -24,7 +24,7 @@ export async function checkLog(): Promise<Result>
     console.log('status = ', res.status);
     if (res.status === 401)
     {
-        //ErrorPopup(data.error);
+        //await ErrorPopup(data.error);
         return { ok: false, error: data.error};
     }
     return { ok: false };

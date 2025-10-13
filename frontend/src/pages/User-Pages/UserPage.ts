@@ -68,12 +68,12 @@ export class UserPage extends BasePage {
 				await this.showUserPage();
 			}
 			else {
-				ErrorPopup('Error While loading Profile' + req.error);
+				await ErrorPopup('Error While loading Profile' + req.error);
 				navigate('/');
 			}
 		}
 		catch (error) {
-			ErrorPopup(error as string);
+			await ErrorPopup(error as string);
 		}
 	}
 
@@ -88,7 +88,7 @@ export class UserPage extends BasePage {
 			}
 
 		} catch (error) {
-			ErrorPopup(error as string);
+			await ErrorPopup(error as string);
 		}
 	}
 	async showUserPage() {

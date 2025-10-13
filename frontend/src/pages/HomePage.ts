@@ -1,6 +1,8 @@
 import { BasePage } from "./BasePage.js";
 import { append, createAnchorElement, createDiv, createImage } from "../Utils/elementMaker.js";
 import { checkLog } from "../api/user-service/connection/check-log.js";
+import { ErrorPopup } from "./ErrorPage.js";
+import { navigate } from "../core/router.js";
 
 export class HomePage extends BasePage {
 
@@ -20,7 +22,6 @@ export class HomePage extends BasePage {
 		await this.InitDivs();
 		await this.createLogo();
 
-		console.log("IL PASSE PAR LA HOME PAGE");
 		const res = await checkLog();
 		if (res.ok) {
 			await this.renderLogInHome();
@@ -34,12 +35,13 @@ export class HomePage extends BasePage {
 
 	private async InitDivs() {
 		this.Background = this.initBackground();
-		this.Front = createDiv("front", "flex items-center justify-center rounded-xl shadow-2xl p-12 max-w-md absolute bottom-1 translate-y-32 w-full h-[30%] text-center");
+		this.Background.className = "flex flex-col items-center justify-center min-h-screen min-w-screen p-8";
+		this.Front = createDiv("front", "flex items-center justify-center rounded-xl p-12 max-w-md  w-full h-[30%] text-center");
 		this.ButtonDiv = createDiv("Button", "flex flex-col items-center justify-center space-y-6 w-full");
 	}
 
 	private async createLogo() {
-	this.LogoDiv = createDiv("logo", "relative bottom-24 grid place-items-center min-h-[70%] h-[70%] min-w-full w-full animate-wiggle -my-[30px]");
+	this.LogoDiv = createDiv("logo", "relative grid place-items-center min-h-[70%] h-[70%] min-w-full w-full animate-wiggle -my-[30px]");
 	append(this.LogoDiv, [
 	    (createImage("logo", "col-start-1 row-start-1 object-contain h-[100%] w-[70%]", "/logo/logo_final.png") as HTMLImageElement)]);
 		append(this.Background, [this.LogoDiv]);

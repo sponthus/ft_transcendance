@@ -3,7 +3,7 @@ type Failure = { ok: false; error: string };
 
 export type AllNotifs = 
 {
-    username: string; // change for slug
+    slug: string;
     notif_type: string;
     notif_status: number;
     created_at: string;

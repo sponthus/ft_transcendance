@@ -32,7 +32,7 @@ export class LoginPage extends BasePage {
 
 	private async initDivs(): Promise<void> {
 		this.Background = this.initBackground();
-		this.Background.className = "flex items-center justify-center min-h-screen bg-gradient-to-br from-orange-100 to-orange-300 p-8";
+		this.Background.className = "flex items-center justify-center min-h-screen min-w-screen p-8";
 		this.Front = createDiv('front', 'rounded-xl shadow-2xl p-12 max-w-md text-center w-full space-y-4');
 		this.TopTextDiv = createDiv("top-text", "text-center mb-8");
 		this.BotTextDiv = createDiv("bot-text", "mt-6 text-center");
@@ -93,9 +93,9 @@ export class LoginPage extends BasePage {
 			}
 			else {
 			    if (req.error)
-			        ErrorPopup("Connexion failure : " + req.error);
+			        await ErrorPopup("Connexion failure : " + req.error);
 			    else
-			        ErrorPopup("Connexion failure");
+			        await ErrorPopup("Connexion failure");
 			}
 			});
 		}

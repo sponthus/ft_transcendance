@@ -42,7 +42,7 @@ export class Game extends BasePage {
 			if (this._renderScene.homeScene) {
 				this._renderAsset = new renderAsset(this._renderScene.homeScene);
 				await this._renderAsset._load();
-				this._animation = new renderAnimation(this._renderScene.homeScene);
+				this._animation =  new renderAnimation(this._renderScene.homeScene, this._renderAsset);
 				this._animation.startidle();
 				this._animation.startidlenpc();
 				this._renderMap = new renderMap(this._renderScene.homeScene,  this._renderAsset.LoadedMap);
@@ -52,20 +52,6 @@ export class Game extends BasePage {
 		
 				this._input = new PlayerInput(this._renderScene.homeScene, this._renderAsset, this._animation, this._renderScene);
 
-				// /*******create HTMLMesh Banner**********/ /*****find way to use tqilwindcss with htmlmesh */
-				// const BannerMesh = new ADDONS.HtmlMeshRenderer(this._renderScene!.homeScene);
-				
-				// const BannerMeshDiv = new ADDONS.HtmlMesh(this._renderScene!.homeScene, "banner-div-mesh");
-				// BannerMeshDiv.billboardMode = BABYLON.Mesh.BILLBOARDMODE_ALL;
-				
-				// const DivBanner = document.createElement('div');
-				// DivBanner.className = 'h-full w-full';
-				// renderBaseBanner(DivBanner);
-				// await renderLoggedInBanner(DivBanner);
-
-				// console.log("DivBanner HTML:", DivBanner.innerHTML);
-				// BannerMeshDiv.setContent(DivBanner, window.innerWidth,  window.innerHeight / 400);
-				// BannerMeshDiv.position.y = 28;
 			}
 
 			await sleep(3000);
