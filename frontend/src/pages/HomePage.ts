@@ -41,7 +41,7 @@ export class HomePage extends BasePage {
 	}
 
 	private async createLogo() {
-	this.LogoDiv = createDiv("logo", "relative bottom-24 grid place-items-center min-h-[70%] h-[70%] min-w-full w-full animate-wiggle -my-[30px]");
+	this.LogoDiv = createDiv("logo", "relative grid place-items-center min-h-[70%] h-[70%] min-w-full w-full animate-wiggle -my-[30px]");
 	append(this.LogoDiv, [
 	    (createImage("logo", "col-start-1 row-start-1 object-contain h-[100%] w-[70%]", "/logo/logo_final.png") as HTMLImageElement)]);
 		append(this.Background, [this.LogoDiv]);
