@@ -5,8 +5,8 @@ type Failure = { ok: false; error?: string };
 // Union of possibilities for the type of answer
 export type AvatarUploadResult = AvatarUploadSuccess | Failure;
 
-// POST /api/user/:slug to upload a new avatar file to the system
-export async function uploadAvatar(formData: FormData): Promise<AvatarUploadResult> {
+// POST /api/user/:slug to upload a new  file to the system
+export async function upload(formData: FormData): Promise<AvatarUploadResult> {
 
     // TODO = Check the file here ?
     // for (const [key, value] of formData.entries()) {

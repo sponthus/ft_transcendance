@@ -10,14 +10,15 @@
   },
   "author": "sponthus",
   "dependencies": {
-    "fastify": "^5.3.3",
+    "@fastify/cookie": "^11.0.2",
     "@fastify/jwt": "^9.1.0",
     "@fastify/multipart": "^9.0.3",
-    "@fastify/cookie": "^11.0.2",
     "env-schema": "^6.0.1",
-	  "path": "^0.12.7",
-	  "nodemon": "^3.1.10",
+    "fastify": "^5.3.3",
+    "file-type": "^21.0.0",
     "fs": "^0.0.1-security",
+    "nodemon": "^3.1.10",
+    "path": "^0.12.7",
     "pump": "^3.0.2"
   }
 }
