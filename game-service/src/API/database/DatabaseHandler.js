@@ -347,7 +347,7 @@ export default class DatabaseHandler {
 						statusValue = ACCEPTED;
                 	playerResult = createTournamentPlayerStmt.run(tournamentId, player, statusValue);
 				} else {
-					playerResult = createTournamentPlayerStmt.run(tournamentId, player, 0);
+					playerResult = createTournamentPlayerStmt.run(tournamentId, player, NO_NEED);
 				}
 				playersResult.push(playerResult.lastInsertRowid);
             }
@@ -915,10 +915,17 @@ export default class DatabaseHandler {
 				throw new Error("No players found");
 			} 
 			else {
-				const players = rows
-					.filter(row => row.has_accepted === ACCEPTED || row.has_accepted === NO_NEED)
+				let players = rows
+					.filter(row => row.has_accepted === ACCEPTED)
 					.map(row => row.name);
-				const waitingFor = rows.filter(row => row.has_accepted !== ACCEPTED && row.has_accepted !== NO_NEED).map(row => row.name);
+				for (let i = 0; i < players.length; i++) {
+					players[i] = players[i].slice(1); // remove @
+				}
+				
+				let waitingFor = rows.filter(row => row.has_accepted !== ACCEPTED).map(row => row.name);
+				for (let i = 0; i < waitingFor.length; i++) {
+					waitingFor[i] = waitingFor[i].slice(1); // remove @
+				}
 				if (waitingFor.length === 0) {
 					return {ok: true, waitingFor: [], players: players};
 				}
@@ -957,10 +964,13 @@ export default class DatabaseHandler {
 	FROM tournament_players
 	WHERE tournament_id = ?
 				`);
-				const playersToNotify = getPlayerStmt
+				let playersToNotify = getPlayerStmt
 					.all(tournamentId)
 					.filter(row => row.has_accepted === ACCEPTED || row.has_accepted === WAITING)
 					.map(row => row.name);
+				for (let i = 0; i < playersToNotify.length; i++) {
+					playersToNotify[i] = playersToNotify[i].slice(1); // remove @
+				}
 				return { ok: true, playersToNotify: playersToNotify };
 			});
 			const result = transaction(userId, tournamentId);
