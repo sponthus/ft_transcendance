@@ -60,12 +60,12 @@ export async function createTournament(name: string, playersList: Array<string>,
 			}
 		} else {
 			if (data.error)
-				throw new Error(data.error);
+				return { ok: false, error: data.error as string };
 			else
-				throw new Error("Unable to create tournament");
+				return { ok: false, error: "Unable to create tournament" };
 		}
 	}
-	catch(error) {
-		return {ok: false, error: error as string};
+	catch (error) {
+		return { ok: false, error: error as string };
 	}
 }
