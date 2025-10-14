@@ -31,7 +31,7 @@ export default async function loginUser (request, reply)
         if (userData.twofa_enabled === 1)
             token = await reply.jwtSign({ idUser, username, slug, twofa_pending: true }, {expiresIn: '3m'});
         else
-            token = await reply.jwtSign({ idUser, username, slug }, {expiresIn: '2m'});
+            token = await reply.jwtSign({ idUser, username, slug }, {expiresIn: '1h'});
         let secure = false;
         if (env.nodeEnv === 'production')
             secure = true;
