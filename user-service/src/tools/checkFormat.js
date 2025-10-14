@@ -7,7 +7,7 @@ export function    checkAnswerFormat(request)
         type: "object",
         properties:
         {
-            ownerSlug: { type: "string", minLength: 3, maxLength: 15, pattern: "^(?![_-])(?!.*[_-]$)(?=.*[a-z])(?![0-9_]+)[a-z0-9_-]+$"},
+            ownerSlug: { type: "string", minLength: 3, maxLength: 20, pattern: "^(?![_-])(?!.*[_-]$)(?=.*[a-z])(?![0-9_]+)[a-z0-9_-]+$"},
             tournamentId: { type: "number", minimum: 1},
             tournamentName: { type: "string" }, //TODO quel regex pour tournament name ?
             answer: { type: "string",  enum: ["decline", "accept"] },
