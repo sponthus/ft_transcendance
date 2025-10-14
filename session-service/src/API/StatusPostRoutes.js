@@ -4,13 +4,15 @@ import { checkIdFormat, checkNumberIdFormat, checkSendMessageFormat, checkSendMe
 // Security : Road is protected to service-only, and from SQLi
 export async function sendMessageToUsers(request, reply) {
 	console.log("➡️ Service accessed POST /message");
-	
+	console.debug('request.body :', request.body);
+	console.debug('request.body type :', typeof request.body);
+
 	if (checkSendMessageToGroupFormat(request) === false) {
 		console.error('❌ Bad data format sent in request body');
 		return reply.status(400).send({ error: 'Bad data format.'});
 	}
 	const { userIds, sender, message } = request.body;
-
+	let finalUserIds;
 	if (!userIds || userIds.length === 0) {
 		console.error('❌ No userIds found in request params');
 		return reply.status(400).send({error: 'No userIds found in request.'});
@@ -21,8 +23,12 @@ export async function sendMessageToUsers(request, reply) {
 	}
 	for (const id of userIds) {
 		if (checkNumberIdFormat(id) === false) {
-			console.error('❌ Bad userId found in request params');
-			return reply.status(400).send({ error: 'Bad userId format.'});
+			if (checkIdFormat(id) === false) {
+				console.error('❌ Bad userId found in request params');
+				return reply.status(400).send({ error: 'Bad userId format.'});
+			} else {
+				finalUserIds = userIds.map((id) => Number(id));
+			}
 		}
 	}
 

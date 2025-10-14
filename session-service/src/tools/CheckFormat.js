@@ -57,12 +57,12 @@ export function    checkSendMessageToGroupFormat(request)
 		{
 			userIds: {
 				type: "array",
-				items: { type: "number" },
+				items: { type: ["number", "string"] },
 				minItems: 1,
 				uniqueItems: true
 			},
 			sender: { 
-				type: "string", 
+				type: ["string", "number"], 
 				minLength: 3, 
 				maxLength: 20,
 				pattern: "^[a-z0-9]+(-[0-9]+)?$"
@@ -77,7 +77,7 @@ export function    checkSendMessageToGroupFormat(request)
 		required: ["sender", "message"],
 		additionalProperties: false
     };
-    const ajv = new Ajv();
+    const ajv = new Ajv({ allowUnionTypes: true });
     const contract = ajv.compile(schema);
     const valid = contract(request.body);
     if (!valid) {
