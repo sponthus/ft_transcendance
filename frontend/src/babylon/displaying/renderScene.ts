@@ -130,7 +130,7 @@ export class renderScene {
 		this._isocamera = new BABYLON.FreeCamera("isocamera", new BABYLON.Vector3(2, 15, -20), this._homeScene!);
 		if (!this._isocamera)
 			throw new Error("isoCamera failed to load");
-		this._isocamera.position = new BABYLON.Vector3(2, 15, -20);
+		this._isocamera.position = new BABYLON.Vector3(2, 20, -20);
 		this._isocamera.mode = BABYLON.FreeCamera.ORTHOGRAPHIC_CAMERA;
 		this._isocamera.setTarget(BABYLON.Vector3.Zero());
 		this._isocamera.minZ = 0.1; 
@@ -235,10 +235,10 @@ export class renderScene {
 			}
 		});
 
-		window.addEventListener('resize', () => {
-		    this._engine!.resize();
-			// location.reload();
-		});
+		// window.addEventListener('resize', () => {
+		//     // this._engine!.resize();
+		// 	// location.reload();
+		// });
 	}
 
 	private renderPongscene() {

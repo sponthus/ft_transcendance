@@ -6,8 +6,8 @@ export type AllNotifs =
     slug: string;
     notif_type: string;
     notif_status: number;
-    tournament_id : number;
-    tournament_name: string;
+    notif_tournament_id : number;
+    notif_tournament_name: string;
     created_at: string;
 };
 
