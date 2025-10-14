@@ -20,7 +20,7 @@ export class launchPong {
 		this.GamePage.cleanPage();
 		this.GamePage.removeOverlayToWindow();
 		let lastTime = 0;
-		const targetFPS = 120;
+		const targetFPS = 60;
 		const frameDuration = 1000 / targetFPS;
 		let now;
 		let delta;
