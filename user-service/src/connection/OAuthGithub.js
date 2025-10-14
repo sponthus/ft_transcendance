@@ -1,54 +1,70 @@
-/*import env from '../../config/env.js'
+import OAuth2 from '@fastify/oauth2'
+import { getSecret } from '../index.js';
+import env from '../../config/env.js'
 import fetch from 'node-fetch'
 import slugify from "slugify";
 import { generateUniqueUsername, generateUniqueSlug } from '../tools/generateUnique.js';
 
-export default async function OAuthRoutes(fastify) 
+export function initOAuthGithub(fastify)
 {
-    fastify.get("/oauth/github/callback", async (request, reply) =>
+    fastify.register(OAuth2, 
     {
-       const accessToken = await fastify.auth.getAccessTokenFromAuthorizationCodeFlow(request);
-        try
+        name: 'auth',
+        credentials:
         {
-            const userInfo = await createUserWithGithubInfos(accessToken.token.access_token, fastify.db);
-            if (userInfo.error)
-                reply.code(401).send({ error: userInfo.error});
-            const token = await reply.jwtSign({ idUser: userInfo.idUser, username: userInfo.username, slug: userInfo.slug }, {expiresIn: '1h'});
-            console.log("\nidUser: ", userInfo.idUser);
-            console.log("\nusername: : ", userInfo.username);
-            console.log("\nslug: : ", userInfo.slug);
-            console.log("Le compte github existe deja");
-            console.log('GITHUB token : ', token);
-
-            let secure = false;
-            if (env.nodeEnv === 'production')
-                secure = true;
-            return reply.code(200).setCookie('token', token,
+            client:
             {
-                httpOnly: true, //uniquement accessible protole https
-                signed: true,
-                secure: secure, //envoyer que si la co est en https
-                path: '/', //Cookie dispo sur tout le site, sinon c'est juste cette route et les sous routes
-                maxAge: 3600000
-                //mettre same site
-            }).type('text/html')
-                .send(`
-                    <html>
-                      <body>
-                        <script>
-                            window.opener?.postMessage({ success: true }, "http://localhost:5173");
-                            window.close();
-                        </script>
-                     </body>
-                    </html>`);
-        }
-        catch (err)
-        {
-            console.log(err);
-            reply.code(500).send({ error: "Internal Server Error" + err.message });
-        }
-       // reply.code(200).send({ access_token: token.access_token }); //pk renvoyer ca ?
+                id: getSecret('git_id'),
+                secret: getSecret('git_secret')
+            },
+            auth: OAuth2.GITHUB_CONFIGURATION,
+        },
+        startRedirectPath: '/oauth/github',
+        callbackUri: 'http://localhost:5173/api/user/oauth/github/callback',
     });
+}
+
+export async function loginThroughGithub(request, reply)
+{
+    const fastify = request.server;
+    const accessToken = await fastify.auth.getAccessTokenFromAuthorizationCodeFlow(request);
+    try
+    {
+        const userInfo = await createUserWithGithubInfos(accessToken.token.access_token, fastify.db);
+        if (userInfo.error)
+            reply.code(401).send({ error: userInfo.error});
+        const token = await reply.jwtSign({ idUser: userInfo.idUser, username: userInfo.username, slug: userInfo.slug }, {expiresIn: '1h'});
+        console.log("\nidUser: ", userInfo.idUser);
+        console.log("\nusername: : ", userInfo.username);
+        console.log("\nslug: : ", userInfo.slug);
+        console.log('GITHUB token : ', token);
+
+        let secure = false;
+        if (env.nodeEnv === 'production')
+            secure = true;
+        return reply.code(200).setCookie('token', token,
+        {
+            httpOnly: true,
+            signed: true,
+            secure: secure,
+            path: '/',
+            maxAge: 3600000
+        }).type('text/html')
+            .send(`
+                <html>
+                  <body>
+                    <script>
+                        window.opener?.postMessage({ success: true }, "http://localhost:5173");
+                        window.close();
+                    </script>
+                 </body>
+                </html>`);
+    }
+    catch (err)
+    {
+        console.log(err);
+        reply.code(500).send({ error: "Internal Server Error" + err.message });
+    }
 }
 
 async function createUserWithGithubInfos(AccessToken, db)
@@ -56,7 +72,6 @@ async function createUserWithGithubInfos(AccessToken, db)
     const result = await getInfoFromGithub(AccessToken);
     if (!result.ok)
         return {result};
-  //  console.log('User Info Github : ', result.userInfo);
     const githubUsername = result.userInfo.login;
     const existingGithubUsername = db.prepare(" SELECT \
                                                     * \
@@ -81,7 +96,7 @@ async function createUserWithGithubInfos(AccessToken, db)
                                             FROM \
                                                 users \
                                             WHERE \
-                                                username = ?").get(githubUsername);
+                                                username = ? ").get(githubUsername);
     let username;
     if (existingUsername)
         username = generateUniqueUsername(githubUsername, db);
@@ -124,4 +139,4 @@ async function getInfoFromGithub(token)
     }
     else
         return { ok: false, error: "Github authentification failed" };  
-}*/
+}
