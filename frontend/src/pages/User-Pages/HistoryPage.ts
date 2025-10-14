@@ -26,7 +26,7 @@ export async function DisplayHistoryPage(Body: HTMLElement, UserData: UserInfo) 
 		}
 	}
 	catch (error) {
-		ErrorPopup("error: " + error);
+		await ErrorPopup("error: " + error);
 	}
 }
 

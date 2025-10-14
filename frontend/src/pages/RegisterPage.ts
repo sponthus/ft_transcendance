@@ -106,7 +106,7 @@ export class RegisterPage extends BasePage {
 				const ConfirmPassword = formData.get('ConfirmPassword') as string;
 
 				if (password != ConfirmPassword) {
-					ErrorPopup("Password miss Match");
+					await ErrorPopup("Password miss Match");
 					return ;
 				}
 
@@ -117,7 +117,7 @@ export class RegisterPage extends BasePage {
 					return ; // back to home
 				}
 				else {
-					return ; // registerUser already ErrorPopups user
+					return ; // registerUser already await ErrorPopups user
 				}
 			});
 		}

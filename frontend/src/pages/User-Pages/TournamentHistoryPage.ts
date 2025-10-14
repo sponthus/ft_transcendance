@@ -1,7 +1,7 @@
 import { createDiv, createElement, createButton, createDropdownDiv, createFormDiv, createCheckBoxLabel, append, setbackgroundImages} from '../../Utils/elementMaker.js';
 import { getAllTournaments, getTournamentMatches, GameInfos, getFinishedTournaments } from '../../api/game-service/tournaments/getTournaments.js';
 import { UserInfo } from '../../api/user-service/user-info/getUserInfo.js';
-import { FillHistory } from './HistoryPage.js';
+import { FillHistory, fillHistoryStubborn } from './HistoryPage.js';
 import { ErrorPopup } from '../ErrorPage.js';
 
 let btnsMap: Map<HTMLButtonElement, HTMLElement> = new  Map<HTMLButtonElement, HTMLElement>();
@@ -43,7 +43,7 @@ export async function DisplayeTournamentHistoryPage(Body: HTMLElement, UserData:
 		}
 	}
 	catch (error) {
-		ErrorPopup("error: " + error);
+		await ErrorPopup("error: " + error);
 	}
 }
 
@@ -52,11 +52,12 @@ async function FillPartyTournament(Body: HTMLElement, games:any, UserData: UserI
 		const data = await getTournamentMatches(games.id!);
 		if (data.ok) {
 			const Matchs = data.matches;
+			fillHistoryStubborn(Body);
 			console.log("Matchs = ", Matchs);
 			Matchs.map((match: GameInfos, i: number) => {FillHistory(Body, match,i, UserData);});
 		}
 	} catch(error) {
-		ErrorPopup(error as string);
+		await ErrorPopup(error as string);
 	}
 }
 

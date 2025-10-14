@@ -16,7 +16,7 @@ export async function displayFriendlist(parent: HTMLElement, userData: UserInfo 
 				})
 			}
 		} catch(error) {
-			ErrorPopup(error as string);
+			await ErrorPopup(error as string);
 		}
 	}
 	else {

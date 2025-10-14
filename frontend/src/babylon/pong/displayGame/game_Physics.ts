@@ -110,7 +110,7 @@ export class GamePhysics {
 		this.socket = new GameSocket(gameId);
 		if (!this.socket) {
 			throw new Error("Error creating socket");
-			return;
+			return ;
 		}
 
 		// stocke l’état serveur

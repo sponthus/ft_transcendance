@@ -162,11 +162,14 @@ export class GameSocket {
 	}
 
 	constructor(gameId: number) {
-		if (!gameId || gameId == 0) {
-			throw new Error("No gameID provided");
-		}
-		this.gameId = gameId;
+		// if (!gameId || gameId == 0) {
+		// 	// TODO make me an error
+		// 	await ErrorPopup("No gameID provided");
+		// }
 		try {
+			if (!gameId || gameId == 0)
+				throw new Error('No gameID provided');
+			this.gameId = gameId;
 			console.log("Creating new WebSocket connection");
 			this.ws = new WebSocket(this.getGameWsUrl());
 			this.setupEventListeners();

@@ -77,7 +77,7 @@ export async function createLocalGame(player_a: string, player_b: string, maxSco
         };
     } else {
         // Invalid or expired token = Disconnect
-        ErrorPopup("❌ API Error starting game : " + data?.error as string  || "Game start impossible");
+        await ErrorPopup("❌ API Error starting game : " + data?.error as string  || "Game start impossible");
         return { ok: false, error: data?.error as string  || "Game start impossible" };
     }
 }
@@ -215,7 +215,7 @@ export async function getAllGames(slug: string): Promise<AllGamesResult> {
 
 // DELETE /:gameId
 // Delete a game in backend
-// TODO : Works but in case of an error, writes ErrorPopup("Error: Error:...")
+// TODO : Works but in case of an error, writes await ErrorPopup("Error: Error:...")
 // Security : is gonna be possible only if the logges-in user is the owner of the game
 export async function deleteGame(gameId: number): Promise<SimpleResult> {
     if (!gameId)
