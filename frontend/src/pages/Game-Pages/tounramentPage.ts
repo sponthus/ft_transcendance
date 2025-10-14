@@ -57,7 +57,7 @@ export class TournamentPage {
 		
 		append(this.Page, [createImage("1v1", "absolute object-fill object-center h-full w-full opacity-65", 'tournament-page.png')]);
 		
-		append(this.Page, [createImage('bot-text', 'z-10 object-center h-[20%] w-[80%] animate-wiggle margin-top-32', 'game_ui/LocalPongText.png') // change to tournament pong text
+		append(this.Page, [createImage('bot-text', 'z-10 object-center object-fill h-[20%] w-[80%] animate-wiggle margin-top-32', 'game_ui/tournamentText.png') // change to tournament pong text
 							,this.ContinueBtn , this.PlayBtn , this.BackBtn]);
 
 		this.Page.className = "flex flex-col items-center w-full h-full transition-all duration-300 text-center rounded-xl space-y-4";
@@ -179,7 +179,7 @@ export class TournamentPage {
 	private appendTournamentForm(btnDiv: HTMLElement) {
 		append(this.Page, [createImage("1v1", "absolute object-fill object-center h-full w-full opacity-20", 'tournament-page.png')]);
 
-		append(this.Page, [createImage('bot-text', 'z-10 object-center h-[20%] w-[80%] animate-wiggle margin-top-32', 'game_ui/LocalPongText.png') /**change to tournament title */
+		append(this.Page, [createImage('bot-text', 'z-10 object-center h-[20%] w-[80%] animate-wiggle margin-top-32', 'game_ui/tournamentText.png') /**change to tournament title */
 						, this.TournamentPan, btnDiv]);
 
 		this.Page.className = "flex flex-col items-center w-full h-full transition-all duration-300 rounded-xl space-y-4";

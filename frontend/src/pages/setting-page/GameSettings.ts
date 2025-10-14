@@ -17,7 +17,7 @@ export async function  renderGameSetting(ButtonDiv: HTMLElement, SettingDiv: HTM
 	ButtonDiv.classList.add('translate-x-96');
 	SettingDiv.classList.add('-translate-x-96');
 	SettingDiv.style.backgroundImage = "";
-	// setbackgroundImages(SettingDiv, "url('game_ui/setting/SettingPan.png')");
+
 	append(SettingDiv, [createAvatarBtn("Lobby-user-avatar", 18, "/asset/Characters/Previews/Previews/", "change Lobby user Avatar :", true)
 							,createAvatarBtn("Lobby-npc-avatar", 11, "/asset/Characters/Previews/Previews1/", "change Lobby npc Avatar :", false)]);
 	
