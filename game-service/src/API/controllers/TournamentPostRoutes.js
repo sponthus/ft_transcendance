@@ -75,7 +75,8 @@ export async function createTournament(request, reply) {
 						console.error("❌ Unable to send tournament invitation to ", player);
 						// TODO : Delete tournament ?
 					}
-					console.log("❓ Tournament invitation sent to ", player);
+					else
+						console.log("❓ Tournament invitation sent to ", player);
 				}
 				else 
 					console.log("❓ No invitation sent to tournament creator ", player);

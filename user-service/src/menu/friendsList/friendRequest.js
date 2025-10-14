@@ -39,7 +39,7 @@ export async function   addFriend(request, reply)
             else if (status.frie_status === 1)
                 return reply.code(409).send({ error: "You're already friend with " + friend.username });
         }
-        addNotification(db, friend.id, idUser, "friend_request");
+        addNotification(db, friend.id, idUser, "friend_request"); //TODO ELODIE a mettre en bas ? pour eviter qu'il y est la notif si pas d'amis
         const statement = db.prepare("  INSERT INTO \
                                             friends (frie_user_id, frie_friend_user_id, frie_status) \
                                         VALUES \
@@ -50,13 +50,15 @@ export async function   addFriend(request, reply)
                                             users \
                                         WHERE \
                                             id = ?").get(idUser);
-        await notifyRefresh(friend.id, username.username, "friend_request");
+        const result = await notifyRefresh(friend.id, username.username, "friend_request");
+        if (!result.ok)
+            return reply.code(result.status).send({ error: result.error });
         statement.run(idUser, friend.id);
         return reply.code(200).send();
     }
     catch (err)
     {
-        return reply.code(500).send({ error: "​Internal Servor Error" + err.message});
+        return reply.code(500).send({ error: "​Internal Servor Error"});
     }
 }
 

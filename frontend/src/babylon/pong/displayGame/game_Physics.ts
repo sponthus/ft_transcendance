@@ -182,9 +182,16 @@ export class GamePhysics {
 		}, 33); // 30fps
 	}
 
+	public isSocketOpen(): boolean {
+		if (this.socket && this.socket.ws.readyState === WebSocket.OPEN) {
+			return true;
+		}
+		return false;
+	}
+
 	public stopGame() {
 		if (this.socket)
-			this.socket.close();
+			this.socket.close(1000, "Game ended");
 		this.ready = false;
 	}
 

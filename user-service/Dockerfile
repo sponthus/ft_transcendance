@@ -5,7 +5,7 @@ RUN		chmod +x /usr/local/bin/entrypoint.sh
 
 RUN mkdir app
 
-#Ajout de bash, sqlite3... pour faire des tests dans le docker
+# TODO Ajout de bash, sqlite3... pour faire des tests dans le docker
 RUN apk add --no-cache sqlite sqlite-libs bash vim curl
 
 WORKDIR /app
