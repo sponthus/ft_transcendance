@@ -4,14 +4,12 @@ type Failure = { ok: false; error: string };
 export type AssetResult = AssetSuccess | Failure;
 
 export async function   changeNpcAsset (asset: number): Promise<AssetResult>
-{
-    const token = localStorage.getItem("token");
-    if (!token)
-        return {ok: false, error: "No token found"};
+{  
     const res = await fetch('/api/user/menu/npc/asset', 
     {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({ asset }),
     });
     if (res.ok) 
@@ -23,14 +21,11 @@ export async function   changeNpcAsset (asset: number): Promise<AssetResult>
 }
 
 export async function   getNpcAsset(): Promise<AssetResult>
-{
-    const token = localStorage.getItem("token");
-    if (!token)
-        return {ok: false, error: "No token found"};
+{  
     const res = await fetch('/api/user/menu/npc/asset', 
     {
         method: 'GET',
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        credentials: 'include',
     });
     const data = await res.json();    
     if (res.ok) 

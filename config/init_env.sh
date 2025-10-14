@@ -66,6 +66,8 @@ IP=0.0.0.0
 
 HASH_KEY=$(generate_rand "hash_key.txt")
 API_KEY=$(generate_rand "api_key.txt")
+AUTH_KEY=$(generate_rand "auth_key.txt")
+COOKIE_KEY=$(generate_rand "cookie_key.txt")
 
 NODE_ENV=$(chose_mode "Chose dev mode (1) or production mode (2) : " validate_num_choice)
 

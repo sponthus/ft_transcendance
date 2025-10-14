@@ -24,7 +24,10 @@ class DatabaseEventHandler {
         try {
             this.DatabaseHandler.updateGameStatus(eventData.gameId, 'ongoing');
             if (eventData.tournamentId != null && eventData.tournamentId != 0) {
-				this.DatabaseHandler.updateTournamentStatus(eventData.tournamentId, 'ongoing_game');
+				const changeStatus = this.DatabaseHandler.updateTournamentStatus(eventData.tournamentId, 'ongoing_game');
+				if (!changeStatus.ok) {
+					console.error("❌ Could not update tournament status to ongoing_game: ", changeStatus.error);
+				}
 			}
 			// await this.DatabaseHandler.recordGameEvent(eventData.gameId, 'game_started', eventData);
         } catch (error) {
@@ -39,7 +42,10 @@ class DatabaseEventHandler {
         try {
 			this.DatabaseHandler.updateGameStatus(eventData.gameId, 'canceled');
 			if (eventData.tournamentId != null && eventData.tournamentId != 0) {
-				this.DatabaseHandler.cancelTournament(eventData.tournamentId);
+				const cancel = this.DatabaseHandler.cancelTournament(eventData.tournamentId);
+				if (!cancel.ok) {
+					console.error("❌ Could not cancel tournament after player disconnection: ", cancel.error);
+				}
 			}
 			// await this.DatabaseHandler.recordPlayerEvent(eventData.gameId, eventData.playerId, 'disconnected');
 		} catch (error) {

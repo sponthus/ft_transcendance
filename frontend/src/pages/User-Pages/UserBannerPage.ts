@@ -1,5 +1,9 @@
+import { addFriend, removeFriend } from '../../api/user-service/menu/friendsList/friendRequest.js';
+import { acceptRequest, rejectRequest } from '../../api/user-service/menu/friendsList/requestHandlers.js';
 import { createDiv, createElement, createButton, append, createImage} from '../../Utils/elementMaker.js';
 import { EditProfile } from './EditProfile.js';
+import { UserInfo } from '../../api/user-service/user-info/getUserInfo.js';
+import { ErrorPopup } from '../ErrorPage.js';
 
 enum BodyState {PROFILE = 0, FRIENDS = 1, HISTORY = 2};
 
@@ -7,34 +11,42 @@ export class UserBanner {
 	
 	private StateBody!: number;
 	private ProfileBanner!: HTMLElement;
-	private UserData: any;
+	private UserData: UserInfo;
 	private isOwnProfile!: boolean;
-	private EditProfile: EditProfile
+	// private isRequestSent!: boolean;
+	// private isFriend!: boolean;
+	private EditProfile: EditProfile;
 
-	constructor(UserData: any) {
+	constructor(UserData: UserInfo, isOwnProfile: boolean) {
+		// this.isFriend = false;
+		// this.isRequestSent = false;
 		this.UserData = UserData;
-		this.isOwnProfile = true;
+		this.isOwnProfile = isOwnProfile;
 		this.StateBody = BodyState.PROFILE;
 		this.ProfileBanner = createDiv('profile-banner', "flex flex-col w-full h-[40%]");
 		this.EditProfile = new EditProfile(this.UserData);
+		// console.log("is already friend ? ", this.isFriend);
 	}
 
-	render() {
+	async render() {
 		this.createProfileHighBanner();
 		this.createProfileBotBanner();
 	}
 		/*************************************Functions for creating Profile Banner*************************************/
 	private createProfileHighBanner() {
-		const HighBanner: HTMLElement = createDiv("HighBanner", "flex flex-col w-full h-[80%] justify-between p-4 bg-sky-400 bg-opacity-50 shadow-md h-64");
+		const HighBanner: HTMLElement = createDiv("HighBanner", "flex w-full h-[80%] justify-between p-4 bg-sky-400 bg-opacity-50 shadow-md");
 		append(HighBanner, [(this.setUserInfo() as HTMLElement)]);
+		if (!this.isOwnProfile) 
+			append(HighBanner, [this.setButtonUserProfile()!]);
 		append(this.ProfileBanner, [HighBanner]);
 	}
 
 	private createProfileBotBanner() {
 		append(this.ProfileBanner, [this.setButtonsBanner()]);
 	}
-		private setUserInfo(): HTMLElement {
-		const UserInfo: HTMLElement = createDiv("user-info", 'flex items-end order-1 order-1 text-sm h-full w-[20%]');
+
+	private setUserInfo(): HTMLElement {
+		const UserInfo: HTMLElement = createDiv("user-info", 'flex items-end text-sm h-full w-[20%]');
 		append(UserInfo, [(this.setAvatar() as HTMLElement), (this.setTexUser() as HTMLElement)])
 	
 		return UserInfo;
@@ -46,12 +58,12 @@ export class UserBanner {
 		let userNameStr: string = "undifined";
 		if (this.UserData)
 			userNameStr = this.UserData.username;
-		const userNameDiv: HTMLElement = createDiv("user-text", "flex items-center space-x-4");
+		const userNameDiv: HTMLElement = createDiv("user-text", "flex items-center justify-between space-x-4");
 		append(userNameDiv, [(createElement('h1', 'user-name', userNameStr, "text-2xl font-bold text-emerald-700" ) as HTMLElement)]);
 
 		const ActionDiv: HTMLElement = createDiv("avatar-action", ""); // document.createElement('div');
 		if (this.isOwnProfile) {
-			append(ActionDiv, [(createButton('edit-profile', "text-emerald-600 hover:font-bold border-2 border-sky-500 hover:border-sky-600 rounded-lg w-32", "Edit profile") as HTMLButtonElement)])
+			append(ActionDiv, [(createButton('edit-profile', "text-emerald-600 hover:font-bold border-2 border-sky-500 hover:border-sky-600 rounded-lg w-32 ", "Edit profile") as HTMLButtonElement)])
 			this.EditProfile.render(userNameDiv, "edit-username")
 		}
 		UserTextDiv.appendChild(userNameDiv);
@@ -74,22 +86,43 @@ export class UserBanner {
 		}
 		append(AvatarDiv, [AvatarCircle]);
 		if (this.isOwnProfile) 
-			this.EditProfile.render(AvatarDiv, "edit-avatar")
+			this.EditProfile.render(AvatarDiv, "edit-avatar");
 		
 		return AvatarDiv;
+	}
+
+	private setButtonUserProfile() : HTMLElement | null{
+		if (this.UserData.friendship_status === "none")
+			return (createButton('friend-request', "self-end text-emerald-600 hover:font-bold border-2 border-sky-500 hover:border-sky-600 rounded-lg p-4 h-[20%]", "friend request") as HTMLElement);
+		else if (this.UserData.friendship_status === "request_sent")
+			return (createButton('request-sent', "self-end text-emerald-600 border-2 border-sky-500 rounded-lg p-4 h-[20%]", "friend request sent...") as HTMLElement);
+		else if (this.UserData.friendship_status === "request_received")
+			return this.addAcceptAndDeclineBtn();
+		else if (this.UserData.friendship_status === "friends")
+			return (createButton('remove-friend', "self-end text-emerald-600 hover:font-bold border-2 border-sky-500 hover:border-sky-600 rounded-lg p-4 h-[20%]", "remove friend") as HTMLElement);
+		return null;
+	}
+
+	private addAcceptAndDeclineBtn(): HTMLElement {
+		const btnDiv = createDiv(`btn-invitation`, 'self-end flex items-center h-[20%] justify-between space-x-8') as HTMLElement;
+
+		let accept: HTMLButtonElement= (createButton(`accept`, 'px-4 text-orange-100 bg-emerald-600 rounded-xl group-hover:text-orange-200 hover:font-bold hover:bg-emerald-700 transition-all 	duration-200', 'accept') as HTMLButtonElement);
+		let decline: HTMLButtonElement = (createButton(`decline`, 'px-4 text-orange-100 bg-red-500 rounded-xl group-hover:text-orange-200 hover:font-bold hover:bg-red-600 transition-all duration-200', 	'decline') as HTMLButtonElement);
+		append(btnDiv, [accept, decline]);
+		return btnDiv;
 	}
 
 	/*************************************Functions for creating Profile botBanner*************************************/
 	private  setButtonsBanner() : HTMLElement {
 		const BotBanner: HTMLElement = createDiv('BotBanner', "flex items-center justify-center bg-sky-500 bg-opacity-50 shadow-md w-full h-[20%] font-sans");
-		append(BotBanner, [(createButton("Profile", "flex items-center justify-center h-full w-1/6 hover:text-emerald-700 hover:font-bold text-emerald-700 font-bold text-center text-2xl", 		"Profile") as HTMLButtonElement)
-							,(createButton("FriendList", "flex items-center justify-center h-full w-1/6 hover:text-emerald-700 hover:font-bold text-emerald-600 text-center text-2xl", "Friends") as HTMLButtonElement)
-							,(createButton("History", "flex items-center justify-center h-full w-1/6 hover:text-emerald-700 hover:font-bold text-emerald-600 text-center text-2xl", "History") as HTMLButtonElement)]);
+		append(BotBanner, [(createButton("FriendList", "flex items-center justify-center h-full w-1/6 hover:text-emerald-700 hover:font-bold text-emerald-600 text-center text-2xl", "Friends") as HTMLButtonElement)
+							,(createButton("History", "flex items-center justify-center h-full w-1/6 hover:text-emerald-700 hover:font-bold text-emerald-600 text-center text-2xl", "History") as HTMLButtonElement)
+							,(createButton("tournament", "flex items-center justify-center h-full w-1/6 hover:text-emerald-700 hover:font-bold text-emerald-700 font-bold text-center text-2xl", 		"tournament") as HTMLButtonElement)]);
 		return BotBanner; 
 	}
 
 	async botBannerEvents() {
-		const Profile = document.getElementById("Profile-btn") as HTMLButtonElement;
+		const Profile = document.getElementById("tournament-btn") as HTMLButtonElement;
 		const Friends = document.getElementById("FriendList-btn") as HTMLButtonElement;
 		const History = document.getElementById("History-btn") as HTMLButtonElement;
 
@@ -107,6 +140,60 @@ export class UserBanner {
 				console.log("activ button ? = ", btn);
 				console.log("state content : ", this.StateBody); })
 		})
+	}
+
+	async managefriendrequest() {
+		(document.getElementById('friend-request-btn')?.addEventListener('click', async() => {
+			console.log('send a friend request');
+			try {
+				// TODO Emma & Elodie : Backend expects a slug so maj are rejected
+				const req = await addFriend(this.UserData.username);
+				if (req.ok) {
+					document.getElementById('friend-request-btn')!.textContent = "friend request sent...";
+					console.log("succesfully add friend request");
+					location.reload();
+				}
+			}catch (error) {
+				await ErrorPopup(error as string);
+			}
+		}));
+		(document.getElementById('remove-friend-btn')?.addEventListener('click', async() => {
+			try {
+				const req = await removeFriend(this.UserData.slug);
+				if (req.ok) {
+					console.log("frien remove succesfuly");
+					location.reload();
+				}
+			} catch (error) {
+				await ErrorPopup(error as string);
+			}
+		}));
+		(document.getElementById('accept-btn')?.addEventListener('click', async() => {
+			try {
+				const req = await acceptRequest(this.UserData.username);
+				if (req.ok) {
+					await ErrorPopup("accept invitation of " + this.UserData.username);
+					console.log("acctp invitation of ", this.UserData.username);
+					location.reload();
+				}
+
+			} catch(error) {
+				await ErrorPopup(error as string);
+			}
+		}));
+		(document.getElementById('decline-btn')?.addEventListener('click', async() => {
+			try {
+				const req = await rejectRequest(this.UserData.username);
+				if (req.ok) {
+					await ErrorPopup("decline invitation of " + this.UserData.username);
+					console.log("acctp invitation of ", this.UserData.username);
+					location.reload();
+				}
+
+			} catch(error) {
+				await ErrorPopup(error as string);
+			}
+		}))
 	}
 
 	private activateButton(btn: HTMLButtonElement) {

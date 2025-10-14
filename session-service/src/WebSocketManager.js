@@ -1,4 +1,6 @@
-import { getAllUsers } from "./GetUsers.js";
+import { getAllUsers } from "./tools/GetUsers.js";
+import { checkWebSocketMessageFormat } from "./tools/CheckWsFormat.js";
+import { getSecret } from "./index.js";
 
 export default class WebSocketManager {
     constructor(wss, fastify) {
@@ -23,22 +25,29 @@ export default class WebSocketManager {
 		}
 	}
 
-	async initializeWebSocket() {
+		async initializeWebSocket() {
 		this.ws.on('connection', (ws, request) => {
             console.log('🟢 New WebSocket connection');
-
-			this.handleConnexion(ws);
-
+			
+			this.checkTokenFromCookies(ws, request.headers.cookie); //mettre await ???
 			ws.on('message', (data) => {
                 let message;
 				try {
                     message = JSON.parse(data);
-					// TODO: Add a handler for messages that do not contain "type" 
-                    // = 1007 error, do not print token in logs
-					console.log('Message received :', message);
-                } catch (error) {
+				} catch (error) {
                     console.error('❌ Invalid JSON recieved:', error);
                 }
+				
+				const formatCheck = checkWebSocketMessageFormat(message);
+				if (!formatCheck.valid) {
+					console.log('❌ Bad message format received:', formatCheck.errors);
+					this.disconnectWs(ws, 1007, "Invalid message format");
+					return;
+				}
+				if (message.type !== 'auth')
+					console.log('Message received :', message);
+				else
+					console.log('Auth message received');
 
 				try {
 					this.handleMessage(ws, message);
@@ -59,14 +68,41 @@ export default class WebSocketManager {
 		});
 	}
 
+	async checkTokenFromCookies(ws, cookies)
+	{
+		if (!cookies)
+        {
+            console.log("❌ No cookies found in the headers");
+            ws.close(4002, "No cookies");
+            return;
+        }
+		const cookiesTab = cookies.split('; ');
+		let token;
+		for (let cookie of cookiesTab)
+		{
+			if (cookie.trim().startsWith("token="))
+			{
+				token = cookie.trim().substring(cookie.trim().indexOf('=') + 1);
+				break ;
+			}
+		}
+		token = decodeURIComponent(token); //enleve l'encodage url --> les '/' devenait des : '%2F' par exemple 
+		// console.debug("token: -" + token + "-");
+		const result = this.fastify.unsignCookie(token); //verifie manuellement signature cookie
+		// console.debug('result session service ', result);
+        if (!result.valid)
+		{
+			ws.close(4002, "Invalid authentication");
+            return ;
+        }
+		// console.debug('token cote session service', result.value);
+		this.authenticateUser(ws, result.value);
+    }
+
 	handleMessage(ws, message) {
         switch(message.type) {
             case 'ping':
                 this.pong(ws);
-                break;
-            case 'auth':
-				// TODO : Add content check
-                this.authenticateUser(ws, message.token);
                 break;
 			default:
 				console.warn("⚠️ Type not recognized");
@@ -82,6 +118,27 @@ export default class WebSocketManager {
 
 	/*************************** CONNECT / DISCONNECT ************************/
 	
+	disconnectWs(ws, code, reason) {
+		const userId = this.getUserIdByWs(ws);
+        if (userId) {
+            if (!this.isUserConnected(Number(userId))) {
+				console.warn(`User ${userId} not registered when trying to disconnect`);
+			}
+			const client = this.clients.get(Number(userId));
+			client.ws = client.ws.filter(sock => sock && sock.readyState === 1);
+			if (client.ws.length == 0) {
+				client.status = 'disconnected';
+			}
+		}
+		if (ws.readyState === 1) {
+			ws.close(code, reason);
+			console.log(`🔴 User ${userId} has been disconnected: ${code} - ${reason}`);
+		} else {
+			console.warn("❌ Cannot close WebSocket: already closed");
+		}
+
+	}
+
 	handleDisconnexion(ws) {
         const userId = this.getUserIdByWs(ws);
         if (userId) {
@@ -90,10 +147,10 @@ export default class WebSocketManager {
 				return;
 			}
 			const client = this.clients.get(Number(userId));
-			client.currentGame = 0;
 			client.ws = client.ws.filter(sock => sock && sock.readyState === 1);
 			if (client.ws.length == 0) {
 				client.status = 'disconnected';
+				client.currentGame = 0;
 				console.log(`🔴 User ${userId} is disconnected`)
 			}
         } else {
@@ -103,20 +160,6 @@ export default class WebSocketManager {
 
 	async sleep(ms) {
 		return new Promise(resolve => setTimeout(resolve, ms));
-	}
-
-	// At connexion, ws is registered, if not authenticated after 10s it is closed
-	handleConnexion(ws) {
-		this.unknownClients.push(ws);
-		
-		// Execute once after 10s: check if ws has auth
-		setTimeout(() => {
-			if (this.getUserIdByWs(ws) == null) {
-				ws.close(4001, "Authentication timeout");
-			} else {
-				this.unknownClients = this.unknownClients.filter(c => c !== ws);
-			}
-		}, 10000);
 	}
 
 	// Once auth is ok, register the ws in the clients map
@@ -165,7 +208,6 @@ export default class WebSocketManager {
 		try {
 			const client = this.getClientByUserId(idUser);
 			if (client !== undefined) {
-				console.log(`User ${idUser} already known`);
 				oldMessages = client.messages;
 			}
 		} catch (error) {
@@ -175,9 +217,7 @@ export default class WebSocketManager {
 		this.registerUser(ws, idUser, username, slug, "online");
 
 		this.sendToWs(ws, {
-			type: 'auth_success',
-			userId: idUser,
-			timestamp: Date.now()
+			type: 'auth_success'
 		});
 		
 
@@ -207,12 +247,9 @@ export default class WebSocketManager {
 	}
 
 	updateUserStatus(userId, status) {
-		console.log("Updating status of ", userId, "with", status);
+		console.log("Updating status of", userId, "with", status);
 		if (this.clients.has(Number(userId))) {
 			const client = this.clients.get(Number(userId));
-			if (client.status == "playing" && status == "online") {
-				status = "playing";
-			}
 			client.status = status;
 			console.log(`✅ User status modification : ${userId} (${status})`);
 			return {
@@ -299,20 +336,9 @@ export default class WebSocketManager {
 		}
 		return sent;
     }
-
-	// sendToWs(ws, message) {
-	// 	if (ws && ws.readyState === 1) { // WebSocket.OPEN
-    //         ws.send(JSON.stringify(message));
-    //         console.log(`Message sent to ws:`, message);
-    //         return true;
-    //     } else {
-    //         console.warn(`❌ Cannot send message to ws : not connected`);
-    //         return false;
-    //     }
-	// }
 	
 	sendToWs(ws, message) {
-		if (ws.readyState == 1) {
+		if (ws && ws.readyState == 1) {
 			ws.send(JSON.stringify(message));
 			console.log(`Message sent to socket:`, message);
 		} else {

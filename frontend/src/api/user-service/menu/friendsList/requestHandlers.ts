@@ -1,18 +1,16 @@
-type RequestSuccess = {ok: true, requests?: string[] }
+type RequestSuccess = {ok: true, requests?: any[]}
 type Failure = { ok: false; error: string };
 
 export type RequestResult = RequestSuccess | Failure;
 
-export async function   acceptRequest(username :string): Promise<RequestResult>
+export async function   acceptRequest(slug :string): Promise<RequestResult>
 {
-    const token = localStorage.getItem("token");
-    if (!token)
-        return {ok: false, error: "No token found"};
     const res = await fetch('/api/user/menu/friendslist/request', 
     {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-        body: JSON.stringify({ username }),
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ slug }),
     });
     if (res.ok) 
     {
@@ -22,16 +20,14 @@ export async function   acceptRequest(username :string): Promise<RequestResult>
     return { ok: false, error: data.error};
 }
 
-export async function   refuseRequest(username :string): Promise<RequestResult>
+export async function   rejectRequest(slug :string): Promise<RequestResult>
 {
-    const token = localStorage.getItem("token");
-    if (!token)
-        return {ok: false, error: "No token found"};
     const res = await fetch('/api/user/menu/friendslist/request', 
     {
         method: 'DELETE',
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-        body: JSON.stringify({ username }),
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ slug }),
     });
     if (res.ok) 
     {
@@ -43,16 +39,13 @@ export async function   refuseRequest(username :string): Promise<RequestResult>
 
 export async function   getSentRequests(): Promise<RequestResult>
 {
-    const token = localStorage.getItem("token");
-    if (!token)
-        return {ok: false, error: "No token found"};
     const res = await fetch('/api/user/menu/friendslist/request/sent', 
     {
         method: 'GET',
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        credentials: 'include',
     });
     const data = await res.json();    
-    if (res.ok) 
+    if (res.ok)
     {
         return { ok: true,  requests: data.requests};
     }
@@ -61,15 +54,12 @@ export async function   getSentRequests(): Promise<RequestResult>
 
 export async function   getReceivedRequests(): Promise<RequestResult>
 {
-    const token = localStorage.getItem("token");
-    if (!token)
-        return {ok: false, error: "No token found"};
     const res = await fetch('/api/user/menu/friendslist/request/received', 
     {
         method: 'GET',
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        credentials: 'include',
     });
-    const data = await res.json();    
+    const data = await res.json();
     if (res.ok) 
     {
         return { ok: true,  requests: data.requests};

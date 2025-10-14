@@ -1,23 +1,72 @@
-import { createDiv, createElement, createButton, createDropdownDiv, createFormDiv, createCheckBoxLabel, append, createImage} from '../../Utils/elementMaker.js';
 
-export async function renderProfileSetting(SettingText: HTMLElement, ButtonDiv: HTMLElement, SettingDiv: HTMLElement, ReturnDiv: HTMLElement) {
-	SettingText.textContent = "Profile Settings";
-	ButtonDiv.classList.add('hidden');
+import { updatePassword } from '../../api/user-service/user-info/updatePassword.js';
+import { activateTwoFaBtn } from '../../Utils/2FAPopUp.js';
+import {createFormDiv, append, createElement, setbackgroundImages, createImage, createButton, createDiv, createInput} from '../../Utils/elementMaker.js';
+import { ErrorPopup } from '../ErrorPage.js';
 
-	append(SettingDiv, [(createFormDiv(["password", "new-password", "choose a new password", true]
+let form: HTMLFormElement = createElement('form', "register-form", "", "space-y-6") as HTMLFormElement;
+let twofabtn: HTMLButtonElement = createButton('twofa', 'w-full active:scale-95 hover:scale-105 text-orange-200', '2FA authentification');
+
+
+export async function renderProfileSetting(ButtonDiv: HTMLElement, SettingDiv: HTMLElement, ReturnDiv: HTMLElement) {
+	ButtonDiv.classList.add('opacity-0');
+	ButtonDiv.classList.add('-translate-x-96');
+	SettingDiv.classList.add('translate-x-96');
+
+	setbackgroundImages(twofabtn, "url('game_ui/setting/emptyPan.png')");
+
+	append(form, [(createFormDiv(["password", "new-password", "choose a new password", true]
 						, "new-pass"
-						, "please choose new password"
+						, "pleasez choose new password"
 						, [""
 							, "block text-sm font-medium text-emerald-500 mb-2"
-							, "w-full px-4 py-3 border bg-orange-200 border-emerald-500 rounded-lg"
-							, "block text-sm  text-center font-medium text-emerald-500 mb-2"]) as HTMLElement )
+							, "w-full px-4 py-3 border bg-orange-200 border-green-800 rounded-lg"
+							, "block text-sm  text-center font-medium text-orange-200 mb-2 font-bold"]) as HTMLElement )
 						, (createFormDiv(["password", "confirm-password", "confirm a new password", true]
 						, "confirm-pass"
 						, "please confirm new password"
 						, [""
 							, "block text-sm font-medium text-emerald-500 mb-2"
-							, "w-full px-4 py-3 border bg-orange-200 border-emerald-500 rounded-lg"
-							, "block text-sm  text-center font-medium text-emerald-500 mb-2"]) as HTMLElement )]);
+							, "w-full px-4 py-3 border bg-orange-200 border-green-800 rounded-lg"
+							, "block text-sm  text-center font-medium text-orange-200 mb-2 font-bold"]) as HTMLElement )]);
 
-	ReturnDiv.classList.remove('hidden');
+	append(SettingDiv, [form, twofabtn]);
+	twofabtn.addEventListener('click', async() => {await activateTwoFaBtn();});
+
+	SettingDiv.classList.remove('opacity-0')
+	SettingDiv.classList.remove('hidden');
+	setTimeout(async() => {
+		ReturnDiv.classList.remove('hidden');
+		ButtonDiv.classList.add('hidden');
+		SettingDiv.classList.remove('translate-x-96');
+		setbackgroundImages(SettingDiv, "url('game_ui/setting/SettingPan.png')");
+	}, 300);
+}
+
+export function cleanForm() {
+	Array.from(form.children).forEach(child => {child.remove();});
+}
+
+
+export async function saveUserForm() {
+	if (!form)
+		return;
+	else {
+		try {
+			const formData = new FormData(form);
+			const password = formData.get('new-pass') as string;
+			const ConfirmPassword = formData.get('confirm-pass') as string;
+			console.log('save userform function called ', password, ' ', ConfirmPassword);
+			if ((!ConfirmPassword && password) || (ConfirmPassword && !password))
+				throw new Error("please complete password form");
+			else if (password && ConfirmPassword && password != ConfirmPassword)
+				throw new Error("dissmatch passwords");
+			if (password && ConfirmPassword) {
+				const req = await updatePassword(password);
+			}
+
+		} catch(error) {
+			await ErrorPopup(error as string);
+		}
+	}
 }

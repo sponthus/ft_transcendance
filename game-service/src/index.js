@@ -1,6 +1,6 @@
 import Fastify from "fastify";
 import fastifyJwt from '@fastify/jwt';
-import { createServer } from "http";
+import fastifyCookie from '@fastify/cookie';
 import { fileURLToPath } from "url";
 import { WebSocketServer } from "ws";
 import path from "path";
@@ -8,20 +8,43 @@ import fs from "fs";
 
 import logger from "../config/logger.js";
 import env from "../config/env.js";
-
 import DatabaseConnector from "./API/database/DatabaseConnector.js";
-import routes from "./routes.js";
+import routes from "./API/routes.js";
 import WebSocketManager from "./WebSocketManager.js";
 
 const __filename = fileURLToPath(import.meta.url);
 export const __dirname = path.dirname(__filename);
 
 // Init Fastify app
-const app = Fastify({
-    logger: logger,
-});
+let fastify;
+if (env.nodeEnv === 'production') {
+	try {
+		fs.accessSync(`/etc/ssl/${env.domain_name}.key`, fs.constants.R_OK);
+		fs.accessSync(`/etc/ssl/${env.domain_name}.crt`, fs.constants.R_OK);
+		console.log("SSL certificates found and accessible");
+	} catch (err) {
+		console.error(err);
+		console.error("❌ Critical error : SSL certificates not found or inaccessible");
+		process.exit(1);
+	}
 
-app.register(DatabaseConnector);
+	fastify = Fastify({
+		logger: logger,
+		https: {
+			key: fs.readFileSync(`/etc/ssl/${env.domain_name}.key`),
+			cert: fs.readFileSync(`/etc/ssl/${env.domain_name}.crt`)
+		}
+	});
+	console.log("App launched in production mode");
+}
+else {
+	fastify = Fastify({
+		logger: false,
+	});
+	console.log("App launched in development mode");
+}
+
+fastify.register(DatabaseConnector);
 
 export function getSecret(name) {
 	try {
@@ -33,7 +56,7 @@ export function getSecret(name) {
 	}
 }
 
-app.decorate("authenticate", async function (request, reply)
+fastify.decorate("authenticate", async function (request, reply)
 {
     try 
     {
@@ -41,11 +64,20 @@ app.decorate("authenticate", async function (request, reply)
 		const internalApiKey = request.headers['x-internal-api-key'];
 		if (internalApiKey && internalApiKey === getSecret('api_key')) {
 			return;
+		}
+		else 
+		{
+			const result = fastify.unsignCookie(request.cookies.token); //verifie manuellement signature cookie
+  	      	if (!result.valid)
+   	        	return reply.code(401).send({ error: "Invalid cookie" });
+    	    // console.debug("\nToken dans le game-service : " + result.value + "-");
+    	    request.user = await fastify.jwt.verify(result.value); //Décode et verifie le token et stock ses infos dans request
+    	    if (request.user.twofa_pending === true)
+            	return reply.code(401).send({ error: "2FA required" });
+		}
+		//	await request.jwtVerify(); // Check external JWT token from users and store their infos in request.user
+		// console.log("Decoded token:", request.user);
     }
-		// Check external JWT token from users and store their infos in request.user
-		await request.jwtVerify();
-        // console.log("Decoded token:", request.user);
-    } 
     catch (err)
     {
 		console.log("❌ Error : ", err.message);
@@ -53,34 +85,51 @@ app.decorate("authenticate", async function (request, reply)
     }
 });
 
+fastify.register(fastifyCookie,
+{
+    secret: getSecret('cookie_key')
+});
 
 //enregistre le plugin JWT dans fastify
-app.register(fastifyJwt, {
+fastify.register(fastifyJwt, {
 	secret: getSecret('hash_key'),
 });
 
-await app.register(routes);
+await fastify.register(routes);
 
 // Default handler for undefined routes
-app.setNotFoundHandler((req, reply) => {
-    reply.status(404).send("Not found");
+fastify.setNotFoundHandler((req, reply) => {
+    reply.code(404).send("Not found");
+});
+
+fastify.get("/health", async (request, reply) => {
+    return { status: "ok" };
 });
 
 // Launch Fastify HTTP REST API on port ${env.game_port}
-app.listen({ port: env.game_port, host: `${env.ip}` }, (err, address) => {
+fastify.listen({ port: env.game_port, host: `${env.ip}` }, (err, address) => {
     if (err) {
-        app.log.error(err);
+        fastify.log.error(err);
         process.exit(1);
     }
-    app.log.info(`Game API running at ${address}`);
+    fastify.log.info(`Game API running at ${address}`);
 });
 
 // WebSocket server on port ${env.game_ws_port}
-const server = createServer();
+let createServer;
+if (env.nodeEnv === 'production') {
+	({ createServer } = await import('https'));
+} else {
+	({ createServer } = await import('http'));
+}
+const server = env.nodeEnv === 'production' ? createServer({
+	key: fs.readFileSync(`/etc/ssl/${env.domain_name}.key`),
+	cert: fs.readFileSync(`/etc/ssl/${env.domain_name}.crt`)
+}) : createServer();
+// const server = createServer();
 const wss = new WebSocketServer({ server, path: "/g-ws/" });
 console.log("Ws server created");
-
-const WSManager = new WebSocketManager(wss, app);
+const WSManager = new WebSocketManager(wss, fastify);
 WSManager.initializeWebSocket();
 
 server.listen(env.game_ws_port, () => {

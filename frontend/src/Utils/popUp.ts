@@ -16,7 +16,7 @@ export class popUp{
 	private initOverlay() {
 		this._Overlay = document.createElement('div');
 		this._Overlay.id = "PopUp";
-		this._Overlay.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 h-screen min-h-[540px] w-screen min-w-[960px] ';
+		this._Overlay.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 h-screen min-h-screen	 w-screen min-w-screen';
 	}
 
 	private initBody() {
@@ -59,7 +59,8 @@ export class popUp{
 	}
 
 	removeOverlayToWindow() {
-		document.body.removeChild(this._Overlay);
+		if (this._Overlay && this._Overlay.parentNode)
+			document.body.removeChild(this._Overlay);
 	}
 
 	changeTitleText(Title: string) {
@@ -71,6 +72,14 @@ export class popUp{
 	}
 
 	get OverlayDiv() :HTMLElement {
-		return this.OverlayDiv;
+		return this._Overlay;
+	}
+
+	get Title() :HTMLElement {
+		return this._Title;
+	}
+
+	get Body(): HTMLElement {
+		return this._Body;
 	}
 }

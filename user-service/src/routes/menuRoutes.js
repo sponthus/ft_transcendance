@@ -1,8 +1,8 @@
-import { changeGameState, getGameState } from "../menu/gameState.js";
-import { getCharacterAsset, changeCharacterAsset } from "../menu/characterAsset.js";
-import { getNpcAsset, changeNpcAsset } from "../menu/npcAsset.js";
-import { changeBackgroundColor, getBackgroundColor } from "../menu/backgroundColor.js";
-import { getAllUsers } from "../menu/getAllUsers.js";
+import { changeGameState, getGameState } from "../menu/customization/gameState.js";
+import { getCharacterAsset, changeCharacterAsset } from "../menu/customization/characterAsset.js";
+import { getNpcAsset, changeNpcAsset } from "../menu/customization/npcAsset.js";
+import { changeBackgroundColor, getBackgroundColor } from "../menu/customization/backgroundColor.js";
+import { getAllUsers } from "../menu/customization/getAllUsers.js";
 
 export default async function menuRoutes(fastify)
 {

@@ -1,4 +1,5 @@
 import GameMaster from './GameMaster.js';
+import { checkWebSocketMessageFormat } from './tools/CheckFormat.js';
 
 const gameMaster = GameMaster.getInstance();
 
@@ -13,21 +14,25 @@ export default class WebSocketManager {
         this.ws.on('connection', (ws, request) => {
             console.log('🟢 New WebSocket connection');
 
+            const token = this.getTokenFromCookies(ws, request.headers.cookie);
             ws.on('message', (data) => {
                 let message;
                 try {
                     message = JSON.parse(data);
-                    // TODO: Add a handler for messages that do not contain "type" 
-                    // = 1007 error, do not print token in logs
-                    // console.log('Message received :', message);
-                    if (message.type !== 'input')
-                        console.log('Message received :', message);
-                } catch (error) {
-                    console.error('❌ Invalid JSON recieved:', error);
+				} catch (error) {
+                    console.error('❌ Invalid JSON received:', error);
                 }
-
+				const formatCheck = checkWebSocketMessageFormat(message);
+                if (!formatCheck.valid) {
+					console.log('❌ Bad message format received:', formatCheck.errors);
+					this.disconnectWs(ws, 1007, "Invalid message format");
+					return;
+				}
+				if (message.type !== 'input' && message.type !== 'auth') {
+					console.log('Message received :', message);
+				}
                 try {
-                    this.handleMessage(ws, message);
+                    this.handleMessage(ws, message, token);
                 } catch (error) {
                     console.error('❌ Error treating message:', error);
                 }
@@ -43,23 +48,51 @@ export default class WebSocketManager {
         });
     }
 
-    async handleMessage(ws, message) {
+    getTokenFromCookies(ws, cookies)
+	{
+        if (!cookies)
+        {
+            console.log("❌ No cookies found in the headers");
+            ws.close(4002, "No cookies");
+            return;
+        }
+		const cookiesTab = cookies.split('; ');
+		let token;
+		for (let cookie of cookiesTab)
+		{
+			if (cookie.trim().startsWith("token="))
+			{
+				token = cookie.trim().substring(cookie.trim().indexOf('=') + 1);
+				break ;
+			}
+		}
+		token = decodeURIComponent(token);
+		const result = this.fastify.unsignCookie(token);
+        if (!result.valid)
+		{
+			console.log("❌ Invalid cookie game-service");
+            ws.close(4002, "Invalid authentication");
+            return ;
+        }
+		// console.debug('token cote session service', result.value);
+		return (result.value);
+    }
+
+    async handleMessage(ws, message, token) {
         switch(message.type) {
             case 'ping':
                 this.pong(ws);
                 break;
             case 'auth':
-                // TODO : Add content check
-                await this.authenticateUser(ws, message.token, message.gameId);
+                console.log('Handle message token: ', token);
+                await this.authenticateUser(ws, token, message.gameId);
                 break;
             case 'input':
                 break;
+			case 'start':
+				break;
             default:
-                console.warn("⚠️ Type not recognized");
-            // case 'join_game':
-            //     this.handleJoinGame(ws, message.gameId);
-            //     break;
-
+                console.warn("⚠️ Type not recognized : ", message.type);
         }
     }
 
@@ -79,6 +112,22 @@ export default class WebSocketManager {
 		}
 	}
 
+	disconnectWs(ws, code, reason) {
+		const userId = gameMaster.getUserIdByWs(ws);
+		// Remove from unknown clients if present
+		this.unknownClients = this.unknownClients.filter(c => c !== ws);
+		if (ws.readyState === 1) {
+			ws.close(code, reason);
+			if (userId)
+				console.log(`🔴 Ws ${userId} has been disconnected: ${code} - ${reason}`);
+			else
+				console.log(`🔴 Unregistered ws has been disconnected: ${code} - ${reason}`);
+		} else {
+			console.warn("❌ Cannot close WebSocket: already closed");
+		}
+
+	}
+
     handleConnexion(ws) {
         this.unknownClients.push(ws);
 		
@@ -93,6 +142,7 @@ export default class WebSocketManager {
     }
 
     async authenticateUser(ws, token, gameId) {
+        
         if (!token) {
             console.warn('Authentication failed: no token provided');
             return;
@@ -101,25 +151,34 @@ export default class WebSocketManager {
             console.warn('Authentication failed: no gameId provided');
             return;
         }
-
+        
         let data = {};
-		try {
+        try {
             data = this.fastify.jwt.verify(token);
-		} catch (err) {
-			console.error("❌ Invalid token:", err.message);
-			ws.close(4002, "Invalid authentication");
-			return ;
-		}
+        } catch (err) {
+            console.error(":x: Invalid token:", err.message);
+            ws.close(4002, "Invalid authentication");
+            return ;
+        }
+        console.log(`Message recieved: auth, from ${data.slug}, for game ${gameId}`);
 
-        console.log(data);
-        gameMaster.addUserToGame(ws, data.idUser, gameId);
-
-		this.sendToWs(ws, {
-            type: 'auth_success',
-            gameId: gameId,
-            timestamp: Date.now()
-        });
-
-        await gameMaster.updateUserStatus(data.idUser);
+        if (gameMaster.addUserToGame(ws, data.idUser, gameId) == false) {
+            console.error(":x: Game not found or not enough players");
+            ws.close(4003, "Game not found or not enough players");
+            return ;
+        }
+        const players = gameMaster.getPlayersByGameId(gameId);
+        if (!players || players.length != 2) {
+            console.error(":x: Game not found or not enough players");
+            ws.close(4003, "Game not found or not enough players");
+            return ;
+        } else {
+            this.sendToWs(ws, {
+                type: 'auth_success',
+                gameId: gameId,
+                playerA: players[0],
+                playerB: players[1]
+            });
+        }
     }
 }

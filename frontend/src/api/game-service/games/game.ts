@@ -1,3 +1,5 @@
+import { ErrorPopup } from "../../../pages/ErrorPage.js";
+
 type Failure = { ok: false; error: string };
 type Success = { ok: true; message: string };
 
@@ -18,10 +20,9 @@ type PendingGamesInfos = {
 	option: number;
 }
 
-type AllGamesInfos = {
+export type AllGamesInfos = {
     id: number;
     status: 'pending' | 'ongoing' | 'finished' | 'canceled';
-    id_user: number,
     player_a: string;
     player_b: string;
     score_a: number;
@@ -46,18 +47,12 @@ export type AllGamesResult = AllGamesList | Failure;
 // POST /game
 // Creates a new game for the user, taking names for players
 // Security : Accessible for every logged-in user
-export async function createLocalGame(player_a: string, player_b: string, maxScore: number = 7, ai: number = 0, option: number = 1): Promise<GameInfoResult> {
-    const token = localStorage.getItem("token");
-    if (!token)
-        return { ok: false, error: "No token"};
-
+export async function createLocalGame(player_a: string, player_b: string, maxScore: number = 7, ai: number = 0, option: number = 1): Promise<GameInfoResult> {    
     console.log(' playA ' + player_a + ' playB ' + player_b);
     const res = await fetch('/api/games/game', {
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-        },
+        headers: {'Content-Type': 'application/json',},
+        credentials: 'include',
         body: JSON.stringify({
             player_a: player_a,
             player_b: player_b,
@@ -82,7 +77,7 @@ export async function createLocalGame(player_a: string, player_b: string, maxSco
         };
     } else {
         // Invalid or expired token = Disconnect
-        alert("❌ API Error starting game : " + data?.error as string  || "Game start impossible");
+        await ErrorPopup("❌ API Error starting game : " + data?.error as string  || "Game start impossible");
         return { ok: false, error: data?.error as string  || "Game start impossible" };
     }
 }
@@ -96,19 +91,13 @@ export async function createLocalGame(player_a: string, player_b: string, maxSco
 // Launch a game and reserve a game server in backend
 // Security : is gonna be possible only if the logges-in user is the owner of the game
 export async function startGame(gameId: number): Promise<GameInfoResult> {
-	const token = localStorage.getItem("token");
-    if (!token)
-        return { ok: false, error: "No token"};
-    if (!gameId) {
+	if (!gameId) {
         return { ok: false, error: "No game ID given" };
     }
     try {
         const request = await fetch(`/api/games/${gameId}`, {
             method: 'POST',
-            headers: {
-				// 'Content-Type': 'application/json', // Useless because no body provided
-                'Authorization': `Bearer ${token}`
-            }
+            credentials: 'include',
         });
         if (!request.ok) {
             throw new Error('Unable to start game ' + request.status);
@@ -163,25 +152,31 @@ export async function getAvailableGames(slug: string): Promise<AvailableGamesRes
 // GET /:slug/games
 // All available FINISHED games for a user, gives only useful infos
 // Security : Accessible for every logged-in user
-export async function getFinishedGames(slug: string): Promise<AvailableGamesResult> {
+export async function getFinishedGames(slug: string): Promise<AllGamesResult> {
     try {
         const allGamesResult = await getAllGames(slug);
         if (!allGamesResult.ok) {
             return { ok: false, error: allGamesResult.error };
         }
-        const pendingGames: PendingGamesInfos[] = allGamesResult.games
+        const finishedGames: AllGamesInfos[] = allGamesResult.games
             .filter(game => game.status === 'finished')
             .map(game => ({
                 id: game.id,
                 status: game.status,
                 player_a: game.player_a,
                 player_b: game.player_b,
+				winner: game.winner,
                 created_at: game.created_at,
+				began_at: game.began_at,
+				finished_at: game.finished_at,
+				score_a: game.score_a,
+				score_b: game.score_b,
+				tournament_id: game.tournament_id,
 				ai: game.ai,
 				option: game.option
             }));
 
-        return { ok: true, games: pendingGames };
+        return { ok: true, games: finishedGames };
 
     } catch (error) {
         console.error('❌ Error filtering finished games', error as string );
@@ -194,19 +189,14 @@ export async function getFinishedGames(slug: string): Promise<AvailableGamesResu
 // Gives all games for a user (useful for history, gives you every info available on each game)
 // Security : Accessible for every logged-in user
 export async function getAllGames(slug: string): Promise<AllGamesResult> {
-    const token = localStorage.getItem("token");
-    if (!token)
-        return { ok: false, error: "No token"};
     if (!slug) {
         return { ok: false, error: 'Slugis required' };
     }
     try {
         const response = await fetch(`/api/games/${slug}/games`, {
             method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-            }
+            headers: {'Content-Type': 'application/json', },
+            credentials: 'include',
         });
 
         if (!response.ok) {
@@ -225,22 +215,15 @@ export async function getAllGames(slug: string): Promise<AllGamesResult> {
 
 // DELETE /:gameId
 // Delete a game in backend
-// TODO : Works but in case of an error, writes alert("Error: Error:...")
+// TODO : Works but in case of an error, writes await ErrorPopup("Error: Error:...")
 // Security : is gonna be possible only if the logges-in user is the owner of the game
 export async function deleteGame(gameId: number): Promise<SimpleResult> {
-    const token = localStorage.getItem("token");
-    if (!token)
-        return { ok: false, error: "No token"};
-
     if (!gameId)
         return {ok: false, error: 'gameId required'};
     try {
         const response = await fetch(`/api/games/${gameId}`, {
             method: 'DELETE',
-            headers:  {
-				// 'Content-Type': 'application/json', // Useless because no body provided
-                'Authorization': `Bearer ${token}`
-            }
+            credentials: 'include',
         });
         if (!response.ok) {
 			const data = await response.json();

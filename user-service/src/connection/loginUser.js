@@ -1,4 +1,5 @@
 import bcrypt from "bcrypt";
+import env from '../../config/env.js';
 import { checkRegistrationFormat } from "../tools/checkFormat.js";
 
 export default async function loginUser (request, reply)
@@ -26,8 +27,22 @@ export default async function loginUser (request, reply)
             return(reply.code(401).send({error : "Username or password invalid"})); //message generique pour les attaques
         const idUser = userData.id;
         const slug = userData.slug;
-        const token = await reply.jwtSign({ idUser, username, slug }, {expiresIn: '1h'});
-        return reply.code(200).send({ token: token, username: userData.username, slug: userData.slug, id: userData.id });
+        let token = 0;
+        if (userData.twofa_enabled === 1)
+            token = await reply.jwtSign({ idUser, username, slug, twofa_pending: true }, {expiresIn: '3m'});
+        else
+            token = await reply.jwtSign({ idUser, username, slug }, {expiresIn: '1h'});
+        let secure = false;
+        if (env.nodeEnv === 'production')
+            secure = true;
+        return reply.code(200).setCookie('token', token,
+            {
+                httpOnly: true, 
+                signed: true,
+                secure: secure, 
+                path: '/', 
+                maxAge: 3600000
+            }).send({ twoFaEnabled: userData.twofa_enabled });
     }
     catch (err)
     {

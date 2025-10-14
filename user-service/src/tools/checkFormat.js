@@ -7,7 +7,7 @@ export function    checkRegistrationFormat(request)
         type: "object",
         properties:
         {
-            username: { type: "string", minLength: 3, maxLength: 15, pattern: "^(?=.*[a-zA-Z])[^\\[\\]{}();]+$"},
+            username: { type: "string", minLength: 3, maxLength: 15, pattern: "^(?![_-])(?!.*[_-]$)(?=.*[A-Za-z])(?![0-9_]+)[A-Za-z0-9_-]+$"}, // Updated pattern
             password: { type: "string", minLength: 6, maxLength: 15, pattern: "^(?=.*[a-zA-Z])[^\\[\\]{}();]+$"},
         },
         required: ["username", "password"],
@@ -28,7 +28,7 @@ export function    checkUsernameFormat(request)
         type: "object",
         properties:
         {
-            username: { type: "string", minLength: 3, maxLength: 15, pattern: "^(?=.*[a-zA-Z])[^\\[\\]{}();]+$"},
+            username: { type: "string", minLength: 3, maxLength: 15, pattern: "^(?![_-])(?!.*[_-]$)(?=.*[A-Za-z])(?![0-9_]+)[A-Za-z0-9_-]+$"}, // Updated pattern
         },
         required: ["username"],
         additionalProperties: false
@@ -38,6 +38,53 @@ export function    checkUsernameFormat(request)
     const valid = contract(request.body);
     if (!valid)
         return (false);
+    return (true);
+}
+
+export function    checkCodeFormat(request)
+{
+    const schema = 
+    {
+        type: "object",
+        properties:
+        {
+            code: { type: "string", minLength: 6, maxLength: 6, pattern: "^(?=.*[0-9])[0-9]+$"},
+        },
+        required: ["code"],
+        additionalProperties: false
+    };
+    const ajv = new Ajv();
+    const contract = ajv.compile(schema);
+    const valid = contract(request.body);
+    if (!valid)
+        return (false);
+    return (true);
+}
+
+export function    checkSlugFormat(request)
+{
+    const schema = 
+    {
+        type: "object",
+        properties:
+        {
+            slug: { 
+				type: "string", 
+				minLength: 3, 
+				maxLength: 20, 
+				pattern: "^(?![_-])(?!.*[_-]$)(?=.*[a-z])(?![0-9_]+)[a-z0-9_-]+$"}, // Updated pattern
+        },
+        required: ["slug"],
+        additionalProperties: false
+    };
+    const ajv = new Ajv();
+    const contract = ajv.compile(schema);
+    const valid = contract(request.body);
+    if (!valid) {
+		console.log("Format errors :");
+		console.log(contract.errors);
+        return (false);
+	}
     return (true);
 }
 

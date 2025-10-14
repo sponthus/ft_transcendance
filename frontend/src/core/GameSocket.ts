@@ -1,3 +1,146 @@
+/// <reference types="vite/client" />
+import Ajv, { ErrorObject } from "ajv";
+import { ErrorPopup } from "../pages/ErrorPage.js"; 
+import { kMaxLength } from "buffer";
+
+export interface WebSocketMessage {
+	type: string;
+	gameId?: number; // For auth_success messages
+	gameState?: any; // For game state updates
+	winner?: string; // For game end messages
+	scoreA?: number; // For game end messages
+	scoreB?: number; // For game end messages
+	playerA?: string;
+	playerB?: string;
+}
+
+export interface FormatCheckResult {
+	valid: boolean;
+	errors: ErrorObject[] | null | undefined;
+}
+
+// Checks the format of the message recieved via the websocket
+// It will contain exactly what's expected of be rejected
+export function checkWebSocketMessageFormat(message: WebSocketMessage): FormatCheckResult {
+	const schema = {
+		type: "object",
+		properties: {
+			type: { type: "string", minLength: 3 },
+			gameId: { type: "number", minimum: 1 },
+			gameState: { 
+				type: "object", 
+				properties: {
+					paddle1: { 
+						type: "object",
+						properties: {
+							x: { type: "number" }
+						}
+					},
+					paddle2: { 
+						type: "object",
+						properties: {
+							x: { type: "number" }
+						}
+					},
+					ball: { 
+						type: "object",
+						properties: {
+							x: { type: "number" },
+							z: { type: "number" }
+						}
+					},
+					score: { 
+						type: "object", 
+						properties: {
+							s1: { type: "number", minimum: 0 },
+							s2: { type: "number", minimum: 0 }
+						}
+					},
+					spell1: { 
+						type: "object",
+						properties: {
+							x: { type: "number" },
+							y: { type: "number" },
+							z: { type: "number" }
+						}
+					},
+					spell2: { 
+						type: "object",
+						properties: {
+							x: { type: "number" },
+							y: { type: "number" },
+							z: { type: "number" }
+						}
+					},
+					specialCooldown1: { type: "number" },
+					specialCooldown2: { type: "number" },
+					die1: { type: "boolean" },
+					die2: { type: "boolean" },
+					ispaused: { type: "boolean" },
+					timePauseBegin: { type: "number" }
+				},
+				required: ["paddle1", "paddle2", "ball", "score", "spell1", "spell2", "specialCooldown1", "specialCooldown2", "die1", "die2", "ispaused", "timePauseBegin"],
+				additionalProperties: false
+			},
+			winner: { 
+				type: "string", 
+				minLength: 1, 
+				maxLength: 21,
+				pattern: "^(?!@?[_-])(?!.*[_-]$)(?!^\\s)(?!.*\\s$)(?!.*\\s{2})(?!.*(?:\\s.*){3})(?=.*[A-Za-z])(?!@?[0-9_-]+$)@?[A-Za-z0-9 _-]+$" // Updated pattern 
+			},
+			scoreA: { type: "number", minimum: 0 },
+			scoreB: { type: "number", minimum: 0 },
+			playerA: { 
+				type: "string", 
+				minLength: 3,
+				maxLength: 21,
+				pattern: "^(?!@?[_-])(?!.*[_-]$)(?!^\\s)(?!.*\\s$)(?!.*\\s{2})(?!.*(?:\\s.*){3})(?=.*[A-Za-z])(?!@?[0-9_-]+$)@?[A-Za-z0-9 _-]+$" // Updated pattern
+			},
+			playerB: { 
+				type: "string", 
+				minLength: 3,
+				maxLength: 21,
+				pattern: "^(?!@?[_-])(?!.*[_-]$)(?!^\\s)(?!.*\\s$)(?!.*\\s{2})(?!.*(?:\\s.*){3})(?=.*[A-Za-z])(?!@?[0-9_-]+$)@?[A-Za-z0-9 _-]+$" // Updated pattern
+			}
+		},
+		additionalProperties: false,
+		required: ["type"],
+		allOf: [
+			{
+				if: { properties: { type: { const: "auth_success" } } },
+				then: {
+					required: ["type", "gameId", "playerA", "playerB"],
+				}
+			},
+			{
+				if: { properties: { type: { const: "ping" } } },
+				then: {
+					required: ["type"],
+				}
+			},
+			{
+				if: { properties: { type: { const: "stateUpdate" } } },
+				then: {
+					required: ["type", "gameState"],
+				}
+			},
+			{
+				if : { properties: { type: { const: "endGame" } } },
+				then: {
+					required: ["type", "winner", "scoreA", "scoreB"],
+				}
+			}
+		]
+	};
+	const ajv = new Ajv();
+	const validate = ajv.compile(schema);
+	const valid = validate(message);
+	return {
+		valid,
+		errors: validate.errors
+	};
+}
+
 export class GameSocket {
 	public ws: WebSocket;
 
@@ -6,14 +149,22 @@ export class GameSocket {
     private heartbeatTimeout: number | null = null;
     private pingInterval: number = 30000; // every 30s sends a ping
     private pongInterval: number = 5000; // 5s to recieve back pong
+	private playing: boolean = false;
+
+	// Call this when the game actually starts
+	public setPlaying(state: boolean) {
+		this.playing = state;
+	}
 
 	constructor(gameId: number) {
-		if (!gameId || gameId == 0) {
-			// TODO make me an error
-			alert("No gameID provided");
-		}
-		this.gameId = gameId;
+		// if (!gameId || gameId == 0) {
+		// 	// TODO make me an error
+		// 	await ErrorPopup("No gameID provided");
+		// }
 		try {
+			if (!gameId || gameId == 0)
+				throw new Error('No gameID provided');
+			this.gameId = gameId;
 			console.log("Creating new WebSocket connection");
 			this.ws = new WebSocket(this.getGameWsUrl());
 			this.setupEventListeners();
@@ -30,7 +181,7 @@ export class GameSocket {
         if (status === "development")
             return `ws://${import.meta.env.VITE_DOMAIN_NAME}:8080/g-ws/`;
         else
-            return `wss://${import.meta.env.VITE_DOMAIN_NAME}/g-ws/`;
+            return `wss://${import.meta.env.VITE_DOMAIN_NAME}:4443/g-ws/`;
     }
 
 	private setupEventListeners() {
@@ -46,13 +197,25 @@ export class GameSocket {
         };
 
         this.ws.onmessage = (event) => {
-            try {
-                const data = JSON.parse(event.data);
-				// TODO Check data contains "type"
-                this.handleMessage(data);
+            let data = null;
+			try {
+                data = JSON.parse(event.data);
             } catch (error) {
-                console.error('Error parsing message:', error);
+				console.error('Error parsing JSON message.');
+				// TODO Add logic here, when recieving an invalid message format
+				// Websocket will be closed (someone exterior sent a wrong message to the websocket, normally it's impossible)
+				this.close(3000, 'Invalid message format');
+				return;
             }
+			const checkFormat = checkWebSocketMessageFormat(data);
+			if (checkFormat.valid === false) {
+				console.error("Invalid WebSocket message format:", checkFormat.errors);
+				// TODO Add logic here, when recieving an invalid message format
+				// Websocket will be closed (someone exterior sent a wrong message to the websocket, normally it's impossible)
+				this.close(3000, 'Invalid message format');
+				return;
+			}
+			this.handleMessage(data);
         };
 
         this.ws.onerror = (error) => {
@@ -62,7 +225,10 @@ export class GameSocket {
         this.ws.onclose = () => {
             console.log("Connexion WebSocket closed");
             this.stopHeartbeat();
-            // delete (window as any).GLOBAL_WEBSOCKET;
+			// TODO Complete logic here, when the websocket is closed
+			if (this.playing === true)
+				this.reconnect();
+			// Do we reconnect on close if playing ? Websocket can also be closed if backend recompiles
         };
     }
 
@@ -103,14 +269,8 @@ export class GameSocket {
     }
 
 	private authenticate() {
-        const token = localStorage.getItem("token");
-		if (!token) {
-			console.error("Impossible to authenticate for the session websocket, no token.");
-			return ;
-		}
         this.send(JSON.stringify({
             type: "auth",
-            token: token,
 			gameId: this.gameId
         }));
     }
@@ -130,8 +290,38 @@ export class GameSocket {
         return this.ws.readyState === WebSocket.OPEN;
     }
 
-    public close() {
-        if (this.ws)
-            this.ws.close();
+	public reconnect(): void {
+		console.log("Reconnecting to WebSocket server...");
+		this.stopHeartbeat();
+		const reconnectInterval = setInterval(() => {
+			if (!this.isOpen()) {
+				try {
+					console.log("Attempting to reconnect...");
+					this.ws = new WebSocket(this.getGameWsUrl());
+					console.log("Reconnected successfully!");
+					this.setupEventListeners();
+					this.startHeartbeat();
+					clearInterval(reconnectInterval);
+				} catch (error) {
+					console.error("Reconnection attempt failed:", error);
+				}
+			} else {
+				clearInterval(reconnectInterval);
+			}
+		}, 10000); // Try to reconnect every 5 seconds
+		this.ws.close();
+		
+	}
+
+    public close(code: number = -1, reason: string = ""): void {
+        this.stopHeartbeat();
+        if (!this.ws)
+            return;
+        if (code > 0 && reason.length > 0)
+			this.ws.close(code, reason);
+		else if (code > 0)
+			this.ws.close(code);
+		else
+			this.ws.close();
     }
 }

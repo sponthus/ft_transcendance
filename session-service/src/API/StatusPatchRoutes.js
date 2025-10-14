@@ -1,18 +1,25 @@
+import { checkChangeInfosFormat, checkIdFormat, checkStatusFormat } from "../tools/CheckFormat.js";
+
 // Updates the infos of a user (in case of a change of username/slug)
 // Expecting in the body: username, slug
-// Security : Road is protected to service-only
+// Security : Road is protected to service-only and from SQLi
 export async function changeUserInfos(request, reply) {
 	console.log('➡️ User accessed PATCH /data/:userId');
 	
 	const { userId } = request.params;
 	if (!userId) {
+		console.error('❌ No userId found in request params');
 		return reply.status(400).send({error: 'No userId found in request.'});
 	}
-
-	const { username, slug } = request.body;
-	if (!username || !slug) {
-		return reply.status(400).send({error: 'No data found in request.'});
+	if (checkIdFormat(userId) === false) {
+		console.error('❌ Bad userId found in request params');
+		return reply.status(400).send({ error: 'Bad userId format.'});
 	}
+	if (checkChangeInfosFormat(request) === false) {
+		console.error('❌ Bad data format sent in request body');
+		return reply.status(400).send({ error: 'Bad data format - expected : username, slug.'});
+	}
+	const { username, slug } = request.body;
 
 	const { WebSocketManager } = request.server;
 	if (!WebSocketManager) {
@@ -20,8 +27,9 @@ export async function changeUserInfos(request, reply) {
 		return reply.status(500).send({ error: 'Internal server error while fetching users'});
 	}
 
-	const data = WebSocketManager.updateUserInfos(userId, username, slug);
+	const data = WebSocketManager.updateUserInfos(Number(userId), username, slug);
 	if (data == null) {
+		console.log(`User with ${userId} not found.`);
 		return reply.status(404).send({error: 'Requested user not found.'});
 	}
 	return reply.status(200).send({ userId: data.userId, username: data.username, slug: data.slug });
@@ -30,20 +38,27 @@ export async function changeUserInfos(request, reply) {
 
 // Updates the status of a user (playing | online | disconnected)
 // Expecting in the body: status
-// Security : Road is protected to service-only
+// Security : Road is protected to service-only and from SQLi
 export async function changeUserStatus(request, reply) {
 	console.log('➡️ User accessed PATCH /status/:userId');
 	
 	const { userId } = request.params;
 	if (!userId) {
+		console.error('❌ No userId found in request params');
 		return reply.status(400).send({error: 'No userId found in request.'});
+	}
+	if (checkIdFormat(userId) === false) {
+		console.error('❌ Bad userId format sent in request params');
+		return reply.status(400).send({ error: 'Bad userId format.'});
 	}
 
 	let { status } = request.body;
 	if (!status) {
+		console.error('❌ No status found in request body');
 		return reply.status(400).send({error: 'No status found in request.'});
 	}
-	if (status !== 'playing' && status !== 'not_playing') {
+	if (checkStatusFormat(status) === false) {
+		console.error('❌ Wrong status format sent in request body');
 		return reply.status(400).send({error: 'Wrong status sent for update (playing | not_playing).'});
 	}
 
@@ -69,8 +84,10 @@ export async function changeUserStatus(request, reply) {
 			status = "playing";
 		else if (actualStatus == "online")
 			return reply.status(200).send({ userId: userId, status: actualStatus });
-		else if (actualStatus == "disconnected")
+		else if (actualStatus == "disconnected") {
+			console.error('❌ User is disconnected, he cannot be playing.');
 			return reply.status(500).send({ error: 'Player is disconnected, he cannot play'});
+		}
 	}
 	const data = WebSocketManager.updateUserStatus(userId, status);
 	if (data == null) {

@@ -46,7 +46,7 @@ export default class GameServer {
 	}
 
     setHandlers(game) {
-		console.log("Handlers are set");
+		// console.debug("Handlers are set");
         this.ws.on('close', () => {
             if (this.end == false) {
 				gameEventEmitter.emitGameEvent('player:disconnected', this.gameId, {
@@ -77,6 +77,10 @@ export default class GameServer {
 				case "start":
 					this.startGame();
 					break;
+				
+				case "ping":
+					this.pong(this.ws);
+					break;
 
 				default:
 					console.warn("ERR: Type inconnu :", data.type);
@@ -93,6 +97,13 @@ export default class GameServer {
 		});
     }
 
+	pong(ws) {
+        if (ws.readyState === 1) {
+            this.sendToWs(ws, { type: 'pong' });
+        } else
+			console.error("❌ Unable to send pong back");
+    }
+	
     startGame() {
         this.state = 'playing';
         gameEventEmitter.emitGameEvent('game:started', this.gameId, {
@@ -100,10 +111,22 @@ export default class GameServer {
 		});
 
         // à chaque tick du serveur
-        this.intervalId = setInterval(() => {
-            // Appliquer les inputs pour déplacer le paddle
-            this.game.update();
-            // broadcast du nouvel état
+		let tick = 0;
+		let action = 2; // 0 = UP, 1 = DOWN, 2 = STILL (default 1st action)
+        let ticks_per_decision = Math.floor(1 / 0.016);
+		console.log("Ticks per decision : ");
+		console.log(ticks_per_decision);
+		this.intervalId = setInterval(() => {
+			// console.log("Tick ", tick);
+			// Appliquer les inputs pour déplacer le paddle
+            if (tick % ticks_per_decision == 0) {
+				// console.log("Decision tick ", tick);
+				// console.log("Main action is ", action);
+				action = this.game.update(action, true);
+			}
+            else
+				action = this.game.update(action);
+			// broadcast du nouvel état
             const stateMsg = JSON.stringify({
                 type: "stateUpdate",
                 gameState: this.game.getState()
@@ -121,6 +144,7 @@ export default class GameServer {
 				this.state == "finished";
 				this.endGame();
             }
+			tick++;
         }, 16); // 60fps
     }
 

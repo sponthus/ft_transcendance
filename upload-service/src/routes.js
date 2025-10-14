@@ -5,7 +5,7 @@ export default async function routes(fastify, options) {
 
     fastify.register(
         async function (putRoutes) {
-            putRoutes.put('/:slug',
+            putRoutes.put('/',
                 {preHandler: [fastify.authenticate]},
                 uploadAvatar);
         }

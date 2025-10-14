@@ -1,10 +1,11 @@
 import { popUp } from "../../Utils/popUp";
-import { createDiv, createElement, createButton, createDropdownDiv, createFormDiv, createCheckBoxLabel, append, createImage, createInput} from '../../Utils/elementMaker.js';
+import { createDiv, createElement, createButton, createFormDiv, append, createInput} from '../../Utils/elementMaker.js';
 import { modifyUserAvatar } from "../../api/user-service/user";
 import { updateUsername } from "../../api/user-service/user-info/updateUsername.js";
 import { getUserInfo } from '../../api/user-service/user-info/getUserInfo.js';
 import { uploadAvatar } from "../../api/avatar.js";
 import { navigate } from '../../core/router.js';
+import { ErrorPopup } from '../ErrorPage.js';
 
 enum EditState {AVATAR = 0, USERNAME = 1};
 
@@ -183,8 +184,14 @@ export class EditProfile extends popUp {
 	}
 
 	private async saveDataUser() {
-		await this.saveUsername();
-		this.openUploadForm();
+		switch(this.EditingState) {
+			case EditState.AVATAR:
+				await this.openUploadForm();
+				break;
+			case EditState.USERNAME:
+				await this.saveUsername();
+				break;
+		}
 	}
 
 	private async saveUsername() {
@@ -205,18 +212,19 @@ export class EditProfile extends popUp {
 			location.reload();
 		}
 		else
-			alert(req.error);
+			await ErrorPopup(req.error);
 	}
 
 	async openUploadForm() {
 
+		console.log("upload form function called");
 		const form = document.getElementById('avatar-upload-form') as HTMLFormElement;
 		if (!form) 
 			return ;
 
 		const input = form.querySelector('input[type="file"]') as HTMLInputElement;
 		if (!input.files || input.files.length === 0) {
-			alert("Please, select a file");
+			await ErrorPopup("Please, select a file");
 			return;
 			}
 			
@@ -229,18 +237,19 @@ export class EditProfile extends popUp {
 		// Makes 2 requests : upload to upload service + change avatar in user db
 		const req = await uploadAvatar(this.UserData.slug, formData);
 		if (req.ok) {
-			alert("Avatar updated successfully!");
+			await ErrorPopup("Avatar updated successfully!");
 			const pathReq = await modifyUserAvatar(this.UserData.slug, req.avatar);
 			if (pathReq.ok) {
 				await navigate(`/user/${this.UserData.slug}`);
+				await ErrorPopup("avatar modify successfully");
 				return ;
 			}
 			else {
-				alert("Error while uploading avatar path in db" + (pathReq.error || "Unknown error"));
+				await ErrorPopup("Error while uploading avatar path in db" + (pathReq.error || "Unknown error"));
 			}
 		}
 		else {
-			alert("Upload failed: " + (req.error || "Unknown error"));
+			await ErrorPopup("Upload failed: " + (req.error || "Unknown error"));
 		}
 	}
 

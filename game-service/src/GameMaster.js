@@ -31,9 +31,11 @@ export default class GameMaster {
             game.server.addWs(ws);
 			console.log(`✅ User ${userId} authenticated to game ${gameId}`);
             await updateUserStatus(userId);
+			return true;
 		} 
 		else {
 			console.log(`❌ No game server available for user ${userId}`);
+			return false;
 		}
     }
 
@@ -75,17 +77,28 @@ export default class GameMaster {
         return null;
     }
 
+	getPlayersByGameId(gameId) {
+		if (this.games.has(Number(gameId))) {
+			return this.games.get(Number(gameId)).players;
+		}
+		return null;
+	}
 
     // gameId has been checked when server creation is called
-    createServer(gameId, userId, maxScore, tournament, ai, option) {
-		console.log("Creating game with : tournament ",tournament, " ai, option ", ai, option);
-        this.games.set(Number(gameId), {
+    createServer(gameId, userId, maxScore, tournament, ai, option, players) {
+		console.log("Creating game with : tournament ",tournament, " ai, option ", ai, option, "players: ", players);
+		if (players.length != 2) {
+			throw new Error("Invalid number of players");
+		}
+		this.games.set(Number(gameId), {
 			server: new GameServer(Number(gameId), tournament, userId, maxScore, ai, option),
 			tournament: tournament,
             userId: userId,
-            ws: null
+            ws: null,
+			players: players
 		});
-		console.log(this.games);
+		// console.debug("Games map after creation:");
+		// console.debug(this.games);
     }
 
     // Call when a game is finished to destroy its object completely

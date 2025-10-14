@@ -1,11 +1,13 @@
-import { getSecret } from "../index.js";
 import env from "../../config/env.js";
+import { getSecret } from "../index.js";
+import prefix from "../tools/url.js";
+import tlsAgent from "../tools/tlsAgent.js";
 
-export async function sendFriendRequestToUser(idReceiver, sender, message) 
+export async function notifyRefresh(idReceiver, sender, message) 
 {
     const api_key = getSecret('api_key');
 
-    const res = await fetch(`http://session-service:${env.session_port}/message/${idReceiver}`, 
+    const res = await fetch(`${prefix}://session-service:${env.session_port}/message/${idReceiver}`, 
     {
         method: 'POST',
         headers: 
@@ -14,7 +16,8 @@ export async function sendFriendRequestToUser(idReceiver, sender, message)
             'x-internal-api-key': api_key
         },
         body: JSON.stringify({ sender: sender, message: message }),
-    });
+		dispatcher: tlsAgent
+	});
     if (res.ok) {
         return { ok: true };
     }
