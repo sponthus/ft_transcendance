@@ -7,7 +7,7 @@ export async function notifyRefresh(idReceiver, sender, message)
 {
     const api_key = getSecret('api_key');
 
-    const res = await fetch(`${prefix}://session-service:${env.session_port}/message/${idReceiver}`, 
+    const res = await fetch(`${prefix}://session-service:${env.session_port}/message`, 
     {
         method: 'POST',
         headers: 
@@ -15,7 +15,7 @@ export async function notifyRefresh(idReceiver, sender, message)
             'Content-Type': 'application/json',
             'x-internal-api-key': api_key
         },
-        body: JSON.stringify({ sender: sender, message: message }),
+        body: JSON.stringify({ userIds: [idReceiver], sender: sender, message: message }),
 		dispatcher: tlsAgent
 	});
     if (res.ok) {

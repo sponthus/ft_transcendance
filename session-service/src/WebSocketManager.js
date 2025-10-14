@@ -356,7 +356,7 @@ export default class WebSocketManager {
 					type: 'message',
 					sender: sender,
 					message: message}) == true) {
-				console.log(`Message sent to user ${userId}:`, message);
+				// console.log(`Message sent to user ${userId}:`, message);
 				return 0;
 			} else {
 				return 3; // Error sending, impossible without error because user is connected

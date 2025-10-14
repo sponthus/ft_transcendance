@@ -1,56 +1,92 @@
-import { checkIdFormat, checkSendMessageFormat } from '../tools/CheckFormat.js';
+import { checkIdFormat, checkNumberIdFormat, checkSendMessageFormat, checkSendMessageToGroupFormat } from '../tools/CheckFormat.js';
 
 // Sends a message to a user on his websocket, this user needs to be connected
 // Security : Road is protected to service-only, and from SQLi
-export async function sendMessageToUser(request, reply) {
-	console.log("➡️ Service accessed POST /message/:userId");
+export async function sendMessageToUsers(request, reply) {
+	console.log("➡️ Service accessed POST /message");
 	
-	const { userId } = request.params;
-	if (!userId) {
-		console.error('❌ No userId found in request params');
-		return reply.status(400).send({error: 'No userId found in request.'});
-	}
-	if (checkIdFormat(userId) === false) {
-		console.error('❌ Bad userId found in request params');
-		return reply.status(400).send({ error: 'Bad userId format.'});
-	}
-	if (checkSendMessageFormat(request) === false) {
+	if (checkSendMessageToGroupFormat(request) === false) {
 		console.error('❌ Bad data format sent in request body');
-		return reply.status(400).send({ error: 'Bad data format - expected : sender, message.'});
+		return reply.status(400).send({ error: 'Bad data format.'});
 	}
-	const { sender, message } = request.body;
+	const { userIds, sender, message } = request.body;
+
+	if (!userIds || userIds.length === 0) {
+		console.error('❌ No userIds found in request params');
+		return reply.status(400).send({error: 'No userIds found in request.'});
+	}
+	if (!Array.isArray(userIds) || userIds.length === 0) {
+		console.error('❌ Invalid userIds format');
+		return reply.status(400).send({error: 'Invalid userIds format.'});
+	}
+	for (const id of userIds) {
+		if (checkNumberIdFormat(id) === false) {
+			console.error('❌ Bad userId found in request params');
+			return reply.status(400).send({ error: 'Bad userId format.'});
+		}
+	}
 
 	const { WebSocketManager } = request.server;
 	if (!WebSocketManager) {
 		console.log("❌ Error while getting sessions: connexion not found");
 		return reply.status(500).send({
-			error: 'Internal server error while sending message' });
+			error: 'Internal server error' });
 	}
 
+	let notFoundCount = 0;
+	let successCount = 0;
+	let failedCount = 0;
 	try {
-		switch (WebSocketManager.sendMessageToUser(userId, sender, message)) {
-			case 1 :
-				return reply.status(202).send({
-					userId: userId,
-					sender: sender,
-					message: message,
-					status: 'accepted' });
-			case 2 :
-				return reply.status(404).send({
-					error: 'Requested user not found.' });
-			case 3 :
-				throw new Error("Unable to send message");
-			default:
-				return reply.status(200).send({
-					userId: userId,
-					sender: sender,
-					message: message,
-					status: 'sent' });
+		for (const userId of userIds) {
+			switch (WebSocketManager.sendMessageToUser(userId, sender, message)) {
+				case 0 :
+					successCount++;
+					break;
+				case 1 :
+					successCount++;
+					break;
+				case 2 :
+					notFoundCount++;
+					break;
+				case 3 :
+					failedCount++;
+					break;
+				default:
+					failedCount++;
+					break;
+			}
 		}
 	} catch (error) {
 		console.log("❌ Error while sending message to user: ")
 		console.log(error);
 		return reply.status(500).send({
-			error: 'Internal server error while sending message'});
+			error: 'Internal server error'});
+	}
+	if (successCount === userIds.length) {
+		return reply.status(200).send({
+			sent: successCount,
+			failed: failedCount,
+			not_found: notFoundCount,
+			status: 'all_sent' });
+	} else if (successCount > 0) {
+		return reply.status(207).send({
+			sent: successCount,
+			failed: failedCount,
+			not_found: notFoundCount,
+			status: 'partial_success' });
+	} else {
+		if (notFoundCount === userIds.length) {
+			return reply.status(404).send({
+				sent: successCount,
+				failed: failedCount,
+				not_found: notFoundCount,
+				status: 'no_user_found' });
+		} else if (failedCount === userIds.length) {
+			return reply.status(500).send({
+				sent: successCount,
+				failed: failedCount,
+				not_found: notFoundCount,
+				status: 'all_failed' });
+		}
 	}
 }

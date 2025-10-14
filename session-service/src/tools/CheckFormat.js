@@ -48,6 +48,45 @@ export function    checkChangeInfosFormat(request)
     return (true);
 }
 
+export function    checkSendMessageToGroupFormat(request)
+{
+    const schema = 
+    {
+        type: "object",
+		properties:
+		{
+			userIds: {
+				type: "array",
+				items: { type: "number" },
+				minItems: 1,
+				uniqueItems: true
+			},
+			sender: { 
+				type: "string", 
+				minLength: 3, 
+				maxLength: 20,
+				pattern: "^[a-z0-9]+(-[0-9]+)?$"
+			},
+			message: { 
+				type: "string",
+				minLength: 3,
+				maxLength: 20,
+				pattern: "^(?=.*[a-zA-Z])[^\\[\\]{}();]+$"
+			}
+		},
+		required: ["sender", "message"],
+		additionalProperties: false
+    };
+    const ajv = new Ajv();
+    const contract = ajv.compile(schema);
+    const valid = contract(request.body);
+    if (!valid) {
+		console.warn(contract.errors);
+        return (false);
+	}
+    return (true);
+}
+
 export function    checkSendMessageFormat(request)
 {
     const schema = 
@@ -115,6 +154,21 @@ export function    checkStatusFormat(status)
     return (true);
 }
 
+export function checkNumberIdFormat(id)
+{
+	const schema =
+	{
+		type: "number",
+		minimum: 1
+	};
+	const ajv = new Ajv();
+	const contract = ajv.compile(schema);
+	const valid = contract(id);
+	if (!valid)
+		return (false);
+	return (true);
+}
+
 export function    checkIdFormat(id)
 {
     const schema = 
@@ -127,7 +181,8 @@ export function    checkIdFormat(id)
     const ajv = new Ajv();
     const contract = ajv.compile(schema);
     const valid = contract(id);
-    if (!valid)
+    if (!valid) {
         return (false);
+	}
     return (true);
 }
