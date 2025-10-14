@@ -16,6 +16,7 @@ export class renderAsset {
 	private _npc ?:BABYLON.Mesh;
 	private _chest?: BABYLON.Mesh;
 	private _sandcastle ?: BABYLON.Mesh;
+	private _bob?: BABYLON.Mesh;
 
 	private _pirateBoat?: BABYLON.Mesh;
 	private _bendTrees?: BABYLON.TransformNode[] = [];
@@ -46,10 +47,10 @@ export class renderAsset {
 	}
 
 	public async _load(): Promise<void> {
-		
 		await this._loadGround();
 		await this._loadPlayer();
 		await this._loadNpc();
+		await this._loadBob();
 		await this._loadSanCastle();
 		await this._loadChest();
 		await this._loadMap();
@@ -128,6 +129,15 @@ export class renderAsset {
 		this._npc = result.meshes[0] as BABYLON.Mesh;
 		this._npc.rotation = new BABYLON.Vector3(0, 1, 0);
 		this._npc.position = new BABYLON.Vector3(35, 0, -10);
+	}
+
+	private async _loadBob() {
+		/******************************load Bob Asset******************************/
+		const result = await ImportMeshAsync("/assets/bob.glb", this._scene);
+		this._addColisionForEach(result);
+		this._bob = result.meshes[0] as BABYLON.Mesh;
+		this._bob.position.set(-21, 0, 0);
+		this._bob.rotation = new BABYLON.Vector3(0, -1, 0);
 	}
 
 	private async _loadSanCastle() {

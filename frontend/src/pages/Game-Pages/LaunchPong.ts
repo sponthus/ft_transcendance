@@ -57,6 +57,7 @@ export class launchPong {
 	async errorReturnLobby(msg: string) {
 		await ErrorPopup(msg);
 		this.Render.PongGame!.GamePhysics!.stopGame();
+		this.GamePage.startGamePage();
 		this.Render.setState = 0;
 		this.Render.callRenderLoop();
 	}
