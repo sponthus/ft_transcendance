@@ -333,8 +333,11 @@ export class Event {
 		console.log(PlayersNames);
 
 		try {
-			if (!this.TournamentPage._tournamentName.value)
+			if (!this.TournamentPage._tournamentName.value) {
+				console.log("no name");
 				throw new Error("Please enter a tournament name.");
+			}
+			console.log("Name ok");
 			const res = await createTournament(this.TournamentPage._tournamentName.value, PlayersNames, this.TournamentPage._option);
 			if (res.ok) {
 				if (res.tournament.status === "invitations") {

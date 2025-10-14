@@ -8,7 +8,7 @@
     "start": "node src/index.js",
     "dev": "nodemon --watch src --watch controllers --watch config src/index.js"
   },
-  "author": "sponthus",
+  "author": "ebriere",
   "dependencies": {
     "@fastify/jwt": "^9.1.0",
     "ajv": "^8.17.1",

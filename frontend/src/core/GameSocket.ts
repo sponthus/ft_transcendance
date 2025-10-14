@@ -151,6 +151,11 @@ export class GameSocket {
     private pongInterval: number = 5000; // 5s to recieve back pong
 	private playing: boolean = false;
 
+	private reconnectAttempts: number = 0;
+	private maxReconnectAttempts: number = 5;
+	private reconnectDelay: number = 5000; // 5 seconds
+	private shouldAttemptReconnect: boolean = true;
+
 	// Call this when the game actually starts
 	public setPlaying(state: boolean) {
 		this.playing = state;
@@ -171,7 +176,7 @@ export class GameSocket {
 
 		} catch (error) {
 			console.error("Failed to create socket", error);
-			throw error;
+			throw new Error("Failed to create socket");
 		}
     }
 
@@ -202,16 +207,12 @@ export class GameSocket {
                 data = JSON.parse(event.data);
             } catch (error) {
 				console.error('Error parsing JSON message.');
-				// TODO Add logic here, when recieving an invalid message format
-				// Websocket will be closed (someone exterior sent a wrong message to the websocket, normally it's impossible)
 				this.close(3000, 'Invalid message format');
 				return;
             }
 			const checkFormat = checkWebSocketMessageFormat(data);
 			if (checkFormat.valid === false) {
 				console.error("Invalid WebSocket message format:", checkFormat.errors);
-				// TODO Add logic here, when recieving an invalid message format
-				// Websocket will be closed (someone exterior sent a wrong message to the websocket, normally it's impossible)
 				this.close(3000, 'Invalid message format');
 				return;
 			}
@@ -222,13 +223,12 @@ export class GameSocket {
             console.error("Error WebSocket:", error);
         };
 
-        this.ws.onclose = () => {
+        this.ws.onclose = (event) => {
             console.log("Connexion WebSocket closed");
             this.stopHeartbeat();
-			// TODO Complete logic here, when the websocket is closed
-			if (this.playing === true)
+			// alert(event.code);
+			if (this.playing === true && event.code !== 1000 && this.shouldAttemptReconnect === true)
 				this.reconnect();
-			// Do we reconnect on close if playing ? Websocket can also be closed if backend recompiles
         };
     }
 
@@ -282,6 +282,9 @@ export class GameSocket {
 			this.clearHeartbeatTimeout();
 			return;
 		}
+		if (data.type === 'auth_success') {
+			this.reconnectAttempts = 0;
+		}
     }
 
 	public isOpen(): boolean {
@@ -291,6 +294,13 @@ export class GameSocket {
     }
 
 	public reconnect(): void {
+		if (this.reconnectAttempts >= this.maxReconnectAttempts) {
+			console.error("Max reconnect attempts reached. Giving up.");
+			this.shouldAttemptReconnect = false;
+			this.close(3000, "Max reconnect attempts reached");
+			return;
+		}
+		this.reconnectAttempts++;
 		console.log("Reconnecting to WebSocket server...");
 		this.stopHeartbeat();
 		const reconnectInterval = setInterval(() => {
@@ -298,7 +308,6 @@ export class GameSocket {
 				try {
 					console.log("Attempting to reconnect...");
 					this.ws = new WebSocket(this.getGameWsUrl());
-					console.log("Reconnected successfully!");
 					this.setupEventListeners();
 					this.startHeartbeat();
 					clearInterval(reconnectInterval);
@@ -308,13 +317,13 @@ export class GameSocket {
 			} else {
 				clearInterval(reconnectInterval);
 			}
-		}, 10000); // Try to reconnect every 5 seconds
+		}, this.reconnectDelay);
 		this.ws.close();
-		
 	}
 
     public close(code: number = -1, reason: string = ""): void {
         this.stopHeartbeat();
+		this.shouldAttemptReconnect = false;
         if (!this.ws)
             return;
         if (code > 0 && reason.length > 0)

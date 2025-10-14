@@ -6,6 +6,8 @@ export type AllNotifs =
     slug: string;
     notif_type: string;
     notif_status: number;
+    tournament_id : number;
+    tournament_name: string;
     created_at: string;
 };
 
@@ -21,7 +23,7 @@ export async function   getNotifications(url: string): Promise<NotifResult>
     {
         const res = await fetch(url, 
         {
-            method: 'GET',
+            method: 'GET', 
             credentials: 'include',
         });
         const data = await res.json();    

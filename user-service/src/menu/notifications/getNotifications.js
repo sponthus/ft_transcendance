@@ -9,6 +9,8 @@ export async function   getAllNotifications(request, reply)
                                             users.slug, \
                                             notifications.notif_type, \
                                             notifications.notif_status, \
+                                            notifications.notif_tournament_id, \
+                                            notifications.notif_tournament_name, \
                                             notifications.created_at \
                                         FROM \
                                             notifications \
@@ -39,6 +41,8 @@ export async function   getAllSpecificNotifications(request, reply, status) //re
                                             users.slug, \
                                             notifications.notif_type, \
                                             notifications.notif_status, \
+                                            notifications.notif_tournament_id, \
+                                            notifications.notif_tournament_name, \
                                             notifications.created_at \
                                         FROM \
                                             notifications \
@@ -52,6 +56,7 @@ export async function   getAllSpecificNotifications(request, reply, status) //re
                                             notifications.notif_status = ? \
                                         ORDER BY \
                                             notifications.created_at DESC").all(idUser, status);
+        console.log('Notif cote back :', notifs);                                  
         return reply.code(200).send({ notifs: notifs });
     }
     catch (err)

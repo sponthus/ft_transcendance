@@ -47,10 +47,22 @@ export class launchPong {
 			// console.log("win ?", this.Render.PongGame?.GamePhysics?.Win);
 			if (this.Render.PongGame?.GamePhysics?.Win)
 				this.EndGame(gameId);
+			else if (!this.Render.PongGame?.GamePhysics?.isSocketOpen()) {
+				this.Render.engine?.stopRenderLoop();
+				this.errorReturnLobby("Connection lost with the server.");
+			}
 		})
 	}
 
+	async errorReturnLobby(msg: string) {
+		await ErrorPopup(msg);
+		this.Render.PongGame!.GamePhysics!.stopGame();
+		this.Render.setState = 0;
+		this.Render.callRenderLoop();
+	}
+
 	returnLobby () {
+		this.Render.PongGame!.GamePhysics!.stopGame();
 		this.GamePage.cleanPage();
 		this.GamePage.cleanBody();
 		this.GamePage.startGamePage();
