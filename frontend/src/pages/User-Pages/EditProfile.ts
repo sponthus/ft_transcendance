@@ -1,11 +1,11 @@
 import { popUp } from "../../Utils/popUp";
 import { createDiv, createElement, createButton, createFormDiv, append, createInput} from '../../Utils/elementMaker.js';
-import { modifyUserAvatar } from "../../api/user-service/user";
 import { updateUsername } from "../../api/user-service/user-info/updateUsername.js";
 import { getUserInfo } from '../../api/user-service/user-info/getUserInfo.js';
 import { uploadAvatar } from "../../api/avatar.js";
 import { navigate } from '../../core/router.js';
 import { ErrorPopup } from '../ErrorPage.js';
+import { updateAvatar } from "../../api/user-service/user-info/modifyUserAvatar.js";
 
 enum EditState {AVATAR = 0, USERNAME = 1};
 
@@ -238,7 +238,7 @@ export class EditProfile extends popUp {
 		const req = await uploadAvatar(this.UserData.slug, formData);
 		if (req.ok) {
 			await ErrorPopup("Avatar updated successfully!");
-			const pathReq = await modifyUserAvatar(this.UserData.slug, req.avatar);
+			const pathReq = await updateAvatar(req.avatar);
 			if (pathReq.ok) {
 				await navigate(`/user/${this.UserData.slug}`);
 				await ErrorPopup("avatar modify successfully");

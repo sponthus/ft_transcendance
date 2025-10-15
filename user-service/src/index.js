@@ -147,7 +147,7 @@ fastify.decorate("authenticate", async function (request, reply)
             return reply.code(400).send({error : err.message});
         }
     }
-    /*try
+    try
     {
         const db = request.server.db;
         const idUser = request.user.idUser;
@@ -156,15 +156,15 @@ fastify.decorate("authenticate", async function (request, reply)
                                         FROM \
                                             users \
                                         WHERE \
-                                            idUser = ?").get(idUser);
+                                            id = ?").get(idUser);
         if (!userExists)
-            return reply.code(404).send({ error: "User not found" });
+            return reply.code(404).send({ error: "User not found" }); // TODO ELODIE bon msg ?
 
     }
     catch (err)
     {
         return reply.code(500).send( {error : "Internal Server Error" + err.message} );
-    }*/
+    }
 });
 
 

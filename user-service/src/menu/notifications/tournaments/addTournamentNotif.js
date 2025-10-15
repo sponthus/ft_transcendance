@@ -1,4 +1,4 @@
-import { notifyRefresh } from "../../../internal-service/notifyRefresh.js";
+import { notifyServices } from "../../../internal-service/notifyServices.js";
 
 export async function addTournamentNotif (request, reply)
 {
@@ -25,7 +25,7 @@ export async function addTournamentNotif (request, reply)
         });
         console.debug(type)
         addNotifTournament(type, receiverIds, senderId, tournamentId, tournamentName);
-		notifyRefresh(receiverIds, tournamentId, type);
+		notifyServices(receiverIds, tournamentId, type);
         return reply.code(200).send();
     }
     catch (err)

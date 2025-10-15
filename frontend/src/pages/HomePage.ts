@@ -4,6 +4,7 @@ import { checkLog } from "../api/user-service/connection/check-log.js";
 import { ErrorPopup } from "./ErrorPage.js";
 import { navigate } from "../core/router.js";
 import { getAllFriendsBySlug } from "../api/user-service/menu/friendsList/friendRequest.js";
+import { updateAvatar } from "../api/user-service/user-info/modifyUserAvatar.js";
 
 export class HomePage extends BasePage {
 
@@ -31,10 +32,9 @@ export class HomePage extends BasePage {
 			await this.rengerLogoutHome();
 		}
 		/*TESSSTTT A SUPPRIMER*/
-		/*const req = await getAllFriendsBySlug('coucou');
+		/*const req = await updateAvatar('couc.jpeg');
 		if (req.ok)
 		{
-			console.log('Friends: ', req.friends);
 			console.log('congraaatss :)');
 		}
 		else

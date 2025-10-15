@@ -1,4 +1,4 @@
-import { notifyRefresh } from "../../internal-service/notifyRefresh.js";
+import { notifyServices } from "../../internal-service/notifyServices.js";
 import { checkSlugFormat } from "../../tools/checkFormat.js";
 import { addNotification } from "../notifications/notificationsManager.js";
 
@@ -50,7 +50,7 @@ export async function   addFriend(request, reply)
                                             users \
                                         WHERE \
                                             id = ?").get(idUser);
-        const result = await notifyRefresh(friend.id, username.username, "friend_request");
+        const result = await notifyServices(friend.id, username.username, "friend_request");
         if (!result.ok)
             return reply.code(result.status).send({ error: result.error });
         statement.run(idUser, friend.id);

@@ -1,6 +1,7 @@
 import slugify from "slugify";
 import { checkUsernameFormat } from "../tools/checkFormat.js";
 import { generateUniqueSlug } from "../tools/generateUnique.js";
+import { notifyChangeData } from "../internal-service/notifyServices.js";
 
 export default async function updateUsername (request, reply)
 {
@@ -28,13 +29,13 @@ export default async function updateUsername (request, reply)
         const slug = generateUniqueSlug(baseSlug, db);
         const updateSlugAndUsername = db.transaction( (newUsername, idUser, slug) =>
         {
-            db.prepare ("    UPDATE \
+            db.prepare ("   UPDATE \
                                 users \
                             SET \
                                 username = ? \
                             WHERE \
                                 id = ?").run(newUsername, idUser);
-            db.prepare ("    UPDATE \
+            db.prepare ("   UPDATE \
                                 users \
                             SET \
                                 last_username_change = CURRENT_TIMESTAMP \
@@ -48,6 +49,10 @@ export default async function updateUsername (request, reply)
                                 id = ?").run(slug, idUser);
         });
         updateSlugAndUsername(newUsername, idUser, slug);
+        //update le upload service avec le slug 
+        const result = notifyChangeData(idUser, newUsername, slug); //TODO ELODIE changer de place ???
+        if (!result.ok)
+            return reply.code(result.status).send({ error: result.error });
         const token = await reply.jwtSign({ idUser, newUsername, slug}, {expiresIn: '1h'});
         return reply.code(200).send({ token : token });
     }
