@@ -229,7 +229,7 @@ export class GamePhysics {
 			this._timeBobSpeak -= this._dt;
 			if (this._timeBobSpeak < 0)
 			{
-				this._timeBobSpeak = 3;
+				this._timeBobSpeak = 5;
 				this._score._drawSpeak();
 			}
 			if (this._scoreValue1 < this._serverState.score.s1 || this._scoreValue2 < this._serverState.score.s2)
@@ -237,7 +237,7 @@ export class GamePhysics {
 				this._scoreValue1 = this._serverState.score.s1;
 				this._scoreValue2 = this._serverState.score.s2;
 				this._score.updateScore(this._scoreValue1, this._scoreValue2);
-				this._timeBobSpeak = 3;
+				this._timeBobSpeak = 5;
 			}
 			this._spell1 = new Vector3(this._serverState.spell1.x , this._serverState.spell1.y, this._serverState.spell1.z);
 			if (this._spell1.z > -9 || (this._spell1.z < -9 && this._serverState.specialCooldown1 < 0))

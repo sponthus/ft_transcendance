@@ -5,6 +5,8 @@ if [ ! -d "node_modules" ]; then
   npm install
 fi
 
+npm install file-type
+
 mkdir -p uploads
 
 cp assets/default.jpg uploads/default.jpg

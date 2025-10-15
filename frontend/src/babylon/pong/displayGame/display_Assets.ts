@@ -94,9 +94,9 @@ export class DisplayAssets {
 
 		const result5 = await ImportMeshAsync("/assets/bob.glb", this._scene);
 		this._bob = result5.meshes[0];
-		this._bob.position.x = 7;
+		this._bob.position.x = 7.5;
 		this._bob.position.y = -0.3;
-		this._bob.position.z = 0;
+		this._bob.position.z = -2;
 		this._bob.scaling = new Vector3(0.4, 0.4, 0.4);
 		this._bob.rotation = new Vector3(0, 4.7, 0);
 
@@ -137,8 +137,8 @@ export class DisplayAssets {
 
 		const result9 = await ImportMeshAsync("/assets/bullDiscussion2D.glb", this._scene);
 		this._bullBob = result9.meshes[0];
-		//this._bull1.scaling = new Vector3(0.4, 0.4, 0.4);
-		this._bullBob.position = new Vector3(7, 3.5, -2);
+		//this._bullBob.scaling = new Vector3(2, 2, 2);
+		this._bullBob.position = new Vector3(8, 4.5, -2);
 		this._bullBob.billboardMode = Mesh.BILLBOARDMODE_ALL;
 		this._bullBob.setEnabled(false);
 

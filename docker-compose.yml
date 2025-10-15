@@ -139,6 +139,7 @@ services:
     secrets:
       - hash_key
       - api_key
+      - cookie_key
     networks:
       - pongnet
     restart: always
