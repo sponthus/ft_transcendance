@@ -1,10 +1,11 @@
 // This page is the basic logic : every page should inherit from her.
 // Has render() and destroy()
-import { renderBaseBanner, renderLoggedInBanner, renderLoggedOutBanner } from "./Banner";
+import { renderBaseBanner, renderLoggedInBanner, renderLoggedOutBanner, updateResize } from "./Banner";
 import { checkLog } from "../api/user-service/connection/check-log";
 import { getUserInfo } from "../api/user-service/user-info/getUserInfo";
 import { SessionSocket } from "../core/SessionSocket.js";
 import { setbackgroundImages } from "../Utils/elementMaker";
+import { resolve } from "path";
 
 export abstract class BasePage {
     protected app: HTMLElement;
@@ -49,6 +50,19 @@ export abstract class BasePage {
         }
     }
 
+    protected destroyBanner(): Promise<void> {
+        return new Promise((resolve) => {
+		    Array.from(this.banner.children).forEach(child => {
+		    	Array.from(child.children).forEach(children => {
+		    		child.removeChild(children);
+		    	})
+		    	this.banner.removeChild(child);
+		    })
+            this.banner.innerHTML = ''
+            resolve();     
+        })
+    }
+
 	protected initBackground(): HTMLElement {
 		const BackgroundHome = document.createElement('div');
 		BackgroundHome.className = "grid grid-col place-items-center h-screen min-h-[1080px] w-screen min-w-[1920px] p-8 overflow-hidden";
@@ -67,6 +81,10 @@ export abstract class BasePage {
 		while (this.app.firstChild)
 			this.app.removeChild(this.app.firstChild);
 	}
+
+    public async updateBanner(){
+		updateResize();
+    }
 }
 
 

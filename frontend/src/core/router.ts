@@ -117,6 +117,8 @@ export async function setupRouter() {
     window.addEventListener('popstate', () => {
         renderRoute(location.pathname);
     });
-
+	window.addEventListener('resize', async() => {
+		await currentPage!.updateBanner();
+	})
     await renderRoute(location.pathname); // Shows good screen when loading
 }

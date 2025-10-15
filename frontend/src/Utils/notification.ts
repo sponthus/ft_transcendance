@@ -55,7 +55,7 @@ function acceptFriendInvitation(acceptBtn: HTMLButtonElement, userData: UserInfo
 	})
 }
 
-function acceptTournamentinvitation(acceptBtn: HTMLButtonElement, tournament: AllNotifs) {
+export function acceptTournamentinvitation(acceptBtn: HTMLButtonElement, tournament: AllNotifs) {
 	acceptBtn.addEventListener('click', async(e) => {
 		e.stopPropagation();
 		e.preventDefault();
@@ -91,7 +91,7 @@ function declineFriendInvitation(declineBtn: HTMLButtonElement, userData: UserIn
 	})
 }
 
-function declineTournamentInvitation(declineBtn: HTMLButtonElement, tournament: AllNotifs) {
+export function declineTournamentInvitation(declineBtn: HTMLButtonElement, tournament: AllNotifs) {
 	declineBtn.addEventListener('click', async(e) => {
 		e.stopPropagation();
 		e.preventDefault();

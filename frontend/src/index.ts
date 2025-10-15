@@ -14,3 +14,6 @@ window.addEventListener('DOMContentLoaded', async () => {
     await setupRouter();
     // TODO = Check log ? Restore a session according to cookies ?
 });
+
+
+

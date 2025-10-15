@@ -6,6 +6,7 @@ import { append, createAnchorElement, createButton, createDiv, createImage, crea
 import { createSearchBarDiv } from '../Utils/slidingSearch.js';
 import { createNotificationDiv } from '../Utils/notification.js';
 import { logoutUser } from '../api/user-service/connection/logoutUser.js';
+import { log } from 'console';
 
 type UserData = //VA ETRE CHANGER, le token renvoie le username et l'id du user
 {
@@ -17,7 +18,7 @@ type UserData = //VA ETRE CHANGER, le token renvoie le username et l'id du user
     created_at: string;
 };
 
-const wrapper: HTMLElement = createDiv('wrapper', 'grid [grid-template-columns:repeat(auto-fit,minmax(400px,1fr))] items-center justify-between p-4 bg-orange-200 shadow-md gap-4');
+const wrapper: HTMLElement = createDiv('wrapper', 'grid grid-cols-3 items-center justify-between p-4 bg-orange-200 shadow-md gap-4');
 const userInfo: HTMLElement = createDiv('user-info', 'flex flex-wrap order-1 text-sm text-gray-600');
 const logo: HTMLElement = createDiv('logo', 'mx-auto order-2 snap-center');
 const navLinks: HTMLUListElement = createElement('ul', 'navlinks', '', 'flex justify-end space-x-4 order-3 list-none') as HTMLUListElement;
@@ -52,7 +53,6 @@ export async function renderLoggedInBanner(banner: HTMLElement, userData: UserIn
 	createItem('/setting', "Settings", "px-4 py-2 text-emerald-600 hover:text-emerald-800 hover:bg-orange-300 rounded-md transition-colors rounded-xl shadow-md hover:shadow-lg transition-all duration-200 transform hover:scale-105");
 	createItem(`/user/${userData.slug}`, 'Profile', 'px-4 py-2 text-emerald-600 hover:text-emerald-800 hover:bg-orange-300 rounded-md transition-colors rounded-xl shadow-md hover:shadow-lg transition-all duration-200 transform hover:scale-105');
 	createItem('/', 'Logout', 'px-4 py-2 text-red-200 bg-red-600 hover:text-red-300 hover:bg-red-800 rounded-md transition-colors cursor-pointer rounded-xl shadow-md hover:shadow-lg transition-all duration-200 transform hover:scale-105');
-
 	SetLogOutEvent();
 }
 
@@ -176,6 +176,15 @@ function addInBanner(banner: HTMLElement) {
 	wrapper.appendChild(navLinks);
 
 	banner.appendChild(wrapper);
-
 }
 
+export function updateResize() {
+	if (window.innerWidth <= 1258)
+		logo.classList.add('hidden');
+	else
+		logo.classList.remove('hidden');
+	if (window.innerWidth <= 858)
+		navLinks.classList.add('hidden');
+	else
+		navLinks.classList.remove('hidden');
+}

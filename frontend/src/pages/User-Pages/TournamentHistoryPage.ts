@@ -1,8 +1,10 @@
-import { createDiv, createElement, createButton, createDropdownDiv, createFormDiv, createCheckBoxLabel, append, setbackgroundImages} from '../../Utils/elementMaker.js';
+import { createDiv, createElement, createButton, createDropdownDiv, createFormDiv, createCheckBoxLabel, append, setbackgroundImages, createImage} from '../../Utils/elementMaker.js';
 import { getAllTournaments, getTournamentMatches, GameInfos, getFinishedTournaments } from '../../api/game-service/tournaments/getTournaments.js';
-import { UserInfo } from '../../api/user-service/user-info/getUserInfo.js';
+import { getUserInfoBySlug, UserInfo } from '../../api/user-service/user-info/getUserInfo.js';
 import { FillHistory, fillHistoryStubborn } from './HistoryPage.js';
 import { ErrorPopup } from '../ErrorPage.js';
+import { AllNotifs, getAllNotifications } from '../../api/user-service/menu/notifications/getNotifications.js';
+import { acceptTournamentinvitation, declineTournamentInvitation } from '../../Utils/notification.js';
 
 let btnsMap: Map<HTMLButtonElement, HTMLElement> = new  Map<HTMLButtonElement, HTMLElement>();
 let isopen: boolean;
@@ -10,6 +12,59 @@ let isopen: boolean;
 export async function DisplayeTournamentHistoryPage(Body: HTMLElement, UserData: UserInfo) {
 	isopen = false;
 	Body.className = "flex flex-col items-center bg-orange-300  bg-opacity-50 w-full h-[60%] flex overflow-auto";
+	await addInvitationTournament(Body);
+	await AddTournaments(Body, UserData);
+}
+
+async function addInvitationTournament(Body: HTMLElement) {
+	try {
+		const req = await getAllNotifications()
+		if (!req.ok)
+			throw new Error(req.error);
+		const ReceiveRequest = req.notifs;
+		ReceiveRequest.forEach(notif => {
+			if (notif.notif_type === "tournament_invite")
+				addNotification(Body, notif)
+		})
+
+	} catch(error) {
+		await ErrorPopup(error as string);
+	}
+}
+
+async function addNotification(body: HTMLElement, notif: AllNotifs) {
+	let UserData: UserInfo;
+	try {
+		const req = await getUserInfoBySlug(notif.slug);
+		if (!req.ok)
+			throw new Error(req.error);
+		UserData = req.userInfo;
+		const notifDiv: HTMLElement = createDiv('invitation', 'flex items-center h-[30%] justify-around w-full hover:scale-105 active:scale-95 hover:bg-orange-400 hover:bg-opacity-50 space-x-8 transition-all duration-300 gap-4');
+		
+		const userIcon: HTMLElement = createDiv(`user-notification-icon-${UserData.slug}`, 'flex items-center justify-center bg-orange-300 group-hover:bg-orange-400 rounded-full shadow-xl w-[9%] aspect-square group-hover:shadow-lg transition-all duration-200 transform');
+		append(userIcon, [(createImage(`user-notification-${UserData.slug}`, 'w-[90%] aspect-square rounded-full object-cover object-center',  `https://localhost:4443/uploads/${UserData.avatar}`) as HTMLImageElement)]);
+		const invitationTextDiv = createDiv(`invitation-text-${UserData.slug}`, 'flex flex-col items-center');
+		invitationTextDiv.innerHTML = `<P class="text-emerald-600 group-hover:font-bold">user ${UserData.username} invite you to play tournament ${notif.notif_tournament_name}</p>`;
+
+		const btnDiv = createDiv(`btn-invitation-${UserData.slug}`, 'flex items-center justify-between space-x-8') as HTMLElement;
+
+		let accept: HTMLButtonElement= (createButton(`accept-${UserData.slug}`, 'px-4 text-orange-100 bg-emerald-600 rounded-xl group-hover:text-orange-200 hover:font-bold hover:bg-emerald-700 transition-all duration-200', 'accept') as HTMLButtonElement);
+		let decline: HTMLButtonElement = (createButton(`decline-${UserData.slug}`, 'px-4 text-orange-100 bg-red-500 rounded-xl group-hover:text-orange-200 hover:font-bold hover:bg-red-600 transition-all duration-200', 'decline') as HTMLButtonElement);
+		append(btnDiv, [accept, decline]);
+		append(invitationTextDiv, [btnDiv]);
+
+		append(notifDiv, [userIcon, invitationTextDiv]);
+		append(body, [notifDiv]);
+		acceptTournamentinvitation(accept, notif);
+		declineTournamentInvitation(decline, notif);
+
+	}catch(error) {
+		await ErrorPopup(error as string);
+	}
+
+}
+
+async function AddTournaments(Body: HTMLElement, UserData: UserInfo) {
 	try {
 		const res = await getFinishedTournaments(UserData.slug!);
 		if (!res.ok) {
@@ -23,6 +78,7 @@ export async function DisplayeTournamentHistoryPage(Body: HTMLElement, UserData:
 		else {
 			fillTournamentStubborn(Body);
 			games.map((party: any, i: number) => {
+				console.log('tournament : ', party)
 				if (party.status == "done") {
 					const PartyPan = createDiv('tournament-pan', "flex flex-col items-center w-full h-[0%] flex gap-4 opacity-0 transition-all duration-300");
 					FillPartyTournament(PartyPan, party, UserData);

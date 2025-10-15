@@ -29,15 +29,6 @@ export class HomePage extends BasePage {
 		else {
 			await this.rengerLogoutHome();
 		}
-		/*TESSSTTT A SUPPRIMER*/
-		/*const req = await getAllNotifications();
-		if (req.ok)
-		{
-			console.log('notifs: ', req.notifs);
-			console.log('congraaatss :)');
-		}
-		else
-			alert(req.error);*/
 		
 	await this.addInApp();
 	}
