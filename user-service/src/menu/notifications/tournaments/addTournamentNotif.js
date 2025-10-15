@@ -7,7 +7,6 @@ export async function addTournamentNotif (request, reply)
     const   { type, receiverId, senderId, tournamentId, tournamentName } = request.body;
    
     console.debug('request.body :', request.body);
-    console.debug('request.body type :', typeof request.body);
     try
     {
         let receiverIds;
@@ -27,15 +26,6 @@ export async function addTournamentNotif (request, reply)
         console.debug(type)
         addNotifTournament(type, receiverIds, senderId, tournamentId, tournamentName);
 		notifyRefresh(receiverIds, tournamentId, type);
-      /*  await Promise.all(receiverIds.map(async (id) => //.map parcout chaque id
-            {
-                const result = await notifyRefresh(id, username.username, type);
-                if (!result.ok)
-                    {
-                        console.log("erreur notifiy refresh");
-                        return reply.code(result.status).send({ error: result.error });
-                    }
-            })); */
         return reply.code(200).send();
     }
     catch (err)
@@ -83,14 +73,7 @@ function addNotif(db, receiverId, senderId, type, tournamentId, tournamentName)
                            )").run(receiverId);
     }
     db.prepare("    INSERT INTO \
-                        notifications (notif_user_id, notif_sender_id, notif_type) \
+                        notifications (notif_user_id, notif_sender_id, notif_type, notif_tournament_id, notif_tournament_name) \
                     VALUES \
-                        (?, ?, ?)").run(receiverId, senderId, type);
-    db.prepare( "   UPDATE \
-                        notifications \
-                    SET \
-                        notif_tournament_id = ?, \
-                        notif_tournament_name = ? \
-                    WHERE \
-                        notif_user_id = ?").run(tournamentId, tournamentName, receiverId);
+                        (?, ?, ?, ?, ?)").run(receiverId, senderId, type, tournamentId, tournamentName);
 }

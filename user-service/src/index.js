@@ -8,7 +8,7 @@ import fs from "fs";
 import dbConnector from "./db.js";
 import logger from "../config/logger.js";
 import routes from "./routes/index.js";
-import { initOAuthGithub } from "./connection/githubStrategy.js";
+import { initOAuthGithub } from "./connection/OAuthGithub.js";
 import { refreshToken } from "./tools/refreshToken.js";
 //import { getSecret } from "./tools/getSecret.js";
 

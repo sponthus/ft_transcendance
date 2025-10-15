@@ -17,6 +17,14 @@ generate_rand() {
     echo "$rand"
 }
 
+store_secret() {
+    local file="$1"
+    local content="$2"
+    echo "$content" > "$SECRETS_DIR/$file"
+    echo "$content"
+}
+
+
 validate_num_choice() {
   local choice="$1"
   if [ -z "$choice" ]; then
@@ -68,6 +76,8 @@ HASH_KEY=$(generate_rand "hash_key.txt")
 API_KEY=$(generate_rand "api_key.txt")
 AUTH_KEY=$(generate_rand "auth_key.txt")
 COOKIE_KEY=$(generate_rand "cookie_key.txt")
+GIT_SECRET=$(store_secret "git_secret.txt" "TODO complete me")
+GIT_ID=$(store_secret "git_id.txt" "TODO complete me")
 
 NODE_ENV=$(chose_mode "Chose dev mode (1) or production mode (2) : " validate_num_choice)
 

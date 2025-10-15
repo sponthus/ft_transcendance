@@ -141,11 +141,11 @@ export class GamePhysics {
 			if (data.type == "auth_success")
 			{
 				this.ready = true;
+				this.socket?.setPlaying(true);
 				this.socket!.send(JSON.stringify({
 					type: "start"
 				}));
 				this._displayName.setNamePlayers(data.playerA, data.playerB);
-				// this.socket?.setPlaying(true);
 				return;
 			}
 			
@@ -162,7 +162,7 @@ export class GamePhysics {
 				return;
 			}
 			if (data.type === "endGame") {
-				// this.socket?.setPlaying(false);
+				this.socket?.setPlaying(false);
 				this._scoreValue1 = 0;
 				this._scoreValue2 = 0;
 				this._score.updateScore(this._scoreValue1, this._scoreValue2);
@@ -190,6 +190,7 @@ export class GamePhysics {
 	}
 
 	public stopGame() {
+		// this.socket?.setPlaying(false);
 		if (this.socket)
 			this.socket.close(1000, "Game ended");
 		this.ready = false;
