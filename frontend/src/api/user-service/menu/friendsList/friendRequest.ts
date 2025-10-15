@@ -62,3 +62,18 @@ export async function   getAllFriends(): Promise<FriendsResult>
     return { ok: false, error: data.error};
 }
 
+export async function   getAllFriendsBySlug(slug: string): Promise<FriendsResult>
+{
+    const res = await fetch(`/api/user/menu/friendslist/${slug}`, 
+    {
+        method: 'GET',
+        credentials: 'include',
+    });
+    const data = await res.json();    
+    if (res.ok) 
+    {
+        return { ok: true,  friends: data.friends};
+    }
+    return { ok: false, error: data.error};
+}
+

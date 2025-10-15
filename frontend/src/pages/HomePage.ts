@@ -3,6 +3,7 @@ import { append, createAnchorElement, createDiv, createImage } from "../Utils/el
 import { checkLog } from "../api/user-service/connection/check-log.js";
 import { ErrorPopup } from "./ErrorPage.js";
 import { navigate } from "../core/router.js";
+import { getAllFriendsBySlug } from "../api/user-service/menu/friendsList/friendRequest.js";
 
 export class HomePage extends BasePage {
 
@@ -30,10 +31,10 @@ export class HomePage extends BasePage {
 			await this.rengerLogoutHome();
 		}
 		/*TESSSTTT A SUPPRIMER*/
-		/*const req = await getAllNotifications();
+		/*const req = await getAllFriendsBySlug('coucou');
 		if (req.ok)
 		{
-			console.log('notifs: ', req.notifs);
+			console.log('Friends: ', req.friends);
 			console.log('congraaatss :)');
 		}
 		else

@@ -135,7 +135,7 @@ export default class WebSocketManager {
 	async watchDelog() {
 		while (true) {
 			try {
-				console.log("Checking for users to delog...");
+				// console.debug("Checking for users to delog...");
 				this.checkDelog();
 			} catch (error) {
 				console.error("Error in watchDelog:", error);
