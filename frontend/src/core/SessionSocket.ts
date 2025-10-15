@@ -21,8 +21,8 @@ export function checkWebSocketMessageFormat(message: WebSocketMessage): FormatCh
 		type: "object",
 		properties: {
 			type: { type: "string", minLength: 3 },
-			message: { type: "string", minLength: 1, maxLength: 500 },
-			sender: { type: "string", minLength: 1, maxLength: 100 }
+			message: { type: ["string", "number"], minLength: 1, maxLength: 500 },
+			sender: { type: ["string", "number"], minLength: 1, maxLength: 100 }
 		},
 		additionalProperties: false,
 		required: ["type"],
