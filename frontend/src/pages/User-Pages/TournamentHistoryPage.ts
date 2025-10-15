@@ -58,7 +58,7 @@ async function addNotification(body: HTMLElement, notif: AllNotifs) {
 		acceptTournamentinvitation(accept, notif);
 		declineTournamentInvitation(decline, notif);
 
-	}catch(error) {
+	} catch(error) {
 		await ErrorPopup(error as string);
 	}
 
@@ -73,7 +73,7 @@ async function AddTournaments(Body: HTMLElement, UserData: UserInfo) {
 		}
 		const games = res.tournaments;
 		if (games.length === 0) {
-			Body.textContent = "there is no games";
+			// Body.textContent = "there is no games";
 		}
 		else {
 			fillTournamentStubborn(Body);

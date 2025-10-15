@@ -8,6 +8,8 @@ export async function displayFriendlist(parent: HTMLElement, userData: UserInfo 
 	if (isOwnProfile) {
 		try {
 			const req = await getAllFriends();
+			if (!req.ok)
+				throw new Error(req.error);
 			if (req.ok) {
 				const friendlist: AllFriends[] = req.friends!;
 				friendlist?.forEach(friend => {
@@ -20,6 +22,11 @@ export async function displayFriendlist(parent: HTMLElement, userData: UserInfo 
 		}
 	}
 	else {
+		try {
+				
+		} catch (error) {
+			await ErrorPopup(error as string);
+		}
 	}
 }
 
