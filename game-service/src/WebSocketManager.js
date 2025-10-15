@@ -84,7 +84,7 @@ export default class WebSocketManager {
                 this.pong(ws);
                 break;
             case 'auth':
-                console.log('Handle message token: ', token);
+                // console.debug('Handle message token: ', token);
                 await this.authenticateUser(ws, token, message.gameId);
                 break;
             case 'input':
@@ -142,43 +142,43 @@ export default class WebSocketManager {
     }
 
     async authenticateUser(ws, token, gameId) {
-		
-		if (!token) {
-			console.warn('Authentication failed: no token provided');
+        
+        if (!token) {
+            console.warn('Authentication failed: no token provided');
             return;
         }
         if (!gameId) {
             console.warn('Authentication failed: no gameId provided');
             return;
         }
-		
+        
         let data = {};
-		try {
-			data = this.fastify.jwt.verify(token);
-		} catch (err) {
-			console.error("❌ Invalid token:", err.message);
-			ws.close(4002, "Invalid authentication");
-			return ;
-		}
-		console.log(`Message recieved: auth, from ${data.slug}, for game ${gameId}`);
+        try {
+            data = this.fastify.jwt.verify(token);
+        } catch (err) {
+            console.error(":x: Invalid token:", err.message);
+            ws.close(4002, "Invalid authentication");
+            return ;
+        }
+        console.log(`Message recieved: auth, from ${data.slug}, for game ${gameId}`);
 
         if (gameMaster.addUserToGame(ws, data.idUser, gameId) == false) {
-			console.error("❌ Game not found or not enough players");
-			ws.close(4003, "Game not found or not enough players");
-			return ;
-		}
-		const players = gameMaster.getPlayersByGameId(gameId);
-		if (!players || players.length != 2) {
-			console.error("❌ Game not found or not enough players");
-			ws.close(4003, "Game not found or not enough players");
-			return ;
-		} else {
-			this.sendToWs(ws, {
-				type: 'auth_success',
-				gameId: gameId,
-				playerA: players[0],
-				playerB: players[1]
-			});
-		}
+            console.error(":x: Game not found or not enough players");
+            ws.close(4003, "Game not found or not enough players");
+            return ;
+        }
+        const players = gameMaster.getPlayersByGameId(gameId);
+        if (!players || players.length != 2) {
+            console.error(":x: Game not found or not enough players");
+            ws.close(4003, "Game not found or not enough players");
+            return ;
+        } else {
+            this.sendToWs(ws, {
+                type: 'auth_success',
+                gameId: gameId,
+                playerA: players[0],
+                playerB: players[1]
+            });
+        }
     }
 }

@@ -134,6 +134,7 @@ async function fillUserTab() {
 		console.log(Error);
 	}
 }
+
 function closeSearch() {
 	isSearchOpen = false;
 

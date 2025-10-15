@@ -2,6 +2,11 @@ import { checkTournamentCreationFormat, checkPlayerFormat, checkIdFormat } from 
 import { getUserIdFromSlug } from "../requests/GetUserIdFromSlug.js";
 import { sendTournamentInvitation } from "../requests/SendTournamentInvitation.js";
 
+function checkDoubles(arr) {
+	const uniqueItems = new Set(arr);
+	return uniqueItems.size !== arr.length;
+}
+
 // Create a new tournament
 // Security : Road is protected to logged-in users and from SQLi
 export async function createTournament(request, reply) {
@@ -12,9 +17,13 @@ export async function createTournament(request, reply) {
 		return reply.code(401).send({ error: "Unauthorized."});
     
 	if (checkTournamentCreationFormat(request) === false) {
-		return reply.code(400).send({ error: 'Bad tournament creation format - expected : name, players[array of 4 or 8 unique names].'});
+		return reply.code(400).send({ error: 'Bad tournament creation format.'});
 	}
     const { name, players, option } = request.body;
+	if (checkDoubles(request.body.players) === true) {
+		return reply.code(400).send({ error: 'Duplicates not allowed.'});
+	}
+
 	let has_users_to_wait = false;
 	// Tests OK
     for (let i = 0; i < players.length; i++) {
@@ -75,7 +84,8 @@ export async function createTournament(request, reply) {
 						console.error("❌ Unable to send tournament invitation to ", player);
 						// TODO : Delete tournament ?
 					}
-					console.log("❓ Tournament invitation sent to ", player);
+					else
+						console.log("❓ Tournament invitation sent to ", player);
 				}
 				else 
 					console.log("❓ No invitation sent to tournament creator ", player);

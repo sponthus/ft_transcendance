@@ -19,12 +19,12 @@ export async function getStatusForSlug(request, reply) {
 	const { WebSocketManager } = request.server;
 	if (!WebSocketManager) {
 		console.error('❌ Error while getting sessions: connexion not found');
-		return reply.status(500).send({ error: 'No sessions connection found.'});
+		return reply.status(500).send({ error: 'Internal server error while fetching users.'});
 	}
 
 	const status = WebSocketManager.getUserStatusBySlug(slug);
 	if (status === 'not found') {
-		return reply.status(404).send({error: 'Requested user doesn\'t exist'});
+		return reply.status(404).send({error: 'Requested user not found.'});
 	}
 	return reply.status(200).send({ status: status, slug: slug });
 }

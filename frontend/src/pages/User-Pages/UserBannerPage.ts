@@ -154,7 +154,7 @@ export class UserBanner {
 					location.reload();
 				}
 			}catch (error) {
-				ErrorPopup(error as string);
+				await ErrorPopup(error as string);
 			}
 		}));
 		(document.getElementById('remove-friend-btn')?.addEventListener('click', async() => {
@@ -165,33 +165,33 @@ export class UserBanner {
 					location.reload();
 				}
 			} catch (error) {
-				ErrorPopup(error as string);
+				await ErrorPopup(error as string);
 			}
 		}));
 		(document.getElementById('accept-btn')?.addEventListener('click', async() => {
 			try {
 				const req = await acceptRequest(this.UserData.username);
 				if (req.ok) {
-					ErrorPopup("accept invitation of " + this.UserData.username);
+					await ErrorPopup("accept invitation of " + this.UserData.username);
 					console.log("acctp invitation of ", this.UserData.username);
 					location.reload();
 				}
 
 			} catch(error) {
-				ErrorPopup(error as string);
+				await ErrorPopup(error as string);
 			}
 		}));
 		(document.getElementById('decline-btn')?.addEventListener('click', async() => {
 			try {
 				const req = await rejectRequest(this.UserData.username);
 				if (req.ok) {
-					ErrorPopup("decline invitation of " + this.UserData.username);
+					await ErrorPopup("decline invitation of " + this.UserData.username);
 					console.log("acctp invitation of ", this.UserData.username);
 					location.reload();
 				}
 
 			} catch(error) {
-				ErrorPopup(error as string);
+				await ErrorPopup(error as string);
 			}
 		}))
 	}

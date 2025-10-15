@@ -2,7 +2,7 @@
 import { createDiv, createElement, createButton, createDropdownDiv, createFormDiv, createCheckBoxLabel, append, setbackgroundImages} from '../../Utils/elementMaker.js';
 import { createLocalGame, getAvailableGames, startGame, deleteGame } from "../../api/game-service/games/game.js"
 import { getUserInfo } from "../../api/user-service/user-info/getUserInfo.js";
-import { getAvailableTournaments } from  "../../api/game-service/tournaments/getTournaments.js";
+import { getAvailableTournaments, TournamentsInfos } from  "../../api/game-service/tournaments/getTournaments.js";
 import { deleteTournament } from  "../../api/game-service/tournaments/deleteTournament.js";
 import { ErrorPopup } from '../ErrorPage.js';
 
@@ -18,13 +18,13 @@ type UserData = //VA ETRE CHANGER, le token renvoie le username et l'id du user
 
 export class availableGames {
 	private Page!: HTMLElement;
-	private PartyMap: Map<number, HTMLButtonElement>;
+	private PartyMap: Map<TournamentsInfos, HTMLButtonElement>;
 	private UserData!: any;
 	private bodyParty!: HTMLElement;
 	private TitleParty!: HTMLElement;
 	private AvailableDiv!: HTMLElement;
 
-	constructor(PartyMap: Map<number, HTMLButtonElement>) {
+	constructor(PartyMap: Map<TournamentsInfos, HTMLButtonElement>) {
 		this.PartyMap = PartyMap;
 		this.initUserInfo();
 	}
@@ -37,7 +37,7 @@ export class availableGames {
 			}
 
 		} catch (error) {
-			ErrorPopup("error");
+			await ErrorPopup("error");
 		}
 	}
 
@@ -103,7 +103,7 @@ export class availableGames {
 					this.CreateTournamentName(PartyDiv, index, Party);
 					this.createCreatedAtDiv(PartyDiv, index, Party);
 					append(this.bodyParty, [PartyDiv]);
-					this.PartyMap.set(Party.id, PartyDiv);
+					this.PartyMap.set(Party, PartyDiv);
 				})
 				this.ManagePartyEvent();
 			}
@@ -151,9 +151,9 @@ export class availableGames {
 			if (!request.ok) {
 				throw new Error(request.error);
 			}
-			ErrorPopup(request.message);
+			await ErrorPopup(request.message);
 		} catch (error) {
-			ErrorPopup(error as string);
+			await ErrorPopup(error as string);
 		}
 		await this.refreshAvailableGames();
 	}

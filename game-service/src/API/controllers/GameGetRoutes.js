@@ -37,33 +37,64 @@ export async function getGamesForSlug(request, reply) {
 	}
 
 	try {
+		let idsDict = new Map();
+
 		// console.log("Trying to find games with userId " + userId);
-		const games = db.getGamesForUserId(userId);
+		let games = db.getGamesForUserId(userId);
 		if (!games || games.length === 0) {
 			return reply.code(200).send([]);
 		}
 		for (let i = 0; i < games.length; i++) {
-			if (games[i].player_a[0] === '@') {
-				const playerAId = games[i].player_a.slice(1);
-				const playerAName = await getUserInfoFromId(playerAId);
-				if (!playerAName.ok || !playerAName.infos || !playerAName.infos.slug || playerAName.infos.slug == undefined) {
-					console.error("❌ Player slug not found: ", playerAId);
-					return reply.code(404).send({ error: `Player not found.`});
+			if (games[i].created_by) {
+				const creatorId = Number(games[i].created_by);
+				if (idsDict.has(creatorId) === true) {
+					games[i].created_by = `@${idsDict.get(creatorId)}`;
+					// console.debug("👌 Using cache data");
+				} else {
+					const creatorName = await getUserInfoFromId(creatorId);
+					if (!creatorName.ok || !creatorName.infos || !creatorName.infos.slug || creatorName.infos.slug == undefined) {
+						console.error("❌ Player slug not found: ", creatorId);
+						return reply.code(404).send({ error: `Player not found.`});
+					}
+					else {
+						idsDict.set(creatorId, creatorName.infos.slug);
+						games[i].created_by = `@${idsDict.get(creatorId)}`;
+					}
 				}
-				else {
-					games[i].player_a = `@${playerAName.infos.slug}`;
-				} // TODO check me when it's possible to make a game with @user
+			}
+			if (games[i].player_a[0] === '@') {
+				const playerAId = Number(games[i].player_a.slice(1));
+				if (idsDict.has(playerAId) === true) {
+					games[i].player_a = `@${idsDict.get(playerAId)}`;
+					// console.debug("👌 Using cache data");
+				} else {
+					const playerAName = await getUserInfoFromId(playerAId);
+					if (!playerAName.ok || !playerAName.infos || !playerAName.infos.slug || playerAName.infos.slug == undefined) {
+						console.error("❌ Player slug not found: ", playerAId);
+						return reply.code(404).send({ error: `Player not found.`});
+					}
+					else {
+						idsDict.set(playerAId, playerAName.infos.slug);
+						games[i].player_a = `@${idsDict.get(playerAId)}`;
+					}
+				}
 			}
 			if (games[i].player_b[0] === '@') {
-				const playerBId = games[i].player_b.slice(1);
-				const playerBName = await getUserInfoFromId(playerBId);
-				if (!playerBName.ok || !playerBName.infos || !playerBName.infos.slug || playerBName.infos.slug == undefined) {
-					console.error("❌ Player slug not found: ", playerBId);
-					return reply.code(404).send({ error: `Player not found.`});
+				const playerBId = Number(games[i].player_b.slice(1));
+				if (idsDict.has(playerBId) === true) {
+					games[i].player_b = `@${idsDict.get(playerBId)}`;
+					// console.debug("👌 Using cache data");
+				} else {
+					const playerBName = await getUserInfoFromId(playerBId);
+					if (!playerBName.ok || !playerBName.infos || !playerBName.infos.slug || playerBName.infos.slug == undefined) {
+						console.error("❌ Player slug not found: ", playerBId);
+						return reply.code(404).send({ error: `Player not found.`});
+					}
+					else {
+						idsDict.set(playerBId, playerBName.infos.slug);
+						games[i].player_b = `@${idsDict.get(playerBId)}`;
+					}
 				}
-				else {
-					games[i].player_b = `@${playerBName.infos.slug}`;
-				} // TODO check me when it's possible to make a game with @user
 			}
 		}
 		console.log(`Found ${games.length} games for user ${userId}`);

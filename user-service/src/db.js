@@ -16,7 +16,7 @@ async function dbConnector(fastify, options)
         db.exec(`
         CREATE TABLE IF NOT EXISTS users (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            username TEXT UNIQUE NOT NULL COLLATE BINARY,
+            username TEXT UNIQUE NOT NULL COLLATE NOCASE,
             slug TEXT UNIQUE NOT NULL,
             avatar TEXT NOT NULL,
             pw_hash TEXT DEFAULT NULL,
@@ -60,7 +60,10 @@ async function dbConnector(fastify, options)
             notif_id INTEGER PRIMARY KEY AUTOINCREMENT,
             notif_user_id INTEGER NOT NULL,
             notif_sender_id INTEGER NOT NULL,
-            notif_type TEXT NOT NULL CHECK(notif_type IN ('friend_request', 'friend_accept', 'friend_reject')),
+            notif_type TEXT NOT NULL CHECK(notif_type IN ('friend_request', 'friend_accept', 'friend_reject', \
+                                                        'tournament_accept', 'tournament_cancel', 'tournament_invite', 'tournament_ready')),
+            notif_tournament_id INTEGER DEFAULT NULL,
+            notif_tournament_name TEXT DEFAULT NULL,
             notif_status INTEGER DEFAULT 0 CHECK(notif_status BETWEEN 0 AND 1),
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
             FOREIGN KEY (notif_user_id) REFERENCES users(id),
@@ -70,7 +73,7 @@ async function dbConnector(fastify, options)
     }
     catch (err)
     {
-        console.log("Error : database init failed " + err.message);
+        console.log("Error : database init failed ");
         //si db pas creer que faire ?
     }
     fastify.decorate("db", db); // Makes db connection accessible throughout application as fastify.db

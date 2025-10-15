@@ -24,13 +24,13 @@ export async function changeUserInfos(request, reply) {
 	const { WebSocketManager } = request.server;
 	if (!WebSocketManager) {
 		console.error('❌ Error while getting sessions: connexion not found');
-		return reply.status(500).send({ error: 'No database connection found.'});
+		return reply.status(500).send({ error: 'Internal server error while fetching users'});
 	}
 
 	const data = WebSocketManager.updateUserInfos(Number(userId), username, slug);
 	if (data == null) {
 		console.log(`User with ${userId} not found.`);
-		return reply.status(404).send({error: 'Requested user doesn\'t exist'});
+		return reply.status(404).send({error: 'Requested user not found.'});
 	}
 	return reply.status(200).send({ userId: data.userId, username: data.username, slug: data.slug });
 }
@@ -65,12 +65,12 @@ export async function changeUserStatus(request, reply) {
 	const { WebSocketManager } = request.server;
 	if (!WebSocketManager) {
 		console.error('❌ Error while getting sessions: connexion not found');
-		return reply.status(500).send({ error: 'No database connection found.'});
+		return reply.status(500).send({ error: 'Internal server error while fetching users'});
 	}
 
 	const actualStatus = WebSocketManager.getUserStatusByUserId(userId);
 	if (!actualStatus == "not found") {
-		return reply.status(404).send({error: 'Requested user doesn\'t exist'});
+		return reply.status(404).send({error: 'Requested user not found.'});
 	}
 	if (status == "not_playing") {
 		if (actualStatus == "playing")

@@ -8,9 +8,12 @@ let Inputs: HTMLInputElement[] = [];
 let Success: boolean;
 
 export async function activateTwoFaBtn() {
-	const req = await activateTwoFa();
-	if (req.ok) {
-        await addPopUpContent(req.qrCode!, false);
+	try {
+		const req = await activateTwoFa();
+		if (req.ok)
+			await addPopUpContent(req.qrCode!, false);
+	} catch(error) {
+		await ErrorPopup(error as string);
 	}
 }
 
@@ -22,14 +25,18 @@ async function addPopUpContent(url: string, active: boolean) {
     Inputs = [];
    
     Success = false;
-	const QrPop: popUp = new popUp('Double Authentification');
-	QrPop.Body.className = 'flex flex-col items-center justify-center bg-white rounded-xl shadow-xl p-6 w-80 space-y-4';
+	const QrPop: popUp = new popUp('2FA Authentification');
+	QrPop.Body.className = 'flex flex-col items-center justify-center bg-orange-200 rounded-xl shadow-xl p-6 w-80 space-y-4';
+
+	const containerBtn: HTMLElement = createDiv('container-btn', 'flex items-center justify-around w-full');
 
 	const Btn: HTMLButtonElement = createButton('ok', 'bg-red-500 p-2 rounded-full text-white hover:scale-105 active:scale-95 transition-all duration-300', 'ok');
+	const backBtn: HTMLButtonElement = createButton('back', 'bg-red-500 p-2 rounded-full text-white hover:scale-105 active:scale-95 transition-all duration-300', 'back');
 
+	append(containerBtn, [backBtn, Btn]);
     if (!active)
 	    QrPop.appendToBody(createImage('qr-code', 'object-center', url));
-    QrPop.appendsToBody([addCodeInput(), Btn]);
+    QrPop.appendsToBody([addCodeInput(), containerBtn]);
     Inputs.forEach(input => {console.log(input.value)});
 	QrPop.addOverlayToWindow();
 	EventInputs();
@@ -37,7 +44,6 @@ async function addPopUpContent(url: string, active: boolean) {
         let str: string = "";
 		Inputs.forEach(input => {str += input.value.toString();});
 		try {
-            console.log('str = ', str);
 			const request = await checkTwoFaCode(str);
 			if (request.ok) {
 				console.log('successfully add 2FA: ');
@@ -48,8 +54,11 @@ async function addPopUpContent(url: string, active: boolean) {
             else
                 console.log(request.error);
 		} catch(error) {
-			ErrorPopup(error as string);
+			await ErrorPopup(error as string);
 		}
+	})
+	backBtn.addEventListener('click', () => {
+		QrPop.removeOverlayToWindow();
 	})
 }
 
@@ -69,7 +78,7 @@ function EventInputs() {
 function addCodeInput(): HTMLElement {
 	const Div: HTMLElement = createDiv('otp-input', 'flex items-center justify-center w-full space-x-4');
 	for (let i = 0; i < 6; i++) {
-		const input: HTMLInputElement = createInput(['text', `input-${i}`, '_', true], `input-num-${i}`, 'w-[10%] text-2xl');
+		const input: HTMLInputElement = createInput(['text', `input-${i}`, '_', true], `input-num-${i}`, 'w-[10%] text-2xl bg-orange-200 text-emerald-600');
 		input.maxLength = 1;
 		input.pattern = "[0-9]*";
 		input.inputMode = 'numeric';

@@ -3,9 +3,11 @@ type Failure = { ok: false; error: string };
 
 export type AllNotifs = 
 {
-    username: string; // change for slug
+    slug: string;
     notif_type: string;
     notif_status: number;
+    notif_tournament_id : number;
+    notif_tournament_name: string;
     created_at: string;
 };
 
@@ -21,7 +23,7 @@ export async function   getNotifications(url: string): Promise<NotifResult>
     {
         const res = await fetch(url, 
         {
-            method: 'GET',
+            method: 'GET', 
             credentials: 'include',
         });
         const data = await res.json();    

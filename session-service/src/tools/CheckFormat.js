@@ -6,7 +6,7 @@ export function    checkSlugFormat(slug)
     {
         type: "string",
         minLength: 1,
-        maxLength: 15,
+        maxLength: 20,
         pattern: "^(?![_-])(?!.*[_-]$)(?=.*[a-z])(?![0-9_]+)[a-z0-9_-]+$" // Updated format
     };
     const ajv = new Ajv();
@@ -27,13 +27,13 @@ export function    checkChangeInfosFormat(request)
 			slug: { 
 				type: "string", 
 				minLength: 3, 
-				maxLength: 15,
+				maxLength: 20,
 				pattern: "^(?![_-])(?!.*[_-]$)(?=.*[a-z])(?![0-9_]+)[a-z0-9_-]+$" // Updated pattern
 			},
 			username: { 
 				type: "string",
 				minLength: 3,
-				maxLength: 20,
+				maxLength: 15,
 				pattern: "^(?![_-])(?!.*[_-]$)(?=.*[A-Za-z])(?![0-9_]+)[A-Za-z0-9_-]+$" // Updated pattern
 			}
 		},
@@ -48,6 +48,45 @@ export function    checkChangeInfosFormat(request)
     return (true);
 }
 
+export function    checkSendMessageToGroupFormat(request)
+{
+    const schema = 
+    {
+        type: "object",
+		properties:
+		{
+			userIds: {
+				type: "array",
+				items: { type: ["number", "string"] },
+				minItems: 1,
+				uniqueItems: true
+			},
+			sender: { 
+				type: ["string", "number"], 
+				minLength: 3, 
+				maxLength: 20,
+				pattern: "^[a-z0-9]+(-[0-9]+)?$"
+			},
+			message: { 
+				type: "string",
+				minLength: 3,
+				maxLength: 20,
+				pattern: "^(?=.*[a-zA-Z])[^\\[\\]{}();]+$"
+			}
+		},
+		required: ["sender", "message"],
+		additionalProperties: false
+    };
+    const ajv = new Ajv({ allowUnionTypes: true });
+    const contract = ajv.compile(schema);
+    const valid = contract(request.body);
+    if (!valid) {
+		console.warn(contract.errors);
+        return (false);
+	}
+    return (true);
+}
+
 export function    checkSendMessageFormat(request)
 {
     const schema = 
@@ -58,7 +97,7 @@ export function    checkSendMessageFormat(request)
 			sender: { 
 				type: "string", 
 				minLength: 3, 
-				maxLength: 15,
+				maxLength: 20,
 				pattern: "^[a-z0-9]+(-[0-9]+)?$"
 			},
 			message: { 
@@ -85,7 +124,7 @@ export function    checkUsernameFormat(username)
     {
         type: "string", 
 		minLength: 3, 
-		maxLength: 15, 
+		maxLength: 20, 
 		pattern: "^(?![_-])(?!.*[_-]$)(?=.*[A-Za-z])(?![0-9_]+)[A-Za-z0-9_-]+$" // Updated pattern
 	};
     const ajv = new Ajv();
@@ -115,6 +154,21 @@ export function    checkStatusFormat(status)
     return (true);
 }
 
+export function checkNumberIdFormat(id)
+{
+	const schema =
+	{
+		type: "number",
+		minimum: 1
+	};
+	const ajv = new Ajv();
+	const contract = ajv.compile(schema);
+	const valid = contract(id);
+	if (!valid)
+		return (false);
+	return (true);
+}
+
 export function    checkIdFormat(id)
 {
     const schema = 
@@ -127,7 +181,8 @@ export function    checkIdFormat(id)
     const ajv = new Ajv();
     const contract = ajv.compile(schema);
     const valid = contract(id);
-    if (!valid)
+    if (!valid) {
         return (false);
+	}
     return (true);
 }

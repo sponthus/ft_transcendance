@@ -1,6 +1,9 @@
 /// <reference types="vite/client" />
 import { refreshNotification } from "../Utils/notification";
 import Ajv, { ErrorObject } from "ajv";
+import { navigate } from "./router";
+import { ErrorPopup } from "../pages/ErrorPage.js";
+import { logoutUser } from "../api/user-service/connection/logoutUser.js";
 
 export interface WebSocketMessage {
 	type: string;
@@ -18,8 +21,8 @@ export function checkWebSocketMessageFormat(message: WebSocketMessage): FormatCh
 		type: "object",
 		properties: {
 			type: { type: "string", minLength: 3 },
-			message: { type: "string", minLength: 1, maxLength: 500 },
-			sender: { type: "string", minLength: 1, maxLength: 100 }
+			message: { type: ["string", "number"], minLength: 1, maxLength: 500 },
+			sender: { type: ["string", "number"], minLength: 1, maxLength: 100 }
 		},
 		additionalProperties: false,
 		required: ["type"],
@@ -53,7 +56,12 @@ export class SessionSocket {
     private heartbeatInterval: number | null = null;
     private heartbeatTimeout: number | null = null;
     private pingInterval: number = 30000; // every 30s sends a ping
-    private pongInterval: number = 5000; // 5s to recieve back pong
+    private pongInterval: number = 10000; // 10s to recieve back pong
+
+	private reconnectAttempts: number = 0;
+	private maxReconnectAttempts: number = 5;
+	private reconnectDelay: number = 5000; // 5 seconds
+	private shouldAttemptReconnect: boolean = true;
 
     constructor() {
 		try {
@@ -69,13 +77,13 @@ export class SessionSocket {
 
     static getInstance(): SessionSocket {
         // console.log("=== Socket.getInstance DEBUG ===");
-        // console.log("Current Socket.instance:", !!Socket.instance);
+        // console.log("Current Socket.instance:", !!SessionSocket.instance);
         // console.log("Global instance exists:", !!(window as any).GLOBAL_WEBSOCKET);
 
         if (!SessionSocket.instance) {
             console.log("Creating new Socket instance");
             SessionSocket.instance = new SessionSocket();
-            // (window as any).GLOBAL_WEBSOCKET = Socket.instance;
+            (window as any).GLOBAL_WEBSOCKET = SessionSocket.instance;
         }
 
         // console.log("=== END Socket.getInstance DEBUG ===");
@@ -89,7 +97,7 @@ export class SessionSocket {
         }
 
         this.sWS.onopen = () => {
-            console.log("Connected to WebSocket server");
+            console.log("Connected to WebSocket session server");
             this.startHeartbeat();
         };
 
@@ -99,16 +107,12 @@ export class SessionSocket {
 				data = JSON.parse(event.data);
             } catch (error) {
                 console.error('Error parsing JSON message.');
-				// TODO Add logic here, when recieving an invalid message format
-				// Websocket will be closed (someone exterior sent a wrong message to the websocket, normally it's impossible)
 				this.close(3000, 'Invalid message format');
 				return;
             }
 			const checkFormat = checkWebSocketMessageFormat(data);
 			if (checkFormat.valid === false) {
 				console.error("Invalid WebSocket message format:", checkFormat.errors);
-				// TODO Add logic here, when recieving an invalid message format
-				// Websocket will be closed (someone exterior sent a wrong message to the websocket, normally it's impossible)
 				this.close(3000, 'Invalid message format');
 				return;
 			}
@@ -116,14 +120,26 @@ export class SessionSocket {
         };
 
         this.sWS.onerror = (error) => {
-            console.error("Error WebSocket:", error);
+            console.error("Error Session WebSocket:", error);
         };
 
-        this.sWS.onclose = () => {
-            console.log("Connexion WebSocket closed");
+        this.sWS.onclose = async (event) => {
+            console.log(`Connexion to Session WebSocket closed with code ${event.code} and reason: ${event.reason}`);
             this.stopHeartbeat();
-            // TODO Add logic here, when the websocket is closed
-			this.reconnect(); // Do we reconnect on close ? Websocket can also be closed if backend recompiles
+			if (event.code == 4002) {
+				console.error("Websocket closed due to authentication error");
+				await logoutUser();
+				await ErrorPopup("Authentication error, please log in again");
+				navigate('/login');
+			}
+			else if (event.code == 4003) {
+				console.error("WebSocket closed due to authentication failure");
+				await logoutUser();
+				await ErrorPopup("Session expired, please log in again");
+				navigate('/login');
+			} else {
+            	this.reconnect();
+			}
         };
     }
 
@@ -136,19 +152,19 @@ export class SessionSocket {
             return `wss://${import.meta.env.VITE_DOMAIN_NAME}:4443/s-ws/`;
     }
 
-    private startHeartbeat(): void {
-        console.log("Starting heartbeat");
-        this.heartbeatInterval = window.setInterval(() => {
-            if (this.sWS?.readyState === WebSocket.OPEN) {
-                console.log("Ping sent to server");
-                this.send(JSON.stringify({type: 'ping'}));
-                this.heartbeatTimeout = window.setTimeout(() => {
-                    console.error("No pong recieved, closing connection");
-                    this.sWS?.close(1000, 'No pong recieved');
-                }, this.pongInterval)
-            }
-        }, this.pingInterval);
-    }
+	private startHeartbeat(): void {
+		console.log("Starting heartbeat");
+		this.heartbeatInterval = window.setInterval(() => {
+			if (this.sWS?.readyState === WebSocket.OPEN) {
+				console.log("Session ping sent to server");
+				this.send(JSON.stringify({type: 'ping'}));
+				this.heartbeatTimeout = window.setTimeout(() => {
+					console.error("No pong recieved, closing connection");
+					this.sWS?.close(1000, 'No pong recieved');
+				}, this.pongInterval)
+			}
+		}, this.pingInterval);
+	}
 
     private stopHeartbeat(): void {
         if (this.heartbeatInterval) {
@@ -169,7 +185,7 @@ export class SessionSocket {
         if (this.sWS && this.isOpen())
             this.sWS.send(data);
         else
-            console.error("WebSocket is not open to send data", data);
+            console.error("Session WebSocket is not open to send data", data);
     }
 
     private handleMessage(data: any) {
@@ -184,6 +200,8 @@ export class SessionSocket {
 			refreshNotification();
 			return ;
 			// TODO Emma Add logic here, when recieving a friend request message
+		} else if (data.type === "auth_success") {
+			this.reconnectAttempts = 0;
 		}
     }
 
@@ -205,8 +223,18 @@ export class SessionSocket {
         return this.sWS.readyState === WebSocket.OPEN;
     }
 
-	public reconnect(): void {
-		console.log("Reconnecting to WebSocket server...");
+	public async reconnect(): Promise<void> {
+		if (this.reconnectAttempts >= this.maxReconnectAttempts) {
+			console.error("Max reconnect attempts reached. Giving up.");
+			this.shouldAttemptReconnect = false;
+			this.close(3000, "Max reconnect attempts reached");
+			await logoutUser();
+			await ErrorPopup("Authentication error, please log in again");
+			navigate('/login');
+			return;
+		}
+		this.reconnectAttempts++;
+		console.log("Reconnecting to Session WebSocket server...");
 		this.stopHeartbeat();
 		const reconnectInterval = setInterval(() => {
 			if (!this.isOpen()) {
@@ -223,9 +251,8 @@ export class SessionSocket {
 			} else {
 				clearInterval(reconnectInterval);
 			}
-		}, 10000); // Try to reconnect every 5 seconds
-		this.sWS.close();
-		
+		}, 10000); // Try to reconnect every 10 seconds
+		// this.sWS.close();
 	}
 
     public close(code: number = -1, reason: string = ""): void {

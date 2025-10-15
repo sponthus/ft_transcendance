@@ -1,4 +1,4 @@
-import env from '../../config/env.js'
+/*import env from '../../config/env.js'
 import fetch from 'node-fetch'
 import slugify from "slugify";
 import { generateUniqueUsername, generateUniqueSlug } from '../tools/generateUnique.js';
@@ -31,7 +31,16 @@ export default async function OAuthRoutes(fastify)
                 path: '/', //Cookie dispo sur tout le site, sinon c'est juste cette route et les sous routes
                 maxAge: 3600000
                 //mettre same site
-            }).redirect('http://localhost:5173');
+            }).type('text/html')
+                .send(`
+                    <html>
+                      <body>
+                        <script>
+                            window.opener?.postMessage({ success: true }, "http://localhost:5173");
+                            window.close();
+                        </script>
+                     </body>
+                    </html>`);
         }
         catch (err)
         {
@@ -115,4 +124,4 @@ async function getInfoFromGithub(token)
     }
     else
         return { ok: false, error: "Github authentification failed" };  
-}
+}*/

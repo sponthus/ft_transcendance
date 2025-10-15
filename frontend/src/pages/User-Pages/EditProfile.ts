@@ -212,7 +212,7 @@ export class EditProfile extends popUp {
 			location.reload();
 		}
 		else
-			ErrorPopup(req.error);
+			await ErrorPopup(req.error);
 	}
 
 	async openUploadForm() {
@@ -224,7 +224,7 @@ export class EditProfile extends popUp {
 
 		const input = form.querySelector('input[type="file"]') as HTMLInputElement;
 		if (!input.files || input.files.length === 0) {
-			ErrorPopup("Please, select a file");
+			await ErrorPopup("Please, select a file");
 			return;
 			}
 			
@@ -255,19 +255,19 @@ export class EditProfile extends popUp {
 		// Makes 2 requests : upload to upload service + change avatar in user db
 		const req = await uploadAvatar(formData);
 		if (req.ok) {
-			ErrorPopup("Avatar updated successfully!");
+			await ErrorPopup("Avatar updated successfully!");
 			const pathReq = await modifyUserAvatar(this.UserData.slug, req.avatar);
 			if (pathReq.ok) {
 				await navigate(`/user/${this.UserData.slug}`);
-				ErrorPopup("avatar modify successfully");
+				await ErrorPopup("avatar modify successfully");
 				return ;
 			}
 			else {
-				ErrorPopup("Error while uploading avatar path in db" + (pathReq.error || "Unknown error"));
+				await ErrorPopup("Error while uploading avatar path in db" + (pathReq.error || "Unknown error"));
 			}
 		}
 		else {
-			ErrorPopup("Upload failed: " + (req.error || "Unknown error"));
+			await ErrorPopup("Upload failed: " + (req.error || "Unknown error"));
 		}
 	}
 

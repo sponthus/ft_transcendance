@@ -6,7 +6,7 @@ export function    checkSlugFormat(slug)
     {
         type: "string",
         minLength: 1,
-        maxLength: 15,
+        maxLength: 20,
         pattern: "^(?![_-])(?!.*[_-]$)(?=.*[a-z])(?![0-9_]+)[a-z0-9_-]+$" // Same as username without maj
     };
     const ajv = new Ajv();
@@ -81,12 +81,12 @@ export function	checkGameCreationFormat(request)
 			player_a: { 
 				type: "string", 
 				minLength: 3, 
-				maxLength: 20, 
+				maxLength: 21, 
 				pattern: "^(?!@?[_-])(?!.*[_-]$)(?!^\\s)(?!.*\\s$)(?!.*\\s{2})(?!.*(?:\\s.*){3})(?=.*[A-Za-z])(?!@?[0-9_-]+$)@?[A-Za-z0-9 _-]+$" }, // Accepts 2 spaces, @ at beginning
 			player_b: { 
 				type: "string", 
 				minLength: 3, 
-				maxLength: 15, 
+				maxLength: 21, 
 				pattern: "^(?!@?[_-])(?!.*[_-]$)(?!^\\s)(?!.*\\s$)(?!.*\\s{2})(?!.*(?:\\s.*){3})(?=.*[A-Za-z])(?!@?[0-9_-]+$)@?[A-Za-z0-9 _-]+$" }, // Accepts 2 spaces, @ at beginning
 			requestedMaxScore: { type: "integer", minimum: 1, maximum: 21 },
 			requestedAi: { type: "number", minimum: 0, maximum: 2 },
@@ -110,7 +110,7 @@ export function    checkPlayerFormat(username)
     {
         type: "string", 
 		minLength: 3, 
-		maxLength: 15, 
+		maxLength: 21, 
 		pattern: "^(?!@?[_-])(?!.*[_-]$)(?!^\\s)(?!.*\\s$)(?!.*\\s{2})(?!.*(?:\\s.*){3})(?=.*[A-Za-z])(?!@?[0-9_-]+$)@?[A-Za-z0-9 _-]+$" // Updated pattern
 	};
     const ajv = new Ajv();
@@ -125,6 +125,25 @@ export function    checkPlayerFormat(username)
     return (true);
 }
 
+export function    checkIdNumberFormat(id)
+{
+    const schema = 
+    {
+        type: "number",
+        minimum: 1
+    };
+    const ajv = new Ajv();
+    const contract = ajv.compile(schema);
+    const valid = contract(id);
+    if (!valid) {
+		console.error("❌ ID number format error: ");
+		console.error(contract.errors);
+        return (false);
+	}
+    return (true);
+}
+
+
 export function    checkIdFormat(id)
 {
     const schema = 
@@ -137,8 +156,11 @@ export function    checkIdFormat(id)
     const ajv = new Ajv();
     const contract = ajv.compile(schema);
     const valid = contract(id);
-    if (!valid)
-        return (false);
+    if (!valid) {
+		console.error("❌ ID string format error: ");
+		console.error(contract.errors);
+		return (false);
+	}
     return (true);
 }
 

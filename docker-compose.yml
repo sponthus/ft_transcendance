@@ -9,6 +9,10 @@ secrets:
     file: ./secrets/auth_key.txt
   cookie_key:
     file: ./secrets/cookie_key.txt
+  git_secret:
+    file: ./secrets/git_secret.txt
+  git_id:
+    file: ./secrets/git_id.txt
 
 services:
 
@@ -47,6 +51,8 @@ services:
       - api_key
       - auth_key
       - cookie_key
+      - git_secret
+      - git_id
     restart: always
 
   game-service:
