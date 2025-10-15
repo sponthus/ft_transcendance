@@ -9,6 +9,7 @@ import dbConnector from "./db.js";
 import logger from "../config/logger.js";
 import routes from "./routes/index.js";
 import { initOAuthGithub } from "./connection/githubStrategy.js";
+import { refreshToken } from "./tools/refreshToken.js";
 //import { getSecret } from "./tools/getSecret.js";
 
 const __filename = fileURLToPath(import.meta.url); // This filename, from ESM expression to classic path
@@ -72,20 +73,26 @@ export function getSecret(name)
 
 fastify.decorate("verifyApiKey", async function (request, reply)
 {
+    console.log('PASSSSSEEEE PAR LA VERIFICATION API KEY');
     const   apiKey = request.headers['x-internal-api-key'];
     if (!apiKey || apiKey !== getSecret('api_key'))
 		return reply.code(401).send({ error: 'Unauthorized: Invalid API Key' });
+
+    console.log('request.body :', request.body);
+    console.log('request.body type :', typeof request.body);
+
+    console.log('FINNNIII  LA VERIFICATION API KEY');
 });
 
 fastify.decorate("authenticate_2fa", async function (request, reply)
 {
     try 
     {
-        const result = fastify.unsignCookie(request.cookies.token); //verifie manuellement signature cookie
+        const result = fastify.unsignCookie(request.cookies.token); 
         if (!result.valid)
             return reply.code(401).send({ error: "Invalid cookie" });
-        request.user = await fastify.jwt.verify(result.value); //Décode et verifie le token et stock ses infos dans request
-        console.log("Decoded token 2fa :", request.user);
+        request.user = await fastify.jwt.verify(result.value);
+        // console.debug("Decoded token 2fa : ", request.user);
         if (request.user.twofa_pending === false)
             return reply.code(401).send({ error: "only tmp token" });
     } 
@@ -101,9 +108,10 @@ fastify.decorate("authenticate_2fa", async function (request, reply)
         }
     }
 });
- 
+
 fastify.decorate("authenticate", async function (request, reply)
 {
+    //TODO PENSEZ A VERIFIER SI LE USER EXISTE ET LE RESTE DES TABLLES ?
     try 
     {
         // console.debug("\nToken dans le user-service avant unsign cookie : -" + request.cookies.token + "-");
@@ -113,13 +121,25 @@ fastify.decorate("authenticate", async function (request, reply)
         // console.debug("\nToken dans le user-service : " + result.value + "-");
         request.user = await fastify.jwt.verify(result.value); //Décode et verifie le token et stock ses infos dans request
         // console.debug("Decoded token:", request.user);
+
         if (request.user.twofa_pending === true)
             return reply.code(401).send({ error: "2FA required" });
-    } 
-    catch (err)
-    {
-        if (err.message === "Authorization token expired")
-        {
+
+		// Refresh token if it's about to expire soon
+		const now = Date.now() / 1000;
+		const expThreshold = 900; // 15 minutes * 60s
+		if (request.user.exp - now < expThreshold) {
+			refreshToken(fastify, request.user, reply);
+			// console.debug("⚡️⚡️⚡️⚡️⚡️⚡️ Refreshed token ⚡️⚡️⚡️⚡️⚡️⚡️ ");
+		} 
+		// else {
+		// 	console.debug("⚡️⚡️⚡️⚡️⚡️⚡️ Token still valid, no need to refresh ⚡️⚡️⚡️⚡️⚡️⚡️");
+		// }
+	}
+	catch (err)
+	{
+		if (err.message === "Authorization token expired")
+		{
             return reply.code(401).send({error : err.message});
         }
         else
@@ -145,7 +165,6 @@ fastify.decorate("authenticate", async function (request, reply)
     {
         return reply.code(500).send( {error : "Internal Server Error" + err.message} );
     }*/
-    
 });
 
 

@@ -77,9 +77,9 @@ console.log('Rate limit set'); // debug
 // });
 
 fastify.addHook('onRequest', async (request, reply) => {
-    console.log(`[GATEWAY] ${request.method} ${request.url}`);
+    // console.debug(`[GATEWAY] ${request.method} ${request.url}`);
     if (request.body) {
-        console.log('[GATEWAY BODY]', request.body);
+        // console.debug('[GATEWAY BODY]', request.body);
     }
 });
 

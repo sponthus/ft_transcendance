@@ -7,7 +7,7 @@
     "build": "tsc && vite build --clearScreen false --mode production",
     "preview": "vite preview --clearScreen false"
   },
-  "author": "sponthus",
+  "author": "endoliam, mbogey",
   "dependencies": {
     "@babylonjs/core": "^8.21.0",
     "@babylonjs/gui": "^8.15.1",

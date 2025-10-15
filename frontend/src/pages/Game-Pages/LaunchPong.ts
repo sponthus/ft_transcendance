@@ -15,12 +15,12 @@ export class launchPong {
 		this.tournament = false;
 	}
 
-	render(gameId: number, tournament: boolean) {
+	async render(gameId: number, tournament: boolean) {
 		this.tournament = tournament;
 		this.GamePage.cleanPage();
 		this.GamePage.removeOverlayToWindow();
 		let lastTime = 0;
-		const targetFPS = 120;
+		const targetFPS = 60;
 		const frameDuration = 1000 / targetFPS;
 		let now;
 		let delta;
@@ -34,7 +34,7 @@ export class launchPong {
 		try {
 			this.Render.PongGame?.GamePhysics?.launchSocket(gameId);
 		} catch(error) {
-			ErrorPopup("Error launching pong websocket");
+			await ErrorPopup("Error launching pong websocket");
 			this.returnLobby();
 		}
 		this.Render.engine?.runRenderLoop(() => {
@@ -47,10 +47,22 @@ export class launchPong {
 			// console.log("win ?", this.Render.PongGame?.GamePhysics?.Win);
 			if (this.Render.PongGame?.GamePhysics?.Win)
 				this.EndGame(gameId);
+			else if (!this.Render.PongGame?.GamePhysics?.isSocketOpen()) {
+				this.Render.engine?.stopRenderLoop();
+				this.errorReturnLobby("Connection lost with the server.");
+			}
 		})
 	}
 
+	async errorReturnLobby(msg: string) {
+		// await ErrorPopup(msg);
+		this.Render.PongGame!.GamePhysics!.stopGame();
+		this.Render.setState = 0;
+		this.Render.callRenderLoop();
+	}
+
 	returnLobby () {
+		this.Render.PongGame!.GamePhysics!.stopGame();
 		this.GamePage.cleanPage();
 		this.GamePage.cleanBody();
 		this.GamePage.startGamePage();

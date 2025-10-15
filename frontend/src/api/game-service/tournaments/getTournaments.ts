@@ -53,9 +53,6 @@ type TournamentNextMatchResult = TournamentNextMatch | Failure;
 // All available tournaments for a user, no filter
 // Security : Accessible for every logged-in user
 export async function getAllTournaments(slug: string):  Promise<TournamentsResult> {
-	const token = localStorage.getItem("token");
-    if (!token)
-        return { ok: false, error: "No token"};
     if (!slug) {
         return { ok: false, error: 'Slug is required' };
     }
@@ -64,8 +61,8 @@ export async function getAllTournaments(slug: string):  Promise<TournamentsResul
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-            }
+            },
+            credentials: 'include'
         });
 
         if (!response.ok) {
@@ -153,10 +150,7 @@ export async function getFinishedTournaments(slug: string): Promise<TournamentsR
 // All matches from a tournament
 // Security : Accessible for every logged-in user
 export async function getTournamentMatches(tournamentId: number): Promise<TournamentMatchesResult> {
-	const token = localStorage.getItem("token");
-    if (!token)
-        return { ok: false, error: "No token"};
-    if (!tournamentId) {
+	if (!tournamentId) {
         return { ok: false, error: 'Tournament ID is required' };
     }
 	try {
@@ -164,8 +158,8 @@ export async function getTournamentMatches(tournamentId: number): Promise<Tourna
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-            }
+            },
+            credentials: 'include'
         });
 
         if (!response.ok) {
@@ -187,10 +181,7 @@ export async function getTournamentMatches(tournamentId: number): Promise<Tourna
 // All matches from a tournament
 // Security : Accessible for every logged-in user
 export async function getTournamentNextMatch(tournamentId: number): Promise<TournamentNextMatchResult> {
-	const token = localStorage.getItem("token");
-    if (!token)
-        return { ok: false, error: "No token"};
-    if (!tournamentId) {
+	if (!tournamentId) {
         return { ok: false, error: 'Tournament ID is required' };
     }
 	try {
@@ -198,8 +189,8 @@ export async function getTournamentNextMatch(tournamentId: number): Promise<Tour
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-            }
+            },
+            credentials: 'include'
         });
 
         if (!response.ok) {

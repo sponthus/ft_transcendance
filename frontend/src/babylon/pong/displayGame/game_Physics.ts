@@ -110,7 +110,7 @@ export class GamePhysics {
 		this.socket = new GameSocket(gameId);
 		if (!this.socket) {
 			throw new Error("Error creating socket");
-			return;
+			return ;
 		}
 
 		// stocke l’état serveur
@@ -141,11 +141,11 @@ export class GamePhysics {
 			if (data.type == "auth_success")
 			{
 				this.ready = true;
+				this.socket?.setPlaying(true);
 				this.socket!.send(JSON.stringify({
 					type: "start"
 				}));
 				this._displayName.setNamePlayers(data.playerA, data.playerB);
-				this.socket?.setPlaying(true);
 				return;
 			}
 			
@@ -182,9 +182,17 @@ export class GamePhysics {
 		}, 33); // 30fps
 	}
 
+	public isSocketOpen(): boolean {
+		if (this.socket && (this.socket.ws.readyState === WebSocket.OPEN || this.socket.ws.readyState === WebSocket.CONNECTING)) {
+			return true;
+		}
+		return false;
+	}
+
 	public stopGame() {
+		// this.socket?.setPlaying(false);
 		if (this.socket)
-			this.socket.close();
+			this.socket.close(1000, "Game ended");
 		this.ready = false;
 	}
 

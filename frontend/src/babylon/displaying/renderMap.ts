@@ -57,7 +57,8 @@ export class renderMap {
 					instance.getChildMeshes().forEach(child => {
 						child.computeWorldMatrix(true);
 						child.refreshBoundingInfo({});
-						child.checkCollisions = true;
+						if (this._mapLayout[index] != 1 && this._mapLayout[index] != 2 && this._mapLayout[index] != 3 && this._mapLayout[index] != 4 )
+							child.checkCollisions = true;
 					});
 				}
 			}

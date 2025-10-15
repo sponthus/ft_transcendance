@@ -17,7 +17,7 @@ type UserData = //VA ETRE CHANGER, le token renvoie le username et l'id du user
     created_at: string;
 };
 
-const wrapper: HTMLElement = createDiv('wrapper', 'grid grid-cols-3 items-center justify-between p-4 bg-orange-200 shadow-md');
+const wrapper: HTMLElement = createDiv('wrapper', 'grid [grid-template-columns:repeat(auto-fit,minmax(400px,1fr))] items-center justify-between p-4 bg-orange-200 shadow-md gap-4');
 const userInfo: HTMLElement = createDiv('user-info', 'flex flex-wrap order-1 text-sm text-gray-600');
 const logo: HTMLElement = createDiv('logo', 'mx-auto order-2 snap-center');
 const navLinks: HTMLUListElement = createElement('ul', 'navlinks', '', 'flex justify-end space-x-4 order-3 list-none') as HTMLUListElement;
@@ -139,7 +139,7 @@ function setAvatarLoginUserInfo(userData: UserInfo) {
 async function SetUserImg(userIcon: HTMLElement, userData: UserInfo) {
 	console.log(`user data = ` + JSON.stringify(userData));
 	const avatar: string = userData.avatar;
-	const srcImg: string = `https://localhost:4443/uploads/${avatar}`; // problem firefox https autosignate certificate 
+	const srcImg: string = `https://localhost:4443/uploads/${avatar}`;
 
 	append(userIcon, [(createImage('user', 'w-12 h-12 rounded-full object-cover object-center', srcImg) as HTMLImageElement)]);
 }

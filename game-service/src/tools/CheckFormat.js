@@ -125,6 +125,25 @@ export function    checkPlayerFormat(username)
     return (true);
 }
 
+export function    checkIdNumberFormat(id)
+{
+    const schema = 
+    {
+        type: "number",
+        minimum: 1
+    };
+    const ajv = new Ajv();
+    const contract = ajv.compile(schema);
+    const valid = contract(id);
+    if (!valid) {
+		console.error("❌ ID number format error: ");
+		console.error(contract.errors);
+        return (false);
+	}
+    return (true);
+}
+
+
 export function    checkIdFormat(id)
 {
     const schema = 
@@ -137,8 +156,11 @@ export function    checkIdFormat(id)
     const ajv = new Ajv();
     const contract = ajv.compile(schema);
     const valid = contract(id);
-    if (!valid)
-        return (false);
+    if (!valid) {
+		console.error("❌ ID string format error: ");
+		console.error(contract.errors);
+		return (false);
+	}
     return (true);
 }
 

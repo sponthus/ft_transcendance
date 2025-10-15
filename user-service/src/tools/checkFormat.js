@@ -1,5 +1,28 @@
 import Ajv from "ajv"
 
+export function    checkAnswerFormat(request)
+{
+    const schema = 
+    {
+        type: "object",
+        properties:
+        {
+            ownerSlug: { type: "string", minLength: 3, maxLength: 20, pattern: "^(?![_-])(?!.*[_-]$)(?=.*[a-z])(?![0-9_]+)[a-z0-9_-]+$"},
+            tournamentId: { type: "number", minimum: 1},
+            tournamentName: { type: "string" }, //TODO quel regex pour tournament name ?
+            answer: { type: "string",  enum: ["decline", "accept"] },
+        },
+        required: ["ownerSlug", "tournamentId", "tournamentName", "answer"],
+        additionalProperties: false
+    };
+    const ajv = new Ajv();
+    const contract = ajv.compile(schema);
+    const valid = contract(request.body);
+    if (!valid)
+        return (false);
+    return (true);
+}
+
 export function    checkRegistrationFormat(request)
 {
     const schema = 

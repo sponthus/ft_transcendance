@@ -108,9 +108,10 @@ export default class DatabaseHandler {
 		score_a, 
 		score_b, 
 		tournament_id, 
-		created_at, 
+		created_at,
+		id_user AS created_by,
 		began_at, 
-		finished_at, 
+		finished_at,
 		winner, 
 		score, 
 		ai, 
@@ -660,7 +661,7 @@ export default class DatabaseHandler {
 				};
 				return ({ ok: true, data: result });
 			});
-			const result = transaction(tournamentId, status);
+			const result = this.db.transaction(tournamentId, status); // mit this.db, ELODIE 
 			// console.debug("Result of updateTournamentStatus: ", result);
 			return (result);
 		} catch (error) {
@@ -892,6 +893,7 @@ export default class DatabaseHandler {
 						return { ok: false, ready: false, error: "Could not change tournament status because: " + changeTournamentStatus.error };
 					}
 				}
+				console.log('ICIIIIIIIIIIIIIIIIIIIIIIII :)', hasAllPlayerAccepted);
 				return ({ ok: true, ready: true, error: false, result: result, playerIds: hasAllPlayerAccepted.players, owner: hasAllPlayerAccepted.owner });
 			});
 			const result = transaction(userId, tournamentId);
@@ -917,15 +919,11 @@ export default class DatabaseHandler {
 			else {
 				let players = rows
 					.filter(row => row.has_accepted === ACCEPTED)
-					.map(row => row.name);
-				for (let i = 0; i < players.length; i++) {
-					players[i] = players[i].slice(1); // remove @
-				}
-				
-				let waitingFor = rows.filter(row => row.has_accepted !== ACCEPTED).map(row => row.name);
-				for (let i = 0; i < waitingFor.length; i++) {
-					waitingFor[i] = waitingFor[i].slice(1); // remove @
-				}
+					.map(row => row.name.slice(1));
+
+				const waitingFor = rows
+					.filter(row => row.has_accepted === WAITING)
+					.map(row => row.name.slice(1));
 				if (waitingFor.length === 0) {
 					return {ok: true, waitingFor: [], players: players};
 				}
@@ -947,7 +945,7 @@ export default class DatabaseHandler {
 		return (result);
 	}
 
-	// Test ok
+	// Test ok:
 	declineTournamentInvitation(userId, tournamentId) {
 		try {
 			const transaction = this.db.transaction((userId, tournamentId) => {
@@ -967,10 +965,7 @@ export default class DatabaseHandler {
 				let playersToNotify = getPlayerStmt
 					.all(tournamentId)
 					.filter(row => row.has_accepted === ACCEPTED || row.has_accepted === WAITING)
-					.map(row => row.name);
-				for (let i = 0; i < playersToNotify.length; i++) {
-					playersToNotify[i] = playersToNotify[i].slice(1); // remove @
-				}
+					.map(row => row.name.slice(1));
 				return { ok: true, playersToNotify: playersToNotify };
 			});
 			const result = transaction(userId, tournamentId);

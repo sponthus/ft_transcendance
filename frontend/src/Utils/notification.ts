@@ -4,6 +4,7 @@ import { append, createDiv, createButton, createImage, createAnchorElement } fro
 import { getAllNotifications, AllNotifs, getReadNotifications, getUnreadNotifications } from "../api/user-service/menu/notifications/getNotifications";
 import { markNotificationsRead } from "../api/user-service/menu/notifications/markNotificationRead";
 import { ErrorPopup } from "../pages/ErrorPage";
+import { answerTournament } from "../api/user-service/menu/notifications/tournaments";
 
 const notificationWrapper: HTMLElement = createDiv('notif-wrapper','relative flex items-center');
 let isNotificationOpen: boolean = false;
@@ -37,40 +38,73 @@ function eventCloseSearch() {
 	});
 }
 
-function acceptInvitation(acceptBtn: HTMLButtonElement, userData: UserInfo) {
-	console.log("acctp invitation of called for ", userData.username);
+function acceptFriendInvitation(acceptBtn: HTMLButtonElement, userData: UserInfo) {
 	acceptBtn.addEventListener('click', async(e) => {
 		e.stopPropagation();
 		e.preventDefault();	
 		try {
 			const req = await acceptRequest(userData.username);
 			if (req.ok) {
-				ErrorPopup("accept invitation of " + userData.username);
 				console.log("acctp invitation of ", userData.username);
 				refreshNotification();
 			}
 
 		} catch(error) {
-			ErrorPopup(error as string);
+			await ErrorPopup(error as string);
 		}
 	})
 }
 
-function declineInvitation(declineBtn: HTMLButtonElement, userData: UserInfo) {
-	console.log("acctp invitation of called for ", userData.username);
+function acceptTournamentinvitation(acceptBtn: HTMLButtonElement, tournament: AllNotifs) {
+	acceptBtn.addEventListener('click', async(e) => {
+		e.stopPropagation();
+		e.preventDefault();
+		try {
+			console.log("tournaement slug", tournament.slug);
+			const req = await answerTournament(tournament.slug, tournament.notif_tournament_id, tournament.notif_tournament_name, "accept");
+			if (req.ok) {
+				await ErrorPopup("accept tournament invitation");
+				refreshNotification();
+			}
+			else 
+				await ErrorPopup(req.error);
+		} catch(error) {
+			await ErrorPopup(error as string);
+		}
+	})
+}
+
+function declineFriendInvitation(declineBtn: HTMLButtonElement, userData: UserInfo) {
 	declineBtn.addEventListener('click', async(e) => {
 		e.stopPropagation();
 		e.preventDefault();	
 		try {
 			const req = await rejectRequest(userData.username);
 			if (req.ok) {
-				ErrorPopup("decline invitation of " + userData.username);
 				console.log("acctp invitation of ", userData.username);
 				refreshNotification();
 			}
 
-		}catch(error) {
-			ErrorPopup(error as string);
+		} catch(error) {
+			await ErrorPopup(error as string);
+		}
+	})
+}
+
+function declineTournamentInvitation(declineBtn: HTMLButtonElement, tournament: AllNotifs) {
+	declineBtn.addEventListener('click', async(e) => {
+		e.stopPropagation();
+		e.preventDefault();
+		try {
+			const req = await answerTournament(tournament.slug, tournament.notif_tournament_id, tournament.notif_tournament_name, "decline");
+			if (req.ok) {
+				await ErrorPopup("decline tournament invitation");
+				refreshNotification();
+			}
+			else 
+				await ErrorPopup(req.error);
+		} catch (error) {
+			await ErrorPopup(error as string);
 		}
 	})
 }
@@ -85,7 +119,7 @@ async function openNotification() {
 		if (req.ok)
 		return ; 
 	} catch(error) {
-		ErrorPopup(error as string);
+		await ErrorPopup(error as string);
 	}
 	// const notificationPannel = document.getElementById('notification-panel-div') as HTMLElement;
 	// setTimeout(() => {
@@ -99,7 +133,7 @@ async function closeNotification() {
 
 	(document.getElementById('sliding-notification-bar-div') as HTMLElement).className = 'absolute left-0 top-16 w-0 h-0 overflow-auto transition-all duration-300 ease-in-out bg-orange-100 rounded-xl shadow-lg border-2 border-emerald-300 opacity-0';
 
-	refreshNotification() ; 
+	refreshNotification();
 	// const notificationPannel = document.getElementById('notification-panel-div') as HTMLElement;
 	// setTimeout(() => {
 	// 	notificationPannel.className = "w-64 px-4 text-sm border-0 rounded-xl bg-transparent focus:outline-none opacity-0 transition-opacity duration-300'";
@@ -117,19 +151,27 @@ function createSlidingNotificationPan(): HTMLElement {
 
 async function fillUSerInfo(request: AllNotifs, parent: HTMLElement){
 	try {
-		const req = await getUserInfoBySlug(request.username); // replace by slug
+		const req = await getUserInfoBySlug(request.slug); // replace by slug
 		if (req.ok) {
 			userData = req.userInfo;
 			console.log("request is  = ", request.notif_type);
 			if (request.notif_type === "friend_request" && userData)
-				append(parent ,[addInvitation(userData)]);
+				append(parent ,[addInvitation(userData, null)]);
 			else if (request.notif_type === "friend_accept" && userData)
-				append(parent, [addAcceptRequest(userData)]);
+				append(parent, [addRequest(userData, `user ${userData.username} accept your friend request`)]);
 			else if (request.notif_type === "friend_reject" && userData)
-				append(parent, [addREjectRequest(userData)]);
+				append(parent, [addRequest(userData, `user ${userData.username} accept your friend request`)]);
+			else if (request.notif_type === "tournament_invite" && userData)
+				append(parent ,[addInvitation(userData, request)]);
+			else if (request.notif_type === "tournament_ready" && userData)
+				append(parent, [addRequest(userData, `tournament ${request.notif_tournament_name} is ready to play`)]);
+			else if (request.notif_type === "tournament_accept" && userData)
+				append(parent, [addRequest(userData, `user ${userData.username} accept to play tournament ${request.notif_tournament_name}`)]);
+			else if (request.notif_type === "tournament_decline" && userData)
+				append(parent, [addRequest(userData, `user ${userData.username} decline to play tournament ${request.notif_tournament_name}`)]);
 		}
 	} catch (error) {
-		ErrorPopup(error as string);
+		await ErrorPopup(error as string);
 	}
 	addNumberInvitation();
 }
@@ -152,14 +194,14 @@ async function fillReceiveRequest(parent: HTMLElement) {
 		}
 		
 	} catch (error) {
-		ErrorPopup(error as string);
+		await ErrorPopup(error as string);
 	}
 }
 
 function addUSerData(userData: UserInfo, parent: HTMLAnchorElement, textContent: string) {
-	const userIcon: HTMLElement = createDiv(`user-notification-icon-${userData.slug}`, 'flex items-center justify-center bg-orange-300 group-hover:bg-orange-400 rounded-full relative shadow-xl w-14 h-14 group-hover:shadow-lg transition-all duration-200 transform');
+	const userIcon: HTMLElement = createDiv(`user-notification-icon-${userData.slug}`, 'flex items-center justify-center bg-orange-300 group-hover:bg-orange-400 rounded-full relative shadow-xl w-[20%] aspect-square group-hover:shadow-lg transition-all duration-200 transform');
 
-	append(userIcon, [(createImage(`user-notification-${userData.slug}`, 'w-12 h-12 rounded-full object-cover object-center',  `https://localhost:4443/uploads/${userData.avatar}`) as HTMLImageElement)]);
+	append(userIcon, [(createImage(`user-notification-${userData.slug}`, ' w-[90%] aspect-square rounded-full object-cover object-center',  `https://localhost:4443/uploads/${userData.avatar}`) as HTMLImageElement)]);
 
 	const invitationTextDiv = createDiv(`invitation-text-${userData.slug}`, 'flex flex-col items-center');
 	invitationTextDiv.innerHTML = `<P class="text-emerald-600 group-hover:font-bold">${textContent}</p>`;
@@ -167,15 +209,18 @@ function addUSerData(userData: UserInfo, parent: HTMLAnchorElement, textContent:
 	append(parent, [userIcon, invitationTextDiv]);
 }
 
-function addInvitation(userdata: UserInfo) : HTMLAnchorElement {
+function addInvitation(userdata: UserInfo, tournament: AllNotifs | null) : HTMLAnchorElement {
 	const InvitationDiv: HTMLAnchorElement = createAnchorElement(`notification-${userdata.slug}`, '', `/user/${userData.slug}`, 'group flex items-center justify between w-full h-24 hover:bg-orange-200 space-x-4 shadow-xl w-14 h-14 group-hover:shadow-lg transition-all duration-200 transform');
 
-	const userIcon: HTMLElement = createDiv(`user-notification-icon-${userdata.slug}`, 'flex items-center justify-center bg-orange-300 group-hover:bg-orange-400 rounded-full relative shadow-xl w-14 h-14 group-hover:shadow-lg transition-all duration-200 transform');
+	const userIcon: HTMLElement = createDiv(`user-notification-icon-${userdata.slug}`, 'flex items-center justify-center bg-orange-300 group-hover:bg-orange-400 rounded-full relative shadow-xl w-[30%] aspect-square group-hover:shadow-lg transition-all duration-200 transform');
 
-	append(userIcon, [(createImage(`user-notification-${userdata.slug}`, 'w-12 h-12 rounded-full object-cover object-center',  `https://localhost:4443/uploads/${userdata.avatar}`) as HTMLImageElement)]);
+	append(userIcon, [(createImage(`user-notification-${userdata.slug}`, 'w-[90%] aspect-square rounded-full object-cover object-center',  `https://localhost:4443/uploads/${userdata.avatar}`) as HTMLImageElement)]);
 
+	let msg: string = `user ${userdata.username} has send you an friend invitation`;
+	if (tournament)
+		msg = `user ${userdata.username} invite you to play tournament ${tournament.notif_tournament_name}`
 	const invitationTextDiv = createDiv(`invitation-text-${userdata.slug}`, 'flex flex-col items-center');
-	invitationTextDiv.innerHTML = `<P class="text-emerald-600 group-hover:font-bold">user ${userdata.username} has send you an invitation</p>`;
+	invitationTextDiv.innerHTML = `<P class="text-emerald-600 group-hover:font-bold">${msg}</p>`;
 
 	const btnDiv = createDiv(`btn-invitation-${userdata.slug}`, 'flex items-center justify-between space-x-8') as HTMLElement;
 
@@ -186,25 +231,31 @@ function addInvitation(userdata: UserInfo) : HTMLAnchorElement {
 	
 	append(InvitationDiv, [userIcon, invitationTextDiv]);
 
-	acceptInvitation(accept, userData);
-	declineInvitation(decline, userData);
+	if (tournament) {
+		acceptTournamentinvitation(accept, tournament);
+		declineTournamentInvitation(decline, tournament);
+	}
+	else {
+		acceptFriendInvitation(accept, userData);
+		declineFriendInvitation(decline, userData);
+	}
 
 	return InvitationDiv;
 }
 
-function addAcceptRequest(userdata: UserInfo): HTMLAnchorElement {
+function addRequest(userdata: UserInfo, msg: string): HTMLAnchorElement {
 	const acceptDiv: HTMLAnchorElement = createAnchorElement(`notification-${userdata.slug}`, '', `/user/${userData.slug}`, 'group flex items-center justify between w-full h-24 hover:bg-orange-200 space-x-4 shadow-xl w-14 h-14 group-hover:shadow-lg transition-all duration-200 transform');;
 	
-	addUSerData(userData, acceptDiv, `user ${userData.username} accept your friend request`);
+	addUSerData(userData, acceptDiv, `${msg}`);
 	return acceptDiv;
 }
 
-function addREjectRequest(userdata: UserInfo): HTMLAnchorElement {
-	const rejectDiv :HTMLAnchorElement = createAnchorElement(`notification-${userdata.slug}`, '', `/user/${userData.slug}`, 'group flex items-center justify between w-full h-24 hover:bg-orange-200 space-x-4 shadow-xl w-14 h-14 group-hover:shadow-lg transition-all duration-200 transform');;
+// function addREjectRequest(userdata: UserInfo): HTMLAnchorElement {
+// 	const rejectDiv :HTMLAnchorElement = createAnchorElement(`notification-${userdata.slug}`, '', `/user/${userData.slug}`, 'group flex items-center justify between w-full h-24 hover:bg-orange-200 space-x-4 shadow-xl w-14 h-14 group-hover:shadow-lg transition-all duration-200 transform');;
 	
-	addUSerData(userData, rejectDiv, `user ${userData.username} decline your friend request`);
-	return rejectDiv;
-}
+// 	addUSerData(userData, rejectDiv, `user ${userData.username} decline your friend request`);
+// 	return rejectDiv;
+// }
 
 function createNotificationToggle(): HTMLElement {
 	const NotificationToggle: HTMLButtonElement = createButton('notification-toggle', 'group flex items-center justify-center w-10 h-10 bg-orange-200 hover:bg-orange-300 rounded-full shadow-md hover:shadow-lg transition-all duration-200 transform hover:scale-105', 'search');

@@ -5,7 +5,7 @@ type SimpleResult = Success | Failure;
 
 type TournamentInfos = {
 	tournament_id: number;
-	status: 'pending' | 'ongoing_game' | 'between_games' | 'canceled' | 'done';
+	status: 'pending' | 'ongoing_game' | 'between_games' | 'canceled' | 'done' | 'invitations';
 	name: string;
 	numberOfPlayers: number;
 	rounds: number;
@@ -16,7 +16,7 @@ type TournamentInfos = {
 
 type AllGamesInfos = {
     id: number;
-    status: 'pending' | 'ongoing' | 'finished' | 'canceled';
+    status: 'pending' | 'ongoing' | 'finished' | 'canceled' | 'invitations';
     player_a: string;
     player_b: string;
     score_a: number;
@@ -37,10 +37,6 @@ type TournamentSuccess = { ok: true; tournament: TournamentInfos }
 export type TournamentResult = TournamentSuccess | Failure;
 
 export async function createTournament(name: string, playersList: Array<string>, option: number = 1): Promise<TournamentResult> {
-	const token = localStorage.getItem("token");
-    if (!token)
-        return { ok: false, error: "No token"};
-
 	console.log('name', name, 'players list', playersList);
 
 	try {
@@ -48,8 +44,8 @@ export async function createTournament(name: string, playersList: Array<string>,
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
-				'Authorization': `Bearer ${token}`
 			},
+            credentials: 'include',
 			body: JSON.stringify({
 				name: name,
 				players: playersList,
@@ -64,12 +60,12 @@ export async function createTournament(name: string, playersList: Array<string>,
 			}
 		} else {
 			if (data.error)
-				throw new Error(data.error);
+				return { ok: false, error: data.error as string };
 			else
-				throw new Error("Unable to create tournament");
+				return { ok: false, error: "Unable to create tournament" };
 		}
 	}
-	catch(error) {
-		return {ok: false, error: error as string};
+	catch (error) {
+		return { ok: false, error: error as string };
 	}
 }
