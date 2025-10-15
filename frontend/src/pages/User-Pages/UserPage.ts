@@ -6,6 +6,7 @@ import { displayFriendlist } from './FriendListPage.js';
 import { UserBanner } from './UserBannerPage.js';
 import { DisplayeTournamentHistoryPage } from './TournamentHistoryPage.js';
 import { ErrorPopup } from '../ErrorPage.js';
+import { getUserStatus } from '../../api/session-service/getStatus.js';
 
 enum BodyState {TOURNAMENT = 0, FRIENDS = 1, HISTORY = 2};
 
@@ -33,13 +34,12 @@ export class UserPage extends BasePage {
 
 	private isOwnProfile: boolean = true;
 
+	private Statue: string; 
+
 	constructor(slug: string) {
-		// if (!state.isLoggedIn())
-		// 	navigate('/');
 		super();
-		console.log('Constructor');
 		this.slug = slug;
-		// this.slug = state!.user?.slug;
+		this.Statue = ' ​';
 	}
 	
 	async render(): Promise<void> {
@@ -62,8 +62,18 @@ export class UserPage extends BasePage {
 				this.UserData = req.userInfo;
 				if (this.slug != this.UserData.slug)
 					await this.fillUserData()
-				this.UserBanner = new UserBanner(this.UserData, this.isOwnProfile);
-				console.log(`user data = ` + JSON.stringify(this.UserData));
+				const request = await getUserStatus(this.UserData.slug);
+				if (!request.ok)
+					throw new Error(request.error);
+				else {
+					if (request.status && request.status.status === "online")
+						this.Statue = 'online 🟢​';
+					if (request.status && request.status.status === "disconnected")
+						this.Statue = 'disconnected 🔴​';
+					if (request.status && request.status.status === "playing")
+						this.Statue = 'playing 🟡​​';
+				}
+				this.UserBanner = new UserBanner(this.UserData, this.isOwnProfile, this.Statue);
 				this.StateBody = this.UserBanner._ProfileState;
 				await this.showUserPage();
 			}
@@ -113,8 +123,7 @@ export class UserPage extends BasePage {
 		this.BodyDiv.className = "bg-orange-300  bg-opacity-50 w-full h-[60%] flex items-center justify-center overflow-auto";
 		switch(this.StateBody){
 			case BodyState.TOURNAMENT:
-				await DisplayeTournamentHistoryPage(this.BodyDiv, this.UserData!);
-				// this.BodyDiv.textContent = "i'm in the profile body";
+				await DisplayeTournamentHistoryPage(this.BodyDiv, this.UserData!, this.isOwnProfile);
 				break;
 			case BodyState.FRIENDS:
 				await displayFriendlist(this.BodyDiv,this.UserData!, this.isOwnProfile);

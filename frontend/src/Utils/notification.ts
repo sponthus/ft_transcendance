@@ -158,17 +158,17 @@ async function fillUSerInfo(request: AllNotifs, parent: HTMLElement){
 			if (request.notif_type === "friend_request" && userData)
 				append(parent ,[addInvitation(userData, null)]);
 			else if (request.notif_type === "friend_accept" && userData)
-				append(parent, [addRequest(userData, `user ${userData.username} accept your friend request`)]);
+				append(parent, [addRequest(userData, `User ${userData.username} accept your friend request`)]);
 			else if (request.notif_type === "friend_reject" && userData)
-				append(parent, [addRequest(userData, `user ${userData.username} accept your friend request`)]);
+				append(parent, [addRequest(userData, `User ${userData.username} accept your friend request`)]);
 			else if (request.notif_type === "tournament_invite" && userData)
 				append(parent ,[addInvitation(userData, request)]);
 			else if (request.notif_type === "tournament_ready" && userData)
-				append(parent, [addRequest(userData, `tournament ${request.notif_tournament_name} is ready to play`)]);
+				append(parent, [addRequest(userData, `Tournament ${request.notif_tournament_name} is ready to play`)]);
 			else if (request.notif_type === "tournament_accept" && userData)
-				append(parent, [addRequest(userData, `user ${userData.username} accept to play tournament ${request.notif_tournament_name}`)]);
-			else if (request.notif_type === "tournament_decline" && userData)
-				append(parent, [addRequest(userData, `user ${userData.username} decline to play tournament ${request.notif_tournament_name}`)]);
+				append(parent, [addRequest(userData, `User ${userData.username} accept to play tournament ${request.notif_tournament_name}`)]);
+			else if (request.notif_type === "tournament_cancel" && userData)
+				append(parent, [addRequest(userData, `Tournament ${request.notif_tournament_name} has been canceled`)]);
 		}
 	} catch (error) {
 		await ErrorPopup(error as string);

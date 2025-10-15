@@ -7,6 +7,8 @@ import { createSearchBarDiv } from '../Utils/slidingSearch.js';
 import { createNotificationDiv } from '../Utils/notification.js';
 import { logoutUser } from '../api/user-service/connection/logoutUser.js';
 import { log } from 'console';
+import { ErrorPopup } from './ErrorPage.js';
+import { getUserStatus } from '../api/session-service/getStatus.js';
 
 type UserData = //VA ETRE CHANGER, le token renvoie le username et l'id du user
 {
@@ -60,7 +62,6 @@ export async function renderLoggedInBanner(banner: HTMLElement, userData: UserIn
 
 function initLogo() {
 	const logoLink: HTMLAnchorElement = createAnchorElement('logo-link', '', '/', 'text-2xl font-bold text-emerald-400 hover:text-emerald-800 transition-colors') as HTMLAnchorElement;
-		
 	const logoImg: HTMLImageElement = createImage('logo', 'mx-auto object-cover rounded-full hover:bg-emerald-600 object-center h-12 w-18  hover:shadow-lg transition-all duration-200 transform hover:scale-105', '/logo/logoIlsandWorld.png') as HTMLImageElement;
 	// logoLink.innerHTML = `<div id="particle-1" class="particle absolute w-3 h-3 bg-red-400 rounded-full"></div>
 	// 						<div id="particle-2" class="particle absolute w-3 h-3 bg-orange-400 rounded-full"></div>
@@ -118,9 +119,24 @@ function setLoginUserInfo(userData: UserInfo) {
 }
 
 async function setTextLoginUserInfo(usersForm: HTMLElement, userData: UserInfo) {
-	// const userState = createElement('h1', 'user-state', 'online 💚', '');
-	// const userName =  createElement('h1', 'user-name', `${userData.username}`, 'text-emerald-900');
-	append(usersForm, [(createElement('h1', 'user-state', 'online 💚', '') as HTMLElement)
+	let userSatus: string = 'disconnected 🔴​';
+	try {
+		const req = await getUserStatus(userData.slug);
+		if (!req.ok)
+			throw new Error(req.error);
+		else {
+			if (req.status && req.status.status === "online")
+				userSatus = 'online 🟢​';
+			if (req.status && req.status.status === "disconnected")
+				userSatus = 'disconnected 🔴​';
+			if (req.status && req.status.status === "playing")
+				userSatus = 'playing 🟡​​';
+		}
+
+	} catch(error) {
+		await ErrorPopup(error as string);
+	}
+	append(usersForm, [(createElement('h1', 'user-state', `${userSatus}`, '') as HTMLElement)
 						, (createElement('h1', 'user-name', `${userData.username}`, 'text-emerald-900') as HTMLElement)]);
 }
 
@@ -176,6 +192,7 @@ function addInBanner(banner: HTMLElement) {
 	wrapper.appendChild(navLinks);
 
 	banner.appendChild(wrapper);
+	updateResize();
 }
 
 export function updateResize() {

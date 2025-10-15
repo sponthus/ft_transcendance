@@ -5,14 +5,18 @@ import { FillHistory, fillHistoryStubborn } from './HistoryPage.js';
 import { ErrorPopup } from '../ErrorPage.js';
 import { AllNotifs, getAllNotifications } from '../../api/user-service/menu/notifications/getNotifications.js';
 import { acceptTournamentinvitation, declineTournamentInvitation } from '../../Utils/notification.js';
+import { isIfStatement } from 'typescript';
 
 let btnsMap: Map<HTMLButtonElement, HTMLElement> = new  Map<HTMLButtonElement, HTMLElement>();
 let isopen: boolean;
+let isInvite: boolean
 
-export async function DisplayeTournamentHistoryPage(Body: HTMLElement, UserData: UserInfo) {
+export async function DisplayeTournamentHistoryPage(Body: HTMLElement, UserData: UserInfo, isOwnProfile: boolean) {
 	isopen = false;
+	isInvite = false;
 	Body.className = "flex flex-col items-center bg-orange-300  bg-opacity-50 w-full h-[60%] flex overflow-auto";
-	await addInvitationTournament(Body);
+	if (isOwnProfile)
+		await addInvitationTournament(Body);
 	await AddTournaments(Body, UserData);
 }
 
@@ -23,8 +27,10 @@ async function addInvitationTournament(Body: HTMLElement) {
 			throw new Error(req.error);
 		const ReceiveRequest = req.notifs;
 		ReceiveRequest.forEach(notif => {
-			if (notif.notif_type === "tournament_invite")
+			if (notif.notif_type === "tournament_invite") {
+				isInvite = true;
 				addNotification(Body, notif)
+			}
 		})
 
 	} catch(error) {
@@ -39,7 +45,7 @@ async function addNotification(body: HTMLElement, notif: AllNotifs) {
 		if (!req.ok)
 			throw new Error(req.error);
 		UserData = req.userInfo;
-		const notifDiv: HTMLElement = createDiv('invitation', 'flex items-center h-[30%] justify-around w-full hover:scale-105 active:scale-95 hover:bg-orange-400 hover:bg-opacity-50 space-x-8 transition-all duration-300 gap-4');
+		const notifDiv: HTMLElement = createDiv('invitation', 'flex items-center h-[30%] justify-around w-full hover:bg-orange-400 hover:bg-opacity-50 space-x-8 transition-all duration-300 gap-4');
 		
 		const userIcon: HTMLElement = createDiv(`user-notification-icon-${UserData.slug}`, 'flex items-center justify-center bg-orange-300 group-hover:bg-orange-400 rounded-full shadow-xl w-[9%] aspect-square group-hover:shadow-lg transition-all duration-200 transform');
 		append(userIcon, [(createImage(`user-notification-${UserData.slug}`, 'w-[90%] aspect-square rounded-full object-cover object-center',  `https://localhost:4443/uploads/${UserData.avatar}`) as HTMLImageElement)]);
@@ -72,8 +78,8 @@ async function AddTournaments(Body: HTMLElement, UserData: UserInfo) {
 			return ;
 		}
 		const games = res.tournaments;
-		if (games.length === 0) {
-			// Body.textContent = "there is no games";
+		if (games.length === 0 && isInvite === false) {
+				Body.textContent = "there is no tournaments";
 		}
 		else {
 			fillTournamentStubborn(Body);

@@ -13,26 +13,23 @@ export class UserBanner {
 	private ProfileBanner!: HTMLElement;
 	private UserData: UserInfo;
 	private isOwnProfile!: boolean;
-	// private isRequestSent!: boolean;
-	// private isFriend!: boolean;
 	private EditProfile: EditProfile;
+	private statue: string;
 
-	constructor(UserData: UserInfo, isOwnProfile: boolean) {
-		// this.isFriend = false;
-		// this.isRequestSent = false;
+	constructor(UserData: UserInfo, isOwnProfile: boolean, statue: string) {
 		this.UserData = UserData;
 		this.isOwnProfile = isOwnProfile;
+		this.statue = statue;
 		this.StateBody = BodyState.PROFILE;
 		this.ProfileBanner = createDiv('profile-banner', "flex flex-col w-full h-[40%]");
 		this.EditProfile = new EditProfile(this.UserData);
-		// console.log("is already friend ? ", this.isFriend);
 	}
 
 	async render() {
 		this.createProfileHighBanner();
 		this.createProfileBotBanner();
 	}
-		/*************************************Functions for creating Profile Banner*************************************/
+	/*************************************Functions for creating Profile Banner*************************************/
 	private createProfileHighBanner() {
 		const HighBanner: HTMLElement = createDiv("HighBanner", "flex w-full h-[80%] justify-between p-4 bg-sky-400 bg-opacity-50 shadow-md");
 		append(HighBanner, [(this.setUserInfo() as HTMLElement)]);
@@ -61,7 +58,7 @@ export class UserBanner {
 		const userNameDiv: HTMLElement = createDiv("user-text", "flex items-center justify-between space-x-4");
 		append(userNameDiv, [(createElement('h1', 'user-name', userNameStr, "text-2xl font-bold text-emerald-700" ) as HTMLElement)]);
 
-		const ActionDiv: HTMLElement = createDiv("avatar-action", ""); // document.createElement('div');
+		const ActionDiv: HTMLElement = createDiv("avatar-action", "");
 		if (this.isOwnProfile) {
 			append(ActionDiv, [(createButton('edit-profile', "text-emerald-600 hover:font-bold border-2 border-sky-500 hover:border-sky-600 rounded-lg w-32 ", "Edit profile") as HTMLButtonElement)])
 			this.EditProfile.render(userNameDiv, "edit-username")
@@ -69,6 +66,7 @@ export class UserBanner {
 		UserTextDiv.appendChild(userNameDiv);
 		if (this.isOwnProfile)
 			UserTextDiv.appendChild(ActionDiv);
+		append(UserTextDiv, [(createElement('h1', 'user-name', this.statue , "w-32 font-bold text-emerald-700" ) as HTMLElement)]);
 		return UserTextDiv;
 	}
 
@@ -117,12 +115,12 @@ export class UserBanner {
 		const BotBanner: HTMLElement = createDiv('BotBanner', "flex items-center justify-center bg-sky-500 bg-opacity-50 shadow-md w-full h-[20%] font-sans");
 		append(BotBanner, [(createButton("FriendList", "flex items-center justify-center h-full w-1/6 hover:text-emerald-700 hover:font-bold text-emerald-600 text-center text-2xl", "Friends") as HTMLButtonElement)
 							,(createButton("History", "flex items-center justify-center h-full w-1/6 hover:text-emerald-700 hover:font-bold text-emerald-600 text-center text-2xl", "History") as HTMLButtonElement)
-							,(createButton("tournament", "flex items-center justify-center h-full w-1/6 hover:text-emerald-700 hover:font-bold text-emerald-700 font-bold text-center text-2xl", 		"tournament") as HTMLButtonElement)]);
+							,(createButton("Tournament", "flex items-center justify-center h-full w-1/6 hover:text-emerald-700 hover:font-bold text-emerald-700 font-bold text-center text-2xl", "Tournament") as HTMLButtonElement)]);
 		return BotBanner; 
 	}
 
 	async botBannerEvents() {
-		const Profile = document.getElementById("tournament-btn") as HTMLButtonElement;
+		const Profile = document.getElementById("Tournament-btn") as HTMLButtonElement;
 		const Friends = document.getElementById("FriendList-btn") as HTMLButtonElement;
 		const History = document.getElementById("History-btn") as HTMLButtonElement;
 
