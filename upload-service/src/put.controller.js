@@ -64,7 +64,6 @@ export async function uploadAvatar(request, reply) {
 
                 // Écrit le fichier après validation
                 fs.writeFileSync(filePath, buffer);
-
                 console.log(`✅ Avatar uploaded for user: ${slug}`);
                 return reply.send({ avatar: fileName });
 
@@ -76,4 +75,15 @@ export async function uploadAvatar(request, reply) {
     }
 
     return reply.code(400).send({ error: "No avatar file uploaded" });
+}
+
+function changeImageName(newName, lastName)
+{
+    // Récupère l’extension du fichier d’origine
+    const ext = path.extname(lastName).toLowerCase();
+
+    // Construit le nouveau nom
+    const newFileName = `${newName}${ext}`;
+    
+    return newFileName;
 }
