@@ -39,6 +39,18 @@ export class HomePage extends BasePage {
 		else
 			alert(req.error);*/
 		
+		/*const width = 600; --> POP UP POUR GITHUB SIGN IN 
+  		const height = 700;
+  		const left = window.screenX + (window.innerWidth - width) / 2;
+  		const top = window.screenY + (window.innerHeight - height) / 2;
+
+		const popup = window.open(
+    	"http://localhost:5173/api/user/oauth/github", // ton endpoint backend
+    	"GitHub Login",
+    	`width=${width},height=${height},top=${top},left=${left}`
+  		);*/
+
+
 	await this.addInApp();
 	}
 

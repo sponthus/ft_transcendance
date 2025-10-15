@@ -20,7 +20,7 @@ export default async function registerUser(request, reply)
                                         FROM \
                                             users \
                                         WHERE \
-                                            username = ? COLLATE NOCASE').get(username);
+                                            username = ?').get(username);
     if (existingUser) ////get renvoie soit un objet sur la cmd au dessus ou un undefined
         return reply.code(409).send({error: "Username already exist"});
 
