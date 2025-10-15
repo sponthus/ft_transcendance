@@ -1,7 +1,8 @@
 /// <reference types="vite/client" />
 import Ajv, { ErrorObject } from "ajv";
 import { ErrorPopup } from "../pages/ErrorPage.js"; 
-import { kMaxLength } from "buffer";
+import { navigate } from "./router.js";
+import { logoutUser } from "../api/user-service/connection/logoutUser.js";
 
 export interface WebSocketMessage {
 	type: string;
@@ -148,24 +149,9 @@ export class GameSocket {
 	private heartbeatInterval: number | null = null;
     private heartbeatTimeout: number | null = null;
     private pingInterval: number = 30000; // every 30s sends a ping
-    private pongInterval: number = 5000; // 5s to recieve back pong
-	private playing: boolean = false;
-
-	private reconnectAttempts: number = 0;
-	private maxReconnectAttempts: number = 5;
-	private reconnectDelay: number = 5000; // 5 seconds
-	private shouldAttemptReconnect: boolean = true;
-
-	// Call this when the game actually starts
-	public setPlaying(state: boolean) {
-		this.playing = state;
-	}
+    private pongInterval: number = 10000; // 10s to recieve back pong
 
 	constructor(gameId: number) {
-		// if (!gameId || gameId == 0) {
-		// 	// TODO make me an error
-		// 	await ErrorPopup("No gameID provided");
-		// }
 		try {
 			if (!gameId || gameId == 0)
 				throw new Error('No gameID provided');
@@ -196,7 +182,7 @@ export class GameSocket {
         }
 
         this.ws.onopen = () => {
-            console.log("Connected to WebSocket server");
+            console.log("Connected to WebSocket Game server");
             this.authenticate();
             this.startHeartbeat();
         };
@@ -220,15 +206,26 @@ export class GameSocket {
         };
 
         this.ws.onerror = (error) => {
-            console.error("Error WebSocket:", error);
+            console.error("Error Game WebSocket:", error);
         };
 
-        this.ws.onclose = (event) => {
-            console.log("Connexion WebSocket closed");
+        this.ws.onclose = async (event) => {
+            console.log(`Connexion to Game WebSocket closed with code ${event.code} and reason: ${event.reason}`);
             this.stopHeartbeat();
-			// alert(event.code);
-			if (this.playing === true && event.code !== 1000 && this.shouldAttemptReconnect === true)
-				this.reconnect();
+			if (event.code == 4002) {
+				console.error("Websocket closed due to authentication error");
+				await logoutUser();
+				await ErrorPopup("Authentication error, please log in again");
+				navigate('/login');
+			}
+			else if (event.code == 4003) {
+				console.error("WebSocket closed due to authentication failure");
+				await logoutUser();
+				await ErrorPopup("Session expired, please log in again");
+				navigate('/login');
+			} else {
+				await ErrorPopup("Disconnected from game server");
+			}
         };
     }
 
@@ -236,7 +233,7 @@ export class GameSocket {
         console.log("Starting heartbeat");
         this.heartbeatInterval = window.setInterval(() => {
             if (this.ws?.readyState === WebSocket.OPEN) {
-                console.log("Ping sent to server");
+                console.log("Game ping sent to server");
                 this.send(JSON.stringify({type: 'ping'}));
                 this.heartbeatTimeout = window.setTimeout(() => {
                     console.error("No pong recieved, closing connection");
@@ -265,7 +262,7 @@ export class GameSocket {
         if (this.ws && this.isOpen())
             this.ws.send(data);
         else
-            console.error("WebSocket is not open to send data", data);
+            console.error("Game WebSocket is not open to send data", data);
     }
 
 	private authenticate() {
@@ -282,9 +279,6 @@ export class GameSocket {
 			this.clearHeartbeatTimeout();
 			return;
 		}
-		if (data.type === 'auth_success') {
-			this.reconnectAttempts = 0;
-		}
     }
 
 	public isOpen(): boolean {
@@ -293,37 +287,8 @@ export class GameSocket {
         return this.ws.readyState === WebSocket.OPEN;
     }
 
-	public reconnect(): void {
-		if (this.reconnectAttempts >= this.maxReconnectAttempts) {
-			console.error("Max reconnect attempts reached. Giving up.");
-			this.shouldAttemptReconnect = false;
-			this.close(3000, "Max reconnect attempts reached");
-			return;
-		}
-		this.reconnectAttempts++;
-		console.log("Reconnecting to WebSocket server...");
-		this.stopHeartbeat();
-		const reconnectInterval = setInterval(() => {
-			if (!this.isOpen()) {
-				try {
-					console.log("Attempting to reconnect...");
-					this.ws = new WebSocket(this.getGameWsUrl());
-					this.setupEventListeners();
-					this.startHeartbeat();
-					clearInterval(reconnectInterval);
-				} catch (error) {
-					console.error("Reconnection attempt failed:", error);
-				}
-			} else {
-				clearInterval(reconnectInterval);
-			}
-		}, this.reconnectDelay);
-		this.ws.close();
-	}
-
     public close(code: number = -1, reason: string = ""): void {
         this.stopHeartbeat();
-		this.shouldAttemptReconnect = false;
         if (!this.ws)
             return;
         if (code > 0 && reason.length > 0)

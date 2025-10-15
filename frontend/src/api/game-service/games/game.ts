@@ -16,6 +16,7 @@ type PendingGamesInfos = {
     player_a: string;
     player_b: string;
     created_at: string;
+	created_by: string;
 	ai: number;
 	option: number;
 }
@@ -29,6 +30,7 @@ export type AllGamesInfos = {
     score_b: number;
     tournament_id: number;
     created_at: string;
+	created_by: string;
     began_at: string;
     finished_at: string;
     winner: string;
@@ -137,6 +139,7 @@ export async function getAvailableGames(slug: string): Promise<AvailableGamesRes
                 player_a: game.player_a,
                 player_b: game.player_b,
                 created_at: game.created_at,
+				created_by: game.created_by,
 				ai: game.ai,
 				option: game.option
             }));
@@ -167,6 +170,7 @@ export async function getFinishedGames(slug: string): Promise<AllGamesResult> {
                 player_b: game.player_b,
 				winner: game.winner,
                 created_at: game.created_at,
+				created_by: game.created_by,
 				began_at: game.began_at,
 				finished_at: game.finished_at,
 				score_a: game.score_a,
@@ -190,7 +194,7 @@ export async function getFinishedGames(slug: string): Promise<AllGamesResult> {
 // Security : Accessible for every logged-in user
 export async function getAllGames(slug: string): Promise<AllGamesResult> {
     if (!slug) {
-        return { ok: false, error: 'Slugis required' };
+        return { ok: false, error: 'Slug is required' };
     }
     try {
         const response = await fetch(`/api/games/${slug}/games`, {
@@ -200,11 +204,15 @@ export async function getAllGames(slug: string): Promise<AllGamesResult> {
         });
 
         if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+			const data = await response.json();
+			if (data?.error)
+				return { ok: false, error: data.error as string };
+			else
+            	return { ok: false, error: "Unable to get games" };
         }
 
         const games: AllGamesInfos[] = await response.json();
-
+		console.log(games);
         return { ok: true, games: games };
 
     } catch (error) {

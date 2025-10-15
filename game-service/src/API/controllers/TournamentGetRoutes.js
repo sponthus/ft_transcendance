@@ -38,25 +38,37 @@ export async function getTournamentsForSlug(request, reply) {
 		}
 		console.log(`Found ${tournaments.length} tournaments for user ${userId}`);
 		// console.debug(tournaments); // To show the found data
+
+		let idsDict = new Map();
 		for (let tournament of tournaments) {
 			if (tournament.created_by) {
-				const creatorId = tournament.created_by;
-				const creatorName = await getUserInfoFromId(creatorId);
-				if (!creatorName.ok || !creatorName.infos || !creatorName.infos.slug || creatorName.infos.slug == undefined) {
-					console.error("❌ Player slug not found: ", creatorId);
-					return reply.code(404).send({ error: `Player not found.`});
+				const creatorId = Number(tournament.created_by);
+				if (idsDict.has(creatorId) === true) {
+					tournament.created_by = `@${idsDict.get(creatorId)}`;
 				} else {
-					tournament.created_by = `@${creatorName.infos.slug}`;
+					const creatorName = await getUserInfoFromId(creatorId);
+					if (!creatorName.ok || !creatorName.infos || !creatorName.infos.slug || creatorName.infos.slug == undefined) {
+						console.error("❌ Player slug not found: ", creatorId);
+						return reply.code(404).send({ error: `Player not found.`});
+					} else {
+						idsDict.set(creatorId, creatorName.infos.slug);
+						tournament.created_by = `@${idsDict.get(creatorId)}`;
+					}
 				}
 			}
 			if (tournament.winner && tournament.winner[0] === '@') {
-				const winnerId = tournament.winner.slice(1);
-				const winnerName = await getUserInfoFromId(winnerId);
-				if (!winnerName.ok || !winnerName.infos || !winnerName.infos.slug || winnerName.infos.slug == undefined) {
-					console.error("❌ Player slug not found: ", winnerId);
-					return reply.code(404).send({ error: `Player not found.`});
+				const winnerId = Number(tournament.winner.slice(1));
+				if (idsDict.has(winnerId) === true) {
+					tournament.winner = `@${idsDict.get(winnerId)}`;
 				} else {
-					tournament.winner = `@${winnerName.infos.slug}`;
+					const winnerName = await getUserInfoFromId(winnerId);
+					if (!winnerName.ok || !winnerName.infos || !winnerName.infos.slug || winnerName.infos.slug == undefined) {
+						console.error("❌ Player slug not found: ", winnerId);
+						return reply.code(404).send({ error: `Player not found.`});
+					} else {
+						idsDict.set(winnerId, winnerName.infos.slug);
+						tournament.winner = `@${idsDict.get(winnerId)}`;
+					}
 				}
 			}
 		}

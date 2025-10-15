@@ -56,8 +56,8 @@ export default class WebSocketManager {
 				}
 			});
 
-			ws.on('close', () => {
-                console.log('🔴 Connection closed');
+			ws.on('close', (event) => {
+                console.log(`🔴 Connection closed with code ${event.code} and reason: ${event.reason}`);
                 this.handleDisconnexion(ws);
             });
 
@@ -134,7 +134,8 @@ export default class WebSocketManager {
 
 	async watchDelog() {
 		while (true) {
-			try { 
+			try {
+				console.log("Checking for users to delog...");
 				this.checkDelog();
 			} catch (error) {
 				console.error("Error in watchDelog:", error);
@@ -401,7 +402,7 @@ export default class WebSocketManager {
 					type: 'message',
 					sender: sender,
 					message: message}) == true) {
-				console.log(`Message sent to user ${userId}:`, message);
+				// console.log(`Message sent to user ${userId}:`, message);
 				return 0;
 			} else {
 				return 3; // Error sending, impossible without error because user is connected

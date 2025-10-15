@@ -1,11 +1,13 @@
+import { notifyRefresh } from "../../../internal-service/notifyRefresh.js";
+
 export async function addTournamentNotif (request, reply)
 {
-    console.log("TOURNAMENNNTTT BOTIF ICI");
+    console.debug("TOURNAMENT NOTIF HERE");
     const   db = request.server.db;
     const   { type, receiverId, senderId, tournamentId, tournamentName } = request.body;
    
-    console.log('request.body :', request.body);
-    console.log('request.body type :', typeof request.body);
+    console.debug('request.body :', request.body);
+    console.debug('request.body type :', typeof request.body);
     try
     {
         let receiverIds;
@@ -22,8 +24,9 @@ export async function addTournamentNotif (request, reply)
                 addNotif(db, id, senderId, type, tournamentId, tournamentName);
             }
         });
-        console.log(type)
+        console.debug(type)
         addNotifTournament(type, receiverIds, senderId, tournamentId, tournamentName);
+		notifyRefresh(receiverIds, tournamentId, type);
       /*  await Promise.all(receiverIds.map(async (id) => //.map parcout chaque id
             {
                 const result = await notifyRefresh(id, username.username, type);
