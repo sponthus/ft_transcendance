@@ -3,7 +3,7 @@ import { createDiv, createElement, createButton, createFormDiv, append, createIn
 import { modifyUserAvatar } from "../../api/user-service/user";
 import { updateUsername } from "../../api/user-service/user-info/updateUsername.js";
 import { getUserInfo } from '../../api/user-service/user-info/getUserInfo.js';
-import { uploadAvatar } from "../../api/avatar.js";
+import { upload } from "../../api/avatar.js";
 import { navigate } from '../../core/router.js';
 import { ErrorPopup } from '../ErrorPage.js';
 
@@ -253,7 +253,7 @@ export class EditProfile extends popUp {
 		console.log(`sending file: ${file}`);
 		
 		// Makes 2 requests : upload to upload service + change avatar in user db
-		const req = await uploadAvatar(formData);
+		const req = await upload(formData);
 		if (req.ok) {
 			await ErrorPopup("Avatar updated successfully!");
 			const pathReq = await modifyUserAvatar(this.UserData.slug, req.avatar);

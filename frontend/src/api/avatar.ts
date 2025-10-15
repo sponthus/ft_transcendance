@@ -8,7 +8,6 @@ export type AvatarUploadResult = AvatarUploadSuccess | Failure;
 // POST /api/user/:slug to upload a new  file to the system
 export async function upload(formData: FormData): Promise<AvatarUploadResult> {
 
-    // TODO = Check the file here ?
     // for (const [key, value] of formData.entries()) {
     //     console.log(`${key}:`, value);
     // } // Debug
