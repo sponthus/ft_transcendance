@@ -92,7 +92,7 @@ fastify.decorate("authenticate_2fa", async function (request, reply)
         if (!result.valid)
             return reply.code(401).send({ error: "Invalid cookie" });
         request.user = await fastify.jwt.verify(result.value);
-        console.log("Decoded token 2fa :", request.user);
+        // console.debug("Decoded token 2fa : ", request.user);
         if (request.user.twofa_pending === false)
             return reply.code(401).send({ error: "only tmp token" });
     } 
@@ -114,8 +114,7 @@ fastify.decorate("authenticate", async function (request, reply)
     //TODO PENSEZ A VERIFIER SI LE USER EXISTE ET LE RESTE DES TABLLES ?
     try 
     {
-        // console.debug("⚡️⚡️⚡️⚡️⚡️⚡️ ⚡️⚡️⚡️⚡️⚡️⚡️ ");
-		// console.debug("\nToken dans le user-service avant unsign cookie : -" + request.cookies.token + "-");
+        // console.debug("\nToken dans le user-service avant unsign cookie : -" + request.cookies.token + "-");
         const result = fastify.unsignCookie(request.cookies.token); //verifie manuellement signature cookie
         if (!result.valid)
             return reply.code(401).send({ error: "Invalid cookie" });
@@ -131,9 +130,10 @@ fastify.decorate("authenticate", async function (request, reply)
 		const expThreshold = 900; // 15 minutes * 60s
 		if (request.user.exp - now < expThreshold) {
 			refreshToken(fastify, request.user, reply);
+			// console.debug("⚡️⚡️⚡️⚡️⚡️⚡️ Refreshed token ⚡️⚡️⚡️⚡️⚡️⚡️ ");
 		} 
 		// else {
-		// 	console.debug("Token still valid, no need to refresh");
+		// 	console.debug("⚡️⚡️⚡️⚡️⚡️⚡️ Token still valid, no need to refresh ⚡️⚡️⚡️⚡️⚡️⚡️");
 		// }
 	}
 	catch (err)

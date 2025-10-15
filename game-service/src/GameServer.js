@@ -114,8 +114,8 @@ export default class GameServer {
 		let tick = 0;
 		let action = 2; // 0 = UP, 1 = DOWN, 2 = STILL (default 1st action)
         let ticks_per_decision = Math.floor(1 / 0.016);
-		console.log("Ticks per decision : ");
-		console.log(ticks_per_decision);
+		// console.debug("Ticks per decision : ");
+		// console.debug(ticks_per_decision);
 		this.intervalId = setInterval(() => {
 			// console.log("Tick ", tick);
 			// Appliquer les inputs pour déplacer le paddle
