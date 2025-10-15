@@ -77,13 +77,11 @@ export async function changeUserStatus(request, reply) {
 			status = "online";
 		else if (actualStatus == "disconnected")
 			return reply.status(200).send({ userId: userId, status: actualStatus });
-		else if (actualStatus == "connected")
+		else if (actualStatus == "online")
 			return reply.status(200).send({ userId: userId, status: actualStatus });
 	} else if (status == "playing") {
 		if (actualStatus == "online")
 			status = "playing";
-		else if (actualStatus == "online")
-			return reply.status(200).send({ userId: userId, status: actualStatus });
 		else if (actualStatus == "disconnected") {
 			console.error('❌ User is disconnected, he cannot be playing.');
 			return reply.status(500).send({ error: 'Player is disconnected, he cannot play'});
