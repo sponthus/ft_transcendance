@@ -27,7 +27,7 @@ export class Score {
 		// plane pour mesh
 		this._bobSpeak = MeshBuilder.CreatePlane("textPlane", { size: 4 }, this._scene);
 		this._bobSpeak.parent = this._bullBob;
-		this._bobSpeak.position = new Vector3(-2, 1.8, -0.1); // décalé au-dessus de ton mesh
+		this._bobSpeak.position = new Vector3(0, 0, -0.1); // décalé au-dessus de ton mesh
 		this._bobSpeak.rotation = new Vector3(0, Math.PI, 0); // 180° sur Y
 		// GUI sur le plane
 		this._advancedTextureBob = AdvancedDynamicTexture.CreateForMesh(this._bobSpeak);
@@ -98,29 +98,30 @@ export class Score {
 	// }
 
 	private _phrases: string[] = [
-    "Il y a combien au score Patrick ?",
-    "C’est moi ou il triche lui ?",
-    "Passe la balle, cousin !",
-    "On est là pour gagner hein !",
+    "What's the score Patrick ?",
+    "He's a cheater right ?",
+    "Pass the ball cousin !",
+    "We are here to win !",
 	"PATRIIICK !!!!",
-	"Je suis un glouton Barjot !",
-	"T'aurais pas vu Garry ?",
-	"Le perdant finis en paté de crab !",
-	"On se fait chier nan ?",
-	"Crabméhaméha !!"
+	"I'm a Goofy Goober 🎵",
+	"Have you seen Garry ?",
+	"Krabby patty 🎵 !",
+	"Boring, right ?",
+	"Crabmehameha !!",
+	" La🎵lala🎵🎵.. "
 	];
 
 	private _goalBob: string[] = [
-    "MAMAMILLA, QUEL BUT !",
+    "MAMMA MIA, WHAT A GOAL!",
     "OMYGOD!",
-    "CHE PASSSSOOOOO !",
-    "C'EST DU JAMAIS VU !",
+    "CHE PASSOOOOO !",
+    "UNPRECEDENTED !",
 	"ROCRABDO !",
-	"Et 1, ET 2, Et 3 ZERO !",
-	"L'HUMILIATION",
-	"AHA, QU'IL EST NULL !",
+	"1, 2 AND 3 ZERO🎵!",
+	"HUMILIATION",
+	"AHA, HE SUCKS!",
 	"POPOPO !",
-	"UNE DECULOTE !"
+	"WOW"
 	];
 	
 }

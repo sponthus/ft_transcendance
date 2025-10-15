@@ -1,6 +1,7 @@
 import Fastify from "fastify";
 import multipart from "@fastify/multipart"; // Allows multipart API requests (ie : images)
 import fastifyJwt from '@fastify/jwt';
+import fastifyCookie from "@fastify/cookie";
 import { fileURLToPath } from "url"; // Transforms ESM paths to system paths
 import path from 'path'; // utilities for working with file and directory paths
 import env from "../config/env.js";
@@ -39,17 +40,40 @@ else {
 	console.log("App launched in development mode");
 }
 
+fastify.register(fastifyCookie,
+{
+	secret: getSecret('cookie_key')
+});
+
 await fastify.register(multipart);
 console.log(`multipart loaded`);
 
 console.log('Parameters for app are being set'); // debug
 
-fastify.decorate("authenticate", async function (request, reply) {
-    try {
-        await request.jwtVerify();
-    } catch (err) {
-        console.error("JWT error:", err);
-        reply.send(err);
+fastify.decorate("authenticate", async function (request, reply)
+{
+    try 
+    {
+        // console.debug("\nToken dans le user-service avant unsign cookie : -" + request.cookies.token + "-");
+        const result = fastify.unsignCookie(request.cookies.token); //verifie manuellement signature cookie
+        if (!result.valid)
+            return reply.code(401).send({ error: "Invalid cookie" });
+        // console.debug("\nToken dans le user-service : " + result.value + "-");
+        request.user = await fastify.jwt.verify(result.value); //Décode et verifie le token et stock ses infos dans request
+        // console.debug("Decoded token:", request.user);
+        if (request.user.twofa_pending === true)
+            return reply.code(401).send({ error: "2FA required" });
+    } 
+    catch (err)
+    {
+        if (err.message === "Authorization token expired")
+        {
+            return reply.code(401).send({error : err.message});
+        }
+        else
+        {
+            return reply.code(400).send({error : err.message});
+        }
     }
 });
 

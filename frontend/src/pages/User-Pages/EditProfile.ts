@@ -3,7 +3,7 @@ import { createDiv, createElement, createButton, createFormDiv, append, createIn
 import { modifyUserAvatar } from "../../api/user-service/user";
 import { updateUsername } from "../../api/user-service/user-info/updateUsername.js";
 import { getUserInfo } from '../../api/user-service/user-info/getUserInfo.js';
-import { uploadAvatar } from "../../api/avatar.js";
+import { upload } from "../../api/avatar.js";
 import { navigate } from '../../core/router.js';
 import { ErrorPopup } from '../ErrorPage.js';
 
@@ -229,13 +229,31 @@ export class EditProfile extends popUp {
 			}
 			
 		const file = input.files[0];
+
+		// Vérifie que le fichier est bien un vrai JPEG (lecture des 3 premiers octets)
+  		const headerBuffer = await file.slice(0, 3).arrayBuffer();
+		const bytes = new Uint8Array(headerBuffer);
+		// Signature JPEG : 0xFF 0xD8 0xFF
+  		if (bytes[0] !== 0xFF
+			&& bytes[1] !== 0xD8
+			&& bytes[2] !== 0xFF)
+			{
+				ErrorPopup("File is not jpg");
+				return;
+			}
+		const maxSizeBytes = 5 * 1024 * 1024;
+		if (file.size > maxSizeBytes)
+    	{
+				ErrorPopup("File is more than 5GB");
+				return;
+		}
 		
 		const formData = new FormData();
 		formData.append('avatar-input', file);
 		console.log(`sending file: ${file}`);
 		
 		// Makes 2 requests : upload to upload service + change avatar in user db
-		const req = await uploadAvatar(this.UserData.slug, formData);
+		const req = await upload(formData);
 		if (req.ok) {
 			await ErrorPopup("Avatar updated successfully!");
 			const pathReq = await modifyUserAvatar(this.UserData.slug, req.avatar);
