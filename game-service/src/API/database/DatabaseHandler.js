@@ -592,23 +592,22 @@ export default class DatabaseHandler {
 		SET status = ?
 		WHERE id = ?
 			`);
-			if (status == "ongoing_game") {
-				// console.debug("Maybe tournament is beginning ?");
-				const getTournamentStmt = this.db.prepare(`
-		SELECT status
-		FROM tournaments
-		WHERE id = ?
+			console.debug("Maybe tournament is beginning ?");
+			const getTournamentStmt = this.db.prepare(`
+	SELECT status
+	FROM tournaments
+	WHERE id = ?
+			`);
+			const tournament = getTournamentStmt.get(tournamentId);
+			console.debug("tournament = ", tournament);
+			if (tournament.status == "pending") {
+				console.debug("Tournament is pending, setting began_at...");
+				const updateBeganAtStmt = this.db.prepare(`
+	UPDATE tournaments 
+	SET began_at = CURRENT_TIMESTAMP
+	WHERE id = ?
 				`);
-				const tournament = getTournamentStmt.get(tournamentId);
-				// console.debug("tournament = ", tournament);
-				if (tournament.status === "pending") {
-					const updateBeganAtStmt = this.db.prepare(`
-		UPDATE tournaments 
-		SET began_at = CURRENT_TIMESTAMP
-		WHERE id = ?
-					`);
-					updateBeganAtStmt.run(tournamentId);		
-				}
+				updateBeganAtStmt.run(tournamentId);		
 			}
 			const res = updateStatusStmt.run(status, tournamentId);
 			if (res.changes === 0) {
@@ -625,43 +624,10 @@ export default class DatabaseHandler {
 		// console.debug("Updating tournament ", tournamentId, " to status ", status);
         try {
 			const transaction = this.db.transaction((tournamentId, status) => {
-				const getTournamentStmt = this.db.prepare(`
-		SELECT status
-		FROM tournaments
-		WHERE id = ?
-				`);
-				const tournament = getTournamentStmt.get(tournamentId);
-				
-				let updateStatusStmt = null;
-				if (tournament.status === "pending") {
-					// console.debug("Tournament is pending, setting began_at...");
-					updateStatusStmt = this.db.prepare(`
-		UPDATE tournaments 
-		SET status = ?, began_at = CURRENT_TIMESTAMP
-		WHERE id = ?
-					`);
-					// console.debug("Running update stmt...");
-					const res = updateStatusStmt.run(status, tournamentId);
-					// console.debug("Update stmt run, res = ", res);
-					if (res.changes === 0) {
-						// console.debug("Error in updateTournamentStatus: No tournament found with the given tournamentId");
-						throw new Error("No tournament found with the given tournamentId");
-					}
-				} 
-				else {
-					const update = this.updateTournamentStatusLogic(tournamentId, status);
-					if (!update.ok) {
-						// console.debug("Error in updateTournamentStatus: ", update.error);
-						throw new Error(update.error);
-					}
-				}
-				const result = {
-					tournamentId: tournamentId,
-					status: status
-				};
-				return ({ ok: true, data: result });
+				const result = this.updateTournamentStatusLogic(tournamentId, status);
+				return (result);
 			});
-			const result = this.db.transaction(tournamentId, status); // mit this.db, ELODIE 
+			const result = transaction(tournamentId, status);
 			// console.debug("Result of updateTournamentStatus: ", result);
 			return (result);
 		} catch (error) {
@@ -921,7 +887,9 @@ export default class DatabaseHandler {
 					.filter(row => row.has_accepted === ACCEPTED)
 					.map(row => row.name.slice(1));
 
-				const waitingFor = rows.filter(row => row.has_accepted === WAITING).map(row => row.name.slice(1));
+				const waitingFor = rows
+					.filter(row => row.has_accepted === WAITING)
+					.map(row => row.name.slice(1));
 				if (waitingFor.length === 0) {
 					return {ok: true, waitingFor: [], players: players};
 				}

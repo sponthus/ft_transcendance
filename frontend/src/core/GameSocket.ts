@@ -151,6 +151,8 @@ export class GameSocket {
     private pingInterval: number = 30000; // every 30s sends a ping
     private pongInterval: number = 10000; // 10s to recieve back pong
 
+	public playing: boolean = false;
+
 	constructor(gameId: number) {
 		try {
 			if (!gameId || gameId == 0)
@@ -166,6 +168,10 @@ export class GameSocket {
 		}
     }
 
+	public setPlaying(playing: boolean) {
+		this.playing = playing;
+	}
+	
 	private getGameWsUrl(): string {
         console.log(import.meta.env?.MODE);
         const status = import.meta.env?.MODE;
@@ -223,7 +229,7 @@ export class GameSocket {
 				await logoutUser();
 				await ErrorPopup("Session expired, please log in again");
 				navigate('/login');
-			} else {
+			} else if (this.playing === true) {
 				await ErrorPopup("Disconnected from game server");
 			}
         };
