@@ -348,7 +348,7 @@ export default class DatabaseHandler {
 						statusValue = ACCEPTED;
                 	playerResult = createTournamentPlayerStmt.run(tournamentId, player, statusValue);
 				} else {
-					playerResult = createTournamentPlayerStmt.run(tournamentId, player, 0);
+					playerResult = createTournamentPlayerStmt.run(tournamentId, player, NO_NEED);
 				}
 				playersResult.push(playerResult.lastInsertRowid);
             }
@@ -921,7 +921,9 @@ export default class DatabaseHandler {
 					.filter(row => row.has_accepted === ACCEPTED)
 					.map(row => row.name.slice(1));
 
-				const waitingFor = rows.filter(row => row.has_accepted === WAITING).map(row => row.name);
+				const waitingFor = rows
+					.filter(row => row.has_accepted === WAITING)
+					.map(row => row.name.slice(1));
 				if (waitingFor.length === 0) {
 					return {ok: true, waitingFor: [], players: players};
 				}
@@ -960,7 +962,7 @@ export default class DatabaseHandler {
 	FROM tournament_players
 	WHERE tournament_id = ?
 				`);
-				const playersToNotify = getPlayerStmt
+				let playersToNotify = getPlayerStmt
 					.all(tournamentId)
 					.filter(row => row.has_accepted === ACCEPTED || row.has_accepted === WAITING)
 					.map(row => row.name.slice(1));
