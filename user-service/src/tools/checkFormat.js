@@ -9,7 +9,7 @@ export function    checkAnswerFormat(request)
         {
             ownerSlug: { type: "string", minLength: 3, maxLength: 20, pattern: "^(?![_-])(?!.*[_-]$)(?=.*[a-z])(?![0-9_]+)[a-z0-9_-]+$"},
             tournamentId: { type: "number", minimum: 1},
-            tournamentName: { type: "string" }, //TODO quel regex pour tournament name ?
+            tournamentName: { type: "string", minimum: 3, maximum: 30, pattern: "^(?![=+\\-@])(?![ _-])(?!.*[ _-]$)(?!^[ _-]+$)(?!.*[\\r\\n\\t])(?=.*[A-Za-zÀ-ÖØ-öø-ÿ0-9])[A-Za-zÀ-ÖØ-öø-ÿ0-9 _-]+$" },
             answer: { type: "string",  enum: ["decline", "accept"] },
         },
         required: ["ownerSlug", "tournamentId", "tournamentName", "answer"],
@@ -121,9 +121,9 @@ export function    checkNicknameFormat(request)
             nickname: { type: "string", minLength: 3, maxLength: 15, pattern: "^(?=.*[a-zA-Z])[^\\[\\]{}();]+$"}, //autoriser chiffre et certain char speciaux
         },
         required: ["nickname"],
-        additionalProperties: false //si autre chose dans properties que nickname --> refuse
+        additionalProperties: false
     };
-    const ajv = new Ajv(); //le mettre ailleurs pour eco du CPU ?
+    const ajv = new Ajv();
     const contract = ajv.compile(schema);
     const valid = contract(request.body);
     if (!valid)

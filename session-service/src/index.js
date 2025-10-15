@@ -74,15 +74,26 @@ fastify.decorate("authenticate", async function (request, reply)
 		const internalApiKey = request.headers['x-internal-api-key'];
 		if (internalApiKey && internalApiKey === getSecret('api_key')) {
 			return;
-	}
-		// Check external JWT token from users and store their infos in request.user
-		await request.jwtVerify();
-		// console.log("Decoded token:", request.user);
+		}
+		else {
+			const result = fastify.unsignCookie(request.cookies.token); //verifie manuellement signature cookie
+			if (!result.valid)
+				return reply.code(401).send({ error: "Invalid cookie" });
+			request.user = await fastify.jwt.verify(result.value);
+			if (request.user.twofa_pending === true)
+				return reply.code(401).send({ error: "2FA required" });
+		}
 	} 
 	catch (err)
 	{
-		console.error("Auth refused: ", err.message);
-		return reply.code(401).send({error : err.message});
+		if (err.message === "Authorization token expired")
+		{
+            return reply.code(401).send({error : err.message});
+        }
+        else
+        {
+            return reply.code(400).send({error : err.message});
+        }
 	}
 });
 
