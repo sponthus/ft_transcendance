@@ -45,7 +45,9 @@ export async function   getUserInfoBySlug (request, reply)
                                         OR (f.frie_user_id = users.id AND f.frie_friend_user_id = ?) )\
                                     WHERE \
                                         slug = ?").get(idUser, idUser, idUser, idUser, slug);
-       return reply.code(200).send({ userInfo: user }) 
+		if (!user)
+			return reply.code(404).send({ error: "User not found" });
+		return reply.code(200).send({ userInfo: user }) 
     }
     catch (err)
     {

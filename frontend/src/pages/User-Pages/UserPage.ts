@@ -60,37 +60,43 @@ export class UserPage extends BasePage {
 			const req = await getUserInfo();
 			if (req.ok) {
 				this.UserData = req.userInfo;
-				if (this.slug != this.UserData.slug)
-					await this.fillUserData()
+				if (this.slug != this.UserData.slug) {
+					await this.fillUserData();
+				}
 				this.UserBanner = new UserBanner(this.UserData, this.isOwnProfile);
-				console.log(`user data = ` + JSON.stringify(this.UserData));
+				// console.log(`user data = ` + JSON.stringify(this.UserData));
 				this.StateBody = this.UserBanner._ProfileState;
 				await this.showUserPage();
-			}
-			else {
-				await ErrorPopup('Error While loading Profile' + req.error);
+			} else {
+				await ErrorPopup("Unable to load profile");
 				navigate('/');
 			}
 		}
 		catch (error) {
 			await ErrorPopup(error as string);
+			navigate('/');
 		}
 	}
 
 	private async fillUserData() {
-		console.log('fille userDAta called');
+		// console.log('fill userData called');
 		this.isOwnProfile = false;
 		try {
 			const req = await getUserInfoBySlug(this.slug);
 			if (req.ok) {
 				this.UserData = req.userInfo;
-				console.log("new userdata = ", this.UserData);
+				// console.log("new userdata = ", this.UserData);
+			} else if (req.error === "User not found") {
+				throw new Error("User not found");
+			} else {
+				throw new Error("Unable to load profile");
 			}
-
 		} catch (error) {
 			await ErrorPopup(error as string);
+			navigate('/');
 		}
 	}
+
 	async showUserPage() {
 		await this.renderProfileBanner();
 		await this.renderBodyProfile();
