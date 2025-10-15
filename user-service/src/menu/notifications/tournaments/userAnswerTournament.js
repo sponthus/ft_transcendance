@@ -23,17 +23,6 @@ export async function   userAnswerTournament(request, reply)
         if (!ownerId || !ownerId.id)
             return reply.code(404).send({ error: "Resource not found" });
 
-        /*const tournamentId = db.prepare("   SELECT \
-                                                notif_tournament_id \
-                                            FROM \
-                                                notifications \
-                                            WHERE \
-                                                notif_tournament_name = ? \
-                                            AND \
-                                                notif_type = 'tournament_invite'").get(tournamentName); *///PROETGER AUSSI POUR LE TOURNAMENT ID
-
-        /*if (!tournamentId || !tournamentId.notif_tournament_id)
-            return reply.code(404).send({ error: "Resource not found" });*/
         db.prepare(     "DELETE FROM \
                             notifications \
                         WHERE \
