@@ -34,7 +34,6 @@ export async function   userAnswerTournament(request, reply)
 
         /*if (!tournamentId || !tournamentId.notif_tournament_id)
             return reply.code(404).send({ error: "Resource not found" });*/
-
         db.prepare(     "DELETE FROM \
                             notifications \
                         WHERE \
@@ -44,7 +43,7 @@ export async function   userAnswerTournament(request, reply)
                         AND \
                             notif_tournament_id = ? \
                         AND \
-                            notif_type = 'tournament_invite'").run(idUser, ownerId.id, tournamentId.notif_tournament_id);
+                            notif_type = 'tournament_invite'").run(idUser, ownerId.id, tournamentId);
         let url;
         if (answer === "decline")
         {
