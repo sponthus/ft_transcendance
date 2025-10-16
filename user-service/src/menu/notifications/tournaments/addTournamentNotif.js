@@ -6,6 +6,10 @@ export async function addTournamentNotif (request, reply)
     const   db = request.server.db;
     const   { type, receiverId, senderId, tournamentId, tournamentName } = request.body;
    
+	// TODO Unknown type = error 500
+	// TODO missing field = error 500
+	// TODO : Bad type (string) for reciever / sender ids = error 500
+	// TODO accepts tournamentId as a string, should not
     console.debug('request.body :', request.body);
     try
     {

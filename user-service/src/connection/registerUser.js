@@ -12,6 +12,7 @@ export default async function registerUser(request, reply)
     const db = request.server.db;
     const avatar = 'default.jpg'
     const username = request.body.username;
+	// TODO : Crypt password
     const password = request.body.password;
 
     //pourquoi le username peut pas etre defaut ?

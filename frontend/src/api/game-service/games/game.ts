@@ -222,8 +222,7 @@ export async function getAllGames(slug: string): Promise<AllGamesResult> {
 }
 
 // DELETE /:gameId
-// Delete a game in backend
-// TODO : Works but in case of an error, writes await ErrorPopup("Error: Error:...")
+// Delete a game in backend, actually not implemented in frontend
 // Security : is gonna be possible only if the logges-in user is the owner of the game
 export async function deleteGame(gameId: number): Promise<SimpleResult> {
     if (!gameId)
@@ -235,7 +234,7 @@ export async function deleteGame(gameId: number): Promise<SimpleResult> {
         });
         if (!response.ok) {
 			const data = await response.json();
-            throw new Error(`Unable to delete game ->` + data.error);
+			return { ok: false, error: data?.error as string  || 'Unable to delete game' };
         }
         return { ok: true, message: 'Game has been deleted' };
     } catch(error) {
