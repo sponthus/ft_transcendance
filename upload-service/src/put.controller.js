@@ -45,7 +45,7 @@ export async function uploadAvatar(request, reply) {
                 console.log(`Avatar uploaded for user: ${slug}`);
 
                 // Reply = It worked
-                return reply.send({ avatar: fileName });
+                return reply.code(200).send();
             }
             catch (err) {
                 console.log(err);

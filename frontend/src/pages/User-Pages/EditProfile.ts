@@ -235,7 +235,7 @@ export class EditProfile extends popUp {
 		console.log(`sending file: ${file}`);
 		
 		// Makes 2 requests : upload to upload service + change avatar in user db
-		const req = await uploadAvatar(this.UserData.slug, formData);
+		const req = await uploadAvatar(formData);
 		if (req.ok) {
 			await ErrorPopup("Avatar updated successfully!");
 			const pathReq = await updateAvatar(req.avatar);
