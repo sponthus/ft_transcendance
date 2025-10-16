@@ -14,11 +14,11 @@ export async function acceptTournamentInvitation(request, reply) {
 
 	console.debug('Body:', request.body);
 	if (!acceptingUserId || !tournamentId) {
-		return reply.code(400).send({ error: 'Bad request - acceptingUserId and tournamentId are required.' });
+		return reply.code(400).send({ error: 'Bad request - userId and tournamentId are required.' });
 	}
 	// console.debug("Accepting user ", acceptingUserId, " for tournament ", tournamentId);
 	if (checkIdNumberFormat(acceptingUserId) === false) {
-		return reply.code(400).send({ error: 'Bad acceptingUserId format.' });
+		return reply.code(400).send({ error: 'Bad userId format.' });
 	}
 	if (checkIdNumberFormat(ownerUserId) === false) {
 		return reply.code(400).send({ error: 'Bad ownerUserId format.' });

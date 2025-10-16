@@ -30,7 +30,10 @@ export default class GameMaster {
             game.ws = ws;
             game.server.addWs(ws);
 			console.log(`✅ User ${userId} authenticated to game ${gameId}`);
-            await updateUserStatus(userId);
+            const update = await updateUserStatus(userId, 'playing');
+			if (!update.ok) {
+				console.error("❌ Unable to update user status : ", update.error); // Non-blocking
+			}
 			return true;
 		} 
 		else {

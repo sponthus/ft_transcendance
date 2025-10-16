@@ -90,11 +90,22 @@ export default class GameServer {
 		this.ws.on('error', (error) => {
 			if (this.end == false) {
 				gameEventEmitter.emitGameEvent('player:disconnected', this.gameId, {
-					tournamentId: this.tournamentId
+					tournamentId: this.tournamentId,
+					userId: this.userId
 				});
 				this.destroy();
 			}
 		});
+
+		// this.ws.on('close', () => {
+		// 	if (this.end == false) {
+		// 		gameEventEmitter.emitGameEvent('player:disconnected', this.gameId, {
+		// 			tournamentId: this.tournamentId,
+		// 			userId: this.userId
+		// 		});
+		// 		this.destroy();
+		// 	}
+		// });
     }
 
 	pong(ws) {
@@ -107,7 +118,8 @@ export default class GameServer {
     startGame() {
         this.state = 'playing';
         gameEventEmitter.emitGameEvent('game:started', this.gameId, {
-			tournamentId: this.tournamentId
+			tournamentId: this.tournamentId,
+			userId: this.userId
 		});
 
         // à chaque tick du serveur
