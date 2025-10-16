@@ -6,16 +6,6 @@ import { getAvailableTournaments, TournamentsInfos } from  "../../api/game-servi
 import { deleteTournament } from  "../../api/game-service/tournaments/deleteTournament.js";
 import { ErrorPopup } from '../ErrorPage.js';
 
-type UserData = //VA ETRE CHANGER, le token renvoie le username et l'id du user
-{
-	id: number
-	username: string;
-	nickname: string;
-	avatar: string;
-	slug: string;
-	created_at: string;
-};
-
 export class availableGames {
 	private Page!: HTMLElement;
 	private PartyMap: Map<TournamentsInfos, HTMLButtonElement>;
