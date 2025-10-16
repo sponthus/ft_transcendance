@@ -34,7 +34,7 @@ export async function deleteGame(request, reply) {
             return reply.code(403).send({ error : 'Forbidden, game is not pending.' });
         }
 		if (gameToDelete.id_user !== requestingUserId) {
-			// console.log("Error because found user_id = ", gamesToDelete[0].user_id);
+			console.log("Error because found user_id = ", gameToDelete.id_user);
 			return reply.code(403).send({ error: "Forbidden, this is not your game."});
 		}
         if (gameToDelete.tournament_id)

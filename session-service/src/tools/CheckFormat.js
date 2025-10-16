@@ -65,13 +65,13 @@ export function    checkSendMessageToGroupFormat(request)
 				type: ["string", "number"], 
 				minLength: 3, 
 				maxLength: 20,
-				pattern: "^[a-z0-9]+(-[0-9]+)?$"
+				pattern: "^(?!\\s)(?!.*\\s$)[a-z0-9 _-]+(-[0-9]+)?$"
 			},
 			message: { 
 				type: "string",
 				minLength: 3,
 				maxLength: 20,
-				pattern: "^(?=.*[a-zA-Z])[^\\[\\]{}();]+$"
+				pattern: "^(?!\\s)(?!.*\\s$)[a-z0-9 _-]+(-[0-9]+)?$"
 			}
 		},
 		required: ["sender", "message"],
@@ -98,13 +98,13 @@ export function    checkSendMessageFormat(request)
 				type: "string", 
 				minLength: 3, 
 				maxLength: 20,
-				pattern: "^[a-z0-9]+(-[0-9]+)?$"
+				pattern: "^(?!\\s)(?!.*\\s$)[a-z0-9 _-]+(-[0-9]+)?$"
 			},
 			message: { 
 				type: "string",
 				minLength: 3,
 				maxLength: 20,
-				pattern: "^(?=.*[a-zA-Z])[^\\[\\]{}();]+$"
+				pattern: "^(?!\\s)(?!.*\\s$)[a-z0-9 _-]+(-[0-9]+)?$"
 			}
 		},
 		required: ["sender", "message"],

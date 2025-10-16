@@ -70,7 +70,7 @@ export async function renderRoute(path: string) {
 				await navigate(`/user/${userData.slug}`);
 				return ;
 			}
-			console.log('dynamiquepart' , dynamicPart);
+			console.log('dynamic part' , dynamicPart);
 			currentPage = new UserPage(dynamicPart);
 			break;
 		case '/setting':
