@@ -200,7 +200,7 @@ export class TournamentPage {
 											</div>
 											<div>
 												<h2 class="animate-bounce text-emerald-600 font-bold text-2xl h-hull w-full">
-													Waiting for all users to be ready ready
+													Waiting for all users to be ready
 												</h2>
 											</div>
 										</div>`;
