@@ -51,7 +51,6 @@ export class HomePage extends BasePage {
     	`width=${width},height=${height},top=${top},left=${left}`
   		);*/
 
-
 	await this.addInApp();
 	}
 

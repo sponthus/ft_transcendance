@@ -88,9 +88,27 @@ export class RegisterPage extends BasePage {
 	}
 
 	private async addInApp() {
-		append(this.Front, [this.TopTextDiv, this.Form, this.BotTextDiv]);
+		const GithubBtn = createButton('gitHub', 'group flex items-center w-full justify-center gap-2 px-4 py-2 bg-orange-300 rounded-lg hover:bg-orange-400 transition active:scale-95 hover:scale-105 text-emerald-600', '');
+		GithubBtn.innerHTML = `
+						<img src="https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png" alt="GitHub logo" class="w-5 h-5 bg-orange-300">
+						<span class="text-emerald-600 group-hover:font-bold">Sign in with GitHub</span>`;
+		append(this.Front, [this.TopTextDiv, this.Form, GithubBtn, this.BotTextDiv]);
 		append(this.Background, [this.Front]);
 		append(this.app, [this.Background]);
+
+		GithubBtn.addEventListener('click', async() => {
+			const popup = window.open(
+    		"http://localhost:5173/api/user/oauth/github",
+    		"GitHub Login",
+    		`width=960,height=540,top=${window.screenX + (window.innerWidth - 960) / 2},left=${window.screenY + (window.innerHeight - 540) / 2}`
+  			);
+			const timer = setInterval(() => {
+			  if (popup && popup.closed) {
+			    clearInterval(timer);
+			    navigate('/');
+			  }
+			}, 1000)
+		})
 	}
 
 	private async watchForm() {		

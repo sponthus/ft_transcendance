@@ -125,10 +125,6 @@ async function fillUserTab() {
 		const req = await getAllUsers();
 		if (req.ok){
 			UserTab = req.users;
-			// UsersData.forEach( user => {
-			// 	UserTab.push(user);
-			// })
-			console.log("all user =", UserTab);
 		}
 	} catch (error){
 		console.log(Error);

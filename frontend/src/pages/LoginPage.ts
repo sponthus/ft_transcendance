@@ -36,7 +36,7 @@ export class LoginPage extends BasePage {
 		this.Front = createDiv('front', 'rounded-xl shadow-2xl p-12 max-w-md text-center w-full space-y-4');
 		this.TopTextDiv = createDiv("top-text", "text-center mb-8");
 		this.BotTextDiv = createDiv("bot-text", "mt-6 text-center");
-		this.Form = createElement('form', "register-form", "", "space-y-6") as HTMLFormElement;
+		this.Form = createElement('form', "register-form", "", " space-y-6") as HTMLFormElement;
 	}
 
 	private async createTopText(): Promise<void>  {
@@ -53,7 +53,7 @@ export class LoginPage extends BasePage {
 		
 		append (this.Form, [(createFormDiv(["text", 'username', "username", true], "username",   "Enter your username",  ClassNames) as HTMLElement)
 							, (createFormDiv(["password", 'password', "password", true], "password", "Enter your password", ClassNames) as HTMLElement)
-							,(createButton("submit", "w-full bg-orange-300 hover:bg-orange-400 text-emerald-600 font-bold py-3 px-4 rounded-lg transition-colors duration-200 transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-orange-300", "Sign In") as HTMLButtonElement)])
+							,(createButton("submit", "w-full bg-orange-300 hover:bg-orange-400 text-emerald-600 font-bold py-3 px-4 rounded-lg transition-colors duration-200 transform hover:scale-105 active:scale-95 focus:outline-none focus:ring-4 focus:ring-orange-300", "Sign In") as HTMLButtonElement)]);
 	}
 	
 	private async createBotText() {
@@ -63,13 +63,30 @@ export class LoginPage extends BasePage {
 
 	
 	private async addInApp() {
-		append(this.Front, [this.TopTextDiv, this.Form, this.BotTextDiv]);
+		const GithubBtn = createButton('gitHub', 'group flex items-center w-full justify-center gap-2 px-4 py-2 bg-orange-300 rounded-lg hover:bg-orange-400 transition active:scale-95 hover:scale-105 text-emerald-600', '');
+		GithubBtn.innerHTML = `
+						<img src="https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png" alt="GitHub logo" class="w-5 h-5 bg-orange-300">
+						<span class="text-emerald-600 group-hover:font-bold">Sign in with GitHub</span>`;
+		append(this.Front, [this.TopTextDiv, this.Form, GithubBtn, this.BotTextDiv]);
 		append(this.Background, [this.Front]);
 		append(this.app, [this.Background]);
+
+		GithubBtn.addEventListener('click', async() => {
+			const popup = window.open(
+			"http://localhost:5173/api/user/oauth/github",
+			"GitHub Login",
+			`width=960,height=540,top=${window.screenX + (window.innerWidth - 960) / 2},left=${window.screenY + (window.innerHeight - 540) / 2}`
+			);
+			const timer = setInterval(() => {
+			  if (popup && popup.closed) {
+			    clearInterval(timer);
+			    navigate('/')
+			  }
+			}, 1000)
+		})
 	}
 
 	private async watchForm() {
-				
 		if (!this.Form) 
 			this.ErrorForm();
 		else {

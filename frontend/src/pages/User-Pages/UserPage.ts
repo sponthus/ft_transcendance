@@ -8,17 +8,14 @@ import { DisplayeTournamentHistoryPage } from './TournamentHistoryPage.js';
 import { ErrorPopup } from '../ErrorPage.js';
 import { getUserStatus } from '../../api/session-service/getStatus.js';
 
-enum BodyState {TOURNAMENT = 0, FRIENDS = 1, HISTORY = 2};
+export enum BodyState {FRIENDS = 0, HISTORY = 1, TOURNAMENT = 2};
+export let StateBody: number;
+let isChangeBody: Boolean;
 
-type UserData = //VA ETRE CHANGER, le token renvoie le username et l'id du user
-{
-	id: number
-	username: string;
-	nickname: string;
-	avatar: string;
-	slug: string;
-	created_at: string;
-};
+export function ChangeStateBody(state: number){
+	isChangeBody = true;
+	StateBody = state;
+}
 
 export class UserPage extends BasePage {
 	// protected slug?: string;
@@ -30,8 +27,6 @@ export class UserPage extends BasePage {
 
 	private UserData?: UserInfo;
 
-	private StateBody!: number;
-
 	private isOwnProfile: boolean = true;
 
 	private Statue: string; 
@@ -39,10 +34,12 @@ export class UserPage extends BasePage {
 	constructor(slug: string) {
 		super();
 		this.slug = slug;
-		this.Statue = ' ​';
+		this.Statue = '​';
+		StateBody = BodyState.FRIENDS;
 	}
 	
 	async render(): Promise<void> {
+		this.destroy();
 		await this.renderBanner();
 		await this.initDivs();
 		await this.TryGetUserInfo();
@@ -74,7 +71,6 @@ export class UserPage extends BasePage {
 						this.Statue = 'playing 🟡​​';
 				}
 				this.UserBanner = new UserBanner(this.UserData, this.isOwnProfile, this.Statue);
-				this.StateBody = this.UserBanner._ProfileState;
 				await this.showUserPage();
 			}
 			else {
@@ -117,16 +113,16 @@ export class UserPage extends BasePage {
 	private async renderBodyProfile() {
 		/***************************body div***********************/
 		if (this.Background && this.BodyDiv)
-			this.Background.removeChild(this.BodyDiv);
+			this.BodyDiv.remove();
 
 		this.BodyDiv = document.createElement('div');
 		this.BodyDiv.className = "bg-orange-300  bg-opacity-50 w-full h-[60%] flex items-center justify-center overflow-auto";
-		switch(this.StateBody){
+		switch(StateBody){
 			case BodyState.TOURNAMENT:
 				await DisplayeTournamentHistoryPage(this.BodyDiv, this.UserData!, this.isOwnProfile);
 				break;
 			case BodyState.FRIENDS:
-				await displayFriendlist(this.BodyDiv,this.UserData!, this.isOwnProfile);
+				await displayFriendlist(this.BodyDiv, this.UserData!, this.isOwnProfile);
 				break;
 			case BodyState.HISTORY:
 				await DisplayHistoryPage(this.BodyDiv, this.UserData!);
@@ -150,9 +146,9 @@ export class UserPage extends BasePage {
 	private async BannerEvents() {
 		this.UserBanner.botBannerEvents();
 		document.addEventListener('click', () => {
-			if (this.StateBody != this.UserBanner._ProfileState) {
-				this.StateBody = this.UserBanner._ProfileState;
+			if (isChangeBody) {
 				this.renderBodyProfile();
+				isChangeBody = false;
 			}
 		})
 	}

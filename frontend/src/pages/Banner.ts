@@ -1,34 +1,25 @@
-import { navigate } from '../core/router.js';
+// import { currentPage, navigate } from '../core/router.js';
 // import { modifyUserAvatar , modifyUserInfo } from "../api/user.js";
-import { getUserInfo, UserInfo } from '../api/user-service/user-info/getUserInfo.js';
+import {UserInfo } from '../api/user-service/user-info/getUserInfo.js';
 // import { Socket } from '../core/Socket.js';
 import { append, createAnchorElement, createButton, createDiv, createImage, createInput, createElement } from '../Utils/elementMaker.js';
 import { createSearchBarDiv } from '../Utils/slidingSearch.js';
 import { createNotificationDiv } from '../Utils/notification.js';
 import { logoutUser } from '../api/user-service/connection/logoutUser.js';
-import { log } from 'console';
 import { ErrorPopup } from './ErrorPage.js';
 import { getUserStatus } from '../api/session-service/getStatus.js';
+import { navigate } from '../core/router.js';
 
-type UserData = //VA ETRE CHANGER, le token renvoie le username et l'id du user
-{
-    id: number
-    username: string;
-    nickname: string;
-    avatar: string;
-    slug: string;
-    created_at: string;
-};
-
-const wrapper: HTMLElement = createDiv('wrapper', 'grid grid-cols-3 items-center justify-between p-4 bg-orange-200 shadow-md gap-4');
-const userInfo: HTMLElement = createDiv('user-info', 'flex flex-wrap order-1 text-sm text-gray-600');
-const logo: HTMLElement = createDiv('logo', 'mx-auto order-2 snap-center');
-const navLinks: HTMLUListElement = createElement('ul', 'navlinks', '', 'flex justify-end space-x-4 order-3 list-none') as HTMLUListElement;
+let wrapper: HTMLElement; 
+let userInfo: HTMLElement;
+let logo: HTMLElement;
+let navLinks: HTMLUListElement;
 
 /*************************************export Functions for creatin banner*************************************/
 export function renderBaseBanner(banner: HTMLElement): void {
 	banner.innerHTML = '';
 	console.log('rendering base banner');
+	initPage();
 	initLogo();
 	addInBanner(banner);
 }
@@ -60,22 +51,20 @@ export async function renderLoggedInBanner(banner: HTMLElement, userData: UserIn
 
 /*************************************Function for creating Base Banner*************************************/
 
+function initPage(){
+ 	wrapper = createDiv('wrapper', 'grid grid-cols-3 items-center justify-between p-4 bg-orange-200 shadow-md gap-4');
+	userInfo = createDiv('user-info', 'flex flex-wrap order-1 text-sm text-gray-600');
+	logo = createDiv('logo', 'mx-auto order-2 snap-center');
+	navLinks = createElement('ul', 'navlinks', '', 'flex justify-end space-x-4 order-3 list-none') as HTMLUListElement;
+}
+
 function initLogo() {
 	const logoLink: HTMLAnchorElement = createAnchorElement('logo-link', '', '/', 'text-2xl font-bold text-emerald-400 hover:text-emerald-800 transition-colors') as HTMLAnchorElement;
 	const logoImg: HTMLImageElement = createImage('logo', 'mx-auto object-cover rounded-full hover:bg-emerald-600 object-center h-12 w-18  hover:shadow-lg transition-all duration-200 transform hover:scale-105', '/logo/logoIlsandWorld.png') as HTMLImageElement;
-	// logoLink.innerHTML = `<div id="particle-1" class="particle absolute w-3 h-3 bg-red-400 rounded-full"></div>
-	// 						<div id="particle-2" class="particle absolute w-3 h-3 bg-orange-400 rounded-full"></div>
-	// 						<div id="particle-3" class="particle absolute w-3 h-3 bg-yellow-400 rounded-full"></div>
-	// 						<div id="particle-4" class="particle absolute w-3 h-3 bg-pink-400 rounded-full"></div>`;
 
 	append(logoLink, [logoImg]);
 	append(logo, [logoLink]);
 }
-
-// function initNavLink() {
-// 	navLinks.className = 'flex justify-end space-x-4 order-3 list-none';
-// 	navLinks.id = 'nav-links';
-// }
 
 /*************************************Function for creating logout Banner*************************************/
 function setLogoutUserInfo() {
@@ -167,18 +156,16 @@ function SetLogOutEvent() {
 	logoutLink.addEventListener('click', async (e) => {
 		e.preventDefault();
 		await logoutUser();
-	//	socket.close();
-		navigate('/');
-		location.reload();
+		await navigate('/');
 	});
 }
 
 /*************************************Function utils*************************************/
 function createItem(href: string, TextContent: string, ClassName: string) {
 	const Item = document.createElement('li');
-	const Link = document.createElement('a');
+	const Link = document.createElement('a') as HTMLAnchorElement;
 	Link.id = TextContent + "_id";
-	Link.href = href;
+	Link.onclick = (async() => await navigate(href));
 	Link.textContent = TextContent;
 	Link.className = ClassName;
 	Item.appendChild(Link);
@@ -204,4 +191,21 @@ export function updateResize() {
 		navLinks.classList.add('hidden');
 	else
 		navLinks.classList.remove('hidden');
+}
+
+export function cleanBanner() {
+	if (wrapper)
+		wrapper.innerHTML = '';
+	if (logo)
+		logo.innerHTML = '';
+	if (userInfo)
+		userInfo.innerHTML = '';
+	if (navLinks) {
+		Array.from(navLinks.children).forEach(child=>{
+			Array.from(child.children).forEach(element => {
+				element.remove();
+			});
+			child.remove();
+		})
+	}
 }
