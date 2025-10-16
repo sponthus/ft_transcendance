@@ -4,6 +4,9 @@ import { generateUniqueSlug } from "../tools/generateUnique.js";
 
 export default async function updateUsername (request, reply)
 {
+	// TODO : Renvoie le token, pas bon non ? 
+	// TODO : Pas de username dans le body = Invalid format for username ?
+	// TODO : Mettre son propre username = 409 ? pas sure, preciser l'erreur peut etre
     if (checkUsernameFormat(request) == false)
         return reply.code(400).send( {error : "Invalid format for username"} );
 
@@ -22,7 +25,7 @@ export default async function updateUsername (request, reply)
                                                 WHERE \
                                                     username = ?').get(newUsername);
         if (existingUsername)
-            return reply.code(409).send({error: "Username already exist ICIC"});
+            return reply.code(409).send({error: "Username already exists"});
 
         const baseSlug = slugify(newUsername, { lower: true, strict: true });
         const slug = generateUniqueSlug(baseSlug, db);
