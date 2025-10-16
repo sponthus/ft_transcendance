@@ -1,4 +1,4 @@
-import { uploadAvatar } from "./put.controller.js";
+import { uploadAvatar, updateName } from "./put.controller.js";
 
 export default async function routes(fastify, options) {
     console.log('Registering routes');
@@ -10,7 +10,7 @@ export default async function routes(fastify, options) {
                 uploadAvatar);
         },
         async function (patchRoutes) {
-            patchRoutes.put('/update-name',
+            patchRoutes.patch('/update-name',
                 {preHandler: [fastify.verifyApiKey]},
                 updateName);
         }

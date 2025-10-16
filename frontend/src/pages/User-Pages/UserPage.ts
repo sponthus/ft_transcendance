@@ -39,7 +39,7 @@ export class UserPage extends BasePage {
 	constructor(slug: string) {
 		super();
 		this.slug = slug;
-		this.Statue = ' ​';
+		this.Statue = 'Error​';
 	}
 	
 	async render(): Promise<void> {
@@ -62,7 +62,7 @@ export class UserPage extends BasePage {
 				this.UserData = req.userInfo;
 				if (this.slug != this.UserData.slug)
 					await this.fillUserData()
-				const request = await getUserStatus(this.UserData.slug);
+				/*const request = await getUserStatus(this.UserData.slug);
 				if (!request.ok)
 					throw new Error(request.error);
 				else {
@@ -72,7 +72,7 @@ export class UserPage extends BasePage {
 						this.Statue = 'disconnected 🔴​';
 					if (request.status && request.status.status === "playing")
 						this.Statue = 'playing 🟡​​';
-				}
+				}*/
 				this.UserBanner = new UserBanner(this.UserData, this.isOwnProfile, this.Statue);
 				this.StateBody = this.UserBanner._ProfileState;
 				await this.showUserPage();

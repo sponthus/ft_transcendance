@@ -119,8 +119,8 @@ function setLoginUserInfo(userData: UserInfo) {
 }
 
 async function setTextLoginUserInfo(usersForm: HTMLElement, userData: UserInfo) {
-	let userSatus: string = 'disconnected 🔴​';
-	try {
+	let userSatus: string = 'Error 🔴​';
+	/*try {
 		const req = await getUserStatus(userData.slug);
 		if (!req.ok)
 			throw new Error(req.error);
@@ -135,7 +135,7 @@ async function setTextLoginUserInfo(usersForm: HTMLElement, userData: UserInfo) 
 
 	} catch(error) {
 		await ErrorPopup(error as string);
-	}
+	}*/
 	append(usersForm, [(createElement('h1', 'user-state', `${userSatus}`, '') as HTMLElement)
 						, (createElement('h1', 'user-name', `${userData.username}`, 'text-emerald-900') as HTMLElement)]);
 }

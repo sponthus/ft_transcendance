@@ -208,7 +208,7 @@ export class EditProfile extends popUp {
 			console.log("Username edited successfully");
 			this.cleanBody();
 			this.updateUserData();
-			navigate(`/user/${this.UserData.slug}`);
+			navigate(`/user/${this.UserData.slug}`);// TODO A remettre  ?? 
 			location.reload();
 		}
 		else
@@ -241,7 +241,7 @@ export class EditProfile extends popUp {
 				ErrorPopup("File is not jpg");
 				return;
 			}
-		const maxSizeBytes = 5 * 1024 * 1024;
+		const maxSizeBytes = 10 * 1024 * 1024; //TODO A CHANGER
 		if (file.size > maxSizeBytes)
     	{
 				ErrorPopup("File is more than 5GB");
@@ -258,7 +258,7 @@ export class EditProfile extends popUp {
 			await ErrorPopup("Avatar updated successfully!");
 			const pathReq = await updateAvatar(req.avatar);
 			if (pathReq.ok) {
-				await navigate(`/user/${this.UserData.slug}`);
+				//await navigate(`/user/${this.UserData.slug}`); //TODO A REMETTRE
 				await ErrorPopup("avatar modify successfully");
 				return ;
 			}

@@ -53,6 +53,7 @@ export default async function updateUsername (request, reply)
                             WHERE \
                                 id = ?").run(slug, idUser);
         });
+        console.debug("LAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
         updateSlugAndUsername(newUsername, idUser, slug);
         notifyChangeSlug(oldSlug.slug , slug);
         notifyChangeData(idUser, newUsername, slug);

@@ -66,7 +66,7 @@ export async function uploadAvatar(request, reply) {
                 fs.writeFileSync(filePath, buffer);
 
                 console.log(`✅ Avatar uploaded for user: ${slug}`);
-                return reply.code(200).send();
+                return reply.code(200).send({ avatar: fileName});
 
             } catch (err) {
                 console.error("❌ Upload failed:", err.message);
@@ -84,6 +84,7 @@ export async function updateName(request, reply)
 
     //check le format
 
+    console.log("UPDATE NAME FILE ");
     try
     {
         const uploadDir = path.join(process.cwd(), "uploads"); //cwd --> current working directory
