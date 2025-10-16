@@ -144,9 +144,7 @@ function SetLogOutEvent() {
 	if (!logoutLink)
 		return ;
 	logoutLink.addEventListener('click', async (e) => {
-		e.preventDefault();
 		await logoutUser();
-		await navigate('/');
 	});
 }
 

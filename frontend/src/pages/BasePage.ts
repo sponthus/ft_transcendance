@@ -65,7 +65,7 @@ export abstract class BasePage {
 		return BackgroundHome;
 	}
 
-    destroy(): void { 
+    destroy(): void {
 		this.banner.innerHTML = '';
         this.app.innerHTML = '';
         cleanBanner();
