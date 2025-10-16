@@ -1,9 +1,9 @@
-import { checkTournamentCreationFormat, checkTournamentNameFormat, checkPlayerFormat, checkIdFormat, checkIdNumberFormat } from "../../tools/CheckFormat.js";
+import { checkTournamentNameFormat, checkIdNumberFormat } from "../../tools/CheckFormat.js";
 import { sendTournamentReady } from "../requests/SendTournamentReady.js";
 import { sendTournamentCancelation } from "../requests/SendTournamentCancelation.js";
-import { getUserInfoFromId } from "../requests/GetUserInfoFromId.js";
 import { sendTournamentAcceptation } from "../requests/SendTournamentAcceptation.js";
 
+// Security : Accessible to internal services
 export async function acceptTournamentInvitation(request, reply) {
 	console.log('➡️ User accessed POST /tournament/accept');
 	console.debug(request.body);
@@ -12,7 +12,7 @@ export async function acceptTournamentInvitation(request, reply) {
 	const tournamentName = request.body.tournamentName;
 	const tournamentId = request.body.tournamentId;
 
-	console.debug('Body:', request.body);
+	// console.debug('Body:', request.body);
 	if (!acceptingUserId || !tournamentId) {
 		return reply.code(400).send({ error: 'Bad request - userId and tournamentId are required.' });
 	}
@@ -38,7 +38,7 @@ export async function acceptTournamentInvitation(request, reply) {
 
 	try {
 		const result = await db.acceptTournamentInvitation(acceptingUserId, tournamentId);
-		console.debug(result);
+		// console.debug(result);
 		if (result.ok === false) {
 			console.log(`❌ Unable to accept tournament invitation: /${result.error}/`);
 			switch (result.error) {
@@ -121,7 +121,7 @@ export async function acceptTournamentInvitation(request, reply) {
 	}
 }
 
-// TODO test
+// Security : Accessible to internal services
 export async function declineTournamentInvitation(request, reply) {
 	console.log('➡️ User accessed POST /tournament/decline');
 	const ownerUserId = request.body.ownerUserId;
@@ -178,7 +178,7 @@ export async function declineTournamentInvitation(request, reply) {
 			const cancelNotification = await sendTournamentCancelation(ownerUserId, players, tournamentId, tournamentName);
 			if (cancelNotification.ok === false) {
 				console.error("❌ Unable to send tournament cancelation notification to players ", players, ": ", cancelNotification.error);
-				// TODO Error 500 ?
+				// Not blocking, tournament is cancelled anyway
 			} else {
 				console.log("❓ Tournament cancelation notification sent to players ", players);
 			}
