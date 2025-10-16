@@ -61,13 +61,9 @@ export class availableGames {
 
 	async refreshAvailableGames() {
 		/*************************here to call API get Availables tounrament********************************/
-		console.log("refresh available games");
 		this.PartyMap!.clear();
-		// const BodyParty = document.getElementById("Body-Party-div")  as HTMLElement;
 		this.bodyParty.innerHTML = '';
-		// const availableGamesDiv = document.getElementById('available-games-div');
 		if (!this.AvailableDiv  || !this.UserData?.id) {
-			console.log('availableGames debug');
 			if(!this.AvailableDiv )
 			   this.Page.innerHTML = `Error don't find availables games`;
 			return;
@@ -80,8 +76,6 @@ export class availableGames {
 				return;
 			}
 			const tournaments = result.tournaments;
-			console.log("tournament :", tournaments);
-			// const TitlePartys = document.getElementById('Title-Party-p') as HTMLElement;
 			this.renderParty(tournaments);
 		}
 		catch (error) {

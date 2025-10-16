@@ -1,7 +1,7 @@
 import { setupRouter } from './core/router.js';
 //import { checkLog } from "./api/check-log.js";
 
-console.log("JS loaded !");
+
 
 const app = document.getElementById("app");
 if (app) {

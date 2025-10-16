@@ -28,13 +28,11 @@ export async function renderRoute(path: string) {
 	let dynamicPart = '';
     // Dynamic routes
     if (path.startsWith('/user/')) {
-        console.log("before navigation" + userData?.username);
         dynamicPart = path.slice('/user/'.length);
 		path = '/user';
     }
 
 	WebPath = path;
-    console.log("before navigation" + userData?.username);
 	// Static routes
 	switch (path) {
 		case '/':
@@ -59,8 +57,6 @@ export async function renderRoute(path: string) {
 				await navigate('/login');
 				return ;
 			}
-			console.log("state user :", userData)
-			console.log("user slug :", userData?.slug);
 			currentPage = new Game(userData!.slug);
 			break;
 		case '/user':
@@ -72,7 +68,6 @@ export async function renderRoute(path: string) {
 				await navigate(`/user/${userData.slug}`);
 				return ;
 			}
-			console.log('dynamic part' , dynamicPart);
 			currentPage = new UserPage(dynamicPart);
 			break;
 		case '/setting':
@@ -100,8 +95,6 @@ export async function navigate(path: string) {
 }
 
 export async function setupRouter() {
-	console.log("router setup");
-
     // Handles clicks on intern <a>
     document.body.addEventListener('click', async(event) => {
         const target = event.target as HTMLElement;

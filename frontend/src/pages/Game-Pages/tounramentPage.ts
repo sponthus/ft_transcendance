@@ -231,17 +231,14 @@ export class TournamentPage {
 			const data = await getTournamentMatches(this.TournamentId!);
 			if (!data.ok)
 				throw new Error("Unable to get tournament matches");
-				console.log("tournament bracket rendering");
 				this.TournamentMatches.clear(); // On vide avant de remplir
 
 				// Assign key = gameId, value = element in div
 				data.matches.forEach((match, index) => {
 					this.TournamentMatches.set(match.id, index + 1);
 				});
-				console.log(this.TournamentMatches);
 			/***********************function to render bracket tournament *************************/
 			this.TournamentPan.className = 'relative flex justify-center items-center w-full h-[80%] transition-all duration-200 translate-x-96 gap-12';
-			// this.TournamentPan = createDiv("bracket", "flex justify-between items-center h-full w-full space-x-4") as HTMLElement;
 			
 			const numberOfMatches = data.matches.length;
 			if (numberOfMatches == 3) // 4 players tournament
@@ -312,7 +309,6 @@ export class TournamentPage {
 	}
 
 	private async appendPlayerNameDiv(parent: HTMLElement, slug: string){
-		console.log('slug : ', slug);
 		try {
 			const req = await getUserInfoBySlug(slug);
 			if (req.ok) {
@@ -333,7 +329,6 @@ export class TournamentPage {
 			if (!data.ok)
 				throw new Error("Error getting next match: " + data.error);
 			this.NextGameId = data.next_match.game_id;
-			console.log("next round = ", data.next_match); 
 			if (data.next_match.round == 1)
 				this.isFinal = true;
 			if (!this.TournamentMatches.has(this.NextGameId))

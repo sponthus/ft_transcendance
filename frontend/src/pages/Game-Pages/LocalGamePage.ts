@@ -34,9 +34,7 @@ export class LocalGamePage {
 	private SettingPan!: HTMLElement;
 
 	constructor(Page: HTMLElement, UserName: string) { //transition-transform duration-300 ease-out
-		// this.AvailableGames = new availableGames(this.Page, this.PartyMap);
 		this.Page = Page;
-		// this.PartyMap = new Map<number, HTMLInputElement>();
 		this.Username = UserName;
 		this.PlayerA = this.Username; //this.Username; change to this.username
 	}

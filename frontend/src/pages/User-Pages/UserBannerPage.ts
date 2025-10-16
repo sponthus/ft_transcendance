@@ -74,11 +74,8 @@ export class UserBanner {
 	
 		const AvatarCircle: HTMLElement = createDiv('AvatarCircle',"h-full aspect-square flex items-center justify-center bg-orange-300 rounded-full" );
 		if (this.UserData) {
-			console.log(`user data = ` + JSON.stringify(this.UserData));
 			const avatar: string = this.UserData.avatar;
-			console.log("avatar in profile = ", avatar);
 			const srcImg: string = `https://localhost:4443/uploads/${avatar}`; // problem firefox https autosignate certificate 
-			console.log("srcImg in profile = ", srcImg);
 			append(AvatarCircle, [(createImage("user", "w-[95%] h-[95%] rounded-full object-cover object-center", srcImg) as HTMLImageElement)])
 		}
 		append(AvatarDiv, [AvatarCircle]);
@@ -142,7 +139,6 @@ export class UserBanner {
 		const btn: HTMLButtonElement = (document.getElementById('friend-request-btn') as HTMLButtonElement);
 		if (btn) {
 			btn.addEventListener('click', async() => {
-				console.log('send a friend request');
 				try {
 					const req = await addFriend(this.UserData.slug);
 					if (req.ok) {
@@ -161,7 +157,6 @@ export class UserBanner {
 				try {
 					const req = await removeFriend(this.UserData.slug);
 					if (req.ok) {
-						console.log("frien remove succesfuly");
 						if (currentPage) 
 							currentPage.render();
 					}
@@ -176,8 +171,6 @@ export class UserBanner {
 				try {
 					const req = await acceptRequest(this.UserData.username);
 					if (req.ok) {
-						await ErrorPopup("accept invitation of " + this.UserData.username);
-						console.log("acctp invitation of ", this.UserData.username);
 						if (currentPage)
 							currentPage.render();
 					}
@@ -193,8 +186,6 @@ export class UserBanner {
 				try {
 					const req = await rejectRequest(this.UserData.username);
 					if (req.ok) {
-						await ErrorPopup("decline invitation of " + this.UserData.username);
-						console.log("acctp invitation of ", this.UserData.username);
 						if (currentPage)
 							currentPage.render();
 					}

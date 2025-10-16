@@ -1,6 +1,7 @@
 import { createDiv, append, createInput, createButton, createElement, createAnchorElement } from "./elementMaker";
 import { navigate } from "../core/router";
 import { getAllUsers, AllUsers } from "../api/user-service/menu/getAllUsers";
+import { ErrorPopup } from "../pages/ErrorPage";
 
 let isSearchOpen: boolean = false;
 const searchWrapper: HTMLElement = createDiv("search-wrapper", 'relative flex items-center');
@@ -38,8 +39,6 @@ function createSlidingSearchBar() : HTMLElement {
 function createSearchToggle(): HTMLButtonElement {
 
 	const searchToggle: HTMLButtonElement = createButton('search-toggle', 'flex items-center justify-center w-10 h-10 bg-emerald-600 hover:bg-emerald-700 text-white rounded-full shadow-md hover:shadow-lg transition-all duration-200 transform hover:scale-105', 'search');
-	// searchToggle.title = 'search';
-	// 'w-64 px-4 py-2 pl-4 pr-12 text-sm border-0 rounded-full bg-transparent focus:outline-none opacity-100 transition-opacity duration-300'
 	searchToggle.innerHTML = `
 		<svg class="w-5 h-5 text-orange-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 			<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m21 21-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
@@ -62,24 +61,16 @@ function handleSearchEnter() {
 		if (!searchInput) return;
 
 		const searchTerm = searchInput.value.trim().toLowerCase();
-		// if (e.keyCode === 8)
-		// 	console.log("coucou");
-		// console.log(e.key);
 		if (searchTerm.length >= 3) {
-			console.log(searchTerm);
-			console.log(UserTab);
 			openSearchPanel();
 			removeAllChild(searchPanel);
 			UserTab.forEach(value => {
-				console.log("value foreach", value.username);
 				if (value.username.toLocaleLowerCase().substring(0, searchTerm.length) === searchTerm) {
 					const UserText: HTMLAnchorElement = createAnchorElement(`${value.slug}`, `${value.slug}`, `/user/${value.slug}`, 'text-emerald-600 hover:bg-orange-400 hover:font-bold text-xl w-full text-center transition-all duration-200 hover:scale-105 shadow-xl');
 					searchPanel.appendChild(UserText);
-					console.log(value);
 				}
 			})
 		}
-		console.log("search panel children = ", searchPanel.children.length);
 		if (searchPanel.children.length === 0 && isOpen)
 			closeSearchPanel();
 		else if (searchTerm.length < 3)
@@ -127,7 +118,7 @@ async function fillUserTab() {
 			UserTab = req.users;
 		}
 	} catch (error){
-		console.log(Error);
+		await ErrorPopup(error as string);
 	}
 }
 
@@ -168,8 +159,6 @@ function handleSearch() {
 
 	const searchTerm = searchInput.value.trim();
 	if (searchTerm) {
-		console.log('Recherche:', searchTerm);
-
 		navigate(`/search?q=${encodeURIComponent(searchTerm)}`);
 	}
 }

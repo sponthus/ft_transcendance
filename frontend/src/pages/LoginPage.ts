@@ -101,7 +101,6 @@ export class LoginPage extends BasePage {
 			const req = await loginUser(username, password);
 			if (req.ok) {
 				if (req.twoFaEnabled === 1) {
-					console.log("login twoFA");
 					await loginTwoFa();
 				}
 				else

@@ -62,7 +62,6 @@ export class GamePage extends popUp {
 			if (req.ok) {
 				this.userData = req.userInfo;
 				this.userName = this.userData.username;
-				console.log("add username ", this.userName);
 			}
 		} catch(error) {
 			await ErrorPopup (error as string);

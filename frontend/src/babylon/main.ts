@@ -11,6 +11,7 @@ import { renderGround } from "./displaying/renderGround.js";
 import { renderAsset } from "./displaying/renderAsset.js";
 import { sleep } from "./displaying/dialogueBox.js";
 import { cleanBanner, renderBaseBanner, renderLoggedInBanner} from "../pages/Banner.js";
+import { ErrorPopup } from "../pages/ErrorPage.js";
 
 export class Game extends BasePage {
 
@@ -29,7 +30,6 @@ export class Game extends BasePage {
 	constructor(slug: string) {
 		super();
 		this._slug = slug;
-		console.log('user slug in App :' , this._slug);
 	}
 
 	async render(): Promise<void>  {
@@ -53,12 +53,12 @@ export class Game extends BasePage {
 				this._input = new PlayerInput(this._renderScene.homeScene, this._renderAsset, this._animation, this._renderScene);
 			}
 
-			// await sleep(3000);
+			await sleep(3000);
 			if (this._renderScene.engine)
 				this._renderScene.engine.hideLoadingUI(); 
 		} 
 		catch(Error) {
-			console.log("Error: ", Error);
+			await ErrorPopup(Error as string);
 		}
 	}
 

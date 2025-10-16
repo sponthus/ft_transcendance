@@ -18,7 +18,6 @@ let navLinks: HTMLUListElement;
 /*************************************export Functions for creatin banner*************************************/
 export function renderBaseBanner(banner: HTMLElement): void {
 	banner.innerHTML = '';
-	console.log('rendering base banner');
 	initPage();
 	initLogo();
 	addInBanner(banner);
@@ -74,10 +73,6 @@ function setLogoutUserInfo() {
 
 function checkLogoutElement(banner: HTMLElement): boolean {
 	if (!navLinks || !userInfo) {
-		if (!navLinks)
-			console.log("No nav link");
-		if (!userInfo)
-			console.log("No user info");
 		banner.innerHTML = '<div class="text-red-500 font-semibold">Error</div>';
 		return false;
 	}
@@ -87,10 +82,6 @@ function checkLogoutElement(banner: HTMLElement): boolean {
 /*************************************Function for creating login Banner*************************************/
 function checkLoginElement(banner: HTMLElement): boolean {
 	if (!navLinks || !userInfo) {
-		if (!navLinks)
-			 console.log("No nav link");
-		if (!userInfo)
-			console.log("No user info");
 		banner.innerHTML = '<div class="text-red-500 font-semibold">Error</div>';
 		return false;
 	}
@@ -142,7 +133,6 @@ function setAvatarLoginUserInfo(userData: UserInfo) {
 }
 
 async function SetUserImg(userIcon: HTMLElement, userData: UserInfo) {
-	console.log(`user data = ` + JSON.stringify(userData));
 	const avatar: string = userData.avatar;
 	const srcImg: string = `https://localhost:4443/uploads/${avatar}`;
 

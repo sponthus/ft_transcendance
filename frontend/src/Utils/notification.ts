@@ -156,7 +156,6 @@ async function fillUSerInfo(request: AllNotifs, parent: HTMLElement){
 		const req = await getUserInfoBySlug(request.slug); // replace by slug
 		if (req.ok) {
 			userData = req.userInfo;
-			console.log("request is  = ", request.notif_type);
 			if (request.notif_type === "friend_request" && userData)
 				append(parent ,[addInvitation(userData, null)]);
 			else if (request.notif_type === "friend_accept" && userData)
@@ -172,6 +171,8 @@ async function fillUSerInfo(request: AllNotifs, parent: HTMLElement){
 			else if (request.notif_type === "tournament_cancel" && userData)
 				append(parent, [addRequest(userData, `Tournament ${request.notif_tournament_name} has been canceled`)]);
 		}
+		else
+			throw new Error(req.error);
 	} catch (error) {
 		await ErrorPopup(error as string);
 	}
@@ -183,17 +184,19 @@ async function fillReceiveRequest(parent: HTMLElement) {
 		const reqRead = await getUnreadNotifications();
 		if (reqRead.ok) {
 			const read: AllNotifs[] = reqRead.notifs;
-			console.log("value of readrequest ", read);
 			readNotification = read.length;
 		}
+		else
+			throw new Error(reqRead.error); 
 		const req = await getAllNotifications();
 		if (req.ok) {
 			ReceiveRequest = req.notifs;
 			ReceiveRequest.forEach(request => {
 				fillUSerInfo(request, parent);
-				console.log("value of request ", request);
 			})
 		}
+		else
+			throw new Error(req.error);
 		
 	} catch (error) {
 		await ErrorPopup(error as string);
@@ -270,7 +273,6 @@ function createNotificationToggle(): HTMLElement {
 }
 
 async function addNumberInvitation() {
-	console.log("res request = ", ReceiveRequest);
 	if (!readNotification || readNotification === 0)
 			return ;
 	const NotificationToggle: HTMLButtonElement = (document.getElementById('notification-toggle-btn') as HTMLButtonElement);

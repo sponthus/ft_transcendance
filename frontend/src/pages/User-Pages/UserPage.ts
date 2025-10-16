@@ -18,8 +18,6 @@ export function ChangeStateBody(state: number){
 }
 
 export class UserPage extends BasePage {
-	// protected slug?: string;
-
 	private Background!: HTMLElement;
 	private UserBanner!: UserBanner;
 	private slug!: string;
@@ -84,13 +82,11 @@ export class UserPage extends BasePage {
 	}
 
 	private async fillUserData() {
-		// console.log('fill userData called');
 		this.isOwnProfile = false;
 		try {
 			const req = await getUserInfoBySlug(this.slug);
 			if (req.ok) {
 				this.UserData = req.userInfo;
-				// console.log("new userdata = ", this.UserData);
 			} else if (req.error === "User not found") {
 				throw new Error("User not found");
 			} else {
