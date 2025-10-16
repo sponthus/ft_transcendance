@@ -10,7 +10,7 @@ import { getUserStatus } from '../../api/session-service/getStatus.js';
 
 enum BodyState {TOURNAMENT = 0, FRIENDS = 1, HISTORY = 2};
 
-type UserData = //VA ETRE CHANGER, le token renvoie le username et l'id du user
+type UserData = //TODO VA ETRE CHANGER, le token renvoie le username et l'id du user
 {
 	id: number
 	username: string;
