@@ -44,12 +44,34 @@ console.log(`multipart loaded`);
 
 console.log('Parameters for app are being set'); // debug
 
-fastify.decorate("authenticate", async function (request, reply) {
-    try {
-        await request.jwtVerify();
-    } catch (err) {
-        console.error("JWT error:", err);
-        reply.send(err);
+fastify.decorate("verifyApiKey", async function (request, reply)
+{
+    const   apiKey = request.headers['x-internal-api-key'];
+    if (!apiKey || apiKey !== getSecret('api_key'))
+		return reply.code(401).send({ error: 'Unauthorized: Invalid API Key' });
+});
+
+fastify.decorate("authenticate", async function (request, reply)
+{
+    try 
+    {
+        const result = fastify.unsignCookie(request.cookies.token);
+        if (!result.valid)
+            return reply.code(401).send({ error: "Invalid cookie" });
+        request.user = await fastify.jwt.verify(result.value);
+        if (request.user.twofa_pending === true)
+            return reply.code(401).send({ error: "2FA required" });
+		}
+	catch (err)
+	{
+		if (err.message === "Authorization token expired")
+		{
+            return reply.code(401).send({error : err.message});
+        }
+        else
+        {
+            return reply.code(400).send({error : err.message});
+        }
     }
 });
 

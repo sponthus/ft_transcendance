@@ -3,7 +3,7 @@ import { getSecret } from "../index.js";
 import prefix from "../tools/url.js";
 import tlsAgent from "../tools/tlsAgent.js";
 
-export async function notifyServices(idReceivers, sender, message) 
+export async function notifyRefresh(idRecevers, sender, message) 
 {
     const api_key = getSecret('api_key');
 	let receivers = [];
@@ -52,6 +52,27 @@ export async function notifyChangeData(idUser, username, slug)
     return { ok: false, error: data.error, status: res.status };
 }
 
+export async function notifyChangeSlug(oldSlug, newSlug) 
+{
+    const api_key = getSecret('api_key');
+
+    const res = await fetch(`${prefix}://upload-service:${env.upload_port}/update-name`, 
+    {
+        method: 'PATCH',
+        headers: 
+        { 
+            'Content-Type': 'application/json',
+            'x-internal-api-key': api_key
+        },
+        body: JSON.stringify({ oldName: oldSlug, newName: newSlug }),
+		dispatcher: tlsAgent
+	});
+    if (res.ok)
+        return { ok: true };
+    const data = await res.json();    
+    return { ok: false, error: data.error, status: res.status };
+}
+
 export async function answerTournament(userId, ownerId, tournamentId, tournamentName, url) 
 {
     const api_key = getSecret('api_key');
@@ -79,3 +100,4 @@ export async function answerTournament(userId, ownerId, tournamentId, tournament
     const data = await res.json();    
     return { ok: false, error: data.error, status: res.status };
 }
+

@@ -2,6 +2,7 @@ import path from "path";
 import fs from "fs";
 import {__dirname} from "./index.js";
 import pump from "pump";
+import { error } from "console";
 
 // TODO : Check stuff on the file : real img file ? size ?
 export async function uploadAvatar(request, reply) {
@@ -53,4 +54,33 @@ export async function uploadAvatar(request, reply) {
         }
     }
     return reply.code(400).send({ error: "No avatar file uploaded" });
+}
+
+export async function updateName(request, reply)
+{
+    const   { oldName, newName } = request.body;
+
+    //check le format
+
+    try
+    {
+        const uploadDir = path.join(process.cwd(), "uploads"); //cwd --> current working directory
+        const files = fs.readdirSync(uploadDir);
+    
+        const oldFile = files.find((file) => file.startsWith(oldName + "."));
+        if (!oldFile)
+        {
+            return reply.code(404).send({ error: "Avatar file not found"});
+        }
+        const ext = path.extname(oldFile);
+        const oldPath = path.join(uploadDir, oldFile)
+        const newPath = path.join(uploadDir, `${newName}${ext}`);
+        fs.renameSync(oldPath, newPath);
+        console.log(`✅ Avatar renommé : ${oldFile} → ${newUsername}${ext}`);
+        return reply.code(200).send();
+    }
+    catch (err)
+    {
+        return reply.code(500).send({ error: "Internal Server Error"});
+    }
 }

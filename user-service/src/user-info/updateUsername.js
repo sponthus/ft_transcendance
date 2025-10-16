@@ -1,7 +1,7 @@
 import slugify from "slugify";
 import { checkUsernameFormat } from "../tools/checkFormat.js";
 import { generateUniqueSlug } from "../tools/generateUnique.js";
-import { notifyChangeData } from "../internal-service/notifyServices.js";
+import { notifyChangeData, notifyChangeSlug } from "../internal-service/notifyServices.js";
 
 export default async function updateUsername (request, reply)
 {
@@ -23,8 +23,13 @@ export default async function updateUsername (request, reply)
                                                 WHERE \
                                                     username = ?').get(newUsername);
         if (existingUsername)
-            return reply.code(409).send({error: "Username already exist ICIC"});
-
+            return reply.code(409).send({error: "Username already exist"});
+        const oldSlug = db.prepare("    SELECT \
+                                            slug \
+                                        FROM \
+                                            users \
+                                        WHERE \
+                                            id = ?").get(idUser);
         const baseSlug = slugify(newUsername, { lower: true, strict: true });
         const slug = generateUniqueSlug(baseSlug, db);
         const updateSlugAndUsername = db.transaction( (newUsername, idUser, slug) =>
@@ -49,10 +54,8 @@ export default async function updateUsername (request, reply)
                                 id = ?").run(slug, idUser);
         });
         updateSlugAndUsername(newUsername, idUser, slug);
-        //update le upload service avec le slug 
-        const result = notifyChangeData(idUser, newUsername, slug); //TODO ELODIE changer de place ???
-        if (!result.ok)
-            return reply.code(result.status).send({ error: result.error });
+        notifyChangeSlug(oldSlug.slug , slug);
+        notifyChangeData(idUser, newUsername, slug);
         const token = await reply.jwtSign({ idUser, newUsername, slug}, {expiresIn: '1h'});
         return reply.code(200).send({ token : token });
     }

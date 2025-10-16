@@ -8,6 +8,11 @@ export default async function routes(fastify, options) {
             putRoutes.put('/',
                 {preHandler: [fastify.authenticate]},
                 uploadAvatar);
+        },
+        async function (patchRoutes) {
+            patchRoutes.put('/update-name',
+                {preHandler: [fastify.verifyApiKey]},
+                updateName);
         }
     );
 }
