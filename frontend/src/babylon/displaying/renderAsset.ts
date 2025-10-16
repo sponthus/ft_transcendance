@@ -143,6 +143,9 @@ export class renderAsset {
 	private async _loadSanCastle() {
 		/**************************for sand castle**************************/
 		const result = await ImportMeshAsync("/assets/chateauSable.glb", this._scene);
+		result.animationGroups.forEach(element => {
+			element.stop();
+		});
 		this._addColisionForEach(result);
 		this._sandcastle = result.meshes[0] as BABYLON.Mesh;
 		this._sandcastle.scaling.scaleInPlace(0.3);

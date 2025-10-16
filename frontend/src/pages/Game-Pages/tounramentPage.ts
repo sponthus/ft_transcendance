@@ -41,7 +41,7 @@ export class TournamentPage {
 		this.AvailableGames = new availableGames(this.PartyMap);
 		this.Username = UserName;
 		this.TournamentMatches = new Map<number, number>();
-		this.NextGameId = 0; // Impossible value, game id never 0
+		this.NextGameId = 0;
 	}
 
 	/****************function for rendering tournament page****************/
@@ -122,7 +122,6 @@ export class TournamentPage {
 		const checcrabmehamehaDiv: HTMLElement = createDiv('crabmehameha', 'flex items-center justify-arround h-[10%] -translate-x-32 space-x-4');
 
 		this.TournamentName = createInput(['text', 'tournament-name', 'tournament name', true], 'tournament-name', 'h-[70%] w-[70%]');
-		// this.TournamentName.value = "tournament name";
 	
 		append(checcrabmehamehaDiv, [createElement('p', '', "name", 'text-center text-orange-200 text-4xl')
 									,this.TournamentName]);
@@ -132,9 +131,9 @@ export class TournamentPage {
 
 	/****************create crabmehameha input****************/
 	private createcrabmehamehaDiv() : HTMLElement {
-		const checcrabmehamehaDiv: HTMLElement = createDiv('crabmehameha', 'flex items-center justify-arround h-[10%]  -translate-x-28 space-x-4');
+		const checcrabmehamehaDiv: HTMLElement = createDiv('crabmehameha', 'flex items-center justify-arround h-[10%] -translate-x-28 space-x-4');
 
-		this.OptionBtn = createButton('minus', 'flex items-center active:scale-95 hover:scale-105 transition-all duration-200', '');
+		this.OptionBtn = createButton('minus', 'flex items-center active:scale-95 h-[70%] aspect-square hover:scale-105 transition-all duration-200', '');
 		let src: string = 'game_ui/setting/checkedValue.png';
 		if (this.Option == 0)
 			src = 'game_ui/setting/uncheckedValue.png';
@@ -165,13 +164,13 @@ export class TournamentPage {
 	/****************creating backbtn and playbtn and tournament panel for new and continue tournament****************/
 	private InitTournamentForm(btnDiv: HTMLElement) {
 		this.BackBtn = (createButton("return", "relative flex items-center active:scale-95 hover:scale-105 h-full w-[20%] transition-all duration-200", "") as HTMLButtonElement);
+		setbackgroundImages(this.BackBtn, "url('/game_ui/Backbtn.png')");
 		this.PlayBtn = (createButton("play", "relative flex items-center active:scale-95 hover:scale-105 h-full aspect-square transition-all duration-200", "") as HTMLButtonElement);
-		append(this.PlayBtn, [createImage('Play', 'absolute object-center h-full w-full', 'game_ui/Playebtn.png')]);
-		append(this.BackBtn, [createImage('Back', 'absolute object-center h-full w-full', 'game_ui/Backbtn.png')]);
+		setbackgroundImages(this.PlayBtn, "url('/game_ui/Playebtn.png')");
 
 		append(btnDiv, [this.BackBtn, this.PlayBtn]);
 
-		this.TournamentPan = createDiv('tournament-pan', 'relative flex flex-col items-center w-full h-[85%] transition-transform duration-200 ease-out translate-x-96 space-y-4');
+		this.TournamentPan = createDiv('tournament-pan', 'relative flex flex-col items-center w-full h-[70%] transition-transform duration-200 ease-out translate-x-96 space-y-4');
 		setbackgroundImages(this.TournamentPan, "url('/game_ui/setting/SettingPan.png')");
 	}
 
@@ -179,7 +178,7 @@ export class TournamentPage {
 	private appendTournamentForm(btnDiv: HTMLElement) {
 		append(this.Page, [createImage("1v1", "absolute object-fill object-center h-full w-full opacity-20", 'tournament-page.png')]);
 
-		append(this.Page, [createImage('bot-text', 'z-10 object-center h-[20%] w-[80%] animate-wiggle margin-top-32', 'game_ui/tournamentText.png') /**change to tournament title */
+		append(this.Page, [createImage('bot-text', 'z-10 object-center h-[30%] w-[80%] animate-wiggle margin-top-32', 'game_ui/tournamentText.png')
 						, this.TournamentPan, btnDiv]);
 
 		this.Page.className = "flex flex-col items-center w-full h-full transition-all duration-300 rounded-xl space-y-4";
