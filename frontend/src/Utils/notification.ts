@@ -49,7 +49,7 @@ function acceptFriendInvitation(acceptBtn: HTMLButtonElement, userData: UserInfo
 		e.stopPropagation();
 		e.preventDefault();	
 		try {
-			const req = await acceptRequest(userData.username);
+			const req = await acceptRequest(userData.slug);
 			if (req.ok) {
 				if (currentPage && WebPath.startsWith('/user'))
 					currentPage.render();
@@ -89,7 +89,7 @@ function declineFriendInvitation(declineBtn: HTMLButtonElement, userData: UserIn
 		e.stopPropagation();
 		e.preventDefault();	
 		try {
-			const req = await rejectRequest(userData.username);
+			const req = await rejectRequest(userData.slug);
 			if (req.ok)
 				refreshNotification();
 			else

@@ -162,7 +162,7 @@ export class EditProfile extends popUp {
 		const TabContent: HTMLButtonElement[] = [CancelBtn, SaveBtn];
 		
 		TabContent.forEach(btn => {
-			btn.addEventListener('click', () =>{
+			btn.addEventListener('click', async() =>{
 				switch(TabContent.indexOf(btn)) {
 					case 0:
 						break;
@@ -201,8 +201,8 @@ export class EditProfile extends popUp {
 			const req = await updateUsername(username);
 			if (req.ok) {
 				this.cleanBody();
-				this.updateUserData();
-				navigate(`/user/${this.UserData.slug}`);
+				await this.updateUserData();
+				await navigate(`/user/${this.UserData.slug}`);
 			}
 			else 
 				throw new Error(req.error);
@@ -267,9 +267,16 @@ export class EditProfile extends popUp {
 	}
 
 	private async updateUserData(){
-		const req = await getUserInfo();
-		if (req.ok) {
-			this.UserData = req.userInfo;
+		try {
+			const req = await getUserInfo();
+			if (req.ok) {
+				console.log('new usernme = ', req.userInfo.username)
+				this.UserData = req.userInfo;
+			}
+			else
+				throw new Error(req.error);
+		} catch (error) {
+			await ErrorPopup(error as string);
 		}
 	}
 }
