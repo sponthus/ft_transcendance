@@ -57,7 +57,7 @@ export default class WebSocketManager {
 			});
 
 			ws.on('close', (event) => {
-                console.log(`🔴 Connection closed with code ${event.code} and reason: ${event.reason}`);
+                console.log(`🟠 Disconnection registered with code ${event.code} and reason: ${event.reason}`);
                 this.handleDisconnexion(ws);
             });
 
@@ -174,19 +174,20 @@ export default class WebSocketManager {
 
 	}
 
-	handleDisconnexion(ws) {
-        const userId = this.getUserIdByWs(ws);
+	async handleDisconnexion(ws) {
+		const userId = this.getUserIdByWs(ws);
         if (userId) {
             if (!this.isUserConnected(Number(userId))) {
 				console.warn(`User ${userId} not connected when trying to disconnect`);
 				return;
 			}
+			await this.sleep(1000); // Wait for micro-deconnexions
 			const client = this.clients.get(Number(userId));
 			client.ws = client.ws.filter(sock => sock && sock.readyState === 1);
 			if (client.ws.length == 0) {
 				client.status = 'disconnected';
 				client.currentGame = 0;
-				console.log(`🔴 User ${userId} is disconnected`)
+				console.log(`🔴 User ${userId} is fully disconnected`)
 			}
         } else {
 			console.log("🔴 Disconnexion of a non-logged-in user");
@@ -242,7 +243,7 @@ export default class WebSocketManager {
 			return ;
 		}
 		
-		console.debug("Decoded token data:", data);
+		// console.debug("Decoded token data:", data);
 		if (!data.idUser || !data.username || !data.slug || !data.exp) {
 			console.error("❌ Incomplete token data");
 			ws.close(4002, "Invalid authentication");

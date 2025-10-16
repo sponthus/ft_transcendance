@@ -6,6 +6,9 @@ import { append, createAnchorElement, createButton, createDiv, createImage, crea
 import { createSearchBarDiv } from '../Utils/slidingSearch.js';
 import { createNotificationDiv } from '../Utils/notification.js';
 import { logoutUser } from '../api/user-service/connection/logoutUser.js';
+import { log } from 'console';
+import { ErrorPopup } from './ErrorPage.js';
+import { getUserStatus } from '../api/session-service/getStatus.js';
 
 type UserData = //VA ETRE CHANGER, le token renvoie le username et l'id du user
 {
@@ -17,7 +20,7 @@ type UserData = //VA ETRE CHANGER, le token renvoie le username et l'id du user
     created_at: string;
 };
 
-const wrapper: HTMLElement = createDiv('wrapper', 'grid [grid-template-columns:repeat(auto-fit,minmax(400px,1fr))] items-center justify-between p-4 bg-orange-200 shadow-md gap-4');
+const wrapper: HTMLElement = createDiv('wrapper', 'grid grid-cols-3 items-center justify-between p-4 bg-orange-200 shadow-md gap-4');
 const userInfo: HTMLElement = createDiv('user-info', 'flex flex-wrap order-1 text-sm text-gray-600');
 const logo: HTMLElement = createDiv('logo', 'mx-auto order-2 snap-center');
 const navLinks: HTMLUListElement = createElement('ul', 'navlinks', '', 'flex justify-end space-x-4 order-3 list-none') as HTMLUListElement;
@@ -52,7 +55,6 @@ export async function renderLoggedInBanner(banner: HTMLElement, userData: UserIn
 	createItem('/setting', "Settings", "px-4 py-2 text-emerald-600 hover:text-emerald-800 hover:bg-orange-300 rounded-md transition-colors rounded-xl shadow-md hover:shadow-lg transition-all duration-200 transform hover:scale-105");
 	createItem(`/user/${userData.slug}`, 'Profile', 'px-4 py-2 text-emerald-600 hover:text-emerald-800 hover:bg-orange-300 rounded-md transition-colors rounded-xl shadow-md hover:shadow-lg transition-all duration-200 transform hover:scale-105');
 	createItem('/', 'Logout', 'px-4 py-2 text-red-200 bg-red-600 hover:text-red-300 hover:bg-red-800 rounded-md transition-colors cursor-pointer rounded-xl shadow-md hover:shadow-lg transition-all duration-200 transform hover:scale-105');
-
 	SetLogOutEvent();
 }
 
@@ -60,7 +62,6 @@ export async function renderLoggedInBanner(banner: HTMLElement, userData: UserIn
 
 function initLogo() {
 	const logoLink: HTMLAnchorElement = createAnchorElement('logo-link', '', '/', 'text-2xl font-bold text-emerald-400 hover:text-emerald-800 transition-colors') as HTMLAnchorElement;
-		
 	const logoImg: HTMLImageElement = createImage('logo', 'mx-auto object-cover rounded-full hover:bg-emerald-600 object-center h-12 w-18  hover:shadow-lg transition-all duration-200 transform hover:scale-105', '/logo/logoIlsandWorld.png') as HTMLImageElement;
 	// logoLink.innerHTML = `<div id="particle-1" class="particle absolute w-3 h-3 bg-red-400 rounded-full"></div>
 	// 						<div id="particle-2" class="particle absolute w-3 h-3 bg-orange-400 rounded-full"></div>
@@ -118,9 +119,24 @@ function setLoginUserInfo(userData: UserInfo) {
 }
 
 async function setTextLoginUserInfo(usersForm: HTMLElement, userData: UserInfo) {
-	// const userState = createElement('h1', 'user-state', 'online 💚', '');
-	// const userName =  createElement('h1', 'user-name', `${userData.username}`, 'text-emerald-900');
-	append(usersForm, [(createElement('h1', 'user-state', 'online 💚', '') as HTMLElement)
+	let userSatus: string = 'disconnected 🔴​';
+	try {
+		const req = await getUserStatus(userData.slug);
+		if (!req.ok)
+			throw new Error(req.error);
+		else {
+			if (req.status && req.status.status === "online")
+				userSatus = 'online 🟢​';
+			if (req.status && req.status.status === "disconnected")
+				userSatus = 'disconnected 🔴​';
+			if (req.status && req.status.status === "playing")
+				userSatus = 'playing 🟡​​';
+		}
+
+	} catch(error) {
+		await ErrorPopup(error as string);
+	}
+	append(usersForm, [(createElement('h1', 'user-state', `${userSatus}`, '') as HTMLElement)
 						, (createElement('h1', 'user-name', `${userData.username}`, 'text-emerald-900') as HTMLElement)]);
 }
 
@@ -176,6 +192,16 @@ function addInBanner(banner: HTMLElement) {
 	wrapper.appendChild(navLinks);
 
 	banner.appendChild(wrapper);
-
+	updateResize();
 }
 
+export function updateResize() {
+	if (window.innerWidth <= 1258)
+		logo.classList.add('hidden');
+	else
+		logo.classList.remove('hidden');
+	if (window.innerWidth <= 858)
+		navLinks.classList.add('hidden');
+	else
+		navLinks.classList.remove('hidden');
+}

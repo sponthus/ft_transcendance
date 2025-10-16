@@ -70,7 +70,7 @@ export async function renderRoute(path: string) {
 				await navigate(`/user/${userData.slug}`);
 				return ;
 			}
-			console.log('dynamiquepart' , dynamicPart);
+			console.log('dynamic part' , dynamicPart);
 			currentPage = new UserPage(dynamicPart);
 			break;
 		case '/setting':
@@ -117,6 +117,8 @@ export async function setupRouter() {
     window.addEventListener('popstate', () => {
         renderRoute(location.pathname);
     });
-
+	window.addEventListener('resize', async() => {
+		await currentPage!.updateBanner();
+	})
     await renderRoute(location.pathname); // Shows good screen when loading
 }

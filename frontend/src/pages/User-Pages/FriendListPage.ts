@@ -1,4 +1,4 @@
-import { getAllFriends, AllFriends } from "../../api/user-service/menu/friendsList/friendRequest";
+import { getAllFriends, AllFriends, getAllFriendsBySlug } from "../../api/user-service/menu/friendsList/friendRequest";
 import { UserInfo } from "../../api/user-service/user-info/getUserInfo";
 import { append, createAnchorElement, createDiv, createImage } from "../../Utils/elementMaker";
 import { ErrorPopup } from '../ErrorPage.js';
@@ -8,19 +8,33 @@ export async function displayFriendlist(parent: HTMLElement, userData: UserInfo 
 	if (isOwnProfile) {
 		try {
 			const req = await getAllFriends();
-			if (req.ok) {
-				const friendlist: AllFriends[] = req.friends!;
-				friendlist?.forEach(friend => {
-					append(parent, [createFrienDiv(friend)]);
-					console.log("create frien div body with ", friend.username, " ", friend.avatar);
-				})
-			}
+			if (!req.ok)
+				throw new Error(req.error);
+			if (req.ok) 
+				fillFrienList(parent, req.friends!);
 		} catch(error) {
 			await ErrorPopup(error as string);
 		}
 	}
 	else {
+		try {
+			const req = await getAllFriendsBySlug(userData.slug);
+			if (!req.ok)
+				throw new Error(req.error);
+			if (req.ok)
+				fillFrienList(parent, req.friends!);
+				
+		} catch (error) {
+			await ErrorPopup(error as string);
+		}
 	}
+}
+
+function fillFrienList(parent: HTMLElement, friendlist: AllFriends[]) {
+	friendlist?.forEach(friend => {
+		append(parent, [createFrienDiv(friend)]);
+		console.log("create friend div body with ", friend.username, " ", friend.avatar);
+	})
 }
 
 function createFrienDiv(friend: any): HTMLElement {

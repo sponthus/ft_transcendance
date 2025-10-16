@@ -41,7 +41,7 @@ export function checkWebSocketMessageFormat(message: WebSocketMessage): FormatCh
 			}
 		]
 	};
-	const ajv = new Ajv();
+	const ajv = new Ajv({ allowUnionTypes: true });
 	const validate = ajv.compile(schema);
 	const valid = validate(message);
 	return {

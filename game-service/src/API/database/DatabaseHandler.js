@@ -429,6 +429,19 @@ export default class DatabaseHandler {
 	ORDER BY created_at DESC
 			`);
 			const results = stmt.get(tournamentId);
+			if (!results)
+				return null;
+			const playersStmt = this.db.prepare(`
+	SELECT name, has_accepted
+	FROM tournament_players
+	WHERE tournament_id = ?
+			`);
+			const players = playersStmt.all(tournamentId);
+			// console.log("Players found: ", players);
+			results.players = players
+				.filter(p => p.has_accepted === ACCEPTED || p.has_accepted === WAITING)
+				.map(p =>  p.name.slice(1) );
+			// console.log("Players in tournament: ", results.players);
 			return (results);
 		});
 		const results = transaction(tournamentId);

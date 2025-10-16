@@ -1,4 +1,5 @@
 import { checkIdFormat } from '../../tools/CheckFormat.js';
+import { sendTournamentCancelation } from '../requests/SendTournamentCancelation.js';
 
 // Tests ok
 // Secure with JWT, input protected VS SQLi
@@ -33,7 +34,7 @@ export async function deleteTournament(request, reply) {
 		}
 		console.log(tournamentToDelete);
 		console.log("Status to check:", tournamentToDelete.status, typeof tournamentToDelete.status);
-        if (tournamentToDelete.status !== 'pending') {
+        if (tournamentToDelete.status !== 'pending' && tournamentToDelete.status !== 'invitations') {
 			if (tournamentToDelete.status === 'between_games' ) {
 				const result = db.updateTournamentStatus(tournamentId, 'canceled');
 				if (result.ok) {
@@ -53,6 +54,17 @@ export async function deleteTournament(request, reply) {
 		}
 
         db.deleteTournament(tournamentId);
+
+		const players = tournamentToDelete.players;
+		console.log("players = ", players);
+		const notif = sendTournamentCancelation(requestingUserId, players, tournamentToDelete.name, tournamentId);
+		if (notif.ok === false) {
+			console.error("❌ Error while sending cancelation notifications: ", notif.error);
+			// Non blocking, tournament has been deleted anyway
+		} else {
+			console.log("❓ Tournament cancelation notification sent to players ", players);
+		}
+
         return reply.code(200).send({
 			action: "deleted",
 			name: tournamentToDelete.name

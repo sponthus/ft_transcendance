@@ -75,7 +75,12 @@ export class DisplayName
 		{
 			this._text1.text = this._namePlayer1;
 			this._text1.color = "red";
-			this._text1.fontSize = 18;
+			if (this._text1.text.length > 16)
+				this._text1.fontSize = 8;
+			else if (this._text1.text.length > 10)
+				this._text1.fontSize = 12;
+			else
+				this._text1.fontSize = 18;
 		}
 		
 		if (this._namePlayer2 === "Crabby the bot")
@@ -89,7 +94,12 @@ export class DisplayName
 		{
 			this._text2.text = this._namePlayer2;
 			this._text2.color = "blue";
-			this._text2.fontSize = 18;
+			if (this._text2.text.length > 16)
+				this._text2.fontSize = 8;
+			else if (this._text2.text.length > 10)
+				this._text2.fontSize = 12;
+			else
+				this._text2.fontSize = 18;
 		}
 	}
 }
