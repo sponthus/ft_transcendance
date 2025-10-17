@@ -8,8 +8,6 @@ import { currentPage } from '../../core/router.js';
 import { ChangeStateBody, StateBody } from './UserPage.js';
 
 export class UserBanner {
-	
-	// private StateBody!: number;
 	private ProfileBanner!: HTMLElement;
 	private UserData: UserInfo;
 	private isOwnProfile!: boolean;
@@ -146,7 +144,7 @@ export class UserBanner {
 						if (currentPage) 
 							currentPage.render();
 					}
-				}catch (error) {
+				} catch (error) {
 					await ErrorPopup(error as string);
 				}
 			});

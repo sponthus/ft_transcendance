@@ -5,6 +5,7 @@ import { createLogo } from './RegisterPage.js';
 import { createDiv, createElement, append, createFormDiv, createButton, createAnchorElement } from '../Utils/elementMaker.js';
 import { ErrorPopup } from "./ErrorPage.js";
 import { loginTwoFa } from "../Utils/2FAPopUp.js";
+import { cleanBanner } from "./Banner.js";
 
 export class LoginPage extends BasePage {
 
@@ -61,7 +62,18 @@ export class LoginPage extends BasePage {
 								, (createAnchorElement('bot-ling',  "Sign up", "/register", "text-emerald-800 hover:text-emerald-900 font-medium hover:underline") as HTMLAnchorElement)]);
 	}
 
-	
+
+	private async listentoGithubEvent (event: MessageEvent): Promise<void> {
+		if (event.origin ===  "http://localhost:5173") {
+			if (event.data.success){
+				await this.navigateHome();
+			}
+			return ;
+		}
+	}
+
+	private boundListentoGithubEvent = this.listentoGithubEvent.bind(this);
+
 	private async addInApp() {
 		const GithubBtn = createButton('gitHub', 'group flex items-center w-full justify-center gap-2 px-4 py-2 bg-orange-300 rounded-lg hover:bg-orange-400 transition active:scale-95 hover:scale-105 text-emerald-600', '');
 		GithubBtn.innerHTML = `
@@ -71,19 +83,20 @@ export class LoginPage extends BasePage {
 		append(this.Background, [this.Front]);
 		append(this.app, [this.Background]);
 
-		GithubBtn.addEventListener('click', async() => {
-			const popup = window.open(
+		GithubBtn.addEventListener('click', async(e) => {
+			window.open(
 			"http://localhost:5173/api/user/oauth/github",
 			"GitHub Login",
 			`width=960,height=540,top=${window.screenX + (window.innerWidth - 960) / 2},left=${window.screenY + (window.innerHeight - 540) / 2}`
 			);
-			const timer = setInterval(() => {
-			  if (popup && popup.closed) {
-			    clearInterval(timer);
-			    navigate('/')
-			  }
-			}, 1000)
-		})
+			window.addEventListener('message', this.boundListentoGithubEvent);
+		});
+	}
+
+	private async navigateHome() {
+		console.log('navigation');
+		await navigate('/');
+		window.removeEventListener('message', this.boundListentoGithubEvent);
 	}
 
 	private async watchForm() {

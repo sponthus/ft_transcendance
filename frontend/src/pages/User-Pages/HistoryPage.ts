@@ -1,28 +1,28 @@
 import { createDiv, createElement, append, setbackgroundImages} from '../../Utils/elementMaker.js';
-import {getFinishedGames } from '../../api/game-service/games/game.js';
+import {AllGamesInfos, getFinishedGames } from '../../api/game-service/games/game.js';
 import { UserInfo } from '../../api/user-service/user-info/getUserInfo.js';
 import { ErrorPopup } from '../ErrorPage.js';
 
 
 export async function DisplayHistoryPage(Body: HTMLElement, UserData: UserInfo) {
-	// Body.textContent = "i'm in the History body";
 	Body.className = "flex flex-col items-center bg-orange-300  bg-opacity-50 w-full h-[60%] flex overflow-auto gap-4";
 	try {
 		const res = await getFinishedGames(UserData.slug!); // replace by id
-		// const res = await  (UserData.id);
 		if (!res.ok) {
 			Body.textContent = "Error loading games... please retry ";
 			return ;
 		}
-		const games = res.games;
+		const stat: any = res.stats;
+		const games: AllGamesInfos[] = res.games;
 		if (games.length === 0) {
 			Body.textContent = "there is no games";
 		}
 		else {
+			fillStat(Body, stat);
 			fillHistoryStubborn(Body);
 			games.map((party: any, i: number) => {
 				if(party.tournament_id == 0)
-					FillHistory(Body, party, i, UserData);});
+					FillHistory(Body, party, i);});
 		}
 	}
 	catch (error) {
@@ -30,8 +30,8 @@ export async function DisplayHistoryPage(Body: HTMLElement, UserData: UserInfo) 
 	}
 }
 
-export async function FillHistory(Body: HTMLElement, party: any, index:number, UserData: UserInfo) {
-	const PartyDiv = createDiv("party-div", "flex items-center h-[30%] w-[100%] hover:bg-orange-400 hover:bg-opacity-50 space-x-8");
+export async function FillHistory(Body: HTMLElement, party: any, index:number) {
+	const PartyDiv = createDiv("party", "flex items-center h-[30%] w-[100%] hover:bg-orange-400 hover:bg-opacity-50 space-x-8");
 
 	createGameId(PartyDiv, index, party);
 	createPlayers(PartyDiv, index, party);
@@ -45,8 +45,16 @@ export async function FillHistory(Body: HTMLElement, party: any, index:number, U
 	append(Body, [PartyDiv]);
 }
 
+function fillStat(body: HTMLElement, stats: any) {
+	const stat: HTMLElement = createDiv('stat', 'flex items-center justify-center h-[10%] w-full space-x-8');
+	append(stat, [createElement('p', 'win-games',`Win : ${stats.wins}`, '')
+				, createElement('p', 'win-games',`losses : ${stats.losses}`, '')
+				, createElement('p', 'win-games',`totals games : ${stats.total}`, '')]);
+	append(body, [stat]);
+}
+
 export function fillHistoryStubborn(body: HTMLElement) {
-	const StubborndDiv = createDiv("Stubborn-div", "flex items-center h-[10%] w-[100%] space-x-8");
+	const StubborndDiv = createDiv("Stubborn", "flex items-center h-[10%] w-[100%] space-x-8");
 	append(StubborndDiv, [createStubborngameId(), createStubbornPlayer(), createStubbornBeginAt(), createStubbornFinishedAt(), createStubbornCreatedAt(),createStubbornCreatedBy(), createStubbornScore(), createStubbornWinner()]);
 	append(body, [StubborndDiv]);
 

@@ -7,9 +7,10 @@ import { UserBanner } from './UserBannerPage.js';
 import { DisplayeTournamentHistoryPage } from './TournamentHistoryPage.js';
 import { ErrorPopup } from '../ErrorPage.js';
 import { getUserStatus } from '../../api/session-service/getStatus.js';
+import { cleanBanner } from '../Banner.js';
 
 export enum BodyState {FRIENDS = 0, HISTORY = 1, TOURNAMENT = 2};
-export let StateBody: number;
+export let StateBody: number = BodyState.FRIENDS;
 let isChangeBody: Boolean;
 
 export function ChangeStateBody(state: number){
@@ -21,23 +22,22 @@ export class UserPage extends BasePage {
 	private Background!: HTMLElement;
 	private UserBanner!: UserBanner;
 	private slug!: string;
-	protected BodyDiv!: HTMLElement;
+	private BodyDiv!: HTMLElement;
 
 	private UserData?: UserInfo;
 
 	private isOwnProfile: boolean = true;
 
-	private Statue: string; 
+	private Statue!: string; 
 
 	constructor(slug: string) {
 		super();
 		this.slug = slug;
-		this.Statue = 'Error';
-		StateBody = BodyState.FRIENDS;
 	}
 	
 	async render(): Promise<void> {
 		this.destroy();
+		this.Statue = 'Error';
 		await this.renderBanner();
 		await this.initDivs();
 		await this.TryGetUserInfo();
@@ -46,8 +46,10 @@ export class UserPage extends BasePage {
 	/*************************************Functions for render Page*************************************/
 	private async initDivs() {
 		/*********init Divs**************/
-		this.Background = this.initBackground();
-		this.Background.className = "flex flex-col items-center justify-start h-screen min-h-[540px] w-screen min-w-[960px] flex-none";
+		if (!this.Background) {
+			this.Background = this.initBackground();
+			this.Background.className = "flex flex-col items-center justify-start h-screen min-h-[540px] w-screen min-w-[960px] flex-none";
+		}
 	}
 	
 	private async TryGetUserInfo() {
@@ -72,12 +74,12 @@ export class UserPage extends BasePage {
 				await this.showUserPage();
 			} else {
 				await ErrorPopup("Unable to load profile");
-				navigate('/');
+				await navigate('/');
 			}
 		}
 		catch (error) {
 			await ErrorPopup(error as string);
-			navigate('/');
+			await navigate('/');
 		}
 	}
 
@@ -94,7 +96,7 @@ export class UserPage extends BasePage {
 			}
 		} catch (error) {
 			await ErrorPopup(error as string);
-			navigate('/');
+			await navigate('/');
 		}
 	}
 
@@ -108,13 +110,16 @@ export class UserPage extends BasePage {
 
 	private async renderProfileBanner() {
 		await this.UserBanner.render();
-		this.Background.appendChild(this.UserBanner._ProfileBanner);
+		if (this.Background)
+			this.Background.appendChild(this.UserBanner._ProfileBanner);
 	}
 
 	private async renderBodyProfile() {
 		/***************************body div***********************/
-		if (this.Background && this.BodyDiv)
+		if (this.Background && this.BodyDiv && this.BodyDiv.isConnected) {
+			Array.from(this.BodyDiv.children).forEach(child => {child.remove()});
 			this.BodyDiv.remove();
+		}
 
 		this.BodyDiv = document.createElement('div');
 		this.BodyDiv.className = "bg-orange-300  bg-opacity-50 w-full h-[60%] flex items-center justify-center overflow-auto";
@@ -130,7 +135,6 @@ export class UserPage extends BasePage {
 				break;
 			default:break;
 		}
-	
 		if (this.Background)
 			this.Background.appendChild(this.BodyDiv);
 	}
@@ -146,20 +150,30 @@ export class UserPage extends BasePage {
 
 	private async BannerEvents() {
 		this.UserBanner.botBannerEvents();
-		document.addEventListener('click', () => {
-			if (isChangeBody) {
-				this.renderBodyProfile();
-				isChangeBody = false;
-			}
-		})
+		document.addEventListener('click', this.onBodyStateChange)
 	}
 
+	private onBodyStateChange = (event: Event): void => {
+		if (isChangeBody) {
+			this.renderBodyProfile();
+			isChangeBody = false;
+		}
+	}
 	private async editingEvents() {
 		this.UserBanner._EditProfile.editEvents();
 	}
 
 	private async addInApp() {
-		if (this.Background) 
+		if (this.Background && !this.Background.isConnected) 
 			this.app.appendChild(this.Background);
+	}
+
+	destroy(): void {
+		cleanBanner();
+		Array.from(this.banner.children).forEach(child => {child.remove()});
+		this.banner.innerHTML = '';
+        Array.from(this.app.children).forEach(child => {child.remove()});
+		this.app.innerHTML = '';
+		document.removeEventListener('click',  this.onBodyStateChange);
 	}
 }

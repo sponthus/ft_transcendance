@@ -65,6 +65,7 @@ export class Game extends BasePage {
 	destroy(): void {
 		this.banner.innerHTML = '';
 		this.app.innerHTML = '';
+		document.body.style.overflow = "";
 		cleanBanner();
 		if (this._renderScene) {
 			if (this._renderScene.homeScene)

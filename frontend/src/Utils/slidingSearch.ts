@@ -68,6 +68,7 @@ function handleSearchEnter() {
 				if (value.username.toLocaleLowerCase().substring(0, searchTerm.length) === searchTerm) {
 					const UserText: HTMLAnchorElement = createAnchorElement(`${value.slug}`, `${value.slug}`, `/user/${value.slug}`, 'text-emerald-600 hover:bg-orange-400 hover:font-bold text-xl w-full text-center transition-all duration-200 hover:scale-105 shadow-xl');
 					searchPanel.appendChild(UserText);
+					UserText.addEventListener('click', () => {closeSearch();});
 				}
 			})
 		}
@@ -153,12 +154,12 @@ function closeSearchPanel() {
 	searchPanel.className = 'flex flex-col items-center space-y-4 absolute right-0 top-16 w-0 h-0 overflow-y-auto transition-all duration-300 ease-in-out bg-orange-100 rounded-xl shadow-lg border-2 border-emerald-300 opacity-0';
 }
 
-function handleSearch() {
-	const searchInput = document.getElementById('search-input') as HTMLInputElement;
-	if (!searchInput) return;
+// function handleSearch() {
+// 	const searchInput = document.getElementById('search-input') as HTMLInputElement;
+// 	if (!searchInput) return;
 
-	const searchTerm = searchInput.value.trim();
-	if (searchTerm) {
-		navigate(`/search?q=${encodeURIComponent(searchTerm)}`);
-	}
-}
+// 	const searchTerm = searchInput.value.trim();
+// 	if (searchTerm) {
+// 		navigate(`/search?q=${encodeURIComponent(searchTerm)}`);
+// 	}
+// }

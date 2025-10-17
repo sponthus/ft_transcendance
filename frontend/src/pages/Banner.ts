@@ -182,18 +182,27 @@ export function updateResize() {
 }
 
 export function cleanBanner() {
-	if (wrapper)
-		wrapper.innerHTML = '';
-	if (logo)
+	if (logo) {
+		while(logo.firstChild)
+			logo.firstChild.remove();
 		logo.innerHTML = '';
-	if (userInfo)
-		userInfo.innerHTML = '';
+	}
+	if (userInfo) {
+		while(userInfo.firstChild)
+			userInfo.firstChild.remove();
+		userInfo.innerHTML = '';	
+	}
 	if (navLinks) {
-		Array.from(navLinks.children).forEach(child=>{
-			Array.from(child.children).forEach(element => {
-				element.remove();
-			});
-			child.remove();
-		})
+		while(navLinks.firstChild) {
+			while(navLinks.firstChild.firstChild)
+				navLinks.firstChild.firstChild.remove();
+			navLinks.firstChild.remove();
+		}
+		navLinks.innerHTML = '';
+	}
+	if (wrapper){
+		while(wrapper.firstChild)
+			wrapper.firstChild.remove();
+		wrapper.innerHTML = '';
 	}
 }
