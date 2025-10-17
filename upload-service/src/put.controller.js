@@ -3,6 +3,7 @@ import fs from "fs";
 import { __dirname } from "./index.js";
 import pump from "pump";
 import { fileTypeFromBuffer } from "file-type";
+import sharp from "sharp";
 
 export async function uploadAvatar(request, reply) {
     const user = request.user;
@@ -61,6 +62,18 @@ export async function uploadAvatar(request, reply) {
                     console.log("Invalid real file type:", type);
                     return reply.code(400).send({ error: "Invalid image file (must be real PNG or JPEG)" });
                 }
+
+
+                try
+                {
+                    await sharp(buffer).metadata();
+                }
+                catch (err)
+                {
+                    console.log("Sharp failed to read image: ", err.mesage);
+                    return reply.code(400).send({error: "Corrupted or invalid image"});
+                }
+
 
                 // Écrit le fichier après validation
                 fs.writeFileSync(filePath, buffer);
