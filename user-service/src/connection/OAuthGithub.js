@@ -36,9 +36,14 @@ export async function loginThroughGithub(request, reply)
         if (userInfo.error)
             reply.code(401).send({ error: userInfo.error});
         let token;
+        let twofa = false;
         if (userInfo.twoFa === 1)
+        {
+            twofa = true;
             token = await reply.jwtSign({ idUser: userInfo.idUser, username: userInfo.username, slug: userInfo.slug, twofa_pending: true }, {expiresIn: '3m'});
-        token = await reply.jwtSign({ idUser: userInfo.idUser, username: userInfo.username, slug: userInfo.slug }, {expiresIn: '1h'});
+        }
+        else
+            token = await reply.jwtSign({ idUser: userInfo.idUser, username: userInfo.username, slug: userInfo.slug }, {expiresIn: '1h'});
         console.log("\nidUser: ", userInfo.idUser);
         console.log("\nusername: : ", userInfo.username);
         console.log("\nslug: : ", userInfo.slug);
@@ -54,21 +59,12 @@ export async function loginThroughGithub(request, reply)
             secure: secure,
             path: '/',
             maxAge: 3600000
-        }).type('text/html')
-            .send(`
-                <html>
-                  <body>
-                    <script>
-                        window.opener?.postMessage({ success: true }, "http://localhost:5173");
-                        window.close();
-                    </script>
-                 </body>
-                </html>`);
+        }).send({success: true, twofa: twofa});
     }
     catch (err)
     {
         console.log(err);
-        reply.code(500).send({ error: "Internal Server Error" + err.message });
+        reply.code(500).send({ error: "Internal Server Error" });
     }
 }
 
