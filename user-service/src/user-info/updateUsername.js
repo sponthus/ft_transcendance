@@ -2,6 +2,7 @@ import slugify from "slugify";
 import { checkUsernameFormat } from "../tools/checkFormat.js";
 import { generateUniqueSlug } from "../tools/generateUnique.js";
 import { notifyChangeData, notifyChangeSlug } from "../internal-service/notifyServices.js";
+import env from '../../config/env.js';
 
 export default async function updateUsername (request, reply)
 {
@@ -52,11 +53,20 @@ export default async function updateUsername (request, reply)
                             last_username_change = CURRENT_TIMESTAMP \
                         WHERE \
                             id = ?").run(idUser);*/
-        console.debug("LAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
         notifyChangeData(idUser, newUsername, slug);
         notifyChangeSlug(old.slug , slug);
         const token = await reply.jwtSign({ idUser, newUsername, slug}, {expiresIn: '1h'});
-        return reply.code(200).send({ token : token });
+        let secure = false;
+        if (env.nodeEnv === 'production')
+            secure = true;
+        return reply.code(200).setCookie('token', token,
+            {
+                httpOnly: true,
+                signed: true,
+                secure: secure,
+                path: '/',
+                maxAge: 3600000
+            }).send();
     }
     catch (err)
     {

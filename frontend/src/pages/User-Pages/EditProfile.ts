@@ -204,9 +204,10 @@ export class EditProfile extends popUp {
 				await this.updateUserData();
 				await navigate(`/user/${this.UserData.slug}`);
 			}
-			else 
+			else
 				throw new Error(req.error);
-		} catch (error){
+		}
+		catch (error){
 			await ErrorPopup(error as string);
 		}
 	}
@@ -244,14 +245,15 @@ export class EditProfile extends popUp {
 		
 		const formData = new FormData();
 		formData.append('avatar-input', file);
-		
 		// Makes 2 requests : upload to upload service + change avatar in user db
 		const req = await uploadAvatar(formData);
 		if (req.ok) {
 			await ErrorPopup("Avatar updated successfully!");
+			console.log('STRING AVATAR : ', req.avatar);
 			const pathReq = await updateAvatar(req.avatar);
 			if (pathReq.ok) {
-				//await navigate(`/user/${this.UserData.slug}`); //TODO A REMETTRE
+				await this.updateUserData();	
+				await navigate(`/user/${this.UserData.slug}`); //TODO A REMETTRE
 				await ErrorPopup("avatar modify successfully");
 				return ;
 			}
