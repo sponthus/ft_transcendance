@@ -1,8 +1,7 @@
-import { notifyRefresh } from "../../../internal-service/notifyRefresh.js";
+import { notifyRefresh } from "../../../internal-service/notifyServices.js";
 
 export async function addTournamentNotif (request, reply)
 {
-    console.debug("TOURNAMENT NOTIF HERE");
     const   db = request.server.db;
     const   { type, receiverId, senderId, tournamentId, tournamentName } = request.body;
    
@@ -15,9 +14,9 @@ export async function addTournamentNotif (request, reply)
     {
         let receiverIds;
         if (Array.isArray(receiverId))
-            receiverIds = receiverId; //si deja tableau on fait rien
+            receiverIds = receiverId;
         else
-            receiverIds = [receiverId]; // sinon met dans un tableau
+            receiverIds = [receiverId];
         const  addNotifTournament = db.transaction( (type, receiverIds, senderId, tournamentId, tournamentName) =>
         {
             for (const id of receiverIds)

@@ -1,11 +1,11 @@
 import { popUp } from "../../Utils/popUp";
 import { createDiv, createElement, createButton, createFormDiv, append, createInput} from '../../Utils/elementMaker.js';
-import { modifyUserAvatar } from "../../api/user-service/user";
 import { updateUsername } from "../../api/user-service/user-info/updateUsername.js";
 import { getUserInfo } from '../../api/user-service/user-info/getUserInfo.js';
-import { upload } from "../../api/avatar.js";
+import { uploadAvatar } from "../../api/avatar.js";
 import { navigate } from '../../core/router.js';
 import { ErrorPopup } from '../ErrorPage.js';
+import { updateAvatar } from "../../api/user-service/user-info/modifyUserAvatar.js";
 
 enum EditState {AVATAR = 0, USERNAME = 1};
 
@@ -209,8 +209,6 @@ export class EditProfile extends popUp {
 		} catch (error){
 			await ErrorPopup(error as string);
 		}
-
-			
 	}
 
 	async openUploadForm() {
@@ -237,7 +235,7 @@ export class EditProfile extends popUp {
 				ErrorPopup("File is not jpg");
 				return;
 			}
-		const maxSizeBytes = 5 * 1024 * 1024;
+		const maxSizeBytes = 10 * 1024 * 1024; //TODO A CHANGER
 		if (file.size > maxSizeBytes)
     	{
 				ErrorPopup("File is more than 5GB");
@@ -248,12 +246,12 @@ export class EditProfile extends popUp {
 		formData.append('avatar-input', file);
 		
 		// Makes 2 requests : upload to upload service + change avatar in user db
-		const req = await upload(formData);
+		const req = await uploadAvatar(formData);
 		if (req.ok) {
 			await ErrorPopup("Avatar updated successfully!");
-			const pathReq = await modifyUserAvatar(this.UserData.slug, req.avatar);
+			const pathReq = await updateAvatar(req.avatar);
 			if (pathReq.ok) {
-				await navigate(`/user/${this.UserData.slug}`);
+				//await navigate(`/user/${this.UserData.slug}`); //TODO A REMETTRE
 				await ErrorPopup("avatar modify successfully");
 				return ;
 			}
