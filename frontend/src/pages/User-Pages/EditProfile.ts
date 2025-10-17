@@ -207,8 +207,8 @@ export class EditProfile extends popUp {
 		if (req.ok) {
 			console.log("Username edited successfully");
 			this.cleanBody();
-			this.updateUserData();
-			navigate(`/user/${this.UserData.slug}`);// TODO A remettre  ?? 
+			await this.updateUserData();
+			await navigate(`/user/${this.UserData.slug}`);// TODO A remettre  ?? 
 			location.reload();
 		}
 		else
@@ -256,9 +256,11 @@ export class EditProfile extends popUp {
 		const req = await uploadAvatar(formData);
 		if (req.ok) {
 			await ErrorPopup("Avatar updated successfully!");
+			console.log('STRING AVATAR : ', req.avatar);
 			const pathReq = await updateAvatar(req.avatar);
 			if (pathReq.ok) {
-				//await navigate(`/user/${this.UserData.slug}`); //TODO A REMETTRE
+				await this.updateUserData();	
+				await navigate(`/user/${this.UserData.slug}`); //TODO A REMETTRE
 				await ErrorPopup("avatar modify successfully");
 				return ;
 			}
