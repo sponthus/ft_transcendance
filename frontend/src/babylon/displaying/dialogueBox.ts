@@ -2,7 +2,6 @@
 
 import * as BABYLON from "@babylonjs/core";
 import * as GUI from "@babylonjs/gui";
-import { Color } from "../Color.js";
 
 export function sleep(ms: number) {
 	return new Promise(resolve => setTimeout(resolve, ms));

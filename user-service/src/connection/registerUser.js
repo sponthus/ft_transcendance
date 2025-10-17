@@ -1,5 +1,6 @@
 import { checkRegistrationFormat } from "../tools/checkFormat.js";
 import { generateUniqueSlug } from "../tools/generateUnique.js";
+import { notifyChangeData } from "../internal-service/notifyServices.js";
 import env from '../../config/env.js';
 import bcrypt from "bcrypt";
 import slugify from "slugify";
@@ -12,6 +13,7 @@ export default async function registerUser(request, reply)
     const db = request.server.db;
     const avatar = 'default.jpg'
     const username = request.body.username;
+	// TODO : Crypt password
     const password = request.body.password;
 
     //pourquoi le username peut pas etre defaut ?
@@ -37,6 +39,7 @@ export default async function registerUser(request, reply)
         let secure = false;
             if (env.nodeEnv === 'production')
                 secure = true;
+		notifyChangeData(idUser, username, slug);
         return reply.code(200).setCookie('token', token,
             {
                 httpOnly: true, //uniquement accessible protole https

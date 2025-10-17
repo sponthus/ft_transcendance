@@ -1,6 +1,5 @@
 import { checkIdFormat } from "../../tools/CheckFormat.js";
 
-// Tests ok
 // Secure with JWT and user ownership, input protected VS SQLi
 // Delete a game if it is pending and belongs to the requesting user
 export async function deleteGame(request, reply) {
@@ -20,10 +19,10 @@ export async function deleteGame(request, reply) {
     const { db } = request.server;
     if (!db) {
 		console.error('❌ Error while deleting game: database connection not found');
-		return reply.code(500).send({ error: 'No database connection found.'});
+		return reply.code(500).send({ error: 'Internal server error.'});
 	}
 	
-	console.log("Requesting user = ", requestingUserId, " / Game = ", gameId);
+	// console.debug("Requesting user = ", requestingUserId, " / Game = ", gameId);
 
     try {
         const gameToDelete = await db.getGame(gameId);
@@ -34,7 +33,7 @@ export async function deleteGame(request, reply) {
             return reply.code(403).send({ error : 'Forbidden, game is not pending.' });
         }
 		if (gameToDelete.id_user !== requestingUserId) {
-			// console.log("Error because found user_id = ", gamesToDelete[0].user_id);
+			console.error("❌ Error because found user_id = ", gameToDelete.id_user);
 			return reply.code(403).send({ error: "Forbidden, this is not your game."});
 		}
         if (gameToDelete.tournament_id)
@@ -44,7 +43,7 @@ export async function deleteGame(request, reply) {
         return reply.code(200).send(result);
     } catch (error) {
         console.error('❌ Error deleting game: ');
-		console.log(error);
-		return reply.code(500);
+		console.error(error);
+		return reply.code(500).send({ error: 'Internal server error.' });
     }
 }

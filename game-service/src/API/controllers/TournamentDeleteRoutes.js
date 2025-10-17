@@ -1,4 +1,5 @@
 import { checkIdFormat } from '../../tools/CheckFormat.js';
+import { sendTournamentCancelation } from '../requests/SendTournamentCancelation.js';
 
 // Tests ok
 // Secure with JWT, input protected VS SQLi
@@ -21,19 +22,19 @@ export async function deleteTournament(request, reply) {
     const { db } = request.server;
     if (!db) {
 		console.error('❌ Error while deleting tournament: database connection not found');
-		return reply.code(500).send({ error: 'No database connection found.'});
+		return reply.code(500).send({ error: 'Internal server error.'});
 	}
 	
-	console.log("Requesting user = ", requestingUserId, " / Tournament = ", tournamentId);
+	// console.debug("Requesting user = ", requestingUserId, " / Tournament = ", tournamentId);
 
     try {
         const tournamentToDelete = await db.getTournament(tournamentId);
         if (!tournamentToDelete) {
 			return reply.code(404).send({ error : 'No tournament found.'});
 		}
-		console.log(tournamentToDelete);
-		console.log("Status to check:", tournamentToDelete.status, typeof tournamentToDelete.status);
-        if (tournamentToDelete.status !== 'pending') {
+		// console.debug(tournamentToDelete);
+		// console.debug("Status to check:", tournamentToDelete.status, typeof tournamentToDelete.status);
+        if (tournamentToDelete.status !== 'pending' && tournamentToDelete.status !== 'invitations') {
 			if (tournamentToDelete.status === 'between_games' ) {
 				const result = db.updateTournamentStatus(tournamentId, 'canceled');
 				if (result.ok) {
@@ -53,6 +54,17 @@ export async function deleteTournament(request, reply) {
 		}
 
         db.deleteTournament(tournamentId);
+
+		const players = tournamentToDelete.players;
+		// console.debug("players = ", players);
+		const notif = sendTournamentCancelation(requestingUserId, players, tournamentToDelete.name, tournamentId);
+		if (notif.ok === false) {
+			console.error("❌ Error while sending cancelation notifications: ", notif.error);
+			// Non blocking, tournament has been deleted anyway
+		} else {
+			console.log("❓ Tournament cancelation notification sent to players ", players);
+		}
+
         return reply.code(200).send({
 			action: "deleted",
 			name: tournamentToDelete.name
@@ -60,6 +72,6 @@ export async function deleteTournament(request, reply) {
     } catch (error) {
         console.error('❌ Error deleting tournament: ');
 		console.error(error);
-		return reply.code(500).send({ error: 'Internal server error while deleting tournament.' });
+		return reply.code(500).send({ error: 'Internal server error.' });
     }
 }

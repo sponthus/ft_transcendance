@@ -112,7 +112,6 @@ export const createLeafShader = (scene: BABYLON.Scene, leafTexture: BABYLON.Text
     shader.backFaceCulling = false;
     shader.setTexture("textureSampler", leafTexture);
     shader.setFloat("alpha", 1.0);
-    shader.onError = (_, e) => console.error("Shader error:", e);
     
     return shader;
 };

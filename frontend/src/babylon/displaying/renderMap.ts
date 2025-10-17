@@ -45,9 +45,8 @@ export class renderMap {
 				if (this._mapLayout[index] != 0) {
 					let titleid: number = this._mapLayout[index];
 					const template = this._loadedMap![titleid.toString()] as BABYLON.AbstractMesh;
-					if (!template) {
-						console.log("template cannot charge");
-						continue ; }
+					if (!template)
+						continue ;
 					const instance = template.instantiateHierarchy() as  BABYLON.TransformNode;
 					instance.parent = this._map;
 					instance.position.set(x * titleSize , 0, z * titleSize );

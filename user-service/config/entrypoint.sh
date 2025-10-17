@@ -5,4 +5,10 @@ if [ ! -d "node_modules" ]; then
   npm install
 fi
 
-exec npm run dev
+if env | grep -q "^NODE_ENV=development"; then
+  echo "Running in development mode"
+  exec npm run dev
+else
+  echo "Running in production mode"
+  exec npm run start
+fi

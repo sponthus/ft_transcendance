@@ -1,24 +1,24 @@
-import { checkTournamentCreationFormat, checkTournamentNameFormat, checkPlayerFormat, checkIdFormat, checkIdNumberFormat } from "../../tools/CheckFormat.js";
+import { checkTournamentNameFormat, checkIdNumberFormat } from "../../tools/CheckFormat.js";
 import { sendTournamentReady } from "../requests/SendTournamentReady.js";
 import { sendTournamentCancelation } from "../requests/SendTournamentCancelation.js";
-import { getUserInfoFromId } from "../requests/GetUserInfoFromId.js";
 import { sendTournamentAcceptation } from "../requests/SendTournamentAcceptation.js";
 
+// Security : Accessible to internal services
 export async function acceptTournamentInvitation(request, reply) {
 	console.log('➡️ User accessed POST /tournament/accept');
-	console.debug(request.body);
+	// console.debug(request.body);
 	const acceptingUserId = request.body.userId; //Changer par rapport au JSON envoyer, Elodie
 	const ownerUserId = request.body.ownerUserId;
 	const tournamentName = request.body.tournamentName;
 	const tournamentId = request.body.tournamentId;
 
-	console.debug('Body:', request.body);
+	// console.debug('Body:', request.body);
 	if (!acceptingUserId || !tournamentId) {
-		return reply.code(400).send({ error: 'Bad request - acceptingUserId and tournamentId are required.' });
+		return reply.code(400).send({ error: 'Bad request - userId and tournamentId are required.' });
 	}
 	// console.debug("Accepting user ", acceptingUserId, " for tournament ", tournamentId);
 	if (checkIdNumberFormat(acceptingUserId) === false) {
-		return reply.code(400).send({ error: 'Bad acceptingUserId format.' });
+		return reply.code(400).send({ error: 'Bad userId format.' });
 	}
 	if (checkIdNumberFormat(ownerUserId) === false) {
 		return reply.code(400).send({ error: 'Bad ownerUserId format.' });
@@ -38,9 +38,9 @@ export async function acceptTournamentInvitation(request, reply) {
 
 	try {
 		const result = await db.acceptTournamentInvitation(acceptingUserId, tournamentId);
-		console.debug(result);
+		// console.debug(result);
 		if (result.ok === false) {
-			console.log(`❌ Unable to accept tournament invitation: /${result.error}/`);
+			console.warn(`❌ Unable to accept tournament invitation: /${result.error}/`);
 			switch (result.error) {
 				case "Player not found in this tournament":
 					return reply.code(404).send({ error: result.error });
@@ -115,13 +115,13 @@ export async function acceptTournamentInvitation(request, reply) {
 			return reply.code(200).send({ message: 'Tournament invitation accepted.' });
 		}
 	} catch (error) {
-		console.log('❌ Error accepting tournament invitation : ');
-		console.log(error);
+		console.error('❌ Error accepting tournament invitation : ');
+		console.error(error);
 		return reply.code(500).send({ error: 'Internal server error' });
 	}
 }
 
-// TODO test
+// Security : Accessible to internal services
 export async function declineTournamentInvitation(request, reply) {
 	console.log('➡️ User accessed POST /tournament/decline');
 	const ownerUserId = request.body.ownerUserId;
@@ -178,7 +178,7 @@ export async function declineTournamentInvitation(request, reply) {
 			const cancelNotification = await sendTournamentCancelation(ownerUserId, players, tournamentId, tournamentName);
 			if (cancelNotification.ok === false) {
 				console.error("❌ Unable to send tournament cancelation notification to players ", players, ": ", cancelNotification.error);
-				// TODO Error 500 ?
+				// Not blocking, tournament is cancelled anyway
 			} else {
 				console.log("❓ Tournament cancelation notification sent to players ", players);
 			}

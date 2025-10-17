@@ -16,6 +16,7 @@ export class renderAsset {
 	private _npc ?:BABYLON.Mesh;
 	private _chest?: BABYLON.Mesh;
 	private _sandcastle ?: BABYLON.Mesh;
+	private _bob?: BABYLON.Mesh;
 
 	private _pirateBoat?: BABYLON.Mesh;
 	private _bendTrees?: BABYLON.TransformNode[] = [];
@@ -46,10 +47,10 @@ export class renderAsset {
 	}
 
 	public async _load(): Promise<void> {
-		
 		await this._loadGround();
 		await this._loadPlayer();
 		await this._loadNpc();
+		await this._loadBob();
 		await this._loadSanCastle();
 		await this._loadChest();
 		await this._loadMap();
@@ -92,19 +93,21 @@ export class renderAsset {
 			const req = await getCharacterAsset();
 			if (req.ok) {
 				AssetNumber  = req.asset!;
-				console.log("AssetData = ", req.asset as number);
 			}
+			else
+				throw new Error(req.error);
 		} catch(error) {
 			await ErrorPopup(error as string);
 		}
 		const result = await ImportMeshAsync(`/asset/Characters/Models/GLBformat/character-${AssetNumber}.glb`, this._scene);
-		if (result)
-			console.log("Meshes Player import succesfully", result.meshes);
-		this._setUpMesh(result, new BABYLON.Vector3(5, 0, 5), 1.5);
-		this._player = result.meshes[0] as BABYLON.Mesh;
-		if (!this._player)
-			console.log("player not initialized:");
-		this._addColisionPlayer(this._player);
+		if (result) {
+			this._setUpMesh(result, new BABYLON.Vector3(5, 0, 5), 1.5);
+			this._player = result.meshes[0] as BABYLON.Mesh;
+			if (!this._player)
+				return ;
+			this._addColisionPlayer(this._player);
+		}
+			
 	}
 
 	private async _loadNpc() {
@@ -114,25 +117,38 @@ export class renderAsset {
 			const req = await getNpcAsset();
 			if (req.ok) {
 				AssetNumber = req.asset!;
-				// console.log("AssetNumber NPC = " , AssetNumber);
 			}
+			else
+				throw new Error(req.error);
 		} catch (error) {
 			await ErrorPopup(error as string);
 		}
 		const result = await ImportMeshAsync(`/asset/Characters/Models/GLBformat1/character-${AssetNumber}.glb`, this._scene);
-		if (result)
-			console.log("mesh npc import successfully");
-		this._catAnimationGroupName(result, "npc_");
+		if (result) {
+			this._catAnimationGroupName(result, "npc_");
+			this._addColisionForEach(result);
+			this._setUpMesh(result, BABYLON.Vector3.Zero(), 2);
+			this._npc = result.meshes[0] as BABYLON.Mesh;
+			this._npc.rotation = new BABYLON.Vector3(0, 1, 0);
+			this._npc.position = new BABYLON.Vector3(35, 0, -10);
+		}
+	}
+
+	private async _loadBob() {
+		/******************************load Bob Asset******************************/
+		const result = await ImportMeshAsync("/assets/bob.glb", this._scene);
 		this._addColisionForEach(result);
-		this._setUpMesh(result, BABYLON.Vector3.Zero(), 2);
-		this._npc = result.meshes[0] as BABYLON.Mesh;
-		this._npc.rotation = new BABYLON.Vector3(0, 1, 0);
-		this._npc.position = new BABYLON.Vector3(35, 0, -10);
+		this._bob = result.meshes[0] as BABYLON.Mesh;
+		this._bob.position.set(-21, 0, 0);
+		this._bob.rotation = new BABYLON.Vector3(0, -1, 0);
 	}
 
 	private async _loadSanCastle() {
 		/**************************for sand castle**************************/
 		const result = await ImportMeshAsync("/assets/chateauSable.glb", this._scene);
+		result.animationGroups.forEach(element => {
+			element.stop();
+		});
 		this._addColisionForEach(result);
 		this._sandcastle = result.meshes[0] as BABYLON.Mesh;
 		this._sandcastle.scaling.scaleInPlace(0.3);
@@ -159,14 +175,12 @@ export class renderAsset {
 			if (this._titleType[type] != "nothing")
 			{
 				const result1 = await ImportMeshAsync(this._titleType[type], this._scene);
-				if (result1)
-					console.log("Meshes map import succesfully", result1.meshes);
-				else
-					console.log("cannot map ", this._titleType[type]);
-				this._setUpMesh(result1, BABYLON.Vector3.Zero(), 3.5);
-				const mesh = result1.meshes[0];
-				mesh.setEnabled(false);
-				this._loadedMap[type] = mesh;
+				if (result1) {
+					this._setUpMesh(result1, BABYLON.Vector3.Zero(), 3.5);
+					const mesh = result1.meshes[0];
+					mesh.setEnabled(false);
+					this._loadedMap[type] = mesh;
+				}
 			}
 		}
 	}
@@ -186,10 +200,7 @@ export class renderAsset {
 		/**************************for boat 1**************************/
 		const resBoat1 = await ImportMeshAsync("/asset/environements/Models/GLBformat/ship-pirate-large.glb", this._scene)
 		this._addColisionForEach(resBoat1);
-		this._pirateBoat = resBoat1.meshes[0] as BABYLON.Mesh;
-		this._pirateBoat.getChildMeshes().forEach(child => {
-			console.log('child boat : ', child.name);
-		});
+		this._pirateBoat = resBoat1.meshes[0] as BABYLON.Mesh;;
 		this._pirateBoat.position = new BABYLON.Vector3(-30 , -1, -5);
 		this._pirateBoat.rotation = BABYLON.Vector3.Zero();
 		this._pirateBoat.scaling.scaleInPlace(2);
@@ -384,7 +395,6 @@ export class renderAsset {
 	}
 
 	private	_addColisionPlayer(mesh: BABYLON.Mesh) {
-		console.log("mesh name : ", mesh.name);
 		mesh.checkCollisions = true; // activation collision for player
 		mesh.ellipsoid = new BABYLON.Vector3(0.7, 1.5, 0.7); // define collision arround player
 		mesh.ellipsoidOffset = new BABYLON.Vector3(0, 1.5, 0); // center collision not necessary

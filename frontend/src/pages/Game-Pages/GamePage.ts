@@ -1,22 +1,12 @@
 import { popUp } from '../../Utils/popUp.js';
 import { renderScene } from '../../babylon/displaying/renderScene.js';
-import { createDiv, createElement, createButton, createDropdownDiv, createFormDiv, createCheckBoxLabel, append, createImage, setbackgroundImages} from '../../Utils/elementMaker.js';
+import { createDiv, createElement, createButton, createDropdownDiv, append, createImage, setbackgroundImages} from '../../Utils/elementMaker.js';
 import { LocalGamePage } from './LocalGamePage.js';
 import { TournamentPage } from "./tounramentPage.js";
 import { Event } from './Event.js';
 import { getUserInfo, UserInfo } from '../../api/user-service/user-info/getUserInfo.js';
 import { endGamePage } from './endGamePage.js';
 import { ErrorPopup } from '../ErrorPage.js';
-
-type UserData = //VA ETRE CHANGER, le token renvoie le username et l'id du user
-{
-	id: number
-	username: string;
-	nickname: string;
-	avatar: string;
-	slug: string;
-	created_at: string;
-};
 
 export async function renderDropdown(Parent: HTMLElement, Options: string[], Name: string, TextContent: string): Promise<void> {
 	const Div = createDropdownDiv(Options, Name, TextContent, 
@@ -62,7 +52,6 @@ export class GamePage extends popUp {
 			if (req.ok) {
 				this.userData = req.userInfo;
 				this.userName = this.userData.username;
-				console.log("add username ", this.userName);
 			}
 		} catch(error) {
 			await ErrorPopup (error as string);

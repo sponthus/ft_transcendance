@@ -1,4 +1,4 @@
-import { notifyRefresh } from "../../internal-service/notifyRefresh.js";
+import { notifyRefresh } from "../../internal-service/notifyServices.js";
 import { checkSlugFormat } from "../../tools/checkFormat.js";
 import { addNotification } from "../notifications/notificationsManager.js";
 
@@ -50,9 +50,7 @@ export async function   addFriend(request, reply)
                                             users \
                                         WHERE \
                                             id = ?").get(idUser);
-        const result = await notifyRefresh(friend.id, username.username, "friend_request");
-        if (!result.ok)
-            return reply.code(result.status).send({ error: result.error });
+        notifyRefresh(friend.id, username.username, "friend_request");
         statement.run(idUser, friend.id);
         return reply.code(200).send();
     }
@@ -68,6 +66,7 @@ export async function   removeFriend(request, reply)
     const   idUser = request.user.idUser;
     const   friendSlug = request.body.slug;
 
+	// TODO : Not respond 200 when sending with your own slug
     if (checkSlugFormat(request) == false)
         return reply.code(400).send( {error : "Invalid format for the friend's slug"} );
     try

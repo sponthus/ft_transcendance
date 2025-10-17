@@ -5,6 +5,7 @@ import { getAllNotifications, AllNotifs, getReadNotifications, getUnreadNotifica
 import { markNotificationsRead } from "../api/user-service/menu/notifications/markNotificationRead";
 import { ErrorPopup } from "../pages/ErrorPage";
 import { answerTournament } from "../api/user-service/menu/notifications/tournaments";
+import { currentPage, WebPath } from "../core/router";
 
 const notificationWrapper: HTMLElement = createDiv('notif-wrapper','relative flex items-center');
 let isNotificationOpen: boolean = false;
@@ -22,12 +23,15 @@ export function createNotificationDiv(parent: HTMLElement) {
 }
 
 function toggleNotification() {
-	(document.getElementById('notification-toggle-btn') as HTMLButtonElement).addEventListener('click', () => {
-		if (isNotificationOpen)
-			closeNotification();
-		else
-			openNotification();
-	})
+	const btn: HTMLButtonElement = (document.getElementById('notification-toggle-btn') as HTMLButtonElement);
+	if (btn) {
+		btn.addEventListener('click', () => {
+			if (isNotificationOpen)
+				closeNotification();
+			else
+				openNotification();
+		})
+	}
 }
 
 function eventCloseSearch() {
@@ -39,35 +43,39 @@ function eventCloseSearch() {
 }
 
 function acceptFriendInvitation(acceptBtn: HTMLButtonElement, userData: UserInfo) {
+	if (!acceptBtn)
+		return;
 	acceptBtn.addEventListener('click', async(e) => {
 		e.stopPropagation();
 		e.preventDefault();	
 		try {
-			const req = await acceptRequest(userData.username);
+			const req = await acceptRequest(userData.slug);
 			if (req.ok) {
-				console.log("acctp invitation of ", userData.username);
-				refreshNotification();
+				if (currentPage && WebPath.startsWith('/user'))
+					currentPage.render();
+				else
+					refreshNotification();
 			}
-
+			else
+				throw new Error(req.error);
 		} catch(error) {
 			await ErrorPopup(error as string);
 		}
 	})
 }
 
-function acceptTournamentinvitation(acceptBtn: HTMLButtonElement, tournament: AllNotifs) {
+export function acceptTournamentinvitation(acceptBtn: HTMLButtonElement, tournament: AllNotifs) {
+	if (!acceptBtn)
+		return;
 	acceptBtn.addEventListener('click', async(e) => {
 		e.stopPropagation();
 		e.preventDefault();
 		try {
-			console.log("tournaement slug", tournament.slug);
 			const req = await answerTournament(tournament.slug, tournament.notif_tournament_id, tournament.notif_tournament_name, "accept");
-			if (req.ok) {
-				await ErrorPopup("accept tournament invitation");
+			if (req.ok)
 				refreshNotification();
-			}
-			else 
-				await ErrorPopup(req.error);
+			else
+				throw new Error(req.error);
 		} catch(error) {
 			await ErrorPopup(error as string);
 		}
@@ -75,15 +83,17 @@ function acceptTournamentinvitation(acceptBtn: HTMLButtonElement, tournament: Al
 }
 
 function declineFriendInvitation(declineBtn: HTMLButtonElement, userData: UserInfo) {
+	if (!declineBtn)
+		return;
 	declineBtn.addEventListener('click', async(e) => {
 		e.stopPropagation();
 		e.preventDefault();	
 		try {
-			const req = await rejectRequest(userData.username);
-			if (req.ok) {
-				console.log("acctp invitation of ", userData.username);
+			const req = await rejectRequest(userData.slug);
+			if (req.ok)
 				refreshNotification();
-			}
+			else
+				throw new Error(req.error);
 
 		} catch(error) {
 			await ErrorPopup(error as string);
@@ -91,18 +101,19 @@ function declineFriendInvitation(declineBtn: HTMLButtonElement, userData: UserIn
 	})
 }
 
-function declineTournamentInvitation(declineBtn: HTMLButtonElement, tournament: AllNotifs) {
+export function declineTournamentInvitation(declineBtn: HTMLButtonElement, tournament: AllNotifs) {
+	if (!declineBtn)
+		return;
 	declineBtn.addEventListener('click', async(e) => {
 		e.stopPropagation();
 		e.preventDefault();
 		try {
 			const req = await answerTournament(tournament.slug, tournament.notif_tournament_id, tournament.notif_tournament_name, "decline");
 			if (req.ok) {
-				await ErrorPopup("decline tournament invitation");
 				refreshNotification();
 			}
 			else 
-				await ErrorPopup(req.error);
+				throw new Error(req.error);						
 		} catch (error) {
 			await ErrorPopup(error as string);
 		}
@@ -113,19 +124,15 @@ async function openNotification() {
 	isNotificationOpen = true;
 
 	(document.getElementById('sliding-notification-bar-div') as HTMLElement).className = 'absolute left-0 top-16 w-80 h-72 overflow-auto transition-all duration-300 ease-in-out bg-orange-100 rounded-xl shadow-lg border-2 border-emerald-500 opacity-100';
-	
 	try {
 		const req = await markNotificationsRead();
 		if (req.ok)
-		return ; 
+			return ;
+		else
+			throw new Error(req.error);
 	} catch(error) {
 		await ErrorPopup(error as string);
 	}
-	// const notificationPannel = document.getElementById('notification-panel-div') as HTMLElement;
-	// setTimeout(() => {
-	// 	notificationPannel.className = "w-64 px-4 text-sm border-0 rounded-xl bg-transparent focus:outline-none opacity-100 transition-opacity duration-300'";
-	// 	notificationPannel.focus();
-	// }, 150);
 }
 
 async function closeNotification() {
@@ -134,11 +141,6 @@ async function closeNotification() {
 	(document.getElementById('sliding-notification-bar-div') as HTMLElement).className = 'absolute left-0 top-16 w-0 h-0 overflow-auto transition-all duration-300 ease-in-out bg-orange-100 rounded-xl shadow-lg border-2 border-emerald-300 opacity-0';
 
 	refreshNotification();
-	// const notificationPannel = document.getElementById('notification-panel-div') as HTMLElement;
-	// setTimeout(() => {
-	// 	notificationPannel.className = "w-64 px-4 text-sm border-0 rounded-xl bg-transparent focus:outline-none opacity-0 transition-opacity duration-300'";
-	// 	notificationPannel.focus();
-	// }, 150);
 }
 
 function createSlidingNotificationPan(): HTMLElement {
@@ -154,22 +156,23 @@ async function fillUSerInfo(request: AllNotifs, parent: HTMLElement){
 		const req = await getUserInfoBySlug(request.slug); // replace by slug
 		if (req.ok) {
 			userData = req.userInfo;
-			console.log("request is  = ", request.notif_type);
 			if (request.notif_type === "friend_request" && userData)
 				append(parent ,[addInvitation(userData, null)]);
 			else if (request.notif_type === "friend_accept" && userData)
-				append(parent, [addRequest(userData, `user ${userData.username} accept your friend request`)]);
+				append(parent, [addRequest(userData, `User ${userData.username} accept your friend request`)]);
 			else if (request.notif_type === "friend_reject" && userData)
-				append(parent, [addRequest(userData, `user ${userData.username} accept your friend request`)]);
+				append(parent, [addRequest(userData, `User ${userData.username} accept your friend request`)]);
 			else if (request.notif_type === "tournament_invite" && userData)
 				append(parent ,[addInvitation(userData, request)]);
 			else if (request.notif_type === "tournament_ready" && userData)
-				append(parent, [addRequest(userData, `tournament ${request.notif_tournament_name} is ready to play`)]);
+				append(parent, [addRequest(userData, `Tournament ${request.notif_tournament_name} is ready to play`)]);
 			else if (request.notif_type === "tournament_accept" && userData)
-				append(parent, [addRequest(userData, `user ${userData.username} accept to play tournament ${request.notif_tournament_name}`)]);
-			else if (request.notif_type === "tournament_decline" && userData)
-				append(parent, [addRequest(userData, `user ${userData.username} decline to play tournament ${request.notif_tournament_name}`)]);
+				append(parent, [addRequest(userData, `User ${userData.username} accept to play tournament ${request.notif_tournament_name}`)]);
+			else if (request.notif_type === "tournament_cancel" && userData)
+				append(parent, [addRequest(userData, `Tournament ${request.notif_tournament_name} has been canceled`)]);
 		}
+		else
+			throw new Error(req.error);
 	} catch (error) {
 		await ErrorPopup(error as string);
 	}
@@ -181,17 +184,19 @@ async function fillReceiveRequest(parent: HTMLElement) {
 		const reqRead = await getUnreadNotifications();
 		if (reqRead.ok) {
 			const read: AllNotifs[] = reqRead.notifs;
-			console.log("value of readrequest ", read);
 			readNotification = read.length;
 		}
+		else
+			throw new Error(reqRead.error); 
 		const req = await getAllNotifications();
 		if (req.ok) {
 			ReceiveRequest = req.notifs;
 			ReceiveRequest.forEach(request => {
 				fillUSerInfo(request, parent);
-				console.log("value of request ", request);
 			})
 		}
+		else
+			throw new Error(req.error);
 		
 	} catch (error) {
 		await ErrorPopup(error as string);
@@ -245,21 +250,12 @@ function addInvitation(userdata: UserInfo, tournament: AllNotifs | null) : HTMLA
 
 function addRequest(userdata: UserInfo, msg: string): HTMLAnchorElement {
 	const acceptDiv: HTMLAnchorElement = createAnchorElement(`notification-${userdata.slug}`, '', `/user/${userData.slug}`, 'group flex items-center justify between w-full h-24 hover:bg-orange-200 space-x-4 shadow-xl w-14 h-14 group-hover:shadow-lg transition-all duration-200 transform');;
-	
 	addUSerData(userData, acceptDiv, `${msg}`);
 	return acceptDiv;
 }
 
-// function addREjectRequest(userdata: UserInfo): HTMLAnchorElement {
-// 	const rejectDiv :HTMLAnchorElement = createAnchorElement(`notification-${userdata.slug}`, '', `/user/${userData.slug}`, 'group flex items-center justify between w-full h-24 hover:bg-orange-200 space-x-4 shadow-xl w-14 h-14 group-hover:shadow-lg transition-all duration-200 transform');;
-	
-// 	addUSerData(userData, rejectDiv, `user ${userData.username} decline your friend request`);
-// 	return rejectDiv;
-// }
-
 function createNotificationToggle(): HTMLElement {
 	const NotificationToggle: HTMLButtonElement = createButton('notification-toggle', 'group flex items-center justify-center w-10 h-10 bg-orange-200 hover:bg-orange-300 rounded-full shadow-md hover:shadow-lg transition-all duration-200 transform hover:scale-105', 'search');
-	// searchToggle.title = 'search';
 
 	NotificationToggle.innerHTML = `
 		<svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -277,7 +273,6 @@ function createNotificationToggle(): HTMLElement {
 }
 
 async function addNumberInvitation() {
-	console.log("res request = ", ReceiveRequest);
 	if (!readNotification || readNotification === 0)
 			return ;
 	const NotificationToggle: HTMLButtonElement = (document.getElementById('notification-toggle-btn') as HTMLButtonElement);
@@ -291,8 +286,8 @@ async function addNumberInvitation() {
 
 export function refreshNotification() {
 	Array.from(notificationWrapper.children).forEach(child => {
-		Array.from(child.children).forEach(children => {child.removeChild(children);});
-		notificationWrapper.removeChild(child);});
+		Array.from(child.children).forEach(children => {children.remove();});
+		child.remove();});
 
 	append(notificationWrapper, [createNotificationToggle(), createSlidingNotificationPan()]);
 	toggleNotification();

@@ -1,30 +1,29 @@
 // Possible results for request
-type AvatarUploadSuccess = { ok: true; avatar: string };
-type Failure = { ok: false; error?: string };
+type AvatarUploadSuccess = { ok: true, avatar: string};
+type Failure = { ok: false; error: string };
 
 // Union of possibilities for the type of answer
 export type AvatarUploadResult = AvatarUploadSuccess | Failure;
 
-// POST /api/user/:slug to upload a new  file to the system
-export async function upload(formData: FormData): Promise<AvatarUploadResult> {
+// POST /api/user/:slug to upload a new avatar file to the system
+export async function uploadAvatar(formData: FormData): Promise<AvatarUploadResult>
+{
+    try
+    {
+        const res = await fetch(`/api/avatars/`,
+        {
+            method: 'PUT',
+            credentials: 'include',
+            body: formData,
+        });
 
-    // for (const [key, value] of formData.entries()) {
-    //     console.log(`${key}:`, value);
-    // } // Debug
-    const res = await fetch(`/api/avatars/`, {
-        method: 'PUT',
-        credentials: 'include',
-        body: formData,
-    });
-
-    if (res.ok) {
-        console.log("Request for user info accepted");
-        const data = await res.json();
-        return { ok: true, avatar: data.avatar }
+       const data = await res.json();
+        if (res.ok)
+            return { ok: true, avatar: data.avatar }
+        return { ok: false, error: data.error || "Upload problem" }
     }
-    else {
-        const error = await res.json();
-        return { ok: false,
-            error: error?.error || "Upload problem" }
+    catch (err)
+    {
+        return {ok: false, error: "Network error" };
     }
 }

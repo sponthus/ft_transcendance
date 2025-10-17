@@ -6,22 +6,18 @@ import { displayFriendlist } from './FriendListPage.js';
 import { UserBanner } from './UserBannerPage.js';
 import { DisplayeTournamentHistoryPage } from './TournamentHistoryPage.js';
 import { ErrorPopup } from '../ErrorPage.js';
+import { getUserStatus } from '../../api/session-service/getStatus.js';
 
-enum BodyState {TOURNAMENT = 0, FRIENDS = 1, HISTORY = 2};
+export enum BodyState {FRIENDS = 0, HISTORY = 1, TOURNAMENT = 2};
+export let StateBody: number;
+let isChangeBody: Boolean;
 
-type UserData = //VA ETRE CHANGER, le token renvoie le username et l'id du user
-{
-	id: number
-	username: string;
-	nickname: string;
-	avatar: string;
-	slug: string;
-	created_at: string;
-};
+export function ChangeStateBody(state: number){
+	isChangeBody = true;
+	StateBody = state;
+}
 
 export class UserPage extends BasePage {
-	// protected slug?: string;
-
 	private Background!: HTMLElement;
 	private UserBanner!: UserBanner;
 	private slug!: string;
@@ -29,20 +25,19 @@ export class UserPage extends BasePage {
 
 	private UserData?: UserInfo;
 
-	private StateBody!: number;
-
 	private isOwnProfile: boolean = true;
 
+	private Statue: string; 
+
 	constructor(slug: string) {
-		// if (!state.isLoggedIn())
-		// 	navigate('/');
 		super();
-		console.log('Constructor');
 		this.slug = slug;
-		// this.slug = state!.user?.slug;
+		this.Statue = '​';
+		StateBody = BodyState.FRIENDS;
 	}
 	
 	async render(): Promise<void> {
+		this.destroy();
 		await this.renderBanner();
 		await this.initDivs();
 		await this.TryGetUserInfo();
@@ -62,35 +57,45 @@ export class UserPage extends BasePage {
 				this.UserData = req.userInfo;
 				if (this.slug != this.UserData.slug)
 					await this.fillUserData()
-				this.UserBanner = new UserBanner(this.UserData, this.isOwnProfile);
-				console.log(`user data = ` + JSON.stringify(this.UserData));
-				this.StateBody = this.UserBanner._ProfileState;
+				const request = await getUserStatus(this.UserData.slug);
+				if (request.ok) {
+					if (request.status && request.status.status === "online")
+						this.Statue = 'online 🟢​';
+					if (request.status && request.status.status === "disconnected")
+						this.Statue = 'disconnected 🔴​';
+					if (request.status && request.status.status === "playing")
+						this.Statue = 'playing 🟡​​';
+				}
+				this.UserBanner = new UserBanner(this.UserData, this.isOwnProfile, this.Statue);
 				await this.showUserPage();
-			}
-			else {
-				await ErrorPopup('Error While loading Profile' + req.error);
+			} else {
+				await ErrorPopup("Unable to load profile");
 				navigate('/');
 			}
 		}
 		catch (error) {
 			await ErrorPopup(error as string);
+			navigate('/');
 		}
 	}
 
 	private async fillUserData() {
-		console.log('fille userDAta called');
 		this.isOwnProfile = false;
 		try {
 			const req = await getUserInfoBySlug(this.slug);
 			if (req.ok) {
 				this.UserData = req.userInfo;
-				console.log("new userdata = ", this.UserData);
+			} else if (req.error === "User not found") {
+				throw new Error("User not found");
+			} else {
+				throw new Error("Unable to load profile");
 			}
-
 		} catch (error) {
 			await ErrorPopup(error as string);
+			navigate('/');
 		}
 	}
+
 	async showUserPage() {
 		await this.renderProfileBanner();
 		await this.renderBodyProfile();
@@ -107,17 +112,16 @@ export class UserPage extends BasePage {
 	private async renderBodyProfile() {
 		/***************************body div***********************/
 		if (this.Background && this.BodyDiv)
-			this.Background.removeChild(this.BodyDiv);
+			this.BodyDiv.remove();
 
 		this.BodyDiv = document.createElement('div');
 		this.BodyDiv.className = "bg-orange-300  bg-opacity-50 w-full h-[60%] flex items-center justify-center overflow-auto";
-		switch(this.StateBody){
+		switch(StateBody){
 			case BodyState.TOURNAMENT:
-				await DisplayeTournamentHistoryPage(this.BodyDiv, this.UserData!);
-				// this.BodyDiv.textContent = "i'm in the profile body";
+				await DisplayeTournamentHistoryPage(this.BodyDiv, this.UserData!, this.isOwnProfile);
 				break;
 			case BodyState.FRIENDS:
-				await displayFriendlist(this.BodyDiv,this.UserData!, this.isOwnProfile);
+				await displayFriendlist(this.BodyDiv, this.UserData!, this.isOwnProfile);
 				break;
 			case BodyState.HISTORY:
 				await DisplayHistoryPage(this.BodyDiv, this.UserData!);
@@ -141,9 +145,9 @@ export class UserPage extends BasePage {
 	private async BannerEvents() {
 		this.UserBanner.botBannerEvents();
 		document.addEventListener('click', () => {
-			if (this.StateBody != this.UserBanner._ProfileState) {
-				this.StateBody = this.UserBanner._ProfileState;
+			if (isChangeBody) {
 				this.renderBodyProfile();
+				isChangeBody = false;
 			}
 		})
 	}

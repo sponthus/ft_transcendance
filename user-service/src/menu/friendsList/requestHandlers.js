@@ -1,6 +1,6 @@
 import { checkSlugFormat } from "../../tools/checkFormat.js";
 import { addNotification, deleteNotification } from "../notifications/notificationsManager.js";
-import { notifyRefresh } from "../../internal-service/notifyRefresh.js";
+import { notifyRefresh } from "../../internal-service/notifyServices.js";
 
 export async function   acceptRequest(request, reply)
 {
@@ -57,9 +57,7 @@ export async function   acceptRequest(request, reply)
                                             users \
                                         WHERE \
                                             id = ?").get(idUser);
-        const result = await notifyRefresh(sender.id, username.username, "friend_accept");
-        if (!result.ok)
-            return reply.code(result.status).send({ error: result.error });
+        notifyRefresh(sender.id, username.username, "friend_accept");
         return reply.code(200).send();
     }
     catch (err)
@@ -111,9 +109,7 @@ export async function   rejectRequest(request, reply)
                                             users \
                                         WHERE \
                                             id = ?").get(idUser);
-        const result = await notifyRefresh(sender.id, username.username, "friend_reject");
-        if (!result.ok)
-            return reply.code(result.status).send({ error: result.error });
+        notifyRefresh(sender.id, username.username, "friend_reject");
         return reply.code(200).send();    
     }
     catch (err)

@@ -45,7 +45,7 @@ export async function uploadAvatar(request, reply) {
                         uploadedSize += chunk.length;
                         if (uploadedSize > MAX_SIZE) {
                             part.file.destroy();
-                            return reject(new Error("File too large (max 5MB)"));
+                            return reject(new Error("File too large (max 5MB)")); //c'est quoi ca ?? TODO MORGAN
                         }
                         chunks.push(chunk);
                     });
@@ -78,11 +78,11 @@ export async function uploadAvatar(request, reply) {
                 // Écrit le fichier après validation
                 fs.writeFileSync(filePath, buffer);
                 console.log(`✅ Avatar uploaded for user: ${slug}`);
-                return reply.send({ avatar: fileName });
+                return reply.code(200).send({ avatar: fileName});
 
             } catch (err) {
                 console.error("❌ Upload failed:", err.message);
-                return reply.code(500).send({ error: 'Failed upload: ' + err.message });
+                return reply.code(500).send({ error: "Internal Server Error"});
             }
         }
     }
@@ -90,13 +90,32 @@ export async function uploadAvatar(request, reply) {
     return reply.code(400).send({ error: "No avatar file uploaded" });
 }
 
-function changeImageName(newName, lastName)
+export async function updateName(request, reply)
 {
-    // Récupère l’extension du fichier d’origine
-    const ext = path.extname(lastName).toLowerCase();
+    const   { oldName, newName } = request.body;
 
-    // Construit le nouveau nom
-    const newFileName = `${newName}${ext}`;
+    //check le format
+
+    console.log("UPDATE NAME FILE ");
+    try
+    {
+        const uploadDir = path.join(process.cwd(), "uploads"); //cwd --> current working directory
+        const files = fs.readdirSync(uploadDir);
     
-    return newFileName;
+        const oldFile = files.find((file) => file.startsWith(oldName + "."));
+        if (!oldFile)
+        {
+            return reply.code(404).send({ error: "Avatar file not found"});
+        }
+        const ext = path.extname(oldFile);
+        const oldPath = path.join(uploadDir, oldFile)
+        const newPath = path.join(uploadDir, `${newName}${ext}`);
+        fs.renameSync(oldPath, newPath);
+        console.log(`✅ Avatar renommé : ${oldFile} → ${newUsername}${ext}`);
+        return reply.code(200).send();
+    }
+    catch (err)
+    {
+        return reply.code(500).send({ error: "Internal Server Error"});
+    }
 }

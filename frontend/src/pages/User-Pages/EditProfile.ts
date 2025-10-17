@@ -1,11 +1,11 @@
 import { popUp } from "../../Utils/popUp";
 import { createDiv, createElement, createButton, createFormDiv, append, createInput} from '../../Utils/elementMaker.js';
-import { modifyUserAvatar } from "../../api/user-service/user";
 import { updateUsername } from "../../api/user-service/user-info/updateUsername.js";
 import { getUserInfo } from '../../api/user-service/user-info/getUserInfo.js';
-import { upload } from "../../api/avatar.js";
+import { uploadAvatar } from "../../api/avatar.js";
 import { navigate } from '../../core/router.js';
 import { ErrorPopup } from '../ErrorPage.js';
+import { updateAvatar } from "../../api/user-service/user-info/modifyUserAvatar.js";
 
 enum EditState {AVATAR = 0, USERNAME = 1};
 
@@ -106,10 +106,8 @@ export class EditProfile extends popUp {
 
 	async editEvents() {
 		const EditBtn = document.getElementById("edit-profile-btn") as HTMLButtonElement;
-		if (!EditBtn) {
-			console.log("canno't find editing button")
+		if (!EditBtn)
 			return ;
-		}
 		const EditUsername = document.getElementById("edit-username-btn") as HTMLButtonElement;
 		const EditAvatar = document.getElementById("edit-avatar-btn") as HTMLButtonElement;
 		
@@ -133,7 +131,6 @@ export class EditProfile extends popUp {
 					this.isEdit = false;
 					EditBtn.textContent = "Edit Profile";
 				}
-				console.log('is editiong Mod ? ', this.isEdit);
 			})
 		}
 	}
@@ -145,11 +142,9 @@ export class EditProfile extends popUp {
 				switch(this.EditingState) {
 					case EditState.AVATAR:
 						this.renderUserPopUp("Edit Profile Pic");
-						console.log("Editing Avatar");
 						this.editUserInfoEvent();
 						break;
 					case EditState.USERNAME:
-						console.log("editing username");
 						this.renderUserPopUp("Edit Username");
 						this.editUserInfoEvent();
 						break;
@@ -167,8 +162,7 @@ export class EditProfile extends popUp {
 		const TabContent: HTMLButtonElement[] = [CancelBtn, SaveBtn];
 		
 		TabContent.forEach(btn => {
-			console.log("click Cancel or Return");
-			btn.addEventListener('click', () =>{
+			btn.addEventListener('click', async() =>{
 				switch(TabContent.indexOf(btn)) {
 					case 0:
 						break;
@@ -199,25 +193,26 @@ export class EditProfile extends popUp {
 		
 		const username: string = (Form?.querySelector('input[name="username"]') as HTMLInputElement).value;
 
-		if (username == this.UserData.username) {
-			return ;
+		console.log("new username = ", username)
+		try {
+			if (username == this.UserData.username) {
+				return ;
+			}
+			const req = await updateUsername(username);
+			if (req.ok) {
+				this.cleanBody();
+				await this.updateUserData();
+				await navigate(`/user/${this.UserData.slug}`);
+			}
+			else
+				throw new Error(req.error);
 		}
-
-		const req = await updateUsername(username);
-		if (req.ok) {
-			console.log("Username edited successfully");
-			this.cleanBody();
-			this.updateUserData();
-			navigate(`/user/${this.UserData.slug}`);
-			location.reload();
+		catch (error){
+			await ErrorPopup(error as string);
 		}
-		else
-			await ErrorPopup(req.error);
 	}
 
 	async openUploadForm() {
-
-		console.log("upload form function called");
 		const form = document.getElementById('avatar-upload-form') as HTMLFormElement;
 		if (!form) 
 			return ;
@@ -266,15 +261,15 @@ export class EditProfile extends popUp {
 		
 		const formData = new FormData();
 		formData.append('avatar-input', file);
-		console.log(`sending file: ${file}`);
-		
 		// Makes 2 requests : upload to upload service + change avatar in user db
-		const req = await upload(formData);
+		const req = await uploadAvatar(formData);
 		if (req.ok) {
 			await ErrorPopup("Avatar updated successfully!");
-			const pathReq = await modifyUserAvatar(this.UserData.slug, req.avatar);
+			console.log('STRING AVATAR : ', req.avatar);
+			const pathReq = await updateAvatar(req.avatar);
 			if (pathReq.ok) {
-				await navigate(`/user/${this.UserData.slug}`);
+				await this.updateUserData();	
+				await navigate(`/user/${this.UserData.slug}`); //TODO A REMETTRE
 				await ErrorPopup("avatar modify successfully");
 				return ;
 			}
@@ -288,10 +283,16 @@ export class EditProfile extends popUp {
 	}
 
 	private async updateUserData(){
-		const req = await getUserInfo();
-		if (req.ok) {
-			this.UserData = req.userInfo;
-			console.log(`user data = ` + JSON.stringify(this.UserData));
+		try {
+			const req = await getUserInfo();
+			if (req.ok) {
+				console.log('new usernme = ', req.userInfo.username)
+				this.UserData = req.userInfo;
+			}
+			else
+				throw new Error(req.error);
+		} catch (error) {
+			await ErrorPopup(error as string);
 		}
 	}
 }

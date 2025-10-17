@@ -101,7 +101,7 @@ export async function startGame(request, reply) {
 		console.error("❌ Trying to launch a game that is not pending: ", gameId, " status=", status);
 		return reply.code(401).send({ error : 'Game is not pending' });
 	}
-	// Tests OK
+
 	try {
 		if (player_a[0] == '@') {
 			const player1Id = player_a.slice(1);
@@ -112,7 +112,7 @@ export async function startGame(request, reply) {
 			}
 			else {
 				player_a = `@${player1Name.infos.slug}`;
-				// console.debug(`Replaced @${player1Id} with ${player_a}`);
+				console.debug(`Replaced @${player1Id} with ${player_a}`);
 			}
 		}
 		if (player_b[0] == '@') {
@@ -123,7 +123,7 @@ export async function startGame(request, reply) {
 				return reply.code(404).send({ error: "User not found" });
 			}
 			player_b = `@${player2Name.infos.slug}`;
-			// console.debug(`Replaced @${player2Id} with ${player_b}`);
+			console.debug(`Replaced @${player2Id} with ${player_b}`);
 		}
 	} catch (error) {
 		console.error('❌ Error fetching user info: ');
@@ -174,9 +174,9 @@ export async function createGame(request, reply) {
 	
 	if (player_a === player_b) {
 		console.error("❌ Player A cannot be equal to Player B");
-		return reply.code(400).send({error: 'Bad input format - player_a != player_b'});
+		return reply.code(400).send({error: 'Bad input format - Player A cannot be equal to Player B'});
 	}
-	// Tests ok
+
 	try {
 		if (player_a[0] === '@') {
 			const player1Slug = player_a.slice(1);
@@ -225,7 +225,7 @@ export async function createGame(request, reply) {
 	}
 
 	const userId = idUser;
-	console.debug('userId = ' + userId + ' playA ' + player_a + ' playB ' + player_b);
+	// console.debug('userId = ' + userId + ' playA ' + player_a + ' playB ' + player_b);
 
 	if (!db) {
 		console.error('❌ Error while deleting game: database connection not found');

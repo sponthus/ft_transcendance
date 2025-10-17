@@ -27,7 +27,6 @@ export class launchPong {
 		this.Render.PongGame!.GamePhysics!.setMaxScore = 5;
 		window.addEventListener('keydown', (ev) => {
 		if (ev.key == "Escape") {
-			console.log("escape has been called")
 			this.returnLobby();
 			}
 		});
@@ -44,7 +43,6 @@ export class launchPong {
 				lastTime = now;
 				this.Render.pongScene?.render();
 			}
-			// console.log("win ?", this.Render.PongGame?.GamePhysics?.Win);
 			if (this.Render.PongGame?.GamePhysics?.Win)
 				this.EndGame(gameId);
 			else if (!this.Render.PongGame?.GamePhysics?.isSocketOpen()) {
@@ -55,8 +53,8 @@ export class launchPong {
 	}
 
 	async errorReturnLobby(msg: string) {
-		// await ErrorPopup(msg);
 		this.Render.PongGame!.GamePhysics!.stopGame();
+		this.GamePage.startGamePage();
 		this.Render.setState = 0;
 		this.Render.callRenderLoop();
 	}

@@ -1,11 +1,18 @@
 import slugify from "slugify";
 import { checkUsernameFormat } from "../tools/checkFormat.js";
 import { generateUniqueSlug } from "../tools/generateUnique.js";
+import { notifyChangeData, notifyChangeSlug } from "../internal-service/notifyServices.js";
+import env from '../../config/env.js';
 
 export default async function updateUsername (request, reply)
 {
+	// TODO : Renvoie le token, pas bon non ? 
+	// TODO : Pas de username dans le body = Invalid format for username ?
+	// TODO : Mettre son propre username = 409 ? pas sure, preciser l'erreur peut etre
     if (checkUsernameFormat(request) == false)
         return reply.code(400).send( {error : "Invalid format for username"} );
+
+    console.log('⚡️⚡️⚡️⚡️⚡️ request.body : ', request.body);
 
     const db = request.server.db;
     const newUsername = request.body.username;
@@ -22,34 +29,44 @@ export default async function updateUsername (request, reply)
                                                 WHERE \
                                                     username = ?').get(newUsername);
         if (existingUsername)
-            return reply.code(409).send({error: "Username already exist ICIC"});
-
+            return reply.code(409).send({error: "Username already exist"});
+        const old = db.prepare("    SELECT \
+                                        slug, avatar \
+                                    FROM \
+                                        users \
+                                    WHERE \
+                                        id = ?").get(idUser);
         const baseSlug = slugify(newUsername, { lower: true, strict: true });
+        const ext = old.avatar.split(".").pop();
         const slug = generateUniqueSlug(baseSlug, db);
-        const updateSlugAndUsername = db.transaction( (newUsername, idUser, slug) =>
-        {
-            db.prepare ("    UPDATE \
-                                users \
-                            SET \
-                                username = ? \
-                            WHERE \
-                                id = ?").run(newUsername, idUser);
-            db.prepare ("    UPDATE \
-                                users \
-                            SET \
-                                last_username_change = CURRENT_TIMESTAMP \
-                            WHERE \
-                                id = ?").run(idUser);
-            db.prepare ("  UPDATE \
-                                users \
-                            SET \
-                                slug = ? \
-                            WHERE \
-                                id = ?").run(slug, idUser);
-        });
-        updateSlugAndUsername(newUsername, idUser, slug);
+        const newAvatar = `${slug}.${ext}`;
+        console.debug('newAvatar ', newAvatar);
+        db.prepare ("   UPDATE \
+                            users \
+                        SET \
+                            username = ?, slug = ?, avatar = ?\
+                        WHERE \
+                            id = ?").run(newUsername, slug, newAvatar, idUser);
+        /*db.prepare (" UPDATE \
+                            users \
+                        SET \
+                            last_username_change = CURRENT_TIMESTAMP \
+                        WHERE \
+                            id = ?").run(idUser);*/
+        notifyChangeData(idUser, newUsername, slug);
+        notifyChangeSlug(old.slug , slug);
         const token = await reply.jwtSign({ idUser, newUsername, slug}, {expiresIn: '1h'});
-        return reply.code(200).send({ token : token });
+        let secure = false;
+        if (env.nodeEnv === 'production')
+            secure = true;
+        return reply.code(200).setCookie('token', token,
+            {
+                httpOnly: true,
+                signed: true,
+                secure: secure,
+                path: '/',
+                maxAge: 3600000
+            }).send();
     }
     catch (err)
     {

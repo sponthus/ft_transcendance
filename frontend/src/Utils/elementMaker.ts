@@ -1,5 +1,6 @@
 import { className } from "@babylonjs/core";
 import { DropDown } from "../Utils/dropDown";
+import { navigate } from "../core/router";
 
 export function createDiv(Id: string, ClassName: string): HTMLElement {
 	const div: HTMLElement = document.createElement('div');
@@ -50,7 +51,7 @@ export function createAnchorElement(Id: string, TextContent: string, Link: strin
 	a.id = Id + "-a";
 	a.textContent = TextContent;
 	a.className = ClassName;
-	a.href = Link;
+	a.onclick = async() => {await navigate(Link)};
 	return a;
 }
 

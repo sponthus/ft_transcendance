@@ -1,15 +1,76 @@
-import { createDiv, createElement, createButton, createDropdownDiv, createFormDiv, createCheckBoxLabel, append, setbackgroundImages} from '../../Utils/elementMaker.js';
+import { createDiv, createElement, createButton, createDropdownDiv, createFormDiv, createCheckBoxLabel, append, setbackgroundImages, createImage} from '../../Utils/elementMaker.js';
 import { getAllTournaments, getTournamentMatches, GameInfos, getFinishedTournaments } from '../../api/game-service/tournaments/getTournaments.js';
-import { UserInfo } from '../../api/user-service/user-info/getUserInfo.js';
+import { getUserInfoBySlug, UserInfo } from '../../api/user-service/user-info/getUserInfo.js';
 import { FillHistory, fillHistoryStubborn } from './HistoryPage.js';
 import { ErrorPopup } from '../ErrorPage.js';
+import { AllNotifs, getAllNotifications } from '../../api/user-service/menu/notifications/getNotifications.js';
+import { acceptTournamentinvitation, declineTournamentInvitation } from '../../Utils/notification.js';
+import { isIfStatement } from 'typescript';
 
 let btnsMap: Map<HTMLButtonElement, HTMLElement> = new  Map<HTMLButtonElement, HTMLElement>();
 let isopen: boolean;
+let isInvite: boolean
 
-export async function DisplayeTournamentHistoryPage(Body: HTMLElement, UserData: UserInfo) {
+export async function DisplayeTournamentHistoryPage(Body: HTMLElement, UserData: UserInfo, isOwnProfile: boolean) {
 	isopen = false;
+	isInvite = false;
 	Body.className = "flex flex-col items-center bg-orange-300  bg-opacity-50 w-full h-[60%] flex overflow-auto";
+	if (isOwnProfile)
+		await addInvitationTournament(Body);
+	await AddTournaments(Body, UserData);
+}
+
+async function addInvitationTournament(Body: HTMLElement) {
+	try {
+		const req = await getAllNotifications()
+		if (!req.ok)
+			throw new Error(req.error);
+		const ReceiveRequest = req.notifs;
+		ReceiveRequest.forEach(notif => {
+			if (notif.notif_type === "tournament_invite") {
+				isInvite = true;
+				addNotification(Body, notif)
+			}
+		})
+
+	} catch(error) {
+		await ErrorPopup(error as string);
+	}
+}
+
+async function addNotification(body: HTMLElement, notif: AllNotifs) {
+	let UserData: UserInfo;
+	try {
+		const req = await getUserInfoBySlug(notif.slug);
+		if (!req.ok)
+			throw new Error(req.error);
+		UserData = req.userInfo;
+		const notifDiv: HTMLElement = createDiv('invitation', 'flex items-center h-[30%] justify-around w-full hover:bg-orange-400 hover:bg-opacity-50 space-x-8 transition-all duration-300 gap-4');
+		
+		const userIcon: HTMLElement = createDiv(`user-notification-icon-${UserData.slug}`, 'flex items-center justify-center bg-orange-300 group-hover:bg-orange-400 rounded-full shadow-xl w-[9%] aspect-square group-hover:shadow-lg transition-all duration-200 transform');
+		append(userIcon, [(createImage(`user-notification-${UserData.slug}`, 'w-[90%] aspect-square rounded-full object-cover object-center',  `https://localhost:4443/uploads/${UserData.avatar}`) as HTMLImageElement)]);
+		const invitationTextDiv = createDiv(`invitation-text-${UserData.slug}`, 'flex flex-col items-center');
+		invitationTextDiv.innerHTML = `<P class="text-emerald-600 group-hover:font-bold">user ${UserData.username} invite you to play tournament ${notif.notif_tournament_name}</p>`;
+
+		const btnDiv = createDiv(`btn-invitation-${UserData.slug}`, 'flex items-center justify-between space-x-8') as HTMLElement;
+
+		let accept: HTMLButtonElement= (createButton(`accept-${UserData.slug}`, 'px-4 text-orange-100 bg-emerald-600 rounded-xl group-hover:text-orange-200 hover:font-bold hover:bg-emerald-700 transition-all duration-200', 'accept') as HTMLButtonElement);
+		let decline: HTMLButtonElement = (createButton(`decline-${UserData.slug}`, 'px-4 text-orange-100 bg-red-500 rounded-xl group-hover:text-orange-200 hover:font-bold hover:bg-red-600 transition-all duration-200', 'decline') as HTMLButtonElement);
+		append(btnDiv, [accept, decline]);
+		append(invitationTextDiv, [btnDiv]);
+
+		append(notifDiv, [userIcon, invitationTextDiv]);
+		append(body, [notifDiv]);
+		acceptTournamentinvitation(accept, notif);
+		declineTournamentInvitation(decline, notif);
+
+	} catch(error) {
+		await ErrorPopup(error as string);
+	}
+
+}
+
+async function AddTournaments(Body: HTMLElement, UserData: UserInfo) {
 	try {
 		const res = await getFinishedTournaments(UserData.slug!);
 		if (!res.ok) {
@@ -18,7 +79,8 @@ export async function DisplayeTournamentHistoryPage(Body: HTMLElement, UserData:
 		}
 		const games = res.tournaments;
 		if (games.length === 0) {
-			Body.textContent = "there is no games";
+			if (isInvite === false)
+				Body.textContent = "there is no tournaments";
 		}
 		else {
 			fillTournamentStubborn(Body);
@@ -53,7 +115,6 @@ async function FillPartyTournament(Body: HTMLElement, games:any, UserData: UserI
 		if (data.ok) {
 			const Matchs = data.matches;
 			fillHistoryStubborn(Body);
-			console.log("Matchs = ", Matchs);
 			Matchs.map((match: GameInfos, i: number) => {FillHistory(Body, match,i, UserData);});
 		}
 	} catch(error) {
@@ -155,7 +216,6 @@ function createWinner(PartyDiv: HTMLElement, i: number, Party: any) {
 function manageBtnsEvent() {
 	btnsMap.forEach((value, key) => {
 		key.addEventListener('click', () => {
-			console.log("is open ? ", isopen);
 			if (!isopen) {
 				btnsMap.forEach((value1, key1) => {
 					if (key1 != key) {
@@ -163,7 +223,6 @@ function manageBtnsEvent() {
 					}
 				})
 				openPan(value);
-				console.log("openPan ? ", isopen);
 				isopen = true
 			}
 			else {

@@ -1,31 +1,24 @@
-import { navigate } from '../core/router.js';
+// import { currentPage, navigate } from '../core/router.js';
 // import { modifyUserAvatar , modifyUserInfo } from "../api/user.js";
-import { getUserInfo, UserInfo } from '../api/user-service/user-info/getUserInfo.js';
+import {UserInfo } from '../api/user-service/user-info/getUserInfo.js';
 // import { Socket } from '../core/Socket.js';
 import { append, createAnchorElement, createButton, createDiv, createImage, createInput, createElement } from '../Utils/elementMaker.js';
 import { createSearchBarDiv } from '../Utils/slidingSearch.js';
 import { createNotificationDiv } from '../Utils/notification.js';
 import { logoutUser } from '../api/user-service/connection/logoutUser.js';
+import { ErrorPopup } from './ErrorPage.js';
+import { getUserStatus } from '../api/session-service/getStatus.js';
+import { navigate } from '../core/router.js';
 
-type UserData = //VA ETRE CHANGER, le token renvoie le username et l'id du user
-{
-    id: number
-    username: string;
-    nickname: string;
-    avatar: string;
-    slug: string;
-    created_at: string;
-};
-
-const wrapper: HTMLElement = createDiv('wrapper', 'grid [grid-template-columns:repeat(auto-fit,minmax(400px,1fr))] items-center justify-between p-4 bg-orange-200 shadow-md gap-4');
-const userInfo: HTMLElement = createDiv('user-info', 'flex flex-wrap order-1 text-sm text-gray-600');
-const logo: HTMLElement = createDiv('logo', 'mx-auto order-2 snap-center');
-const navLinks: HTMLUListElement = createElement('ul', 'navlinks', '', 'flex justify-end space-x-4 order-3 list-none') as HTMLUListElement;
+let wrapper: HTMLElement; 
+let userInfo: HTMLElement;
+let logo: HTMLElement;
+let navLinks: HTMLUListElement;
 
 /*************************************export Functions for creatin banner*************************************/
 export function renderBaseBanner(banner: HTMLElement): void {
 	banner.innerHTML = '';
-	console.log('rendering base banner');
+	initPage();
 	initLogo();
 	addInBanner(banner);
 }
@@ -52,29 +45,25 @@ export async function renderLoggedInBanner(banner: HTMLElement, userData: UserIn
 	createItem('/setting', "Settings", "px-4 py-2 text-emerald-600 hover:text-emerald-800 hover:bg-orange-300 rounded-md transition-colors rounded-xl shadow-md hover:shadow-lg transition-all duration-200 transform hover:scale-105");
 	createItem(`/user/${userData.slug}`, 'Profile', 'px-4 py-2 text-emerald-600 hover:text-emerald-800 hover:bg-orange-300 rounded-md transition-colors rounded-xl shadow-md hover:shadow-lg transition-all duration-200 transform hover:scale-105');
 	createItem('/', 'Logout', 'px-4 py-2 text-red-200 bg-red-600 hover:text-red-300 hover:bg-red-800 rounded-md transition-colors cursor-pointer rounded-xl shadow-md hover:shadow-lg transition-all duration-200 transform hover:scale-105');
-
 	SetLogOutEvent();
 }
 
 /*************************************Function for creating Base Banner*************************************/
 
+function initPage(){
+ 	wrapper = createDiv('wrapper', 'grid grid-cols-3 items-center justify-between p-4 bg-orange-200 shadow-md gap-4');
+	userInfo = createDiv('user-info', 'flex flex-wrap order-1 text-sm text-gray-600');
+	logo = createDiv('logo', 'mx-auto order-2 snap-center');
+	navLinks = createElement('ul', 'navlinks', '', 'flex justify-end space-x-4 order-3 list-none') as HTMLUListElement;
+}
+
 function initLogo() {
 	const logoLink: HTMLAnchorElement = createAnchorElement('logo-link', '', '/', 'text-2xl font-bold text-emerald-400 hover:text-emerald-800 transition-colors') as HTMLAnchorElement;
-		
 	const logoImg: HTMLImageElement = createImage('logo', 'mx-auto object-cover rounded-full hover:bg-emerald-600 object-center h-12 w-18  hover:shadow-lg transition-all duration-200 transform hover:scale-105', '/logo/logoIlsandWorld.png') as HTMLImageElement;
-	// logoLink.innerHTML = `<div id="particle-1" class="particle absolute w-3 h-3 bg-red-400 rounded-full"></div>
-	// 						<div id="particle-2" class="particle absolute w-3 h-3 bg-orange-400 rounded-full"></div>
-	// 						<div id="particle-3" class="particle absolute w-3 h-3 bg-yellow-400 rounded-full"></div>
-	// 						<div id="particle-4" class="particle absolute w-3 h-3 bg-pink-400 rounded-full"></div>`;
 
 	append(logoLink, [logoImg]);
 	append(logo, [logoLink]);
 }
-
-// function initNavLink() {
-// 	navLinks.className = 'flex justify-end space-x-4 order-3 list-none';
-// 	navLinks.id = 'nav-links';
-// }
 
 /*************************************Function for creating logout Banner*************************************/
 function setLogoutUserInfo() {
@@ -84,10 +73,6 @@ function setLogoutUserInfo() {
 
 function checkLogoutElement(banner: HTMLElement): boolean {
 	if (!navLinks || !userInfo) {
-		if (!navLinks)
-			console.log("No nav link");
-		if (!userInfo)
-			console.log("No user info");
 		banner.innerHTML = '<div class="text-red-500 font-semibold">Error</div>';
 		return false;
 	}
@@ -97,10 +82,6 @@ function checkLogoutElement(banner: HTMLElement): boolean {
 /*************************************Function for creating login Banner*************************************/
 function checkLoginElement(banner: HTMLElement): boolean {
 	if (!navLinks || !userInfo) {
-		if (!navLinks)
-			 console.log("No nav link");
-		if (!userInfo)
-			console.log("No user info");
 		banner.innerHTML = '<div class="text-red-500 font-semibold">Error</div>';
 		return false;
 	}
@@ -118,9 +99,22 @@ function setLoginUserInfo(userData: UserInfo) {
 }
 
 async function setTextLoginUserInfo(usersForm: HTMLElement, userData: UserInfo) {
-	// const userState = createElement('h1', 'user-state', 'online 💚', '');
-	// const userName =  createElement('h1', 'user-name', `${userData.username}`, 'text-emerald-900');
-	append(usersForm, [(createElement('h1', 'user-state', 'online 💚', '') as HTMLElement)
+	let userSatus: string = 'error 🔴​';
+	try {
+		const req = await getUserStatus(userData.slug);
+		if (req.ok) {
+			if (req.status && req.status.status === "online")
+				userSatus = 'online 🟢​';
+			if (req.status && req.status.status === "disconnected")
+				userSatus = 'disconnected 🔴​';
+			if (req.status && req.status.status === "playing")
+				userSatus = 'playing 🟡​​';
+		}
+
+	} catch(error) {
+		await ErrorPopup(error as string);
+	}
+	append(usersForm, [(createElement('h1', 'user-state', `${userSatus}`, '') as HTMLElement)
 						, (createElement('h1', 'user-name', `${userData.username}`, 'text-emerald-900') as HTMLElement)]);
 }
 
@@ -137,7 +131,6 @@ function setAvatarLoginUserInfo(userData: UserInfo) {
 }
 
 async function SetUserImg(userIcon: HTMLElement, userData: UserInfo) {
-	console.log(`user data = ` + JSON.stringify(userData));
 	const avatar: string = userData.avatar;
 	const srcImg: string = `https://localhost:4443/uploads/${avatar}`;
 
@@ -149,20 +142,16 @@ function SetLogOutEvent() {
 	if (!logoutLink)
 		return ;
 	logoutLink.addEventListener('click', async (e) => {
-		e.preventDefault();
 		await logoutUser();
-	//	socket.close();
-		navigate('/');
-		location.reload();
 	});
 }
 
 /*************************************Function utils*************************************/
 function createItem(href: string, TextContent: string, ClassName: string) {
 	const Item = document.createElement('li');
-	const Link = document.createElement('a');
+	const Link = document.createElement('a') as HTMLAnchorElement;
 	Link.id = TextContent + "_id";
-	Link.href = href;
+	Link.onclick = (async() => await navigate(href));
 	Link.textContent = TextContent;
 	Link.className = ClassName;
 	Item.appendChild(Link);
@@ -176,6 +165,33 @@ function addInBanner(banner: HTMLElement) {
 	wrapper.appendChild(navLinks);
 
 	banner.appendChild(wrapper);
-
+	updateResize();
 }
 
+export function updateResize() {
+	if (window.innerWidth <= 1258)
+		logo.classList.add('hidden');
+	else
+		logo.classList.remove('hidden');
+	if (window.innerWidth <= 858)
+		navLinks.classList.add('hidden');
+	else
+		navLinks.classList.remove('hidden');
+}
+
+export function cleanBanner() {
+	if (wrapper)
+		wrapper.innerHTML = '';
+	if (logo)
+		logo.innerHTML = '';
+	if (userInfo)
+		userInfo.innerHTML = '';
+	if (navLinks) {
+		Array.from(navLinks.children).forEach(child=>{
+			Array.from(child.children).forEach(element => {
+				element.remove();
+			});
+			child.remove();
+		})
+	}
+}

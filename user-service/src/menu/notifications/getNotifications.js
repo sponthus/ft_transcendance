@@ -56,7 +56,7 @@ export async function   getAllSpecificNotifications(request, reply, status) //re
                                             notifications.notif_status = ? \
                                         ORDER BY \
                                             notifications.created_at DESC").all(idUser, status);
-        console.log('Notif cote back :', notifs);                                  
+        // console.log('Notif cote back :', notifs);                                  
         return reply.code(200).send({ notifs: notifs });
     }
     catch (err)

@@ -119,7 +119,6 @@ export class SettingPage extends BasePage {
 		})
 
 		DoneButton.addEventListener('click', async(e) => {
-			console.log("change the assets");
 			await this.Done();
 		})
 	}
@@ -187,7 +186,6 @@ export class SettingPage extends BasePage {
 	private async callApiForChangeAvatar() {
 		let CurrentAvatarAsset: number = getAvatarAsset();
 		try {
-			console.log("change the assets " ,CurrentAvatarAsset);
 			const reqAvatar = await changeCharacterAsset(CurrentAvatarAsset);
 			if (reqAvatar.ok)
 				return ;
