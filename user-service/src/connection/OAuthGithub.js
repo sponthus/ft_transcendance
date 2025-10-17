@@ -1,13 +1,19 @@
 import OAuth2 from '@fastify/oauth2'
 import { getSecret } from '../index.js';
-import env from '../../config/env.js'
-import fetch from 'node-fetch'
+import env from '../../config/env.js';
+import prefix from '../tools/url.js';
+import fetch from 'node-fetch';
 import slugify from "slugify";
 import { generateUniqueUsername, generateUniqueSlug } from '../tools/generateUnique.js';
 import { notifyChangeData } from '../internal-service/notifyServices.js';
 
 export function initOAuthGithub(fastify)
 {
+	let link = `${prefix}://localhost:5173/api/user/oauth/github/callback`;
+	if (env.nodeEnv === 'production') {
+		link = `${prefix}://${env.host}:4443/api/user/oauth/github/callback`;
+	}
+	// console.log("OAuth Github callback link : ", link);
     fastify.register(OAuth2, 
     {
         name: 'auth',
@@ -21,7 +27,7 @@ export function initOAuthGithub(fastify)
             auth: OAuth2.GITHUB_CONFIGURATION,
         },
         startRedirectPath: '/oauth/github',
-        callbackUri: 'http://localhost:5173/api/user/oauth/github/callback',
+        callbackUri: link,
     });
 }
 
@@ -41,10 +47,17 @@ export async function loginThroughGithub(request, reply)
         console.log("\nslug: : ", userInfo.slug);
         console.log('GITHUB token : ', token);
 
+		console.log("ASKING FOR ONLINE 🟠🟠🟠🟠🟠🟠🟠🟠🟠🟠");
 		notifyChangeData(userInfo.idUser, userInfo.username, userInfo.slug, "online");
         let secure = false;
         if (env.nodeEnv === 'production')
             secure = true;
+
+		let link = `${prefix}://localhost:5173/`;
+		if (env.nodeEnv === 'production') {
+			link = `${prefix}://${env.host}:4443/`;
+		}
+
         return reply.code(200).setCookie('token', token,
         {
             httpOnly: true,
@@ -57,7 +70,7 @@ export async function loginThroughGithub(request, reply)
                 <html>
                   <body>
                     <script>
-                        window.opener?.postMessage({ success: true }, "http://localhost:5173");
+                        window.opener?.postMessage({ success: true }, "${link}");
                         window.close();
                     </script>
                  </body>

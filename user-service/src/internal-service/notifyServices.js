@@ -3,7 +3,7 @@ import { getSecret } from "../index.js";
 import prefix from "../tools/url.js";
 import tlsAgent from "../tools/tlsAgent.js";
 
-export async function notifyRefresh(idRecevers, sender, message) 
+export async function notifyRefresh(idReceivers, sender, message) 
 {
     const api_key = getSecret('api_key');
 	let receivers = [];
@@ -33,7 +33,7 @@ export async function notifyRefresh(idRecevers, sender, message)
     }
     catch (err)
     {
-        return { ok: false, error: data.error };
+        return { ok: false, error: err };
     }
 }
 
@@ -59,9 +59,9 @@ export async function notifyChangeData(idUser, username, slug, status="online")
         const data = await res.json();    
         return { ok: false, error: data.error, status: res.status };
     }
-    catch
+    catch (err)
     {
-        return { ok: false, error: data.error };
+        return { ok: false, error: err };
     }
 }
 

@@ -22,7 +22,7 @@ export default async function loginUser (request, reply)
                                             users \
                                         WHERE \
                                             username = ?").get(username);
-        if (!userData)
+        if (!userData || userData && !userData.pw_hash)
             return (reply.code(401).send({error : "Username or password invalid"}));
         if ((bcrypt.compareSync(password, userData.pw_hash) == false))
             return(reply.code(401).send({error : "Username or password invalid"})); //message generique pour les attaques
@@ -48,6 +48,7 @@ export default async function loginUser (request, reply)
     }
     catch (err)
     {
-        return (reply.code(500).send( {error : "Internal Server Error" + err.message} ));
+		console.error(err);
+        return (reply.code(500).send( {error : "Internal Server Error" + err} ));
     }
 }
