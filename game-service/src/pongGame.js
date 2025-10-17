@@ -29,7 +29,7 @@ export class PongGame {
 			// console.debug(typeof this.qtable);
 			// console.debug(typeof this.qtable["00"]);
 		}
-		
+		this.gameOption = 1;
 		if (option)
 			this.gameOption = 1;
 		else
@@ -338,7 +338,8 @@ export class PongGame {
 			die1: this.die1,
 			die2: this.die2,
 			ispaused: this.ispaused,
-			timePauseBegin: this.timePauseBegin
+			timePauseBegin: this.timePauseBegin,
+			gameOption: this.gameOption
 		};
 	}
 
