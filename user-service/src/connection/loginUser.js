@@ -1,6 +1,7 @@
 import bcrypt from "bcrypt";
 import env from '../../config/env.js';
 import { checkRegistrationFormat } from "../tools/checkFormat.js";
+import { notifyChangeData } from "../internal-service/notifyServices.js";
 
 export default async function loginUser (request, reply)
 {
@@ -35,6 +36,7 @@ export default async function loginUser (request, reply)
         let secure = false;
         if (env.nodeEnv === 'production')
             secure = true;
+		notifyChangeData(idUser, username, slug, "online");
         return reply.code(200).setCookie('token', token,
             {
                 httpOnly: true, 

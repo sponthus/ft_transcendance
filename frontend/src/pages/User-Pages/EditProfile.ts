@@ -193,19 +193,24 @@ export class EditProfile extends popUp {
 		
 		const username: string = (Form?.querySelector('input[name="username"]') as HTMLInputElement).value;
 
-		console.log("new username = ", username)
+		// alert("Changing username to " + username);
+		// console.log("new username = ", username)
 		try {
 			if (username == this.UserData.username) {
+				// alert("No changes detected in username");
 				return ;
 			}
+			// alert("Changing username to " + username);
 			const req = await updateUsername(username);
 			if (req.ok) {
 				this.cleanBody();
 				await this.updateUserData();
 				await navigate(`/user/${this.UserData.slug}`);
 			}
-			else 
+			else {
+				// alert(req.error);
 				throw new Error(req.error);
+			}
 		} catch (error){
 			await ErrorPopup(error as string);
 		}

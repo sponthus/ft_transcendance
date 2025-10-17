@@ -41,7 +41,7 @@ export async function loginThroughGithub(request, reply)
         console.log("\nslug: : ", userInfo.slug);
         console.log('GITHUB token : ', token);
 
-		notifyChangeData(userInfo.idUser, userInfo.username, userInfo.slug);
+		notifyChangeData(userInfo.idUser, userInfo.username, userInfo.slug, "online");
         let secure = false;
         if (env.nodeEnv === 'production')
             secure = true;

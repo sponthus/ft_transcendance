@@ -17,7 +17,7 @@ export async function updateUsername(username: string): Promise<UserModification
         const data = await res.json();
         if (res.ok) 
         {
-            localStorage.setItem("token", data.token);
+            // localStorage.setItem("token", data.token);
             return {ok: true, token: data.token};
         }
         return { ok: false, error: data.error};

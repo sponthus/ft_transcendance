@@ -37,7 +37,7 @@ export async function notifyRefresh(idRecevers, sender, message)
     }
 }
 
-export async function notifyChangeData(idUser, username, slug) 
+export async function notifyChangeData(idUser, username, slug, status="online") 
 {
 
     const api_key = getSecret('api_key');
@@ -51,7 +51,7 @@ export async function notifyChangeData(idUser, username, slug)
                 'Content-Type': 'application/json',
                 'x-internal-api-key': api_key
             },
-            body: JSON.stringify({ username: username, slug: slug }),
+            body: JSON.stringify({ username: username, slug: slug, status: status }),
 		    dispatcher: tlsAgent
 	    });
         if (res.ok)

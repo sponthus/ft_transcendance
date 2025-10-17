@@ -5,13 +5,14 @@ import { notifyChangeData, notifyChangeSlug } from "../internal-service/notifySe
 
 export default async function updateUsername (request, reply)
 {
+	console.debug("⚡️⚡️⚡️⚡️⚡️ updateUsername called ⚡️⚡️⚡️⚡️⚡️");
 	// TODO : Renvoie le token, pas bon non ? 
 	// TODO : Pas de username dans le body = Invalid format for username ?
 	// TODO : Mettre son propre username = 409 ? pas sure, preciser l'erreur peut etre
     if (checkUsernameFormat(request) == false)
         return reply.code(400).send( {error : "Invalid format for username"} );
 
-    console.log('⚡️⚡️⚡️⚡️⚡️ request.body : ', request.body);
+    console.debug('⚡️⚡️⚡️⚡️⚡️ request.body : ', request.body);
 
     const db = request.server.db;
     const newUsername = request.body.username;
@@ -27,8 +28,10 @@ export default async function updateUsername (request, reply)
                                                     users \
                                                 WHERE \
                                                     username = ?').get(newUsername);
-        if (existingUsername)
+        if (existingUsername) {
+			console.warn('Username already exist : ', newUsername);
             return reply.code(409).send({error: "Username already exist"});
+		}
         const old = db.prepare("    SELECT \
                                         slug, avatar \
                                     FROM \
@@ -53,13 +56,15 @@ export default async function updateUsername (request, reply)
                         WHERE \
                             id = ?").run(idUser);*/
         console.debug("LAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
-        notifyChangeData(idUser, newUsername, slug);
+        notifyChangeData(idUser, newUsername, slug, "online");
         notifyChangeSlug(old.slug , slug);
         const token = await reply.jwtSign({ idUser, newUsername, slug}, {expiresIn: '1h'});
+		console.debug("OKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKK");
         return reply.code(200).send({ token : token });
     }
     catch (err)
     {
+		console.error(err);
         return reply.code(500).send({ error : "Internal Server Error" + err.message });
     }
 }
