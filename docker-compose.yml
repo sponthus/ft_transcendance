@@ -126,8 +126,8 @@ services:
       - "5173:5173" # Dev only
     volumes:
       - ./frontend:/app # TODO Comment me for prod, dev only
-      - frontend_dist:/app/dist # Prod volume for nginx
       - ./config:/app/config # TODO Comment me for prod, dev only
+      - frontend_dist:/app/dist # Prod volume for nginx
     networks:
       - pongnet
 
@@ -139,10 +139,10 @@ services:
       - ".env"
     container_name: upload-service
     volumes:
-      - ssl_certs:/etc/ssl # For nginx SSL certs
-      - ./upload-service:/app # TODO Comment me for prod, dev only
-      - avatar_uploads:/app/uploads # share with nginx
       - ./config:/app/config # TODO Comment me for prod, dev only
+      - ./upload-service:/app # TODO Comment me for prod, dev only
+      - ssl_certs:/etc/ssl # For nginx SSL certs
+      - avatar_uploads:/app/uploads # share with nginx
     secrets:
       - hash_key
       - api_key
