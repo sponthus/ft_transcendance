@@ -99,7 +99,7 @@ function setLoginUserInfo(userData: UserInfo) {
 }
 
 async function setTextLoginUserInfo(usersForm: HTMLElement, userData: UserInfo) {
-	let userSatus: string = 'disconnected 🔴​';
+	let userSatus: string = 'error​';
 	try {
 		const req = await getUserStatus(userData.slug);
 		if (!req.ok)

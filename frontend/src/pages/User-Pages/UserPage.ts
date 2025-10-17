@@ -32,7 +32,7 @@ export class UserPage extends BasePage {
 	constructor(slug: string) {
 		super();
 		this.slug = slug;
-		this.Statue = '​';
+		this.Statue = 'Error';
 		StateBody = BodyState.FRIENDS;
 	}
 	
