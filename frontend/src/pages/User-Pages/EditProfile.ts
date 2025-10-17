@@ -198,24 +198,18 @@ export class EditProfile extends popUp {
 			if (username == this.UserData.username) {
 				return ;
 			}
-			console.log("BOUDIN DE CHEVAL");
 			const req = await updateUsername(username);
 			if (req.ok) {
-				//this.cleanBody();
-				console.log("BOUDIN DE CHEVAL");
+				this.cleanBody();
 				await this.updateUserData();
 				await navigate(`/user/${this.UserData.slug}`);
 			}
 			else
-			{
-				console.log("Pas de boudin de cheval");
 				throw new Error(req.error);
-			} 
-
-		} catch (error){
-			console.log('Error FRONNT' , error);
+		}
+		catch (error){
 			await ErrorPopup(error as string);
-		}	
+		}
 	}
 
 	async openUploadForm() {
@@ -251,7 +245,6 @@ export class EditProfile extends popUp {
 		
 		const formData = new FormData();
 		formData.append('avatar-input', file);
-		
 		// Makes 2 requests : upload to upload service + change avatar in user db
 		const req = await uploadAvatar(formData);
 		if (req.ok) {

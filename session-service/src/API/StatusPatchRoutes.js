@@ -27,10 +27,11 @@ export async function changeUserInfos(request, reply) {
 		return reply.status(500).send({ error: 'Internal server error while fetching users'});
 	}
 
-	const data = WebSocketManager.updateUserInfos(Number(userId), username, slug);
-	if (data == null) {
-		console.log(`User with ${userId} not found.`);
-		return reply.status(404).send({error: 'Requested user not found.'});
+	try {
+		const data = WebSocketManager.updateUserInfos(Number(userId), username, slug);
+	} catch (err) {
+		console.error('❌ Error while updating user infos:', err.message);
+		return reply.status(500).send({ error: 'Internal server error.'});
 	}
 	return reply.status(200).send({ userId: data.userId, username: data.username, slug: data.slug });
 }

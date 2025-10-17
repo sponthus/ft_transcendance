@@ -25,10 +25,11 @@ export async function getUserStatus(slug: string): Promise<StatusResult> {
 
 		if (!response.ok) {
 			const data = await response.json();
-			if (data?.error)
+			if (data?.error) {
 				return { ok: false, error: data.error as string };
-			else
+			} else {
 				return { ok: false, error: "Unable to get status" };
+			}
 		}
 
 		const status: UserStatus = await response.json();

@@ -53,8 +53,8 @@ export default async function updateUsername (request, reply)
                             last_username_change = CURRENT_TIMESTAMP \
                         WHERE \
                             id = ?").run(idUser);*/
-        notifyChangeSlug(old.slug , slug);
         notifyChangeData(idUser, newUsername, slug);
+        notifyChangeSlug(old.slug , slug);
         const token = await reply.jwtSign({ idUser, newUsername, slug}, {expiresIn: '1h'});
         let secure = false;
         if (env.nodeEnv === 'production')
