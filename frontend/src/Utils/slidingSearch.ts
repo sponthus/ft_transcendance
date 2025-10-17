@@ -68,7 +68,10 @@ function handleSearchEnter() {
 				if (value.username.toLocaleLowerCase().substring(0, searchTerm.length) === searchTerm) {
 					const UserText: HTMLAnchorElement = createAnchorElement(`${value.slug}`, `${value.slug}`, `/user/${value.slug}`, 'text-emerald-600 hover:bg-orange-400 hover:font-bold text-xl w-full text-center transition-all duration-200 hover:scale-105 shadow-xl');
 					searchPanel.appendChild(UserText);
-					UserText.addEventListener('click', () => {closeSearch();});
+					UserText.onclick = async() => {
+						closeSearchPanel();
+						await navigate(`/user/${value.slug}`);
+					}
 				}
 			})
 		}
@@ -128,13 +131,15 @@ function closeSearch() {
 
 	const searchInput: HTMLInputElement = document.getElementById("search-input") as HTMLInputElement;
 	const closeButton: HTMLElement = document.getElementById('close-btn-div') as HTMLElement;
-
-	searchInput.className = 'w-64 px-4 py-2 pl-4 pr-12 text-sm border-0 rounded-full bg-transparent focus:outline-none opacity-0 transition-opacity duration-300';
-	closeButton.className = 'absolute right-2 top-1/2 transform -translate-y-1/2 w-6 h-6 text-gray-500 hover:text-gray-700 opacity-0 transition-opacity duration-300';
+	if (searchInput)
+		searchInput.className = 'w-64 px-4 py-2 pl-4 pr-12 text-sm border-0 rounded-full bg-transparent focus:outline-none opacity-0 transition-opacity duration-300';
+	if (closeButton)
+		closeButton.className = 'absolute right-2 top-1/2 transform -translate-y-1/2 w-6 h-6 text-gray-500 hover:text-gray-700 opacity-0 transition-opacity duration-300';
 		
 	setTimeout(() => {
 		(document.getElementById("sliding-search-bar-div") as HTMLElement).className = 'absolute right-0 top-0 w-0 overflow-hidden transition-all duration-300 ease-in-out bg-orange-100 rounded-full shadow-lg';
-		searchInput.value = '';
+		if (searchInput)
+			searchInput.value = '';
 	}, 150);
 }
 
@@ -148,8 +153,9 @@ function openSearchPanel() {
 	searchPanel.className = 'flex flex-col items-center space-y-4 absolute right-0 top-16 w-80 h-72 overflow-y-auto transition-all duration-300 ease-in-out bg-orange-100 rounded-xl shadow-lg border-2 border-emerald-500 opacity-100';
 }
 
-function closeSearchPanel() {
-	removeAllChild(searchPanel);
+function  closeSearchPanel() {
+	if (searchPanel)
+		removeAllChild(searchPanel);
 	isOpen = false;
 	searchPanel.className = 'flex flex-col items-center space-y-4 absolute right-0 top-16 w-0 h-0 overflow-y-auto transition-all duration-300 ease-in-out bg-orange-100 rounded-xl shadow-lg border-2 border-emerald-300 opacity-0';
 }
