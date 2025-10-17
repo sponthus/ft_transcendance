@@ -60,9 +60,7 @@ export class UserPage extends BasePage {
 				if (this.slug != this.UserData.slug)
 					await this.fillUserData()
 				const request = await getUserStatus(this.UserData.slug);
-				if (!request.ok)
-					throw new Error(request.error);
-				else {
+				if (request.ok) {
 					if (request.status && request.status.status === "online")
 						this.Statue = 'online 🟢​';
 					if (request.status && request.status.status === "disconnected")

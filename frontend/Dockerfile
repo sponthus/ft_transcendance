@@ -1,9 +1,15 @@
 FROM node:20-alpine AS build
 
-COPY    ./config/entrypoint.sh /usr/local/bin/
+RUN mkdir app
+
+# Un-comment me for prod, in dev = volumes
+# COPY ./frontend /app
+# COPY ./config/env.js /app/config/env.js
+# COPY ./config/logger.js /app/config/logger.js
+
+COPY    ./frontend/config/entrypoint.sh /usr/local/bin/
 RUN		chmod +x /usr/local/bin/entrypoint.sh
 
-RUN mkdir app
 WORKDIR /app
 
 ENTRYPOINT ["entrypoint.sh"]

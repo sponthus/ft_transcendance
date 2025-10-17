@@ -3,11 +3,12 @@ export default async function updateAvatar (request, reply)
     const db = request.server.db;
     const newAvatar = request.body.avatar;
     const idUser = request.user.idUser;
-    const slug = request.params.slug;
 
     //met en lowercase et verifie l'extension
-    if (!newAvatar.toLowerCase().endsWith('.jpg'))
-        return reply.code(400).send( {error : "Invalid avatar format : only .jpg avatars"} );
+    if (!newAvatar.toLowerCase().endsWith('.png') && 
+        !newAvatar.toLowerCase().endsWith('.jpg') &&
+        !newAvatar.toLowerCase().endsWith('.jpeg'))
+        return reply.code(400).send({ error: "Invalid avatar file" });
     try 
     {
         const currentAvatar = db.prepare("  SELECT \
@@ -25,10 +26,10 @@ export default async function updateAvatar (request, reply)
                             avatar = ? \
                         WHERE \
                             id = ?").run(newAvatar, idUser);
-        return reply.code(200).send( { avatar: avatar } );
+        return reply.code(200).send();
     }
     catch (err)
     {
-        return reply.code(500).send( {error : "Internal Server Error"} );
+        return reply.code(500).send({ error : "Internal Server Error" });
     }
 }

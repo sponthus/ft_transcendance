@@ -4,6 +4,7 @@ import env from '../../config/env.js'
 import fetch from 'node-fetch'
 import slugify from "slugify";
 import { generateUniqueUsername, generateUniqueSlug } from '../tools/generateUnique.js';
+import { notifyChangeData } from '../internal-service/notifyServices.js';
 
 export function initOAuthGithub(fastify)
 {
@@ -40,6 +41,7 @@ export async function loginThroughGithub(request, reply)
         console.log("\nslug: : ", userInfo.slug);
         console.log('GITHUB token : ', token);
 
+		notifyChangeData(userInfo.idUser, userInfo.username, userInfo.slug);
         let secure = false;
         if (env.nodeEnv === 'production')
             secure = true;

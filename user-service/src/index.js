@@ -120,7 +120,7 @@ fastify.decorate("authenticate", async function (request, reply)
             return reply.code(401).send({ error: "Invalid cookie" });
         // console.debug("\nToken dans le user-service : " + result.value + "-");
         request.user = await fastify.jwt.verify(result.value); //Décode et verifie le token et stock ses infos dans request
-        // console.debug("Decoded token:", request.user);
+        console.debug("USER-SERVICE Decoded token:", request.user);
 
         if (request.user.twofa_pending === true)
             return reply.code(401).send({ error: "2FA required" });
@@ -147,7 +147,7 @@ fastify.decorate("authenticate", async function (request, reply)
             return reply.code(400).send({error : err.message});
         }
     }
-    /*try
+    try
     {
         const db = request.server.db;
         const idUser = request.user.idUser;
@@ -156,15 +156,15 @@ fastify.decorate("authenticate", async function (request, reply)
                                         FROM \
                                             users \
                                         WHERE \
-                                            idUser = ?").get(idUser);
+                                            id = ?").get(idUser);
         if (!userExists)
-            return reply.code(404).send({ error: "User not found" });
+            return reply.code(404).send({ error: "User not found" }); // TODO ELODIE bon msg ?
 
     }
     catch (err)
     {
         return reply.code(500).send( {error : "Internal Server Error" + err.message} );
-    }*/
+    }
 });
 
 

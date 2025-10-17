@@ -50,24 +50,29 @@ console.log(`multipart loaded`);
 
 console.log('Parameters for app are being set'); // debug
 
+fastify.decorate("verifyApiKey", async function (request, reply)
+{
+    const   apiKey = request.headers['x-internal-api-key'];
+    if (!apiKey || apiKey !== getSecret('api_key'))
+		return reply.code(401).send({ error: 'Unauthorized: Invalid API Key' });
+});
+
 fastify.decorate("authenticate", async function (request, reply)
 {
     try 
     {
-        // console.debug("\nToken dans le user-service avant unsign cookie : -" + request.cookies.token + "-");
-        const result = fastify.unsignCookie(request.cookies.token); //verifie manuellement signature cookie
+        const result = fastify.unsignCookie(request.cookies.token);
         if (!result.valid)
             return reply.code(401).send({ error: "Invalid cookie" });
-        // console.debug("\nToken dans le user-service : " + result.value + "-");
-        request.user = await fastify.jwt.verify(result.value); //Décode et verifie le token et stock ses infos dans request
-        // console.debug("Decoded token:", request.user);
+        request.user = await fastify.jwt.verify(result.value);
         if (request.user.twofa_pending === true)
             return reply.code(401).send({ error: "2FA required" });
-    } 
-    catch (err)
-    {
-        if (err.message === "Authorization token expired")
-        {
+		console.debug('DECODED TOKEN ', request.user);
+	}
+	catch (err)
+	{
+		if (err.message === "Authorization token expired")
+		{
             return reply.code(401).send({error : err.message});
         }
         else
