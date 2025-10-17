@@ -1,5 +1,5 @@
 type Failure = { ok: false; error: string };
-type UserModificationSuccess = { ok: true; token: string}
+type UserModificationSuccess = { ok: true }
 
 export type UserModificationResult = UserModificationSuccess | Failure;
 
@@ -14,12 +14,11 @@ export async function updateUsername(username: string): Promise<UserModification
             credentials: 'include',
             body: JSON.stringify({ username }),
         });
-        const data = await res.json();
         if (res.ok) 
         {
-            // localStorage.setItem("token", data.token);
-            return {ok: true, token: data.token};
+            return {ok: true };
         }
+        const data = await res.json();
         return { ok: false, error: data.error};
     }
     catch (err)

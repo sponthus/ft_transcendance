@@ -120,7 +120,7 @@ fastify.decorate("authenticate", async function (request, reply)
             return reply.code(401).send({ error: "Invalid cookie" });
         // console.debug("\nToken dans le user-service : " + result.value + "-");
         request.user = await fastify.jwt.verify(result.value); //Décode et verifie le token et stock ses infos dans request
-        // console.debug("Decoded token:", request.user);
+        console.debug("USER-SERVICE Decoded token:", request.user);
 
         if (request.user.twofa_pending === true)
             return reply.code(401).send({ error: "2FA required" });

@@ -2,17 +2,18 @@ import slugify from "slugify";
 import { checkUsernameFormat } from "../tools/checkFormat.js";
 import { generateUniqueSlug } from "../tools/generateUnique.js";
 import { notifyChangeData, notifyChangeSlug } from "../internal-service/notifyServices.js";
+import env from '../../config/env.js';
 
 export default async function updateUsername (request, reply)
 {
-	console.debug("⚡️⚡️⚡️⚡️⚡️ updateUsername called ⚡️⚡️⚡️⚡️⚡️");
+	// console.debug("⚡️⚡️⚡️⚡️⚡️ updateUsername called ⚡️⚡️⚡️⚡️⚡️");
 	// TODO : Renvoie le token, pas bon non ? 
 	// TODO : Pas de username dans le body = Invalid format for username ?
 	// TODO : Mettre son propre username = 409 ? pas sure, preciser l'erreur peut etre
     if (checkUsernameFormat(request) == false)
         return reply.code(400).send( {error : "Invalid format for username"} );
 
-    console.debug('⚡️⚡️⚡️⚡️⚡️ request.body : ', request.body);
+    // console.debug('⚡️⚡️⚡️⚡️⚡️ request.body : ', request.body);
 
     const db = request.server.db;
     const newUsername = request.body.username;
@@ -49,18 +50,20 @@ export default async function updateUsername (request, reply)
                             username = ?, slug = ?, avatar = ?\
                         WHERE \
                             id = ?").run(newUsername, slug, newAvatar, idUser);
-        /*db.prepare (" UPDATE \
-                            users \
-                        SET \
-                            last_username_change = CURRENT_TIMESTAMP \
-                        WHERE \
-                            id = ?").run(idUser);*/
-        console.debug("LAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
         notifyChangeData(idUser, newUsername, slug, "online");
         notifyChangeSlug(old.slug , slug);
         const token = await reply.jwtSign({ idUser, newUsername, slug}, {expiresIn: '1h'});
-		console.debug("OKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKK");
-        return reply.code(200).send({ token : token });
+        let secure = false;
+        if (env.nodeEnv === 'production')
+            secure = true;
+        return reply.code(200).setCookie('token', token,
+            {
+                httpOnly: true,
+                signed: true,
+                secure: secure,
+                path: '/',
+                maxAge: 3600000
+            }).send();
     }
     catch (err)
     {
