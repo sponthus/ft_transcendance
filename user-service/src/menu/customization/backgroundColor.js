@@ -4,6 +4,9 @@ export async function   changeBackgroundColor(request, reply)
     const   idUser = request.user.idUser;
     const   {red, green, blue} = request.body;
 
+	// TODO : If 1 color is missing, gives 200 ?
+	// TODO : If color is a string, gives 500 ?
+	// TODO : If no color is given, gives 200 ?
     if ((red < 0 || red > 255) || (green < 0 || green > 255) || (blue < 0 || blue > 255))
         return reply.code(400).send({ error: "Invalid RGB value. Each component must be between 0 and 255." });
     try

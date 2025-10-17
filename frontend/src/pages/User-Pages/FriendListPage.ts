@@ -31,10 +31,7 @@ export async function displayFriendlist(parent: HTMLElement, userData: UserInfo 
 }
 
 function fillFrienList(parent: HTMLElement, friendlist: AllFriends[]) {
-	friendlist?.forEach(friend => {
-		append(parent, [createFrienDiv(friend)]);
-		console.log("create friend div body with ", friend.username, " ", friend.avatar);
-	})
+	friendlist?.forEach(friend => {append(parent, [createFrienDiv(friend)]);});
 }
 
 function createFrienDiv(friend: any): HTMLElement {

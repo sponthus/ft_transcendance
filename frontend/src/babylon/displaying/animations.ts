@@ -129,7 +129,6 @@ export class renderAnimation {
 	}
 
 	startOpen() {
-		console.log("start open");
 		if (this._openChest)
 			this._openChest.start(false, 1.0, this._openChest.from, this._openChest.to, false);
 	}
@@ -140,7 +139,6 @@ export class renderAnimation {
 	}
 
 	startClose() {
-		console.log("start close");
 		if (this._closeChest)
 			this._closeChest.start(false, 1.0, this._closeChest.from, this._closeChest.to, false);
 	}

@@ -66,6 +66,7 @@ export async function   removeFriend(request, reply)
     const   idUser = request.user.idUser;
     const   friendSlug = request.body.slug;
 
+	// TODO : Not respond 200 when sending with your own slug
     if (checkSlugFormat(request) == false)
         return reply.code(400).send( {error : "Invalid format for the friend's slug"} );
     try

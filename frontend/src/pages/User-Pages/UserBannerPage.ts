@@ -4,12 +4,12 @@ import { createDiv, createElement, createButton, append, createImage} from '../.
 import { EditProfile } from './EditProfile.js';
 import { UserInfo } from '../../api/user-service/user-info/getUserInfo.js';
 import { ErrorPopup } from '../ErrorPage.js';
-
-enum BodyState {PROFILE = 0, FRIENDS = 1, HISTORY = 2};
+import { currentPage } from '../../core/router.js';
+import { ChangeStateBody, StateBody } from './UserPage.js';
 
 export class UserBanner {
 	
-	private StateBody!: number;
+	// private StateBody!: number;
 	private ProfileBanner!: HTMLElement;
 	private UserData: UserInfo;
 	private isOwnProfile!: boolean;
@@ -20,7 +20,6 @@ export class UserBanner {
 		this.UserData = UserData;
 		this.isOwnProfile = isOwnProfile;
 		this.statue = statue;
-		this.StateBody = BodyState.PROFILE;
 		this.ProfileBanner = createDiv('profile-banner', "flex flex-col w-full h-[40%]");
 		this.EditProfile = new EditProfile(this.UserData);
 	}
@@ -75,11 +74,8 @@ export class UserBanner {
 	
 		const AvatarCircle: HTMLElement = createDiv('AvatarCircle',"h-full aspect-square flex items-center justify-center bg-orange-300 rounded-full" );
 		if (this.UserData) {
-			console.log(`user data = ` + JSON.stringify(this.UserData));
 			const avatar: string = this.UserData.avatar;
-			console.log("avatar in profile = ", avatar);
 			const srcImg: string = `https://localhost:4443/uploads/${avatar}`; // problem firefox https autosignate certificate 
-			console.log("srcImg in profile = ", srcImg);
 			append(AvatarCircle, [(createImage("user", "w-[95%] h-[95%] rounded-full object-cover object-center", srcImg) as HTMLImageElement)])
 		}
 		append(AvatarDiv, [AvatarCircle]);
@@ -115,83 +111,90 @@ export class UserBanner {
 		const BotBanner: HTMLElement = createDiv('BotBanner', "flex items-center justify-center bg-sky-500 bg-opacity-50 shadow-md w-full h-[20%] font-sans");
 		append(BotBanner, [(createButton("FriendList", "flex items-center justify-center h-full w-1/6 hover:text-emerald-700 hover:font-bold text-emerald-600 text-center text-2xl", "Friends") as HTMLButtonElement)
 							,(createButton("History", "flex items-center justify-center h-full w-1/6 hover:text-emerald-700 hover:font-bold text-emerald-600 text-center text-2xl", "History") as HTMLButtonElement)
-							,(createButton("Tournament", "flex items-center justify-center h-full w-1/6 hover:text-emerald-700 hover:font-bold text-emerald-700 font-bold text-center text-2xl", "Tournament") as HTMLButtonElement)]);
+							,(createButton("Tournament", "flex items-center justify-center h-full w-1/6 hover:text-emerald-700 hover:font-bold text-emerald-600 font-bold text-center text-2xl", "Tournament") as HTMLButtonElement)]);
 		return BotBanner; 
 	}
 
 	async botBannerEvents() {
-		const Profile = document.getElementById("Tournament-btn") as HTMLButtonElement;
+		const Tournament = document.getElementById("Tournament-btn") as HTMLButtonElement;
 		const Friends = document.getElementById("FriendList-btn") as HTMLButtonElement;
 		const History = document.getElementById("History-btn") as HTMLButtonElement;
-
+		
 		let TabContent: HTMLButtonElement[] = [];
-		if (Profile && Friends && History)
-			TabContent = [Profile, Friends, History];
+		if (Tournament && Friends && History)
+			TabContent = [Friends, History, Tournament];
+		this.activateButton(TabContent[StateBody]);
 
 		TabContent.forEach(btn => {
-			btn.addEventListener('click', () =>{
-				TabContent.forEach(button => {
-					this.desactivateButton(button); });
-				this.activateButton(btn);
-				this.StateBody = TabContent.indexOf(btn);
-				// this.renderBodyProfile()
-				console.log("activ button ? = ", btn);
-				console.log("state content : ", this.StateBody); })
+			if (btn) {
+				btn.addEventListener('click', () =>{
+					TabContent.forEach(button => {this.desactivateButton(button);});
+					this.activateButton(btn);
+					ChangeStateBody(TabContent.indexOf(btn));})
+			}
 		})
 	}
 
 	async managefriendrequest() {
-		(document.getElementById('friend-request-btn')?.addEventListener('click', async() => {
-			console.log('send a friend request');
-			try {
-				// TODO Emma & Elodie : Backend expects a slug so maj are rejected
-				const req = await addFriend(this.UserData.username);
-				if (req.ok) {
-					document.getElementById('friend-request-btn')!.textContent = "friend request sent...";
-					console.log("succesfully add friend request");
-					location.reload();
+		const btn: HTMLButtonElement = (document.getElementById('friend-request-btn') as HTMLButtonElement);
+		if (btn) {
+			btn.addEventListener('click', async() => {
+				try {
+					const req = await addFriend(this.UserData.slug);
+					if (req.ok) {
+						document.getElementById('friend-request-btn')!.textContent = "friend request sent...";
+						if (currentPage) 
+							currentPage.render();
+					}
+				}catch (error) {
+					await ErrorPopup(error as string);
 				}
-			}catch (error) {
-				await ErrorPopup(error as string);
-			}
-		}));
-		(document.getElementById('remove-friend-btn')?.addEventListener('click', async() => {
-			try {
-				const req = await removeFriend(this.UserData.slug);
-				if (req.ok) {
-					console.log("frien remove succesfuly");
-					location.reload();
+			});
+		}
+		const btn1: HTMLButtonElement = (document.getElementById('remove-friend-btn') as HTMLButtonElement);
+		if (btn1) {
+			btn1.addEventListener('click', async() => {
+				try {
+					const req = await removeFriend(this.UserData.slug);
+					if (req.ok) {
+						if (currentPage) 
+							currentPage.render();
+					}
+				} catch (error) {
+					await ErrorPopup(error as string);
 				}
-			} catch (error) {
-				await ErrorPopup(error as string);
-			}
-		}));
-		(document.getElementById('accept-btn')?.addEventListener('click', async() => {
-			try {
-				const req = await acceptRequest(this.UserData.username);
-				if (req.ok) {
-					await ErrorPopup("accept invitation of " + this.UserData.username);
-					console.log("acctp invitation of ", this.UserData.username);
-					location.reload();
+			});
+		}
+		const btn2: HTMLButtonElement = (document.getElementById('accept-btn') as HTMLButtonElement);
+		if (btn2) {
+			btn2.addEventListener('click', async() => {
+				try {
+					const req = await acceptRequest(this.UserData.username);
+					if (req.ok) {
+						if (currentPage)
+							currentPage.render();
+					}
+	
+				} catch(error) {
+					await ErrorPopup(error as string);
 				}
-
-			} catch(error) {
-				await ErrorPopup(error as string);
-			}
-		}));
-		(document.getElementById('decline-btn')?.addEventListener('click', async() => {
-			try {
-				const req = await rejectRequest(this.UserData.username);
-				if (req.ok) {
-					await ErrorPopup("decline invitation of " + this.UserData.username);
-					console.log("acctp invitation of ", this.UserData.username);
-					location.reload();
+			});
+		}
+		const btn3: HTMLButtonElement = (document.getElementById('decline-btn') as HTMLButtonElement);
+		if (btn3) {
+			(document.getElementById('decline-btn')?.addEventListener('click', async() => {
+				try {
+					const req = await rejectRequest(this.UserData.username);
+					if (req.ok) {
+						if (currentPage)
+							currentPage.render();
+					}
+	
+				} catch(error) {
+					await ErrorPopup(error as string);
 				}
-
-			} catch(error) {
-				await ErrorPopup(error as string);
-			}
-		}))
+			}))
+		}
 	}
 
 	private activateButton(btn: HTMLButtonElement) {
@@ -204,10 +207,6 @@ export class UserBanner {
 		btn.classList.remove("text-emerald-700");
 		btn.classList.remove("font-bold");
 		btn.classList.add("text-emerald-600");
-	}
-
-	get	_ProfileState() :number {
-		return this.StateBody;
 	}
 
 	get _ProfileBanner(): HTMLElement {

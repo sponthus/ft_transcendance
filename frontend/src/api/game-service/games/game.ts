@@ -41,7 +41,7 @@ export type AllGamesInfos = {
 type AvailableGamesList = { ok: true; games: PendingGamesInfos[] }
 export type AvailableGamesResult = AvailableGamesList | Failure;
 
-type AllGamesList = { ok: true; games: AllGamesInfos[] }
+type AllGamesList = { ok: true; games: AllGamesInfos[]; stats: { wins: number; losses: number; total: number } }
 export type AllGamesResult = AllGamesList | Failure;
 
 // All routes going to game service begin with : "/api/games/"
@@ -152,6 +152,20 @@ export async function getAvailableGames(slug: string): Promise<AvailableGamesRes
     }
 }
 
+function countLosses(games: AllGamesInfos[], slug: string): number {
+	return games
+		.filter(game => game.winner !== `@${slug}` 
+			&& (game.player_a === `@${slug}` 
+				|| game.player_b === `@${slug}`))
+				.length;
+}
+
+function countWins(games: AllGamesInfos[], slug: string): number {
+    return games
+		.filter(game => game.winner === `@${slug}`)
+		.length;
+}
+
 // GET /:slug/games
 // All available FINISHED games for a user, gives only useful infos
 // Security : Accessible for every logged-in user
@@ -179,8 +193,11 @@ export async function getFinishedGames(slug: string): Promise<AllGamesResult> {
 				ai: game.ai,
 				option: game.option
             }));
-
-        return { ok: true, games: finishedGames };
+		const countGames = finishedGames.length;
+		const wins = countWins(finishedGames, slug);
+		const losses = countLosses(finishedGames, slug);
+        alert(`Finished games stats:\nTotal: ${countGames}\nWins: ${wins}\nLosses: ${losses}`);
+		return { ok: true, games: finishedGames, stats: { wins: wins, losses: losses, total: countGames } };
 
     } catch (error) {
         console.error('❌ Error filtering finished games', error as string );
@@ -213,7 +230,7 @@ export async function getAllGames(slug: string): Promise<AllGamesResult> {
 
         const games: AllGamesInfos[] = await response.json();
 		console.log(games);
-        return { ok: true, games: games };
+        return { ok: true, games: games, stats: { wins: 0, losses: 0, total: 0 } };
 
     } catch (error) {
         console.error('❌ Error fetching available games:', error);
@@ -222,8 +239,7 @@ export async function getAllGames(slug: string): Promise<AllGamesResult> {
 }
 
 // DELETE /:gameId
-// Delete a game in backend
-// TODO : Works but in case of an error, writes await ErrorPopup("Error: Error:...")
+// Delete a game in backend, actually not implemented in frontend
 // Security : is gonna be possible only if the logges-in user is the owner of the game
 export async function deleteGame(gameId: number): Promise<SimpleResult> {
     if (!gameId)
@@ -235,7 +251,7 @@ export async function deleteGame(gameId: number): Promise<SimpleResult> {
         });
         if (!response.ok) {
 			const data = await response.json();
-            throw new Error(`Unable to delete game ->` + data.error);
+			return { ok: false, error: data?.error as string  || 'Unable to delete game' };
         }
         return { ok: true, message: 'Game has been deleted' };
     } catch(error) {

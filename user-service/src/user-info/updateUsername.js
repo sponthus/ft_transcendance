@@ -5,6 +5,9 @@ import { notifyChangeData, notifyChangeSlug } from "../internal-service/notifySe
 
 export default async function updateUsername (request, reply)
 {
+	// TODO : Renvoie le token, pas bon non ? 
+	// TODO : Pas de username dans le body = Invalid format for username ?
+	// TODO : Mettre son propre username = 409 ? pas sure, preciser l'erreur peut etre
     if (checkUsernameFormat(request) == false)
         return reply.code(400).send( {error : "Invalid format for username"} );
 

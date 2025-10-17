@@ -3,8 +3,7 @@ import env from "../../../config/env.js";
 import prefix from "../../tools/url.js";
 import tlsAgent from "../../tools/tlsAgent.js";
 
-// TODO tests
-// TODO Elodie : change URL when ready
+// Send an invitation to a user to join a tournament
 export async function sendTournamentInvitation(userId, inviterId, tournamentId, tournamentName) {
 	if (!userId || !inviterId || !tournamentId || !tournamentName) {
 		console.error("❌ Error while sending tournament invitation: missing parameters");

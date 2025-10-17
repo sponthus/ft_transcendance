@@ -75,7 +75,6 @@ function AddAvatarBtns(parent: HTMLElement ,Id: string, MaxI: number, Folder: st
 			const btn: HTMLButtonElement = createButton(`${Id}${i.toString()}`, "h-26 aspect-square border-2 border-orange-300 hover:bg-orange-400 shadow-md hover:shadow-lg transition-all duration-200 transform hover:scale-105", "")
 
 			const src = `${Folder}character-${i.toString()}.png`;
-			// console.log('src = ', src);
 			const img: HTMLImageElement = createImage(`${Id}${i.toString()}`, "h-24 aspect-square", src);
 			btn.appendChild(img);
 			if (Avatar) {
@@ -125,7 +124,6 @@ function manageClicAvatarkEvent(Map: Map<number, HTMLButtonElement>, Avatar: boo
 				CurrentAvatarAsset = key;
 			else
 				CurrentNpcAsset = key;
-			console.log("Avatar ", CurrentAvatarAsset, "NPC ", CurrentNpcAsset);
 		})
 	})
 
@@ -142,11 +140,9 @@ function removeHoverbtn(Btn :HTMLButtonElement) {
 }
 
 export function getAvatarAsset() : number {
-	console.log("avatar asset ",CurrentAvatarAsset);
 	return CurrentAvatarAsset;
 }
 
 export function getCurrentNpcAsset(): number {
-	console.log("NPC asset", CurrentNpcAsset);
 	return CurrentNpcAsset;
 }

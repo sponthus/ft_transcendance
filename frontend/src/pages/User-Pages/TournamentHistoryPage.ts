@@ -78,13 +78,13 @@ async function AddTournaments(Body: HTMLElement, UserData: UserInfo) {
 			return ;
 		}
 		const games = res.tournaments;
-		if (games.length === 0 && isInvite === false) {
+		if (games.length === 0) {
+			if (isInvite === false)
 				Body.textContent = "there is no tournaments";
 		}
 		else {
 			fillTournamentStubborn(Body);
 			games.map((party: any, i: number) => {
-				console.log('tournament : ', party)
 				if (party.status == "done") {
 					const PartyPan = createDiv('tournament-pan', "flex flex-col items-center w-full h-[0%] flex gap-4 opacity-0 transition-all duration-300");
 					FillPartyTournament(PartyPan, party, UserData);
@@ -115,7 +115,6 @@ async function FillPartyTournament(Body: HTMLElement, games:any, UserData: UserI
 		if (data.ok) {
 			const Matchs = data.matches;
 			fillHistoryStubborn(Body);
-			console.log("Matchs = ", Matchs);
 			Matchs.map((match: GameInfos, i: number) => {FillHistory(Body, match,i, UserData);});
 		}
 	} catch(error) {
@@ -217,7 +216,6 @@ function createWinner(PartyDiv: HTMLElement, i: number, Party: any) {
 function manageBtnsEvent() {
 	btnsMap.forEach((value, key) => {
 		key.addEventListener('click', () => {
-			console.log("is open ? ", isopen);
 			if (!isopen) {
 				btnsMap.forEach((value1, key1) => {
 					if (key1 != key) {
@@ -225,7 +223,6 @@ function manageBtnsEvent() {
 					}
 				})
 				openPan(value);
-				console.log("openPan ? ", isopen);
 				isopen = true
 			}
 			else {
