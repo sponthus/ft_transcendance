@@ -71,9 +71,15 @@ export class LoginPage extends BasePage {
 		append(this.Background, [this.Front]);
 		append(this.app, [this.Background]);
 
+		let prefix = 'https';
+		const status = import.meta.env?.MODE;
+        if (status === "development") {
+			prefix = 'http';
+		}
+		let link = `${prefix}://${window.location.host}/api/user/oauth/github`;
 		GithubBtn.addEventListener('click', async() => {
 			const popup = window.open(
-			"http://localhost:5173/api/user/oauth/github",
+			link,
 			"GitHub Login",
 			`width=960,height=540,top=${window.screenX + (window.innerWidth - 960) / 2},left=${window.screenY + (window.innerHeight - 540) / 2}`
 			);
