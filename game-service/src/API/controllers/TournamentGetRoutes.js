@@ -18,7 +18,7 @@ export async function getTournamentsForSlug(request, reply) {
 	let userId = 0; 
 	const req = await getUserIdFromSlug(slug);
 	if (!req.ok) {
-		console.log("❌ Unable to get userId from slug (" + slug + ")");
+		console.error("❌ Unable to get userId from slug (" + slug + ")");
 		return reply.code(404).send({ error: "Requested user not found."});
 	} else {
 		userId = req.userId;
@@ -76,7 +76,7 @@ export async function getTournamentsForSlug(request, reply) {
 	}
 	catch (error) {
 		console.error('❌ Error fetching tournaments:');
-		console.log(error);
+		console.error(error);
 		return reply.code(500).send({error: 'Internal server error.'});
 	}
 }
@@ -101,14 +101,14 @@ export async function getTournamentMatches(request, reply) {
 	}
 
 	try {
-		console.log("Trying to find tournaments with tournamentId " + tournamentId);
+		// console.debug("Trying to find tournaments with tournamentId " + tournamentId);
 		let matches = db.getMatchesForTournamentId(tournamentId);
 		if (!matches || matches.length === 0) {
 			return reply.code(404).send({ error : 'No tournament found.'});
 		}
 		console.log(`Found ${matches.length} matches for id ${tournamentId}`);
-		// console.log(matches); // To show the found data
-		// Tests OK
+		// console.log(matches);
+
 		for (let i = 0; i < matches.length; i++) {
 			const match = matches[i];
 			const creatorName = await getUserInfoFromId(match.created_by);
@@ -163,13 +163,13 @@ export async function getTournamentMatches(request, reply) {
 				}
 			}
 		}
-		// console.debug("SENDING RESULT FOR THE MATCHES :");
+;
 		// console.debug(matches);
 		return reply.code(200).send(matches);
 	}
 	catch (error) {
 		console.error('❌ Error fetching tournaments:');
-		console.log(error);
+		console.error(error);
 		return reply.code(500).send({error: 'Internal server error.'});
 	}
 }
@@ -194,7 +194,7 @@ export async function getTournamentNextMatch(request, reply) {
 	}
 
 	try {
-		console.log("Trying to find next match from tournamentId " + tournamentId);
+		// console.debug("Trying to find next match from tournamentId " + tournamentId);
 		const match = db.getNextMatchForTournamentId(tournamentId);
 		if (!match) {
 			console.log("No next match found.");
@@ -202,7 +202,7 @@ export async function getTournamentNextMatch(request, reply) {
 		}
 		console.log("Next match found: match " + match.game_id);
 		// console.debug(match); // To show the found data
-		// Test is ok
+
 		if (match) {
 			for (let i = 0; i < match.players.length; i++) {
 				const player = match.players[i];
@@ -228,7 +228,7 @@ export async function getTournamentNextMatch(request, reply) {
 	}
 	catch (error) {
 		console.error('❌ Error fetching tournament next match:');
-		console.log(error);
+		console.error(error);
 		return reply.code(500).send({error: 'Internal server error.'});
 	}
 }

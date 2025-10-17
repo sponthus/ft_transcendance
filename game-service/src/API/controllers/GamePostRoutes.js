@@ -101,7 +101,7 @@ export async function startGame(request, reply) {
 		console.error("❌ Trying to launch a game that is not pending: ", gameId, " status=", status);
 		return reply.code(401).send({ error : 'Game is not pending' });
 	}
-	// Tests OK
+
 	try {
 		if (player_a[0] == '@') {
 			const player1Id = player_a.slice(1);
@@ -176,7 +176,7 @@ export async function createGame(request, reply) {
 		console.error("❌ Player A cannot be equal to Player B");
 		return reply.code(400).send({error: 'Bad input format - Player A cannot be equal to Player B'});
 	}
-	// Tests ok
+
 	try {
 		if (player_a[0] === '@') {
 			const player1Slug = player_a.slice(1);

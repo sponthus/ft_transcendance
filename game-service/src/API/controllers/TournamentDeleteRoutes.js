@@ -25,15 +25,15 @@ export async function deleteTournament(request, reply) {
 		return reply.code(500).send({ error: 'Internal server error.'});
 	}
 	
-	console.log("Requesting user = ", requestingUserId, " / Tournament = ", tournamentId);
+	// console.debug("Requesting user = ", requestingUserId, " / Tournament = ", tournamentId);
 
     try {
         const tournamentToDelete = await db.getTournament(tournamentId);
         if (!tournamentToDelete) {
 			return reply.code(404).send({ error : 'No tournament found.'});
 		}
-		console.log(tournamentToDelete);
-		console.log("Status to check:", tournamentToDelete.status, typeof tournamentToDelete.status);
+		// console.debug(tournamentToDelete);
+		// console.debug("Status to check:", tournamentToDelete.status, typeof tournamentToDelete.status);
         if (tournamentToDelete.status !== 'pending' && tournamentToDelete.status !== 'invitations') {
 			if (tournamentToDelete.status === 'between_games' ) {
 				const result = db.updateTournamentStatus(tournamentId, 'canceled');
@@ -56,7 +56,7 @@ export async function deleteTournament(request, reply) {
         db.deleteTournament(tournamentId);
 
 		const players = tournamentToDelete.players;
-		console.log("players = ", players);
+		// console.debug("players = ", players);
 		const notif = sendTournamentCancelation(requestingUserId, players, tournamentToDelete.name, tournamentId);
 		if (notif.ok === false) {
 			console.error("❌ Error while sending cancelation notifications: ", notif.error);

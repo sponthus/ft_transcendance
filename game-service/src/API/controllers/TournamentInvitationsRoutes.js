@@ -6,7 +6,7 @@ import { sendTournamentAcceptation } from "../requests/SendTournamentAcceptation
 // Security : Accessible to internal services
 export async function acceptTournamentInvitation(request, reply) {
 	console.log('➡️ User accessed POST /tournament/accept');
-	console.debug(request.body);
+	// console.debug(request.body);
 	const acceptingUserId = request.body.userId; //Changer par rapport au JSON envoyer, Elodie
 	const ownerUserId = request.body.ownerUserId;
 	const tournamentName = request.body.tournamentName;
@@ -40,7 +40,7 @@ export async function acceptTournamentInvitation(request, reply) {
 		const result = await db.acceptTournamentInvitation(acceptingUserId, tournamentId);
 		// console.debug(result);
 		if (result.ok === false) {
-			console.log(`❌ Unable to accept tournament invitation: /${result.error}/`);
+			console.warn(`❌ Unable to accept tournament invitation: /${result.error}/`);
 			switch (result.error) {
 				case "Player not found in this tournament":
 					return reply.code(404).send({ error: result.error });
@@ -115,8 +115,8 @@ export async function acceptTournamentInvitation(request, reply) {
 			return reply.code(200).send({ message: 'Tournament invitation accepted.' });
 		}
 	} catch (error) {
-		console.log('❌ Error accepting tournament invitation : ');
-		console.log(error);
+		console.error('❌ Error accepting tournament invitation : ');
+		console.error(error);
 		return reply.code(500).send({ error: 'Internal server error' });
 	}
 }

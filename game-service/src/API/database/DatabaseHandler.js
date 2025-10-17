@@ -1,4 +1,5 @@
 import Database from "better-sqlite3";
+import env from "../../../config/env.js";
 
 let NO_NEED = 0
 let WAITING = 1
@@ -7,7 +8,11 @@ let REFUSED = 3
 
 export default class DatabaseHandler {
     constructor(dbFile) {
-        this.db = new Database(dbFile, { verbose: console.log });
+		if (env.nodeEnv === "production") {
+			this.db = new Database(dbFile);
+		} else {
+			this.db = new Database(dbFile, { verbose: console.log });
+		}
         this.initializeDb();
     }
    

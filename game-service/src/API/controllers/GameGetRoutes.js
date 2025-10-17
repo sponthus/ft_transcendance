@@ -114,12 +114,12 @@ export async function getGamesForSlug(request, reply) {
 			}
 		}
 		console.log(`Found ${games.length} games for user ${userId}`);
-		console.debug(games); // To show the found data
+		// console.debug(games); // To show the found data
 		return reply.code(200).send(games);
 	}
 	catch (error) {
 		console.error('❌ Error fetching games:');
-		console.log(error);
+		console.error(error);
 		return reply.code(500).send({error: 'Internal server error.'});
 	}
 }
