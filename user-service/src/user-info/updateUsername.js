@@ -28,10 +28,6 @@ export default async function updateUsername (request, reply)
                                                 WHERE \
                                                     username = ?').get(newUsername);
         if (existingUsername)
-<<<<<<< HEAD
-            return reply.code(409).send({error: "Username already exists"});
-
-=======
             return reply.code(409).send({error: "Username already exist"});
         const old = db.prepare("    SELECT \
                                         slug, avatar \
@@ -39,7 +35,6 @@ export default async function updateUsername (request, reply)
                                         users \
                                     WHERE \
                                         id = ?").get(idUser);
->>>>>>> user-service
         const baseSlug = slugify(newUsername, { lower: true, strict: true });
         const ext = old.avatar.split(".").pop();
         const slug = generateUniqueSlug(baseSlug, db);
@@ -58,8 +53,8 @@ export default async function updateUsername (request, reply)
                         WHERE \
                             id = ?").run(idUser);*/
         console.debug("LAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
-        notifyChangeSlug(old.slug , slug);
         notifyChangeData(idUser, newUsername, slug);
+        notifyChangeSlug(old.slug , slug);
         const token = await reply.jwtSign({ idUser, newUsername, slug}, {expiresIn: '1h'});
         return reply.code(200).send({ token : token });
     }
