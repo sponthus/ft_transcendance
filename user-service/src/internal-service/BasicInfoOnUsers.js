@@ -21,6 +21,8 @@ export async function getIdUserFromSlug(request, reply)
     const { slug } = request.params;
     const   db = request.server.db;
 
+	// TODO add input sanitization
+	// TODO Add 404 not found if slug doesn't exist
     try
     {
         const idUser = db.prepare(  "SELECT \
@@ -43,6 +45,7 @@ export async function getUserInfosFromId(request, reply)
     const   db = request.server.db;
 	console.debug("➡️ Getting info for user id ", idUser);
 
+	// TODO add sanitization of idUser
     try
     {
         const userInfo = db.prepare(  "SELECT \

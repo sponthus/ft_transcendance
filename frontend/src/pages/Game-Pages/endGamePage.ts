@@ -5,15 +5,6 @@ import { UserInfo } from "../../api/user-service/user-info/getUserInfo";
 import { AllGamesInfos, AllGamesResult, getAllGames } from "../../api/game-service/games/game";
 import { ErrorPopup } from '../ErrorPage.js';
 
-type UserData = //VA ETRE CHANGER, le token renvoie le username et l'id du user
-{
-	id: number
-	username: string;
-	nickname: string;
-	avatar: string;
-	slug: string;
-	created_at: string;
-};
 
 export class endGamePage {
 

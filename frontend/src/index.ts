@@ -1,7 +1,4 @@
 import { setupRouter } from './core/router.js';
-//import { checkLog } from "./api/check-log.js";
-
-console.log("JS loaded !");
 
 const app = document.getElementById("app");
 if (app) {
@@ -12,7 +9,6 @@ if (app) {
 
 window.addEventListener('DOMContentLoaded', async () => {
     await setupRouter();
-    // TODO = Check log ? Restore a session according to cookies ?
 });
 
 

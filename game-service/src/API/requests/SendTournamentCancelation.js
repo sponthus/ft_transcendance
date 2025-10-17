@@ -3,9 +3,8 @@ import env from "../../../config/env.js";
 import prefix from "../../tools/url.js";
 import tlsAgent from "../../tools/tlsAgent.js";
 
-// TODO tests
-// TODO Elodie : change URL when ready
-export async function sendTournamentCancelation(ownerUserId, playersIds, tournamentId, tournamentName) {
+// Send a notification to all players when tournament has been canceled
+export async function sendTournamentCancelation(senderId, playersIds, tournamentId, tournamentName) {
 	if (!playersIds || !tournamentId || !tournamentName) {
 		console.error("❌ Error while sending tournament cancelation notification: missing parameters");
 		return { ok: false, error: "Error while sending tournament cancelation notification: missing parameters"};
@@ -23,7 +22,7 @@ export async function sendTournamentCancelation(ownerUserId, playersIds, tournam
 			body : JSON.stringify({
 				type: "tournament_cancel",
 				receiverId: playersIds,
-				senderId: ownerUserId, //pourquoi que lui sans ? J'ai rajouter le 0. ELODIE
+				senderId: senderId,
 				tournamentId: tournamentId,
 				tournamentName: tournamentName
 			}),

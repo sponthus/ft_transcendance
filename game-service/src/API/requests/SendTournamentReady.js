@@ -3,8 +3,7 @@ import env from "../../../config/env.js";
 import prefix from "../../tools/url.js";
 import tlsAgent from "../../tools/tlsAgent.js";
 
-// TODO tests
-// TODO Elodie : change URL when ready
+// Send a notification to all players when tournament is ready to start
 export async function sendTournamentReady(userIds, inviterId, tournamentId, tournamentName) {
 	if (!userIds || !inviterId || !tournamentId || !tournamentName) {
 		console.error("❌ Error while sending tournament ready notification: missing parameters");

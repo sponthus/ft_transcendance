@@ -3,8 +3,7 @@ import env from "../../../config/env.js";
 import prefix from "../../tools/url.js";
 import tlsAgent from "../../tools/tlsAgent.js";
 
-// TODO tests
-// TODO Elodie : change URL when ready
+// Send a notification to the inviter when an invitee has accepted the tournament invitation
 export async function sendTournamentAcceptation(inviterId, inviteeId, tournamentId, tournamentName) {
 	if (!inviteeId || !inviterId || !tournamentId || !tournamentName) {
 		console.error("❌ Error while sending tournament acceptation notification: missing parameters");

@@ -36,9 +36,7 @@ export class renderGround {
 		this._skyboxMaterial.disableLighting = true;
 
 		this._skyboxMaterial.reflectionTexture =  CubeTexture.CreateFromPrefilteredData("/assets/textures/moon.env", this._scene);
-		(this._skyboxMaterial.reflectionTexture as BABYLON.CubeTexture).onLoadObservable.add(() => {
-			console.log("Skybox texture loaded successfully");
-		});
+		(this._skyboxMaterial.reflectionTexture as BABYLON.CubeTexture).onLoadObservable.add(() => {});
 	
 		this._skybox.material = this._skyboxMaterial;
 		this._skybox.infiniteDistance = true;
@@ -56,9 +54,7 @@ export class renderGround {
 		if (!this._waterMaterial)
 			throw new Error("WaterMaterial failed to load");
 		this._waterMaterial.bumpTexture = new BABYLON.Texture("/asset/pic/26672.jpg", this._scene);
-		(this._waterMaterial.bumpTexture as BABYLON.Texture).onLoadObservable.add(() => {
-			console.log("succesfully load Bump texture");
-		});
+		(this._waterMaterial.bumpTexture as BABYLON.Texture).onLoadObservable.add(() => {});
 
 		this._waterMaterial.bumpHeight = 9;
 		this._waterMaterial.bumpAffectsReflection = true;

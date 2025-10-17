@@ -10,17 +10,7 @@ import { popUp } from "../../Utils/popUp";
 import { GamePage } from "../../pages/Game-Pages/GamePage";
 
 
-type AssetData = {
-	asset: number;
-};
-
-
-
 enum state {HOME = 0, PONG = 1};
-
-// function sleep(ms: number) {
-// 	return new Promise(resolve => setTimeout(resolve, ms));
-// }
 
 export class renderScene {
 
@@ -37,7 +27,6 @@ export class renderScene {
 
 	private _state!: number;
 
-	// private _popUp?: popUp;
 	private _gameCreatorPage?: GamePage;
 
 
@@ -58,7 +47,6 @@ export class renderScene {
 		this._initState();
 
 		this._initGameCreatorPage();
-		// this._initPoPupPage();
 
 		this._setdebugLayer();
 
@@ -87,7 +75,6 @@ export class renderScene {
 		document.body.style.height = "100%";
 		document.body.style.margin = "0";
 		document.body.style.padding = "0";
-		//create the canvas html element and attach it to the webpage
 		this._canvas = document.createElement("canvas");
 		if (!this._canvas)
 			throw new Error("Canvas failed to load");
@@ -96,7 +83,6 @@ export class renderScene {
 		this._canvas.id = "gameCanvas";
 		App.appendChild(this._canvas);
 
-		console.log("Canvas create and add to DOM");
 		return this._canvas;
 	}
 
@@ -135,12 +121,6 @@ export class renderScene {
 		this._isocamera.setTarget(BABYLON.Vector3.Zero());
 		this._isocamera.minZ = 0.1; 
 
-		// const zoom: number = 0.0000125 * screen.width; // evantually to change with Dell machines
-		// console.log('zoom :', zoom);
-		// this._isocamera.orthoLeft = (-this._engine!.getRenderWidth() * zoom);
-		// this._isocamera.orthoRight = (this._engine!.getRenderWidth() * zoom);
-		// this._isocamera.orthoTop = (this._engine!.getRenderHeight() * zoom);
-		// this._isocamera.orthoBottom =( -this._engine!.getRenderHeight() * zoom);
 		const renderWidth = this._engine!.getRenderWidth();
 		const renderHeight =  this._engine!.getRenderHeight();
 		const aspect = renderWidth / renderHeight;
@@ -248,7 +228,6 @@ export class renderScene {
 
 	/***************************for debug to delete at end of project***************************/
 	private _setdebugLayer() {
-		console.log("Debug layer:", this._homeScene?.debugLayer);
 		window.addEventListener('keydown', (ev) => {
 			if (ev.shiftKey && ev.ctrlKey && ev.altKey &&(ev.key == "i" || ev.key == "I")) {
 				if (this._homeScene!.debugLayer.isVisible())

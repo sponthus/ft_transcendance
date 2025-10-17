@@ -27,6 +27,7 @@ export function initOAuthGithub(fastify)
 export async function loginThroughGithub(request, reply)
 {
     const fastify = request.server;
+	// TODO : Add a condition if the request doesn't come from authorization workflow to give other than 500
     const accessToken = await fastify.auth.getAccessTokenFromAuthorizationCodeFlow(request);
     try
     {
