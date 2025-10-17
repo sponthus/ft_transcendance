@@ -49,7 +49,7 @@ export async function getTournamentsForSlug(request, reply) {
 					const creatorName = await getUserInfoFromId(creatorId);
 					if (!creatorName.ok || !creatorName.infos || !creatorName.infos.slug || creatorName.infos.slug == undefined) {
 						console.error("❌ Player slug not found: ", creatorId);
-						return reply.code(404).send({ error: `Player not found.`});
+						tournament.created_by = `@PlayerNotFound`;
 					} else {
 						idsDict.set(creatorId, creatorName.infos.slug);
 						tournament.created_by = `@${idsDict.get(creatorId)}`;
@@ -64,7 +64,7 @@ export async function getTournamentsForSlug(request, reply) {
 					const winnerName = await getUserInfoFromId(winnerId);
 					if (!winnerName.ok || !winnerName.infos || !winnerName.infos.slug || winnerName.infos.slug == undefined) {
 						console.error("❌ Player slug not found: ", winnerId);
-						return reply.code(404).send({ error: `Player not found.`});
+						tournament.winner = `@PlayerNotFound`;
 					} else {
 						idsDict.set(winnerId, winnerName.infos.slug);
 						tournament.winner = `@${idsDict.get(winnerId)}`;
@@ -116,7 +116,7 @@ export async function getTournamentMatches(request, reply) {
 			// console.debug(player1Name.infos);
 			if (!creatorName.ok) {
 				console.error("❌ Player not found: ", player1Id);
-				return reply.code(404).send({ error: "Match user owner not found" });
+				match.created_by = `@PlayerNotFound`;
 			}
 			else {
 				match.created_by = `@${creatorName.infos.slug}`;
@@ -129,7 +129,7 @@ export async function getTournamentMatches(request, reply) {
 				// console.debug(winnerName.infos);
 				if (!winnerName.ok) {
 					console.error("❌ Player not found: ", winnerId);
-					return reply.code(404).send({ error: "User winner not found" });
+					match.winner = `@PlayerNotFound`;
 				} else {
 					match.winner = `@${winnerName.infos.slug}`;
 					// console.debug(`Replaced @${winnerId} with ${matches[i].winner}`);
@@ -142,7 +142,7 @@ export async function getTournamentMatches(request, reply) {
 				// console.debug(player1Name.infos);
 				if (!player1Name.ok) {
 					console.error("❌ Player not found: ", player1Id);
-					return reply.code(404).send({ error: "User in match not found" });
+					matches[i].player_a = `@PlayerNotFound`;
 				}
 				else {
 					matches[i].player_a = `@${player1Name.infos.slug}`;
@@ -156,7 +156,7 @@ export async function getTournamentMatches(request, reply) {
 				// console.debug(player2Name.infos);
 				if (!player2Name.ok) {
 					console.error("❌ Player not found: ", player2Id);
-					return reply.code(404).send({ error: "User in match not found" });
+					matches[i].player_b = `@PlayerNotFound`;
 				} else {
 					matches[i].player_b = `@${player2Name.infos.slug}`;
 					// console.debug(`Replaced @${player2Id} with ${matches[i].player_b}`);
@@ -214,7 +214,7 @@ export async function getTournamentNextMatch(request, reply) {
 					// console.debug(playerName.infos);
 					if (!playerName.ok) {
 						console.error("❌ Player not found: ", player);
-						return reply.code(500).send({ error: "User not found" });
+						match.players[i] = `@PlayerNotFound`;
 					}
 					else {
 						match.players[i] = `@${playerName.infos.slug}`;
