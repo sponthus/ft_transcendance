@@ -208,11 +208,7 @@ export class EditProfile extends popUp {
 		}
 		catch (error){
 			await ErrorPopup(error as string);
-<<<<<<< HEAD
-		}	
-=======
 		}
->>>>>>> master
 	}
 
 	async openUploadForm() {
