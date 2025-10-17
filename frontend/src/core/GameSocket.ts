@@ -173,12 +173,12 @@ export class GameSocket {
 	}
 	
 	private getGameWsUrl(): string {
-        console.log(import.meta.env?.MODE);
+        // console.log(import.meta.env?.MODE);
         const status = import.meta.env?.MODE;
         if (status === "development")
             return `ws://${import.meta.env.VITE_DOMAIN_NAME}:8080/g-ws/`;
         else
-            return `wss://${import.meta.env.VITE_DOMAIN_NAME}:4443/g-ws/`;
+            return `wss://${window.location.host}/g-ws/`;
     }
 
 	private setupEventListeners() {
