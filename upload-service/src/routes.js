@@ -1,4 +1,4 @@
-import { uploadAvatar, updateName } from "./put.controller.js";
+import { uploadAvatar, updateName } from "./controller.js";
 
 export default async function routes(fastify, options) {
     console.log('Registering routes');

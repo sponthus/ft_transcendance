@@ -3,6 +3,7 @@ import fs from "fs";
 import { __dirname } from "./index.js";
 import pump from "pump";
 import { fileTypeFromBuffer } from "file-type";
+import { checkNameFormat } from "./checkFormat.js";
 
 export async function uploadAvatar(request, reply) {
     const user = request.user;
@@ -82,9 +83,8 @@ export async function updateName(request, reply)
 {
     const   { oldName, newName } = request.body;
 
-    //check le format
-
-    console.log("UPDATE NAME FILE ");
+    if (checkNameFormat(request) === false)
+        return reply.code(400).send({ error: "Invalid format for request" });
     try
     {
         const uploadDir = path.join(process.cwd(), "uploads"); //cwd --> current working directory
