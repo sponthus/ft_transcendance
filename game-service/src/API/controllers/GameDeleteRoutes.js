@@ -20,7 +20,7 @@ export async function deleteGame(request, reply) {
     const { db } = request.server;
     if (!db) {
 		console.error('❌ Error while deleting game: database connection not found');
-		return reply.code(500).send({ error: 'No database connection found.'});
+		return reply.code(500).send({ error: 'Internal server error.'});
 	}
 	
 	console.log("Requesting user = ", requestingUserId, " / Game = ", gameId);
@@ -45,6 +45,6 @@ export async function deleteGame(request, reply) {
     } catch (error) {
         console.error('❌ Error deleting game: ');
 		console.log(error);
-		return reply.code(500);
+		return reply.code(500).send({ error: 'Internal server error.' });
     }
 }

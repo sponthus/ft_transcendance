@@ -27,7 +27,7 @@ export async function getTournamentsForSlug(request, reply) {
 	const { db } = request.server;
 	if (!db) {
 		console.error('❌ Error while getting tournaments: database connection not found.');
-		return reply.code(500).send({ error: 'No database connection found.'});
+		return reply.code(500).send({ error: 'Internal server error.'});
 	}
 
 	try {
@@ -77,7 +77,7 @@ export async function getTournamentsForSlug(request, reply) {
 	catch (error) {
 		console.error('❌ Error fetching tournaments:');
 		console.log(error);
-		return reply.code(500).send({error: 'Internal server error while fetching tournaments.'});
+		return reply.code(500).send({error: 'Internal server error.'});
 	}
 }
 
@@ -97,7 +97,7 @@ export async function getTournamentMatches(request, reply) {
 	const { db } = request.server;
 	if (!db) {
 		console.error('❌ Error while getting matches: database connection not found');
-		return reply.code(500).send({ error: 'No database connection found.'});
+		return reply.code(500).send({ error: 'Internal server error.'});
 	}
 
 	try {
@@ -170,7 +170,7 @@ export async function getTournamentMatches(request, reply) {
 	catch (error) {
 		console.error('❌ Error fetching tournaments:');
 		console.log(error);
-		return reply.code(500).send({error: 'Internal server error while fetching tournaments'});
+		return reply.code(500).send({error: 'Internal server error.'});
 	}
 }
 
@@ -190,7 +190,7 @@ export async function getTournamentNextMatch(request, reply) {
 	const { db } = request.server;
 	if (!db) {
 		console.error('❌ Error while getting tournament next match: database connection not found');
-		return reply.code(500).send({ error: 'No database connection found.'});
+		return reply.code(500).send({ error: 'Internal server error.'});
 	}
 
 	try {
@@ -229,7 +229,7 @@ export async function getTournamentNextMatch(request, reply) {
 	catch (error) {
 		console.error('❌ Error fetching tournament next match:');
 		console.log(error);
-		return reply.code(500).send({error: 'Internal server error while fetching tournament next match.'});
+		return reply.code(500).send({error: 'Internal server error.'});
 	}
 }
 

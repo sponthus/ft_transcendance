@@ -22,7 +22,7 @@ export async function deleteTournament(request, reply) {
     const { db } = request.server;
     if (!db) {
 		console.error('❌ Error while deleting tournament: database connection not found');
-		return reply.code(500).send({ error: 'No database connection found.'});
+		return reply.code(500).send({ error: 'Internal server error.'});
 	}
 	
 	console.log("Requesting user = ", requestingUserId, " / Tournament = ", tournamentId);
@@ -72,6 +72,6 @@ export async function deleteTournament(request, reply) {
     } catch (error) {
         console.error('❌ Error deleting tournament: ');
 		console.error(error);
-		return reply.code(500).send({ error: 'Internal server error while deleting tournament.' });
+		return reply.code(500).send({ error: 'Internal server error.' });
     }
 }

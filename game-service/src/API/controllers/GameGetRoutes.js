@@ -1,6 +1,5 @@
 import { getUserIdFromSlug } from "../requests/GetUserIdFromSlug.js"
 import { checkIdFormat, checkSlugFormat } from "../../tools/CheckFormat.js"
-import { get } from "http";
 import { getUserInfoFromId } from "../requests/GetUserInfoFromId.js";
 
 // Gives the full history of a user
@@ -24,7 +23,7 @@ export async function getGamesForSlug(request, reply) {
 	} else {
 		if (checkIdFormat(req.userId) === false) {
 			console.error("❌ Bad userId format got from slug");
-			return reply.code(500).send({ error: 'Internal server error: Wrong user data format.'});
+			return reply.code(400).send({ error: 'Wrong user data format.'});
 		}
 		userId = parseInt(req.userId, 10);
 		// console.debug("Got userId ", userId, " from slug ", slug);
@@ -33,7 +32,7 @@ export async function getGamesForSlug(request, reply) {
 	const { db } = request.server;
 	if (!db) {
 		console.error('❌ Error while getting games: database connection not found');
-		return reply.code(500).send({ error: 'No database connection found.'});
+		return reply.code(500).send({ error: 'Internal server error.'});
 	}
 
 	try {
@@ -103,6 +102,6 @@ export async function getGamesForSlug(request, reply) {
 	catch (error) {
 		console.error('❌ Error fetching games:');
 		console.log(error);
-		return reply.code(500).send({error: 'Internal server error while fetching games'});
+		return reply.code(500).send({error: 'Internal server error.'});
 	}
 }
