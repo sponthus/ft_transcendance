@@ -25,7 +25,6 @@ export class EditProfile extends popUp {
 		this.createReturnAndSaveBtn();
 		this.isEdit = false;
 		this.UserData = UserData;
-		// this.slug = state.user?.slug;
 	}
 
 	render(div: HTMLElement, Id: string) {
@@ -208,9 +207,7 @@ export class EditProfile extends popUp {
 				throw new Error(req.error);
 		} catch (error){
 			await ErrorPopup(error as string);
-		}
-
-			
+		}	
 	}
 
 	async openUploadForm() {
@@ -222,7 +219,7 @@ export class EditProfile extends popUp {
 		if (!input.files || input.files.length === 0) {
 			await ErrorPopup("Please, select a file");
 			return;
-			}
+		}
 			
 		const file = input.files[0];
 
@@ -253,6 +250,7 @@ export class EditProfile extends popUp {
 			await ErrorPopup("Avatar updated successfully!");
 			const pathReq = await modifyUserAvatar(this.UserData.slug, req.avatar);
 			if (pathReq.ok) {
+				await this.updateUserData();
 				await navigate(`/user/${this.UserData.slug}`);
 				await ErrorPopup("avatar modify successfully");
 				return ;

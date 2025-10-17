@@ -39,7 +39,7 @@ export class GamePage extends popUp {
 		await this.getUsername();
 		this.initPopUpPage();
 		this.EndGamePage = new endGamePage(this.Page);
-		this.LocalGamePage = new LocalGamePage(this.Page, this.userName!);
+		this.LocalGamePage = new LocalGamePage(this.Page, this.userData!);
 		this.TournamentPage = new TournamentPage(this.Page, this.userName!);
 		this.Event = new Event(this.LocalGamePage, this.TournamentPage, this);
 		this._Title.remove();
@@ -118,8 +118,7 @@ export class GamePage extends popUp {
 			this.TournamentPage.renderWaitingScreen(IdTournament);
 			this.Event.manageWaitingScreenEvent();
 			// manage Event waiting
-
-		},300);
+		}, 300);
 	}
 
 	async generateBracketTournament(IdTournament: number) {
