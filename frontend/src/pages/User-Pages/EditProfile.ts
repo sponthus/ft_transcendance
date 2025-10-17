@@ -198,15 +198,22 @@ export class EditProfile extends popUp {
 			if (username == this.UserData.username) {
 				return ;
 			}
+			console.log("BOUDIN DE CHEVAL");
 			const req = await updateUsername(username);
 			if (req.ok) {
-				this.cleanBody();
+				//this.cleanBody();
+				console.log("BOUDIN DE CHEVAL");
 				await this.updateUserData();
 				await navigate(`/user/${this.UserData.slug}`);
 			}
-			else 
+			else
+			{
+				console.log("Pas de boudin de cheval");
 				throw new Error(req.error);
+			} 
+
 		} catch (error){
+			console.log('Error FRONNT' , error);
 			await ErrorPopup(error as string);
 		}	
 	}
