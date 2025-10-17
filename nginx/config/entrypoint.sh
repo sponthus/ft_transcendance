@@ -69,6 +69,6 @@ until curl -ks ${PREFIX}://session-service:${SESSION_PORT}/health; do
   sleep 10
 done
 
-echo "All services are up, launching nginx"
+echo "\nAll services are up, launching nginx"
 
 nginx -g "daemon off;"
