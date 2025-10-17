@@ -7,7 +7,6 @@ import { renderAnimation } from "./animations";
 import { renderAsset } from "../displaying/renderAsset";
 import { dialogueBox, sleep } from "./dialogueBox";
 import { renderScene } from "./renderScene";
-import { Player } from "./characterController";
 
 export class PlayerInput {
 
@@ -189,7 +188,6 @@ export class PlayerInput {
 
 			const thresholdSq = PlayerInput.PROXIMITY_NPC **2;
 
-			// console.log("distance between player and npc", distance);
 			if (distance > thresholdSq) {
 				if (this._dialogueNpc._isvisible()) {
 					this._dialogueNpc?.hideDialogue();

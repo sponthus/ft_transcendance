@@ -76,8 +76,8 @@ HASH_KEY=$(generate_rand "hash_key.txt")
 API_KEY=$(generate_rand "api_key.txt")
 AUTH_KEY=$(generate_rand "auth_key.txt")
 COOKIE_KEY=$(generate_rand "cookie_key.txt")
-GIT_SECRET=$(store_secret "git_secret.txt" "TODO complete me")
-GIT_ID=$(store_secret "git_id.txt" "TODO complete me")
+GIT_SECRET=$(store_secret "git_secret.txt" "230f856441da9b0a7cf75b3797dcf84b24a1bc7b") #to delete
+GIT_ID=$(store_secret "git_id.txt" "Ov23lijqBPrCzLQcc0wp") #to delete
 
 NODE_ENV=$(chose_mode "Chose dev mode (1) or production mode (2) : " validate_num_choice)
 

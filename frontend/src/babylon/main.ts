@@ -10,7 +10,8 @@ import { PlayerInput } from "./displaying/inputController.js";
 import { renderGround } from "./displaying/renderGround.js";
 import { renderAsset } from "./displaying/renderAsset.js";
 import { sleep } from "./displaying/dialogueBox.js";
-import { renderBaseBanner, renderLoggedInBanner} from "../pages/Banner.js";
+import { cleanBanner, renderBaseBanner, renderLoggedInBanner} from "../pages/Banner.js";
+import { ErrorPopup } from "../pages/ErrorPage.js";
 
 export class Game extends BasePage {
 
@@ -29,7 +30,6 @@ export class Game extends BasePage {
 	constructor(slug: string) {
 		super();
 		this._slug = slug;
-		console.log('user slug in App :' , this._slug);
 	}
 
 	async render(): Promise<void>  {
@@ -51,7 +51,6 @@ export class Game extends BasePage {
 				await this._renderGround._loadground();
 		
 				this._input = new PlayerInput(this._renderScene.homeScene, this._renderAsset, this._animation, this._renderScene);
-
 			}
 
 			await sleep(3000);
@@ -59,9 +58,24 @@ export class Game extends BasePage {
 				this._renderScene.engine.hideLoadingUI(); 
 		} 
 		catch(Error) {
-			console.log("Error: ", Error);
+			await ErrorPopup(Error as string);
 		}
-		// this._dropDown = new DropDownMenu(this._renderScene.scene!, this._slug);
+	}
+
+	destroy(): void {
+		this.banner.innerHTML = '';
+		this.app.innerHTML = '';
+		cleanBanner();
+		if (this._renderScene) {
+			if (this._renderScene.homeScene)
+				this._renderScene.homeScene.dispose();
+			if (this._renderScene.pongScene)
+				this._renderScene.pongScene.dispose();
+			if (this._renderScene.engine) {
+				this._renderScene.engine.stopRenderLoop();
+				this._renderScene.engine.dispose();
+			}
+		}
 	}
 }
 

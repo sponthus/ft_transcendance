@@ -61,7 +61,6 @@ export class Event {
 
 	/*************************************Functions for Game Mod Event*************************************/
 	async manageGameModEvent() {
-		console.log("manage newgame event function called");
 		(document.getElementById('1v1-btn')?.addEventListener('click', async() => {
 			this.StatePage = PageState.PARTY;
 			await this.GamePage.generate1v1GamePage();
@@ -89,26 +88,21 @@ export class Event {
 			const req = await getUserInfo();
 			if (!req.ok)
 			{
-			    console.log('Error GamePage: ', req.error);
 			    await ErrorPopup("Error GamePage" + req.error);
 			    return ;
 			}
 			const userData = req.userInfo;
 			if (!userData?.id)
 				throw new Error('user not connected');
-			// Add here the field for the max score in game creation, as a third parameter
-			console.log('arg in create local game ', this.LocalGamePage._PlayerA, this.LocalGamePage._PlayerB, this.LocalGamePage._MaxScore, this.LocalGamePage._Ai, this.LocalGamePage._option);
 			const request = await createLocalGame(this.LocalGamePage._PlayerA, this.LocalGamePage._PlayerB, this.LocalGamePage._MaxScore, this.LocalGamePage._Ai, this.LocalGamePage._option);
 			if (!request.ok) 
 				throw new Error('Failed to create Game');
 			else if (request.ok) {
 				const id:number = request.gameId;
-				console.log("id party = ", request);
 				this.launchGame(id, false);
 			}
 		}
 		catch (error) {
-			console.log("Error creating Games : ", error);
 			await ErrorPopup('Error creating Game PLease try again: ' + error);
 		}
 	}
@@ -196,7 +190,6 @@ export class Event {
 		if (this.LocalGamePage._MaxScore < 15) {
 			this.LocalGamePage.setMaxScore = this.LocalGamePage._MaxScore  + 5;
 			this.LocalGamePage._maxScoreP.textContent = this.LocalGamePage._MaxScore.toString();
-			console.log("maxscore : ", this.LocalGamePage._MaxScore );
 		}
 	}
 
@@ -205,7 +198,6 @@ export class Event {
 		if (this.LocalGamePage._MaxScore > 5) {
 			this.LocalGamePage.setMaxScore = this.LocalGamePage._MaxScore  - 5;
 			this.LocalGamePage._maxScoreP.textContent = this.LocalGamePage._MaxScore.toString();
-			console.log("maxscore : ", this.LocalGamePage._MaxScore );
 		}
 	}
 
@@ -330,14 +322,11 @@ export class Event {
 		/**************add Players Names in one string**************/
 		let PlayersNames: string[] = [];
 		this.TournamentNameMap.forEach(name => {PlayersNames.push(name.slug)});
-		console.log(PlayersNames);
 
 		try {
 			if (!this.TournamentPage._tournamentName.value) {
-				console.log("no name");
 				throw new Error("Please enter a tournament name.");
 			}
-			console.log("Name ok");
 			const res = await createTournament(this.TournamentPage._tournamentName.value, PlayersNames, this.TournamentPage._option);
 			if (res.ok) {
 				if (res.tournament.status === "invitations") {
@@ -430,7 +419,6 @@ export class Event {
 	private renderGame(gameId: number, tournament: boolean) {
 		this.StatePage = PageState.WIN;
 		this.LaunchPong.render(gameId, tournament);
-		console.log("pagestate = ", this.StatePage);
 	}
 
 

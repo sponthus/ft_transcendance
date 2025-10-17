@@ -37,7 +37,6 @@ async function addPopUpContent(url: string, active: boolean) {
     if (!active)
 	    QrPop.appendToBody(createImage('qr-code', 'object-center', url));
     QrPop.appendsToBody([addCodeInput(), containerBtn]);
-    Inputs.forEach(input => {console.log(input.value)});
 	QrPop.addOverlayToWindow();
 	EventInputs();
 	Btn.addEventListener('click', async() => {
@@ -46,13 +45,12 @@ async function addPopUpContent(url: string, active: boolean) {
 		try {
 			const request = await checkTwoFaCode(str);
 			if (request.ok) {
-				console.log('successfully add 2FA: ');
 				QrPop.removeOverlayToWindow();
                 Success = true;
 				await navigate('/');
 			}
             else
-                console.log(request.error);
+               throw new Error(request.error);
 		} catch(error) {
 			await ErrorPopup(error as string);
 		}

@@ -34,22 +34,20 @@ export class LocalGamePage {
 	private SettingPan!: HTMLElement;
 
 	constructor(Page: HTMLElement, UserName: string) { //transition-transform duration-300 ease-out
-		// this.AvailableGames = new availableGames(this.Page, this.PartyMap);
 		this.Page = Page;
-		// this.PartyMap = new Map<number, HTMLInputElement>();
 		this.Username = UserName;
 		this.PlayerA = this.Username; //this.Username; change to this.username
 	}
 
 	async render() {
-		this.PlayBtn = (createButton("play", "relative flex items-center z-5 active:scale-95 hover:scale-105 h-[30%] aspect-square transition-transform duration-200 ease-out translate-x-96", "") as HTMLButtonElement);
-		this.SettingBtn = (createButton("settings", "relative flex items-center z-5 active:scale-95 hover:scale-105 h-[12%] w-[30%] transition-transform duration-200 ease-out -translate-x-96", "") as HTMLButtonElement);
-		this.BackBtn = (createButton("return", "relative flex items-center z-5 active:scale-95 hover:scale-105 h-[10%] w-[20%] transition-transform duration-200 ease-out top-16 left-32 -translate-x-96", "") as HTMLButtonElement);
 		append(this.Page, [createImage("1v1", "absolute object-fill object-center h-full w-full opacity-65", '1v1-page.png')]);
 
-		append(this.PlayBtn, [createImage('Play', 'absolute object-center h-full w-full', 'game_ui/Playebtn.png')]);
-		append(this.SettingBtn, [createImage('setting', 'absolute object-center h-full w-full', 'game_ui/Settingsbtn.png')]);
-		append(this.BackBtn, [createImage('Back', 'absolute object-center h-full w-full', 'game_ui/Backbtn.png')]);
+		this.PlayBtn = (createButton("play", "relative flex items-center z-5 active:scale-95 hover:scale-105 h-[30%] aspect-square transition-transform duration-200 ease-out translate-x-96", "") as HTMLButtonElement);
+		setbackgroundImages(this.PlayBtn,  "url('game_ui/Playebtn.png')");
+		this.SettingBtn = (createButton("settings", "relative flex items-center z-5 active:scale-95 hover:scale-105 h-[12%] w-[30%] transition-transform duration-200 ease-out -translate-x-96", "") as HTMLButtonElement);
+		setbackgroundImages(this.SettingBtn,  "url('game_ui/Settingsbtn.png')");
+		this.BackBtn = (createButton("return", "relative flex items-center z-5 active:scale-95 hover:scale-105 h-[10%] w-[20%] transition-transform duration-200 ease-out top-16 left-32 -translate-x-96", "") as HTMLButtonElement);
+		setbackgroundImages(this.BackBtn, "url('game_ui/Backbtn.png')")
 
 		append(this.Page, [createImage('bot-text', 'z-10 object-center h-[20%] w-[80%] animate-wiggle margin-top-32', 'game_ui/LocalPongText.png')
 							,this.SettingBtn , this.PlayBtn , this.BackBtn]);
@@ -64,10 +62,10 @@ export class LocalGamePage {
 
 	async renderSetting() {
 		this.BackBtn = (createButton("return", "relative flex items-center z-5 active:scale-95 hover:scale-105 h-[10%] w-[20%] transition-transform duration-200 ease-out left-32 -translate-x-96", "") as HTMLButtonElement);
-		append(this.BackBtn, [createImage('Back', 'absolute object-center h-full w-full', 'game_ui/Backbtn.png')]);
+		setbackgroundImages(this.BackBtn, "url('game_ui/Backbtn.png')")
 
 		this.SettingPan = createDiv('setting-pan', 'relative flex flex-col items-center w-full h-[70%] transition-transform duration-200 ease-out translate-x-96 space-y-4');
-		append(this.SettingPan ,[createImage('1v1-setting', 'absolute object-center object-fill h-full w-full', 'game_ui/setting/SettingPan.png')]);		
+		setbackgroundImages(this.SettingPan, "url('game_ui/setting/SettingPan.png')")
 		this.fillSetingPan();
 
 		append(this.Page, [createImage("1v1", "absolute object-fill object-center h-full w-full opacity-20", '1v1-page.png')]);
@@ -89,10 +87,10 @@ export class LocalGamePage {
 		const opponentDiv: HTMLElement = createDiv('opponent', 'relative flex items-center h-[13%] w-[70%] translate-y-16 space-x-8');
 
 		this.botBtn = createButton('bot', 'relative flex items-center z-5 active:scale-95 hover:scale-110 h-full w-[45%] transition-all duration-200', '');
-		append(this.botBtn, [createImage('bot', 'absolute object-center object-fill h-full w-full', 'game_ui/setting/botPan.png')]);
+		setbackgroundImages(this.botBtn, "url('game_ui/setting/botPan.png')");
 		
 		this.playerBtn = createButton('player-setting', 'relative flex items-center z-5 active:scale-95 hover:scale-110 h-full w-[45%] transition-all duration-200', '');
-		append(this.playerBtn, [createImage('player', 'absolute object-center object-fill h-full w-full', 'game_ui/setting/PlayerPan.png')]);
+		setbackgroundImages(this.playerBtn, "url('game_ui/setting/PlayerPan.png')");
 	
 		if (this.Ai > 0) {
 			this.botBtn.classList.remove('hover:scale-110');
@@ -112,12 +110,11 @@ export class LocalGamePage {
 		const PlayerNameDiv: HTMLElement = createDiv('player-name', 'flex flex-col h-[30%] w-[70%] translate-y-16 space-y-4');
 		
 		const PlayerNamePanDiv: HTMLElement = createDiv('player-name', 'flex items-center h-[50%] w-full space-x-16');
-		this.reversbtn = createButton('reverse', 'relative z-5 active:scale-95 hover:scale-110 h-full w-[20%] transition-all duration-200', 'reverse');
-		setbackgroundImages(this.reversbtn, "url('/game_ui/setting/minusValue.png')");
-		// append(this.reversbtn, [createImage('reverse', 'absolute object-cover object-center h-full w-full', 'game_ui/reversebtn.png')]);
+		this.reversbtn = createButton('reverse', 'relative z-5 active:scale-95 hover:scale-110 h-full w-[20%] transition-all duration-200', '');
+		setbackgroundImages(this.reversbtn, "url('/game_ui/setting/reverseBtn.png')");
 
 
-		append(PlayerNamePanDiv, [createImage('player-name', 'z-5 object-center object-fill h-[30%] w-[40%]', 'game_ui/setting/playerNamestext.png'), this.reversbtn]);
+		append(PlayerNamePanDiv, [createImage('player-name', 'z-5 object-center object-fill h-[50%] w-[40%]', 'game_ui/setting/playerNamestext.png'), this.reversbtn]);
 
 		const playerADiv: HTMLElement = createDiv('player-name', 'relative flex h-[30%] w-full space-x-4');
 		this.PlayerAInput = createInput(['', '', '', true], 'PlayerA', 'h-full w-[40%]');
@@ -163,11 +160,11 @@ export class LocalGamePage {
 	private createcrabmehamehaDiv() : HTMLElement {
 		const checcrabmehamehaDiv: HTMLElement = createDiv('crabmehameha', 'flex items-center justify-arround h-[10%] translate-y-2 space-x-4');
 
-		this.OptionBtn = createButton('minus', 'relative flex items-center z-5 active:scale-95 hover:scale-105 transition-all duration-200', '');
+		this.OptionBtn = createButton('minus', 'relative flex items-center h-[70%] aspect-square z-5 active:scale-95 hover:scale-105 transition-all duration-200', '');
 		let src: string = 'game_ui/setting/checkedValue.png';
 		if (this.Option == 0)
 			src = 'game_ui/setting/uncheckedValue.png';
-
+ 
 		this.OptionImg = createImage('check', 'active:scale-95 hover:scale-105 transition-all duration-200', src);
 		append(this.OptionBtn, [this.OptionImg]);
 	

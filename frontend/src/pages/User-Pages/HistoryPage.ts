@@ -31,7 +31,6 @@ export async function DisplayHistoryPage(Body: HTMLElement, UserData: UserInfo) 
 }
 
 export async function FillHistory(Body: HTMLElement, party: any, index:number, UserData: UserInfo) {
-	console.log("party = ", party);
 	const PartyDiv = createDiv("party-div", "flex items-center h-[30%] w-[100%] hover:bg-orange-400 hover:bg-opacity-50 space-x-8");
 
 	createGameId(PartyDiv, index, party);
