@@ -89,7 +89,6 @@ export async function notifyChangeSlug(oldSlug, newSlug)
     }
     catch (err)
     {
-        console.error('failed notify change slug ', err.message);
         return { ok: false, error: data.error };
     }
 }

@@ -99,11 +99,11 @@ export async function updateName(request, reply)
         const oldPath = path.join(uploadDir, oldFile)
         const newPath = path.join(uploadDir, `${newName}${ext}`);
         fs.renameSync(oldPath, newPath);
-        console.log(`✅ Avatar renommé : ${oldFile} → ${newUsername}${ext}`);
+        console.log(`✅ Avatar renommé : ${oldFile} → ${newName}${ext}`);
         return reply.code(200).send();
     }
     catch (err)
     {
-        return reply.code(500).send({ error: "Internal Server Error"});
+        return reply.code(500).send({ error: "Internal Server Error" + err.message});
     }
 }

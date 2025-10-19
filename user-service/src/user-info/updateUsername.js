@@ -55,7 +55,7 @@ export default async function updateUsername (request, reply)
                             id = ?").run(idUser);*/
         notifyChangeSlug(old.slug , slug);
         notifyChangeData(idUser, newUsername, slug);
-        const token = await reply.jwtSign({ idUser, newUsername, slug}, {expiresIn: '1h'});
+        const token = await reply.jwtSign({ idUser, username: newUsername, slug}, {expiresIn: '1h'});
         let secure = false;
         if (env.nodeEnv === 'production')
             secure = true;
