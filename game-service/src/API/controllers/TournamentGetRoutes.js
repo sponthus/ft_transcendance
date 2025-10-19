@@ -11,10 +11,6 @@ export async function getTournamentsForSlug(request, reply) {
 	if (!slug) {
 		return reply.code(400).send({ error: 'No slug found in request.'});
 	}
-	if (checkSlugFormat(slug) === false) {
-		return reply.code(400).send({ error: 'Bad slug format.'});
-	}
-
 	let userId = 0; 
 	const req = await getUserIdFromSlug(slug);
 	if (!req.ok) {
@@ -90,10 +86,6 @@ export async function getTournamentMatches(request, reply) {
 	if (!tournamentId) {
 		return reply.code(400).send({ error: 'No tournamentId found in request.'});
 	}
-	if (checkIdFormat(tournamentId) === false) {
-		return reply.code(400).send({ error: 'Bad tournamentId format.'});
-	}
-
 	const { db } = request.server;
 	if (!db) {
 		console.error('❌ Error while getting matches: database connection not found');
@@ -183,10 +175,6 @@ export async function getTournamentNextMatch(request, reply) {
 	if (!tournamentId) {
 		return reply.code(400).send({ error: 'Missing input.'});
 	}
-	if (checkIdFormat(tournamentId) === false) {
-		return reply.code(400).send({ error: 'Bad tournamentId format.'});
-	}
-
 	const { db } = request.server;
 	if (!db) {
 		console.error('❌ Error while getting tournament next match: database connection not found');

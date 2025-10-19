@@ -7,10 +7,10 @@ export async function sendMessageToUsers(request, reply) {
 	console.debug('request.body :', request.body);
 	console.debug('request.body type :', typeof request.body);
 
-	if (checkSendMessageToGroupFormat(request) === false) {
+	/*if (checkSendMessageToGroupFormat(request) === false) {
 		console.error('❌ Bad data format sent in request body');
 		return reply.status(400).send({ error: 'Bad data format.'});
-	}
+	}*/
 	const { userIds, sender, message } = request.body;
 	let finalUserIds;
 	if (!userIds || userIds.length === 0) {

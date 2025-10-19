@@ -162,12 +162,12 @@ export async function createGame(request, reply) {
 	console.log('➡️ User accessed POST /game');
 
 	const { idUser } = request.user;
-	const formatCheck = checkGameCreationFormat(request);
+	/*const formatCheck = checkGameCreationFormat(request); //SCHEMA CHANGER ELODIE
 	if (!formatCheck.valid) {
 		console.error("❌ Bad input format : ");
 		console.error(formatCheck.errors);
 		return reply.code(400).send({ error: 'Bad input format : expected player_a, player_b, optional requestedMaxScore, requestedAi, requestedOption. '});
-	}
+	}*/
 	// console.debug("Body :");
 	// console.debug(request.body);
 	let { player_a, player_b, requestedMaxScore, requestedAi, requestedOption } = request.body;

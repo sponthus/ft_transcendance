@@ -11,9 +11,6 @@ export async function getGamesForSlug(request, reply) {
 	if (!slug) {
 		return reply.code(400).send({ error: 'No slug found in request.'});
 	}
-	if (checkSlugFormat(slug) === false) {
-		return reply.code(400).send({ error: 'Bad slug format.'});
-	}
 
 	let userId = 0; 
 	const req = await getUserIdFromSlug(slug);

@@ -1,6 +1,93 @@
 import Ajv from "ajv"
 
-export function    checkSlugFormat(slug)
+export const slugSchema = {
+  type: "string",
+  minLength: 1,
+  maxLength: 20,
+  pattern: "^(?![_-])(?!.*[_-]$)(?=.*[a-z])(?![0-9_]+)[a-z0-9_-]+$"
+};
+
+export const tournamentNameSchema = {
+  type: "string",
+  minLength: 3,
+  maxLength: 30,
+  pattern: "^(?![=+\\-@])(?![ _-])(?!.*[ _-]$)(?!^[ _-]+$)(?!.*[\\r\\n\\t])(?=.*[A-Za-zÀ-ÖØ-öø-ÿ0-9])[A-Za-zÀ-ÖØ-öø-ÿ0-9 _-]+$"
+};
+
+export const playerSchema = {
+  type: "string", 
+  minLength: 3, 
+  maxLength: 21, 
+  pattern: "^(?!@?[_-])(?!.*[_-]$)(?!^\\s)(?!.*\\s$)(?!.*\\s{2})(?!.*(?:\\s.*){3})(?=.*[A-Za-z])(?!@?[0-9_-]+$)@?[A-Za-z0-9 _-]+$"
+};
+
+export const idUserSchema = {
+  type: "number",
+  minimum: 1
+};
+
+export const idNumberSchema = {
+  type: "number",
+  minimum: 1
+};
+
+export const idStringSchema = {
+  type: "string",
+  minLength: 1,
+  maxLength: 15,
+  pattern: "^[0-9]+$"
+};
+
+export const tournamentActionSchema = {
+  type: "object",
+  properties: {
+    userId: { type: "number", minimum: 1 },
+    ownerUserId: { type: "number", minimum: 1 },
+    tournamentId: { type: "number", minimum: 1 },
+    tournamentName: { 
+      type: "string", 
+      minLength: 3, 
+      maxLength: 30, 
+      pattern: "^(?![=+\\-@])(?![ _-])(?!.*[ _-]$)(?!^[ _-]+$)(?!.*[\\r\\n\\t])(?=.*[A-Za-zÀ-ÖØ-öø-ÿ0-9])[A-Za-zÀ-ÖØ-öø-ÿ0-9 _-]+$"
+    }
+  },
+  required: ["userId", "ownerUserId", "tournamentId", "tournamentName"],
+  additionalProperties: false
+};
+
+export const tournamentCreationSchema = {
+  type: "object",
+  properties: {
+    name: tournamentNameSchema,
+    players: { 
+      type: "array", 
+      anyOf: [
+        { minItems: 4, maxItems: 4 },
+        { minItems: 8, maxItems: 8 }
+      ],
+      items: { type: "string" },
+      uniqueItems: true
+    },
+    option: { type: "number", minimum: 0, maximum: 1 }
+  },
+  required: ["name", "players", "option"],
+  additionalProperties: false
+};
+
+export const gameCreationSchema = {
+  type: "object",
+  properties: {
+    player_a: playerSchema,
+    player_b: playerSchema,
+    requestedMaxScore: { type: "integer", minimum: 1, maximum: 21 },
+    requestedAi: { type: "number", minimum: 0, maximum: 2 },
+    requestedOption: { type: "number", minimum: 0, maximum: 1 }
+  },
+  required: ["player_a", "player_b"],
+  additionalProperties: false
+};
+
+/*export function    checkSlugFormat(slug)
 {
     const schema = 
     {
@@ -163,7 +250,7 @@ export function    checkIdFormat(id)
 	}
     return (true);
 }
-
+*/
 export function checkWebSocketMessageFormat(message) {
 	const schema = {
 		type: "object",

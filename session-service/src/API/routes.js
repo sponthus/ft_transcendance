@@ -1,3 +1,4 @@
+import { sendMessageToGroupSchema, slugSchema } from "../tools/CheckFormat.js";
 import { getStatusForSlug } from "./StatusGetRoutes.js"
 import { changeUserInfos, changeUserStatus } from "./StatusPatchRoutes.js"
 import { sendMessageToUsers } from "./StatusPostRoutes.js"; 
@@ -8,7 +9,7 @@ export default async function routes (fastify, options) {
 	fastify.register(
 		async function (postRoutes) {
 			postRoutes.post("/message", 
-				{onRequest: [fastify.int_authenticate]},
+				{onRequest: [fastify.int_authenticate], schema: { body: sendMessageToGroupSchema }},
 				sendMessageToUsers);
 		}
 	);
@@ -16,7 +17,7 @@ export default async function routes (fastify, options) {
 	fastify.register(
 		async function (getRoutes) {
 			getRoutes.get(`/:slug`,
-				{onRequest: [fastify.authenticate]},
+				{onRequest: [fastify.int_authenticate], schema: { params: slugSchema }},
 				getStatusForSlug);
 		}
 	);

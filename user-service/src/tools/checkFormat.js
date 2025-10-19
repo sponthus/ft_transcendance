@@ -1,5 +1,3 @@
-import Ajv from "ajv"
-
 export const idUserSchema = {
   type: "object",
   properties: {
