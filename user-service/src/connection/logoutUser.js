@@ -9,7 +9,7 @@ export default async function logoutUser(request, reply)
             secure: false,
             path: '/',
             maxAge: 3600000
-            //mettre same site
+            // TODO mettre same site
         }).send();
     }
     catch (err)

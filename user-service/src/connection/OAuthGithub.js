@@ -44,10 +44,10 @@ export async function loginThroughGithub(request, reply)
         }
         else
             token = await reply.jwtSign({ idUser: userInfo.idUser, username: userInfo.username, slug: userInfo.slug }, {expiresIn: '1h'});
-        console.log("\nidUser: ", userInfo.idUser);
-        console.log("\nusername: : ", userInfo.username);
-        console.log("\nslug: : ", userInfo.slug);
-        console.log('GITHUB token : ', token);
+        console.debug("\nidUser: ", userInfo.idUser);
+        console.debug("\nusername: : ", userInfo.username);
+        console.debug("\nslug: : ", userInfo.slug);
+        console.debug('GITHUB token : ', token);
 
         let secure = false;
         if (env.nodeEnv === 'production')

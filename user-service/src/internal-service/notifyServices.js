@@ -3,7 +3,7 @@ import { getSecret } from "../index.js";
 import prefix from "../tools/url.js";
 import tlsAgent from "../tools/tlsAgent.js";
 
-export async function notifyRefresh(idRecevers, sender, message) 
+export async function notifyRefresh(idReceivers, sender, message) 
 {
     const api_key = getSecret('api_key');
 	let receivers = [];

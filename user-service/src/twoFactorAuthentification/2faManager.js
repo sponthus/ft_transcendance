@@ -30,7 +30,7 @@ export async function activateTwoFa(request, reply)
         {
             name: `Island Word: ${row.username}`,
             issuer: "Transcendance",
-            length: 20, //Les standards TOTP/HOTP sont pensés pour 20 bytes minimum (SHA-1 digest length).
+            length: 20, //TODO ENLEVER COMMMS Les standards TOTP/HOTP sont pensés pour 20 bytes minimum (SHA-1 digest length).
             symbols: false //plus facile a taper
         });
         //stocker la cle encrypte ici, utilise crypto ? TODO PLUS TARD
@@ -65,9 +65,6 @@ export async function activateTwoFa(request, reply)
 
 export async function checkTwoFaCode(request, reply)
 {
-    if (checkCodeFormat(request) == false)
-        return reply.code(400).send( {error : "Invalid format for 2FA code "} );
-
     const   db = request.server.db;
     const   idUser = request.user.idUser;
     const   code = request.body.code;
