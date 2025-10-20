@@ -30,6 +30,7 @@ export class PongGame  {
 				this._displayAssets.bullBob,
 				this._displayAssets.bullPatrick,
 				this._displayAssets.menuPause,
+				this._displayAssets.menuPauseSansCrab,
 				this._displayAssets.pancartePlayer1,
 				this._displayAssets.pancartePlayer2,
 				this._sceneBuilder!.light

@@ -40,6 +40,7 @@ export class DisplayAssets {
 	private _gary: AbstractMesh | null = null;
 
 	private _menuPause: AbstractMesh | null = null;
+	private _menuPauseSansCrab: AbstractMesh | null = null;
 
 	//private _skybox: AbstractMesh | null = null;
 
@@ -133,7 +134,26 @@ export class DisplayAssets {
         this._menuPause.billboardMode = Mesh.BILLBOARDMODE_ALL;   // si tu veux garder le billboard
         // appliquer l'offset 180°
         this._menuPause.rotationQuaternion = Quaternion.RotationAxis(new Vector3(0, 1, 0), Math.PI);
+		this._menuPause.setEnabled(false);
 
+		const result14 = await ImportMeshAsync("/assets/MenuPauseSansCrabmehameha.glb", this._scene);
+        this._menuPauseSansCrab = result14.meshes[0];
+        // this._test.position.x = 8;
+        // this._test.position.y = -2;
+        // this._test.position.z = 8;
+        //this._test.billboardMode = Mesh.BILLBOARDMODE_ALL;
+        this._menuPauseSansCrab.scaling = new Vector3(0.035, 0.035, 0.035);
+        // créer le parent et l'attacher à la caméra
+        const hudParent2 = new TransformNode("hudParen2", this._scene);
+        hudParent2.parent = this._scene.activeCamera!;        // le parent suit la caméra
+        hudParent2.position = new Vector3(0, 0, 2);           // 3 unités devant en espace local caméra
+
+        // attacher ton mesh au parent
+        this._menuPauseSansCrab.parent = hudParent2;
+        this._menuPauseSansCrab.billboardMode = Mesh.BILLBOARDMODE_ALL;   // si tu veux garder le billboard
+        // appliquer l'offset 180°
+        this._menuPauseSansCrab.rotationQuaternion = Quaternion.RotationAxis(new Vector3(0, 1, 0), Math.PI);
+		this._menuPauseSansCrab.setEnabled(false);
 
 		const result9 = await ImportMeshAsync("/assets/bullDiscussion2D.glb", this._scene);
 		this._bullBob = result9.meshes[0];
@@ -213,6 +233,11 @@ export class DisplayAssets {
 		return this._menuPause;
 	}
 
+	public get menuPauseSansCrab(): AbstractMesh | null
+	{
+		return this._menuPauseSansCrab;
+	}
+	
 	public get pancartePlayer1(): AbstractMesh | null
 	{
 		return this._pancartePlayer1;
