@@ -1,6 +1,6 @@
 // import { format } from 'node:path';
 import GameMaster from '../../GameMaster.js';
-import { checkGameCreationFormat, checkIdFormat } from '../../tools/CheckFormat.js';
+import { checkIdFormat } from '../../tools/CheckFormat.js';
 import { getUserIdFromSlug } from '../requests/GetUserIdFromSlug.js';
 import { getUserInfoFromId } from '../requests/GetUserInfoFromId.js';
 
@@ -26,10 +26,10 @@ export async function startGame(request, reply) {
 		console.error("❌ No gameId found in request.");
         return reply.code(400).send({error: 'No gameId found in request.'});
     }
-	if (checkIdFormat(gameId) === false) {
-		console.error("❌ Bad gameId format");
-		return reply.code(400).send({ error: "Bad gameId format"});
-	}
+	// if (checkIdFormat(gameId) === false) {
+	// 	console.error("❌ Bad gameId format");
+	// 	return reply.code(400).send({ error: "Bad gameId format"});
+	// }
 	gameId = parseInt(gameId, 10);
 
     // Check if the game exists and is available to play and get its informations

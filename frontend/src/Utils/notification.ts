@@ -221,9 +221,9 @@ function addInvitation(userdata: UserInfo, tournament: AllNotifs | null) : HTMLA
 
 	append(userIcon, [(createImage(`user-notification-${userdata.slug}`, 'w-[90%] aspect-square rounded-full object-cover object-center',  `https://${window.location.hostname}:4443/uploads/${userdata.avatar}`) as HTMLImageElement)]);
 
-	let msg: string = `user ${userdata.username} has send you an friend invitation`;
+	let msg: string = `User ${userdata.username} has sent you a friend invitation`;
 	if (tournament)
-		msg = `user ${userdata.username} invite you to play tournament ${tournament.notif_tournament_name}`
+		msg = `User ${userdata.username} invited you to play tournament ${tournament.notif_tournament_name}`
 	const invitationTextDiv = createDiv(`invitation-text-${userdata.slug}`, 'flex flex-col items-center');
 	invitationTextDiv.innerHTML = `<P class="text-emerald-600 group-hover:font-bold">${msg}</p>`;
 

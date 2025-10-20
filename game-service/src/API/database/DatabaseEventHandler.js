@@ -49,7 +49,7 @@ class DatabaseEventHandler {
 				}
 			}
 			if (eventData.userId != null && eventData.userId != 0) {
-				const update = await updateUserStatus(eventData.userId, 'not-playing');
+				const update = await updateUserStatus(eventData.userId, 'not_playing');
 				if (update.ok == false) {
 					console.error("❌ Could not update user status after disconnection: ", update.error);
 				}

@@ -1,10 +1,19 @@
 import Ajv from "ajv";
 
+let slugRegex = "^(?![_-])(?!.*[_-]$)(?=.*[a-z])(?![0-9_]+)[a-z0-9_-]+$";
+
 export const slugSchema = {
   type: "string",
   minLength: 1,
   maxLength: 20,
-  pattern: "^(?![_-])(?!.*[_-]$)(?=.*[a-z])(?![0-9_]+)[a-z0-9_-]+$"
+  pattern: slugRegex
+};
+
+export const slugParamsSchema = {
+	type: "object",
+	properties: { slug: slugSchema },
+	required: ["slug"],
+	additionalProperties: false
 };
 
 export const changeInfosSchema = {
@@ -14,14 +23,18 @@ export const changeInfosSchema = {
       type: "string",
       minLength: 3,
       maxLength: 20,
-      pattern: "^(?![_-])(?!.*[_-]$)(?=.*[a-z])(?![0-9_]+)[a-z0-9_-]+$"
+      pattern: slugRegex
     },
     username: { 
       type: "string",
       minLength: 3,
       maxLength: 15,
       pattern: "^(?![_-])(?!.*[_-]$)(?=.*[A-Za-z])(?![0-9_]+)[A-Za-z0-9_-]+$"
-    }
+    },
+	status: {
+		type: "string",
+		enum: ["online", "playing", "disconnected", "not_playing"]
+	}
   },
   required: ["slug", "username"],
   additionalProperties: false
@@ -31,22 +44,35 @@ export const sendMessageToGroupSchema = {
   type: "object",
   properties: {
     userIds: {
-      type: "array",
-      items: { type: ["number","string"] },
-      minItems: 1,
-      uniqueItems: true
+		type: "array",
+		items: {
+			anyOf: [
+				{ type: "number" },
+				{ type: "string",
+					pattern: "^[0-9]+$",
+					minLength: 1,
+					maxLength: 15
+				}
+			]
+		},
+		minItems: 1,
+		uniqueItems: true
     },
     sender: {
-      type: ["string","number"],
-      minLength: 3,
-      maxLength: 20,
-      pattern: "^(?!\\s)(?!.*\\s$)[a-z0-9 _-]+(-[0-9]+)?$"
+		anyOf: [
+				{ type: "number" },
+				{ type: "string", 
+					pattern: "^(?!\\s)(?!.*\\s$)[a-z0-9 _-]+(-[0-9]+)?$",
+					minLength: 3,
+					maxLength: 20 
+				}
+		]
     },
     message: {
-      type: "string",
-      minLength: 3,
-      maxLength: 20,
-      pattern: "^(?!\\s)(?!.*\\s$)[a-z0-9 _-]+(-[0-9]+)?$"
+		type: "string",
+		minLength: 3,
+		maxLength: 20,
+		pattern: "^(?!\\s)(?!.*\\s$)[a-z0-9 _-]+(-[0-9]+)?$"
     }
   },
   required: ["sender","message"],
@@ -88,6 +114,13 @@ export const statusSchema = {
 export const numberIdSchema = {
   type: "number",
   minimum: 1
+};
+
+export const idParamSchema = {
+  type: "object",
+  properties: {
+	userId: { type: "string", pattern: "^[0-9]+$", minLength: 1, maxLength: 15 }
+  }
 };
 
 export const idStringSchema = {

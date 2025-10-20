@@ -6,6 +6,7 @@ if [ ! -d "node_modules" ]; then
 fi
 
 npm install file-type
+npm install sharp
 
 mkdir -p uploads
 

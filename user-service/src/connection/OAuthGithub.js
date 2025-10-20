@@ -73,10 +73,8 @@ export async function loginThroughGithub(request, reply)
             secure: secure,
             path: '/',
             maxAge: 3600000
-<<<<<<< HEAD
         }).send({success: true, twofa: twofa});
-=======
-        }).type('text/html')
+     /*   }).type('text/html')
             .send(`
                 <html>
                   <body>
@@ -85,8 +83,7 @@ export async function loginThroughGithub(request, reply)
                         window.close();
                     </script>
                  </body>
-                </html>`);
->>>>>>> origin/game-service
+                </html>`);*/
     }
     catch (err)
     {

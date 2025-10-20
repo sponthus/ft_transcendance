@@ -229,17 +229,33 @@ export class EditProfile extends popUp {
 		const file = input.files[0];
 
 		// Vérifie que le fichier est bien un vrai JPEG (lecture des 3 premiers octets)
-  		const headerBuffer = await file.slice(0, 3).arrayBuffer();
+  		const headerBuffer = await file.slice(0, 8).arrayBuffer();
 		const bytes = new Uint8Array(headerBuffer);
+		let verif = 0;
 		// Signature JPEG : 0xFF 0xD8 0xFF
-  		if (bytes[0] !== 0xFF
-			&& bytes[1] !== 0xD8
-			&& bytes[2] !== 0xFF)
-			{
-				ErrorPopup("File is not jpg");
-				return;
-			}
-		const maxSizeBytes = 10 * 1024 * 1024; //TODO A CHANGER
+  		if (bytes[0] === 0xFF
+			&& bytes[1] === 0xD8
+			&& bytes[2] === 0xFF)
+		{
+				verif = 1;
+		}
+		if (bytes[0] === 0x89 &&
+			bytes[1] === 0x50 &&
+			bytes[2] === 0x4E &&
+			bytes[3] === 0x47 &&
+			bytes[4] === 0x0D &&
+			bytes[5] === 0x0A &&
+			bytes[6] === 0x1A &&
+			bytes[7] === 0x0A)
+		{
+				verif = 1;
+		}
+		if (verif === 0)
+		{
+			ErrorPopup("File is not jpg or png");
+			return;
+		}
+		const maxSizeBytes = 5 * 1024 * 1024;
 		if (file.size > maxSizeBytes)
     	{
 				ErrorPopup("File is more than 5GB");

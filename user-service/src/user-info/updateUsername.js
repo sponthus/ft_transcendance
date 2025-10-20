@@ -1,5 +1,5 @@
 import slugify from "slugify";
-import { checkUsernameFormat } from "../tools/checkFormat.js";
+// import { checkUsernameFormat } from "../tools/checkFormat.js";
 import { generateUniqueSlug } from "../tools/generateUnique.js";
 import { notifyChangeData, notifyChangeSlug } from "../internal-service/notifyServices.js";
 import env from '../../config/env.js';
@@ -52,7 +52,7 @@ export default async function updateUsername (request, reply)
                             id = ?").run(newUsername, slug, newAvatar, idUser);
         notifyChangeData(idUser, newUsername, slug, "online");
         notifyChangeSlug(old.slug , slug);
-        const token = await reply.jwtSign({ idUser, newUsername, slug}, {expiresIn: '1h'});
+        const token = await reply.jwtSign({ idUser, username: newUsername, slug}, {expiresIn: '1h'});
         let secure = false;
         if (env.nodeEnv === 'production')
             secure = true;

@@ -1,4 +1,4 @@
-import { checkIdFormat } from '../../tools/CheckFormat.js';
+// import { checkIdFormat } from '../../tools/CheckFormat.js';
 import { sendTournamentCancelation } from '../requests/SendTournamentCancelation.js';
 
 // Tests ok

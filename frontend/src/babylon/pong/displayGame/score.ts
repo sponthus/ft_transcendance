@@ -112,12 +112,12 @@ export class Score {
 	];
 
 	private _goalBob: string[] = [
-    "MAMMA MIA, WHAT A GOAL!",
+    "MAMMA MIA!",
     "OMYGOD!",
     "CHE PASSOOOOO !",
     "UNPRECEDENTED !",
 	"ROCRABDO !",
-	"1, 2 AND 3 ZERO🎵!",
+	"1, 2 AND 3🎵!",
 	"HUMILIATION",
 	"AHA, HE SUCKS!",
 	"POPOPO !",
