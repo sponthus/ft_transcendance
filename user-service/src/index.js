@@ -56,6 +56,25 @@ else
             },
             plugins: [ajvErrors],
         },
+        schemaErrorFormatter: (errors, dataVar) =>
+        {
+            console.log('Error dans schemaErrorFormatter');
+            const formatted = errors.map(err =>(
+            {
+                //field: err.instancePath.replace(/^\//, ''),
+                message: err.message,
+                //source: dataVar
+            }));
+            const err = new Error('validation failed');
+            err.validation = errors;
+            err.validationContext = dataVar;
+            err.statusCode = 400;
+            return err;
+            /*return { 
+                error: 'Bad Request',
+                messages: formatted
+            };*/
+        }
     });
 	console.log("App launched in development mode");
 }
@@ -226,7 +245,7 @@ fastify.setNotFoundHandler((req, reply) => {
     reply.status(404).send("Not found");
 });
 
-fastify.setErrorHandler((error, request, reply) =>
+/*fastify.setErrorHandler((error, request, reply) =>
 {
     console.log("⚡️⚡️⚡️⚡️⚡️⚡ LA LE MSG d'ERRRREUUUURR");
     if (error.validation)
@@ -238,7 +257,7 @@ fastify.setErrorHandler((error, request, reply) =>
     }))
     return reply.status(400).send({ errors })
   }
-});
+});*/
 /*fastify.setErrorHandler((error, request, reply) =>
 {
     if (error.validation)
@@ -253,6 +272,19 @@ fastify.setErrorHandler((error, request, reply) =>
     }
 });*/
 // Fastify listens
+
+fastify.setErrorHandler((error, request, reply) => 
+{
+    console.debug('⚡️⚡️⚡️⚡️⚡ SET ERROR HANDLER');
+    if (error.validation)
+        return reply.code(error.validation.statusCode || 400).send(error.validation); // ton JSON formaté
+});
+
+fastify.addHook('onError', (request, reply, error, done) => {
+  console.log('🔥 onError triggered');
+  done();
+});
+
 fastify.listen({ port: env.user_port, host: `${env.ip}` }, (err, address) => {
     if (err) {
         fastify.log.error(err);

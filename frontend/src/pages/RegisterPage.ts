@@ -141,6 +141,7 @@ export class RegisterPage extends BasePage {
 					return ; // back to home
 				}
 				else {
+					console.log('LAAAA ICIIII y a UN PB');
 					return ; // registerUser already await ErrorPopups user
 				}
 			});
