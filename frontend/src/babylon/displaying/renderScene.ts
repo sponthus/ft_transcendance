@@ -70,7 +70,7 @@ export class renderScene {
 		document.documentElement.style.height = "100%";
 		document.documentElement.style.margin = "0";
 		document.documentElement.style.padding = "0";
-		document.body.style.overflow = "hidden";
+		document.body.style.overflow = "scroll";
 		document.body.style.width = "100%";
 		document.body.style.height = "100%";
 		document.body.style.margin = "0";
@@ -226,7 +226,7 @@ export class renderScene {
 		this._gameCreatorPage?.renderGamePage();
 	}
 
-	/***************************for debug to delete at end of project***************************/
+	/***************************TODO for debug to delete at end of project***************************/
 	private _setdebugLayer() {
 		window.addEventListener('keydown', (ev) => {
 			if (ev.shiftKey && ev.ctrlKey && ev.altKey &&(ev.key == "i" || ev.key == "I")) {

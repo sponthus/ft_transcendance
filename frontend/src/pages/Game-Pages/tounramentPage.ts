@@ -170,7 +170,7 @@ export class TournamentPage {
 
 		append(btnDiv, [this.BackBtn, this.PlayBtn]);
 
-		this.TournamentPan = createDiv('tournament-pan', 'relative flex flex-col items-center w-full h-[70%] transition-transform duration-200 ease-out translate-x-96 space-y-4');
+		this.TournamentPan = createDiv('tournament-pan', 'relative flex flex-col items-center w-full h-[60%] transition-transform duration-200 ease-out translate-x-96 space-y-4');
 		setbackgroundImages(this.TournamentPan, "url('/game_ui/setting/SettingPan.png')");
 	}
 
@@ -178,7 +178,7 @@ export class TournamentPage {
 	private appendTournamentForm(btnDiv: HTMLElement) {
 		append(this.Page, [createImage("1v1", "absolute object-fill object-center h-full w-full opacity-20", 'tournament-page.png')]);
 
-		append(this.Page, [createImage('bot-text', 'z-10 object-center h-[30%] w-[80%] animate-wiggle margin-top-32', 'game_ui/tournamentText.png')
+		append(this.Page, [createImage('bot-text', 'z-10 object-center h-[20%] w-[80%] animate-wiggle margin-top-32', 'game_ui/tournamentText.png')
 						, this.TournamentPan, btnDiv]);
 
 		this.Page.className = "flex flex-col items-center w-full h-full transition-all duration-300 rounded-xl space-y-4";
