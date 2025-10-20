@@ -348,7 +348,7 @@ export class Event {
 					this.GamePage.generateWaitingScreen(res.tournament.tournament_id);
 				}
 				else {
-					this.setStatePage = PageState.BRACKET;
+					this.StatePage = PageState.BRACKET;
 					this.GamePage.generateBracketTournament(res.tournament.tournament_id);
 				}
 			}

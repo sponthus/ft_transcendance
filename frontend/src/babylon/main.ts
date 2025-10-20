@@ -79,5 +79,9 @@ export class Game extends BasePage {
 			this._renderScene.PongGame!.GamePhysics!.stopGame();
 		}
 	}
+
+	get renderScene() {
+		return this._renderScene;
+	}
 }
 

@@ -136,6 +136,7 @@ console.log("Routes set"); // debug
 // });
 
 // Fastify listens
+console.debug('ENV : ', env.ip);
 fastify.listen({ port: env.api_port, host: `${env.ip}` }, (err, address) => {
     if (err) {
         fastify.log.error(err);
@@ -143,3 +144,4 @@ fastify.listen({ port: env.api_port, host: `${env.ip}` }, (err, address) => {
     }
     fastify.log.info(`Server running in ${env.nodeEnv} mode at ${address}`);
 });
+console.debug('LAAA');

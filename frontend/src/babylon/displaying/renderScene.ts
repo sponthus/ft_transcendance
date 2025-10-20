@@ -27,7 +27,7 @@ export class renderScene {
 
 	private _state!: number;
 
-	private _gameCreatorPage?: GamePage;
+	private _gameCreatorPage?: GamePage | null = null;
 
 
 	constructor(App: HTMLElement) {
@@ -190,6 +190,12 @@ export class renderScene {
 		return this._PongGame;
 	}
 
+	get GamePage(): GamePage | null{
+		if (this._gameCreatorPage)
+			return this._gameCreatorPage;
+		return null;
+	}
+	
 	private _renderingloop() {
 		let lastTime = 0;
 		const targetFPS = 120;

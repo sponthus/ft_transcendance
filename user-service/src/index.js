@@ -88,6 +88,7 @@ fastify.decorate("authenticate_2fa", async function (request, reply)
 {
     try 
     {
+        console.log("PASSE PAR AUTHENTICATE 2FA");
         const result = fastify.unsignCookie(request.cookies.token); 
         if (!result.valid)
             return reply.code(401).send({ error: "Invalid cookie" });
