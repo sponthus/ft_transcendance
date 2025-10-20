@@ -1,10 +1,6 @@
 import { BasePage } from "./BasePage.js";
 import { append, createAnchorElement, createDiv, createImage } from "../Utils/elementMaker.js";
 import { checkLog } from "../api/user-service/connection/check-log.js";
-import { ErrorPopup } from "./ErrorPage.js";
-import { navigate } from "../core/router.js";
-import { getAllFriendsBySlug } from "../api/user-service/menu/friendsList/friendRequest.js";
-import { updateAvatar } from "../api/user-service/user-info/modifyUserAvatar.js";
 
 export class HomePage extends BasePage {
 

@@ -73,8 +73,8 @@ export class UserBanner {
 		const AvatarCircle: HTMLElement = createDiv('AvatarCircle',"h-full aspect-square flex items-center justify-center bg-orange-300 rounded-full" );
 		if (this.UserData) {
 			const avatar: string = this.UserData.avatar;
-			const srcImg: string = `https://${window.location.hostname}:4443/uploads/${avatar}`; // problem firefox https autosignate certificate 
-			append(AvatarCircle, [(createImage("user", "w-[95%] h-[95%] rounded-full object-cover object-center", srcImg) as HTMLImageElement)])
+			const srcImg: string = `https://${window.location.hostname}:4443/uploads/${avatar}`;
+			append(AvatarCircle, [(createImage("user", "w-[95%] h-[95%] rounded-full object-cover object-center", `${srcImg}?t=${Date.now()}`) as HTMLImageElement)])
 		}
 		append(AvatarDiv, [AvatarCircle]);
 		if (this.isOwnProfile) 

@@ -1,10 +1,9 @@
 import path from "path";
 import fs from "fs";
 import { __dirname } from "./index.js";
-// import pump from "pump";
+import pump from "pump";
 import { fileTypeFromBuffer } from "file-type";
-// import { checkNameFormat } from "./checkFormat.js";
-import sharp from "sharp";
+import { checkNameFormat } from "./checkFormat.js";
 
 export async function uploadAvatar(request, reply) {
     const user = request.user;
@@ -116,6 +115,6 @@ export async function updateName(request, reply)
     }
     catch (err)
     {
-        return reply.code(500).send({ error: "Internal Server Error" + err.message});
+        return reply.code(500).send({ error: "Internal Server Error"});
     }
 }

@@ -5,7 +5,6 @@ import { checkLog } from "../api/user-service/connection/check-log";
 import { getUserInfo } from "../api/user-service/user-info/getUserInfo";
 import { SessionSocket } from "../core/SessionSocket.js";
 import { setbackgroundImages } from "../Utils/elementMaker";
-import { resolve } from "path";
 import { ErrorPopup } from "./ErrorPage";
 
 export abstract class BasePage {

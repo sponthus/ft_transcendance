@@ -10,7 +10,7 @@ import { getUserStatus } from '../../api/session-service/getStatus.js';
 import { cleanBanner } from '../Banner.js';
 
 export enum BodyState {FRIENDS = 0, HISTORY = 1, TOURNAMENT = 2};
-export let StateBody: number = BodyState.FRIENDS;
+export let StateBody: number;
 let isChangeBody: Boolean;
 
 export function ChangeStateBody(state: number){
@@ -22,22 +22,23 @@ export class UserPage extends BasePage {
 	private Background!: HTMLElement;
 	private UserBanner!: UserBanner;
 	private slug!: string;
-	private BodyDiv!: HTMLElement;
+	protected BodyDiv!: HTMLElement;
 
 	private UserData?: UserInfo;
 
 	private isOwnProfile: boolean = true;
 
-	private Statue!: string; 
+	private Statue: string; 
 
 	constructor(slug: string) {
 		super();
 		this.slug = slug;
+		this.Statue = 'Error';
+		StateBody = BodyState.FRIENDS;
 	}
 	
 	async render(): Promise<void> {
 		this.destroy();
-		this.Statue = 'Error';
 		await this.renderBanner();
 		await this.initDivs();
 		await this.TryGetUserInfo();
@@ -46,10 +47,8 @@ export class UserPage extends BasePage {
 	/*************************************Functions for render Page*************************************/
 	private async initDivs() {
 		/*********init Divs**************/
-		if (!this.Background) {
-			this.Background = this.initBackground();
-			this.Background.className = "flex flex-col items-center justify-start h-screen min-h-[540px] w-screen min-w-[960px] flex-none";
-		}
+		this.Background = this.initBackground();
+		this.Background.className = "flex flex-col items-center justify-start h-screen min-h-[540px] w-screen min-w-[960px] flex-none";
 	}
 	
 	private async TryGetUserInfo() {
@@ -60,27 +59,26 @@ export class UserPage extends BasePage {
 				if (this.slug != this.UserData.slug)
 					await this.fillUserData()
 				const request = await getUserStatus(this.UserData.slug);
-				if (request.ok) {
+				if (!request.ok)
+					throw new Error(request.error);
+				else {
 					if (request.status && request.status.status === "online")
 						this.Statue = 'online 🟢​';
 					if (request.status && request.status.status === "disconnected")
 						this.Statue = 'disconnected 🔴​';
 					if (request.status && request.status.status === "playing")
 						this.Statue = 'playing 🟡​​';
-				} 
-				// else {
-				// 	ErrorPopup("Unable to get user status : " + request.error);
-				// }
+				}
 				this.UserBanner = new UserBanner(this.UserData, this.isOwnProfile, this.Statue);
 				await this.showUserPage();
 			} else {
 				await ErrorPopup("Unable to load profile");
-				await navigate('/');
+				navigate('/');
 			}
 		}
 		catch (error) {
 			await ErrorPopup(error as string);
-			await navigate('/');
+			navigate('/');
 		}
 	}
 
@@ -97,7 +95,7 @@ export class UserPage extends BasePage {
 			}
 		} catch (error) {
 			await ErrorPopup(error as string);
-			await navigate('/');
+			navigate('/');
 		}
 	}
 
@@ -111,16 +109,13 @@ export class UserPage extends BasePage {
 
 	private async renderProfileBanner() {
 		await this.UserBanner.render();
-		if (this.Background)
-			this.Background.appendChild(this.UserBanner._ProfileBanner);
+		this.Background.appendChild(this.UserBanner._ProfileBanner);
 	}
 
 	private async renderBodyProfile() {
 		/***************************body div***********************/
-		if (this.Background && this.BodyDiv && this.BodyDiv.isConnected) {
-			Array.from(this.BodyDiv.children).forEach(child => {child.remove()});
+		if (this.Background && this.BodyDiv)
 			this.BodyDiv.remove();
-		}
 
 		this.BodyDiv = document.createElement('div');
 		this.BodyDiv.className = "bg-orange-300  bg-opacity-50 w-full h-[60%] flex items-center justify-center overflow-auto";
@@ -136,6 +131,7 @@ export class UserPage extends BasePage {
 				break;
 			default:break;
 		}
+	
 		if (this.Background)
 			this.Background.appendChild(this.BodyDiv);
 	}
@@ -151,21 +147,22 @@ export class UserPage extends BasePage {
 
 	private async BannerEvents() {
 		this.UserBanner.botBannerEvents();
-		document.addEventListener('click', this.onBodyStateChange)
+		document.addEventListener('click', this.onBodyStateChange);
 	}
 
-	private onBodyStateChange = (event: Event): void => {
+		private onBodyStateChange = (event: Event): void => {
 		if (isChangeBody) {
 			this.renderBodyProfile();
 			isChangeBody = false;
 		}
 	}
+
 	private async editingEvents() {
 		this.UserBanner._EditProfile.editEvents();
 	}
 
 	private async addInApp() {
-		if (this.Background && !this.Background.isConnected) 
+		if (this.Background) 
 			this.app.appendChild(this.Background);
 	}
 

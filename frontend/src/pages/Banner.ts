@@ -139,7 +139,7 @@ async function SetUserImg(userIcon: HTMLElement, userData: UserInfo) {
 	// }
 	const srcImg: string = link;
 
-	append(userIcon, [(createImage('user', 'w-12 h-12 rounded-full object-cover object-center', srcImg) as HTMLImageElement)]);
+	append(userIcon, [(createImage('user', 'w-12 h-12 rounded-full object-cover object-center', `${srcImg}?t=${Date.now()}`) as HTMLImageElement)]);
 }
 
 function SetLogOutEvent() {
