@@ -78,7 +78,8 @@ export function checkWebSocketMessageFormat(message: WebSocketMessage): FormatCh
 					die1: { type: "boolean" },
 					die2: { type: "boolean" },
 					ispaused: { type: "boolean" },
-					timePauseBegin: { type: "number" }
+					timePauseBegin: { type: "number" },
+					gameOption: { type: "number"}
 				},
 				required: ["paddle1", "paddle2", "ball", "score", "spell1", "spell2", "specialCooldown1", "specialCooldown2", "die1", "die2", "ispaused", "timePauseBegin"],
 				additionalProperties: false
