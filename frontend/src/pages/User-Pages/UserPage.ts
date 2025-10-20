@@ -32,7 +32,7 @@ export class UserPage extends BasePage {
 	constructor(slug: string) {
 		super();
 		this.slug = slug;
-		this.Statue = '​';
+		this.Statue = '​error 🔴';
 		StateBody = BodyState.FRIENDS;
 	}
 	
@@ -57,17 +57,18 @@ export class UserPage extends BasePage {
 				this.UserData = req.userInfo;
 				if (this.slug != this.UserData.slug)
 					await this.fillUserData()
-				/*const request = await getUserStatus(this.UserData.slug);
-				if (!request.ok)
-					throw new Error(request.error);
-				else {
+				const request = await getUserStatus(this.UserData.slug);
+				if (request.ok) {
 					if (request.status && request.status.status === "online")
 						this.Statue = 'online 🟢​';
 					if (request.status && request.status.status === "disconnected")
 						this.Statue = 'disconnected 🔴​';
 					if (request.status && request.status.status === "playing")
 						this.Statue = 'playing 🟡​​';
-				}*/
+				} 
+				// else {
+				// 	ErrorPopup("Unable to get user status : " + request.error);
+				// }
 				this.UserBanner = new UserBanner(this.UserData, this.isOwnProfile, this.Statue);
 				await this.showUserPage();
 			} else {

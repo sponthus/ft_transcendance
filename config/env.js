@@ -6,9 +6,13 @@ import envSchema from "env-schema"; // Allows change and validation of variables
 // properties defines expected types and default values if absent
 const schema = {
     type: "object",
-    required: ["DOMAIN_NAME", "IP", "API_PORT", "USER_PORT", "GAME_PORT", "UPLOAD_PORT", "SESSION_PORT", "SESSION_WS_PORT", "LOG_LEVEL", "NODE_ENV", "USERS_DB_FILE", "GAMES_DB_FILE"],
+    required: ["DOMAIN_NAME", "HOST", "IP", "API_PORT", "USER_PORT", "GAME_PORT", "UPLOAD_PORT", "SESSION_PORT", "SESSION_WS_PORT", "LOG_LEVEL", "NODE_ENV", "USERS_DB_FILE", "GAMES_DB_FILE"],
     properties: {
 		DOMAIN_NAME: {
+			type: "string",
+			default: "localhost"
+		},
+		HOST: {
 			type: "string",
 			default: "localhost"
 		},
@@ -78,6 +82,7 @@ const config = envSchema({
 // Transforms config object to give variable names more coherent to camelCase JS convention
 const envConfig = {
 	ip: config.IP,
+	host: config.HOST,
 	domain_name: config.DOMAIN_NAME,
     api_port: config.API_PORT,
 	user_port: config.USER_PORT,

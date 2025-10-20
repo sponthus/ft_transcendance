@@ -19,20 +19,25 @@ export async function changeUserInfos(request, reply) {
 		console.error('❌ Bad data format sent in request body');
 		return reply.status(400).send({ error: 'Bad data format - expected : username, slug.'});
 	}
-	const { username, slug } = request.body;
+	const { username, slug, status } = request.body;
 
 	const { WebSocketManager } = request.server;
 	if (!WebSocketManager) {
 		console.error('❌ Error while getting sessions: connexion not found');
 		return reply.status(500).send({ error: 'Internal server error while fetching users'});
 	}
-
-	const data = WebSocketManager.updateUserInfos(Number(userId), username, slug);
-	if (data == null) {
-		console.log(`User with ${userId} not found.`);
-		return reply.status(404).send({error: 'Requested user not found.'});
+	if (status.length > 15 || status !== "online" && status !== "playing" && status !== "disconnected") {
+		console.error('❌ Wrong status format sent in request body');
+		return reply.status(400).send({error: 'Wrong status sent for update (playing | online | disconnected).'});
 	}
-	return reply.status(200).send({ userId: data.userId, username: data.username, slug: data.slug });
+
+	try {
+		const data = WebSocketManager.updateUserInfos(Number(userId), username, slug, status);
+		return reply.status(200).send({ userId: data.userId, username: data.username, slug: data.slug });
+	} catch (err) {
+		console.error('❌ Error while updating user infos:', err.message);
+		return reply.status(500).send({ error: 'Internal server error.'});
+	}
 }
 
 

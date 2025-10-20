@@ -129,6 +129,10 @@ export default class WebSocketManager {
 					this.disconnectUser(client, 4003, "Session expired");
 				}
 			}
+			if (client.status === 'connected' && client.ws.length == 0) {
+				console.log(`User ${userId} has no active connections, setting status to disconnected`);
+				client.status = 'disconnected';
+			}
 		}
 	}
 
@@ -181,7 +185,7 @@ export default class WebSocketManager {
 				console.warn(`User ${userId} not connected when trying to disconnect`);
 				return;
 			}
-			await this.sleep(5000); // Wait for micro-deconnexions
+			await this.sleep(15000); // Wait for micro-deconnexions
 			const client = this.clients.get(Number(userId));
 			client.ws = client.ws.filter(sock => sock && sock.readyState === 1);
 			if (client.ws.length == 0) {
@@ -276,20 +280,37 @@ export default class WebSocketManager {
 	/************************** SETTERS **********************************/
 
 	// Useful when a user changes his username or slug
-	updateUserInfos(userId, username, slug) {
+	updateUserInfos(userId, username, slug, status) {
 		if (this.clients.has(Number(userId))) {
 			const client = this.clients.get(Number(userId));
 			client.username = username;
 			client.slug = slug;
-			console.log(`✅ User data modification : ${userId} (${username}) / slug=${slug}`);
+			client.status = status;
+			console.log(`✅ User data modification : ${userId} (${username}) / slug=${slug} / status=${status}`);
 			return {
 				userId: userId,
 				username: username,
-				slug: slug
+				slug: slug,
+				status: status
 			};
 		} 
 		else {
-			return null;
+			this.clients.set(Number(userId), {
+				ws: [],
+				username: username,
+				slug: slug,
+				status: status,
+				currentGame: 0,
+				messages: [],
+				exp: 0
+			});
+			console.log(`✅ User data registered : ${userId} (${username}) / slug=${slug}`);
+			return {
+				userId: userId,
+				username: username,
+				slug: slug,
+				status: status
+			};
 		}
 	}
 

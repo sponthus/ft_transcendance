@@ -149,7 +149,7 @@ export class SessionSocket {
         if (status === "development")
             return `ws://${import.meta.env.VITE_DOMAIN_NAME}:8080/s-ws/`;
         else
-            return `wss://${import.meta.env.VITE_DOMAIN_NAME}:4443/s-ws/`;
+            return `wss://${window.location.host}/s-ws/`;
     }
 
 	private startHeartbeat(): void {

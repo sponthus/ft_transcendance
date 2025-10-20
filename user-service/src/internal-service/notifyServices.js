@@ -33,11 +33,11 @@ export async function notifyRefresh(idReceivers, sender, message)
     }
     catch (err)
     {
-        return { ok: false, error: data.error };
+        return { ok: false, error: err };
     }
 }
 
-export async function notifyChangeData(idUser, username, slug) 
+export async function notifyChangeData(idUser, username, slug, status="online") 
 {
 
     const api_key = getSecret('api_key');
@@ -51,7 +51,7 @@ export async function notifyChangeData(idUser, username, slug)
                 'Content-Type': 'application/json',
                 'x-internal-api-key': api_key
             },
-            body: JSON.stringify({ username: username, slug: slug }),
+            body: JSON.stringify({ username: username, slug: slug, status: status }),
 		    dispatcher: tlsAgent
 	    });
         if (res.ok)
@@ -59,9 +59,9 @@ export async function notifyChangeData(idUser, username, slug)
         const data = await res.json();    
         return { ok: false, error: data.error, status: res.status };
     }
-    catch
+    catch (err)
     {
-        return { ok: false, error: data.error };
+        return { ok: false, error: err };
     }
 }
 

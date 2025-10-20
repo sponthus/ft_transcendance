@@ -71,10 +71,21 @@ export class LoginPage extends BasePage {
 		append(this.Background, [this.Front]);
 		append(this.app, [this.Background]);
 
+		let prefix = 'https';
+		const status = import.meta.env?.MODE;
+        if (status === "development") {
+			prefix = 'http';
+		}
+		let link = `${prefix}://${window.location.host}/api/user/oauth/github`;
 		GithubBtn.addEventListener('click', async() => {
 			const popup = window.open(
+<<<<<<< HEAD
 			"http://localhost:5173/api/user/oauth/github", // TODO ELODIE si prod https et 4443 + mettre tout le temps a la place de localhost (window.location.hostname) 
 			"GitHub Login", //PAREIL POUR LA REGISTER PAGE
+=======
+			link,
+			"GitHub Login",
+>>>>>>> origin/game-service
 			`width=960,height=540,top=${window.screenX + (window.innerWidth - 960) / 2},left=${window.screenY + (window.innerHeight - 540) / 2}`
 			);
 			const timer = setInterval(() => {

@@ -133,6 +133,10 @@ export function    checkChangeInfosFormat(request)
 				minLength: 3,
 				maxLength: 15,
 				pattern: "^(?![_-])(?!.*[_-]$)(?=.*[A-Za-z])(?![0-9_]+)[A-Za-z0-9_-]+$" // Updated pattern
+			},
+			status: {
+				type: "string",
+				enum: ["online", "playing", "disconnected"]
 			}
 		},
 		required: ["slug", "username"],

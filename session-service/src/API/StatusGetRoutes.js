@@ -5,7 +5,6 @@ import { checkSlugFormat } from "../tools/CheckFormat.js";
 export async function getStatusForSlug(request, reply) {
 	console.log('➡️ User accessed GET /:slug');
 	
-
 	const { slug } = request.params;
 	if (!slug) {
 		console.error('❌ No slug found in request params');
@@ -24,6 +23,7 @@ export async function getStatusForSlug(request, reply) {
 
 	const status = WebSocketManager.getUserStatusBySlug(slug);
 	if (status === 'not found') {
+		console.warn(`❌ User with slug ${slug} not found.`);
 		return reply.status(404).send({error: 'Requested user not found.'});
 	}
 	return reply.status(200).send({ status: status, slug: slug });

@@ -19,7 +19,8 @@ services:
   api-gateway:
     container_name: api-gateway
     build: 
-      context: ./api-gateway
+      context: .
+      dockerfile: ./api-gateway/Dockerfile
       args:
         API_PORT: ${API_PORT}
     env_file:
@@ -29,21 +30,23 @@ services:
         condition: service_started
     volumes:
       - ssl_certs:/etc/ssl # For nginx SSL certs
-      - ./api-gateway:/app
-      - ./config:/app/config # Dev only ? 
+      - ./api-gateway:/app # TODO Comment me for prod, dev only
+      - ./config:/app/config # TODO Comment me for prod, dev only
     networks:
       - pongnet
     restart: always
 
   user-service:
     container_name: user-service
-    build: ./user-service
+    build: 
+      context: .
+      dockerfile: user-service/Dockerfile
     env_file:
       - ".env"
     volumes:
       - ssl_certs:/etc/ssl # For nginx SSL certs
-      - ./user-service:/app # Dev only,prod = pas de volume, seulement copie des fichiers.
-      - ./config:/app/config
+      - ./user-service:/app # TODO Comment me for prod, dev only
+      - ./config:/app/config # TODO Comment me for prod, dev only
     networks:
       - pongnet
     secrets:
@@ -58,15 +61,16 @@ services:
   game-service:
     container_name: game-service
     build: 
-      context: ./game-service
+      context: .
+      dockerfile: ./game-service/Dockerfile
       args:
         WS_PORT: ${GAME_WS_PORT}
     env_file:
       - ".env"
     volumes:
       - ssl_certs:/etc/ssl # For nginx SSL certs
-      - ./game-service:/app # Dev only,prod = pas de volume, seulement copie des fichiers.
-      - ./config:/app/config # Dev only
+      - ./game-service:/app # TODO Comment me for prod, dev only
+      - ./config:/app/config # TODO Comment me for prod, dev only
     networks:
       - pongnet
     secrets:
@@ -78,15 +82,16 @@ services:
   session-service:
     container_name: session-service
     build: 
-      context: ./session-service
+      context: .
+      dockerfile: ./session-service/Dockerfile
       args: 
         WS_PORT: ${SESSION_WS_PORT}
     env_file:
       - ".env"
     volumes:
       - ssl_certs:/etc/ssl # For nginx SSL certs
-      - ./session-service:/app # Dev only,prod = pas de volume, seulement copie des fichiers.
-      - ./config:/app/config # Dev only,prod = pas de volume, seulement copie des fichiers.
+      - ./session-service:/app # TODO Comment me for prod, dev only
+      - ./config:/app/config # TODO Comment me for prod, dev only
     networks:
       - pongnet
     secrets:
@@ -105,8 +110,8 @@ services:
       - "4443:443"
     volumes:
       - ssl_certs:/etc/ssl # For nginx SSL certs
-      - frontend_dist:/usr/share/nginx/html # necessary in prod
-      - avatar_uploads:/app/uploads #share with upload service
+      - frontend_dist:/usr/share/nginx/html # Shared with frontend
+      - avatar_uploads:/app/uploads # Shared with upload service
     networks:
       - pongnet
     restart: always
@@ -114,28 +119,30 @@ services:
   frontend:
     container_name: frontend
     build:
-      context: ./frontend
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: ./frontend/Dockerfile
     env_file: ".env"
     ports:
       - "5173:5173" # Dev only
     volumes:
-      - ./frontend:/app # Dev only, prod = pas de volume, seulement copie des fichiers.
+      - ./frontend:/app # TODO Comment me for prod, dev only
+      - ./config:/app/config # TODO Comment me for prod, dev only
       - frontend_dist:/app/dist # Prod volume for nginx
-      - ./config:/app/config # Dev only
     networks:
       - pongnet
 
   upload-service:
-    build: ./upload-service
+    build: 
+      context: .
+      dockerfile: ./upload-service/Dockerfile
     env_file:
       - ".env"
     container_name: upload-service
     volumes:
+      - ./config:/app/config # TODO Comment me for prod, dev only
+      - ./upload-service:/app # TODO Comment me for prod, dev only
       - ssl_certs:/etc/ssl # For nginx SSL certs
-      - ./upload-service:/app # Dev only,prod = pas de volume, seulement copie des fichiers.
       - avatar_uploads:/app/uploads # share with nginx
-      - ./config:/app/config # Dev only,prod = pas de volume, seulement copie des fichiers.
     secrets:
       - hash_key
       - api_key

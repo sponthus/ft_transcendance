@@ -206,7 +206,7 @@ async function fillReceiveRequest(parent: HTMLElement) {
 function addUSerData(userData: UserInfo, parent: HTMLAnchorElement, textContent: string) {
 	const userIcon: HTMLElement = createDiv(`user-notification-icon-${userData.slug}`, 'flex items-center justify-center bg-orange-300 group-hover:bg-orange-400 rounded-full relative shadow-xl w-[20%] aspect-square group-hover:shadow-lg transition-all duration-200 transform');
 
-	append(userIcon, [(createImage(`user-notification-${userData.slug}`, ' w-[90%] aspect-square rounded-full object-cover object-center',  `https://localhost:4443/uploads/${userData.avatar}`) as HTMLImageElement)]);
+	append(userIcon, [(createImage(`user-notification-${userData.slug}`, ' w-[90%] aspect-square rounded-full object-cover object-center',  `https://${window.location.hostname}:4443/uploads/${userData.avatar}`) as HTMLImageElement)]);
 
 	const invitationTextDiv = createDiv(`invitation-text-${userData.slug}`, 'flex flex-col items-center');
 	invitationTextDiv.innerHTML = `<P class="text-emerald-600 group-hover:font-bold">${textContent}</p>`;
@@ -219,7 +219,7 @@ function addInvitation(userdata: UserInfo, tournament: AllNotifs | null) : HTMLA
 
 	const userIcon: HTMLElement = createDiv(`user-notification-icon-${userdata.slug}`, 'flex items-center justify-center bg-orange-300 group-hover:bg-orange-400 rounded-full relative shadow-xl w-[30%] aspect-square group-hover:shadow-lg transition-all duration-200 transform');
 
-	append(userIcon, [(createImage(`user-notification-${userdata.slug}`, 'w-[90%] aspect-square rounded-full object-cover object-center',  `https://localhost:4443/uploads/${userdata.avatar}`) as HTMLImageElement)]);
+	append(userIcon, [(createImage(`user-notification-${userdata.slug}`, 'w-[90%] aspect-square rounded-full object-cover object-center',  `https://${window.location.hostname}:4443/uploads/${userdata.avatar}`) as HTMLImageElement)]);
 
 	let msg: string = `user ${userdata.username} has send you an friend invitation`;
 	if (tournament)

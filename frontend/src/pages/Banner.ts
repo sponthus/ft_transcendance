@@ -99,12 +99,10 @@ function setLoginUserInfo(userData: UserInfo) {
 }
 
 async function setTextLoginUserInfo(usersForm: HTMLElement, userData: UserInfo) {
-	let userSatus: string = 'Error 🔴​';
-	/*try {
+	let userSatus: string = 'error 🔴​';
+	try {
 		const req = await getUserStatus(userData.slug);
-		if (!req.ok)
-			throw new Error(req.error);
-		else {
+		if (req.ok) {
 			if (req.status && req.status.status === "online")
 				userSatus = 'online 🟢​';
 			if (req.status && req.status.status === "disconnected")
@@ -115,7 +113,7 @@ async function setTextLoginUserInfo(usersForm: HTMLElement, userData: UserInfo) 
 
 	} catch(error) {
 		await ErrorPopup(error as string);
-	}*/
+	}
 	append(usersForm, [(createElement('h1', 'user-state', `${userSatus}`, '') as HTMLElement)
 						, (createElement('h1', 'user-name', `${userData.username}`, 'text-emerald-900') as HTMLElement)]);
 }
@@ -134,7 +132,7 @@ function setAvatarLoginUserInfo(userData: UserInfo) {
 
 async function SetUserImg(userIcon: HTMLElement, userData: UserInfo) {
 	const avatar: string = userData.avatar;
-	const srcImg: string = `https://localhost:4443/uploads/${avatar}`;
+	const srcImg: string = `https://${window.location.hostname}:4443/uploads/${avatar}`;
 
 	append(userIcon, [(createImage('user', 'w-12 h-12 rounded-full object-cover object-center', srcImg) as HTMLImageElement)]);
 }

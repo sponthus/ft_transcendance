@@ -193,29 +193,26 @@ export class EditProfile extends popUp {
 		
 		const username: string = (Form?.querySelector('input[name="username"]') as HTMLInputElement).value;
 
-		console.log("new username = ", username)
+		// alert("Changing username to " + username);
+		// console.log("new username = ", username)
 		try {
 			if (username == this.UserData.username) {
+				// alert("No changes detected in username");
 				return ;
 			}
-			console.log("BOUDIN DE CHEVAL");
+			// alert("Changing username to " + username);
 			const req = await updateUsername(username);
 			if (req.ok) {
-				//this.cleanBody();
-				console.log("BOUDIN DE CHEVAL");
+				this.cleanBody();
 				await this.updateUserData();
 				await navigate(`/user/${this.UserData.slug}`);
 			}
 			else
-			{
-				console.log("Pas de boudin de cheval");
 				throw new Error(req.error);
-			} 
-
-		} catch (error){
-			console.log('Error FRONNT' , error);
+		}
+		catch (error){
 			await ErrorPopup(error as string);
-		}	
+		}
 	}
 
 	async openUploadForm() {
@@ -251,7 +248,6 @@ export class EditProfile extends popUp {
 		
 		const formData = new FormData();
 		formData.append('avatar-input', file);
-		
 		// Makes 2 requests : upload to upload service + change avatar in user db
 		const req = await uploadAvatar(formData);
 		if (req.ok) {
