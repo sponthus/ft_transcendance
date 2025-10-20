@@ -61,6 +61,7 @@ export async function getAllTournaments(slug: string):  Promise<TournamentsResul
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
+				'host': window.location.host
             },
             credentials: 'include'
         });
@@ -158,6 +159,7 @@ export async function getTournamentMatches(tournamentId: number): Promise<Tourna
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
+                'host': window.location.host
             },
             credentials: 'include'
         });
@@ -189,6 +191,7 @@ export async function getTournamentNextMatch(tournamentId: number): Promise<Tour
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
+				'host': window.location.host
             },
             credentials: 'include'
         });

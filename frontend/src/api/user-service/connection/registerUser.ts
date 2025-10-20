@@ -12,7 +12,10 @@ export async function registerUser(username: string, password: string): Promise<
         const res = await fetch('/api/user/register',
         {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 
+				'Content-Type': 'application/json',
+				'host': window.location.host
+			},
             body: JSON.stringify({ username, password }),
         });
         if (res.ok)

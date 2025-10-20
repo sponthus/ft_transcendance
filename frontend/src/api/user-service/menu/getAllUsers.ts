@@ -14,6 +14,9 @@ export async function   getAllUsers(): Promise<UsersResult>
     const res = await fetch('/api/user/menu/users', 
     {
         method: 'GET',
+		headers: {
+			'host': window.location.host
+		},
         credentials: 'include',
     });
     const data = await res.json();    

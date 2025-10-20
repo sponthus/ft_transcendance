@@ -41,6 +41,9 @@ if (env.nodeEnv === 'production') {
 else {
 	fastify = Fastify({
 		logger: false,
+		ajv: { customOptions: {
+			removeAdditional: false
+		}}
 	});
 	console.log("App launched in development mode");
 }

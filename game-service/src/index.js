@@ -30,6 +30,12 @@ if (env.nodeEnv === 'production') {
 
 	fastify = Fastify({
 		logger: logger,
+		ajv: {
+			customOptions: {
+				removeAdditional: false,
+				allErrors: true
+			}
+		},
 		https: {
 			key: fs.readFileSync(`/etc/ssl/${env.domain_name}.key`),
 			cert: fs.readFileSync(`/etc/ssl/${env.domain_name}.crt`)
@@ -40,6 +46,12 @@ if (env.nodeEnv === 'production') {
 else {
 	fastify = Fastify({
 		logger: false,
+		ajv: {
+			customOptions: {
+				removeAdditional: false,
+				allErrors: true
+			}
+		},
 	});
 	console.log("App launched in development mode");
 }

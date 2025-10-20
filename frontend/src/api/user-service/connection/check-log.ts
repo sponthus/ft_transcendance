@@ -11,6 +11,9 @@ export async function checkLog(): Promise<Result>
     const res = await fetch('/api/user/protected',
     {
         method: 'GET',
+		headers: {
+			'host': window.location.host
+		},
         credentials: 'include',
         cache: 'no-store'
     });
