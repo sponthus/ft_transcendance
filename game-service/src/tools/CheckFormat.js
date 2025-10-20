@@ -1,10 +1,19 @@
 import Ajv from "ajv"
 
+let slugRegex = "^(?![_-])(?!.*[_-]$)(?=.*[a-z])(?![0-9_]+)[a-z0-9_-]+$";
+
 export const slugSchema = {
   type: "string",
   minLength: 1,
   maxLength: 20,
-  pattern: "^(?![_-])(?!.*[_-]$)(?=.*[a-z])(?![0-9_]+)[a-z0-9_-]+$"
+  pattern: slugRegex
+};
+
+export const slugParamsSchema = {
+	type: "object",
+	properties: { slug: slugSchema },
+	required: ["slug"],
+	additionalProperties: false
 };
 
 export const tournamentNameSchema = {
@@ -26,10 +35,26 @@ export const idUserSchema = {
   minimum: 1
 };
 
-export const idNumberSchema = {
-  type: "number",
-  minimum: 1
+export const idSchema = {
+	oneOf : [
+		{ type: "number", minimum: 1 },
+		{ type: "string", minLength: 1, maxLength: 15, pattern: "^[0-9]+$" }
+	]
 };
+
+export const idParamSchema = {
+	type: "object",
+	properties: { 
+		gameId: {
+			type: "string",
+			pattern: "^[0-9]+$",
+			minLength: 1,
+			maxLength: 15
+		} 
+	},
+	required: ["gameId"],
+	additionalProperties: false
+}
 
 export const idStringSchema = {
   type: "string",
@@ -229,28 +254,28 @@ export function    checkIdNumberFormat(id)
 	}
     return (true);
 }
-
+*/
 
 export function    checkIdFormat(id)
 {
     const schema = 
     {
-        type: "string",
-        minLength: 1,
-        maxLength: 15,
-        pattern: "^[0-9]+$"
+        oneOf : [
+			{ type: "number", minimum: 1 },
+			{ type: "string", minLength: 1, maxLength: 15, pattern: "^[0-9]+$" }
+		]
     };
     const ajv = new Ajv();
     const contract = ajv.compile(schema);
     const valid = contract(id);
     if (!valid) {
-		console.error("❌ ID string format error: ");
+		console.error("❌ ID format error: ");
 		console.error(contract.errors);
 		return (false);
 	}
     return (true);
 }
-*/
+
 export function checkWebSocketMessageFormat(message) {
 	const schema = {
 		type: "object",

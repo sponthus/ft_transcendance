@@ -1,4 +1,3 @@
-import { checkRegistrationFormat } from "../tools/checkFormat.js";
 import { generateUniqueSlug } from "../tools/generateUnique.js";
 import { notifyChangeData } from "../internal-service/notifyServices.js";
 import env from '../../config/env.js';

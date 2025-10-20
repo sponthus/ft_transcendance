@@ -1,4 +1,4 @@
-import { sendMessageToGroupSchema, slugSchema } from "../tools/CheckFormat.js";
+import { changeInfosSchema, idParamSchema, sendMessageToGroupSchema, slugParamsSchema, slugSchema, statusSchema } from "../tools/CheckFormat.js";
 import { getStatusForSlug } from "./StatusGetRoutes.js"
 import { changeUserInfos, changeUserStatus } from "./StatusPatchRoutes.js"
 import { sendMessageToUsers } from "./StatusPostRoutes.js"; 
@@ -17,7 +17,7 @@ export default async function routes (fastify, options) {
 	fastify.register(
 		async function (getRoutes) {
 			getRoutes.get(`/:slug`,
-				{onRequest: [fastify.int_authenticate], schema: { params: slugSchema }},
+				{onRequest: [fastify.int_authenticate], schema: { params: slugParamsSchema }},
 				getStatusForSlug);
 		}
 	);
@@ -25,19 +25,11 @@ export default async function routes (fastify, options) {
 	fastify.register(
 		async function (patchRoutes) {
 			patchRoutes.patch(`/data/:userId`,
-				{onRequest: [fastify.int_authenticate]},
+				{onRequest: [fastify.int_authenticate], schema: { params: idParamSchema, body: changeInfosSchema}},
 				changeUserInfos);
 			patchRoutes.patch(`/status/:userId`,
-				{onRequest: [fastify.int_authenticate]},
+				{onRequest: [fastify.int_authenticate], schema: { params: idParamSchema, body: statusSchema }},
 				changeUserStatus);
 		}
 	);
-	// fastify.register(
-	// 	async function (deleteRoutes) {
-	// 		deleteRoutes.delete("/:gameId",
-	// 			{onRequest: [fastify.authenticate]},
-	// 			deleteGame);
-
-	// 		}
-	// );
 }

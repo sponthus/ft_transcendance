@@ -1,4 +1,4 @@
-import { checkTournamentCreationFormat, checkPlayerFormat, checkIdFormat } from "../../tools/CheckFormat.js";
+// import { checkPlayerFormat } from "../../tools/CheckFormat.js";
 import { getUserIdFromSlug } from "../requests/GetUserIdFromSlug.js";
 import { sendTournamentInvitation } from "../requests/SendTournamentInvitation.js";
 
@@ -29,9 +29,9 @@ export async function createTournament(request, reply) {
 	let has_users_to_wait = false;
     for (let i = 0; i < players.length; i++) {
 		const player = players[i];
-		if (checkPlayerFormat(player) === false) {
-			return reply.code(400).send({ error: 'Bad player name format.'});
-		}
+		// if (checkPlayerFormat(player) === false) {
+		// 	return reply.code(400).send({ error: 'Bad player name format.'});
+		// }
 		if (player[0] === '@') {
 			// console.debug("Resolving slug ", player);
 			const userId = await getUserIdFromSlug(player.slice(1));

@@ -1,8 +1,8 @@
 import env from "../../../../config/env.js";
-import { getSecret } from "../../../index.js";
+// import { getSecret } from "../../../index.js";
 import prefix from "../../../tools/url.js";
-import tlsAgent from "../../../tools/tlsAgent.js";
-import { checkAnswerFormat } from "../../../tools/checkFormat.js";
+// import tlsAgent from "../../../tools/tlsAgent.js";
+// import { checkAnswerFormat } from "../../../tools/checkFormat.js";
 import { answerTournament } from "../../../internal-service/notifyServices.js";
 
 export async function   userAnswerTournament(request, reply)
@@ -37,13 +37,11 @@ export async function   userAnswerTournament(request, reply)
         {
             console.log("decline invitation")
             url = `${prefix}://game-service:${env.game_port}/tournament/decline`;
-            //url = `http://session-service:3004/tournament/decline`;
         }
         else
         {
             console.log("accept invitation")
             url = `${prefix}://game-service:${env.game_port}/tournament/accept`;
-            //url = `http://session-service:3004/tournament/accept`;
         }
         const req = await answerTournament(idUser, ownerId.id, tournamentId, tournamentName, url);
 		if (req.ok)

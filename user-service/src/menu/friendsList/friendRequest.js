@@ -1,5 +1,5 @@
 import { notifyRefresh } from "../../internal-service/notifyServices.js";
-import { checkSlugFormat } from "../../tools/checkFormat.js";
+// import { checkSlugFormat } from "../../tools/checkFormat.js";
 import { addNotification } from "../notifications/notificationsManager.js";
 
 export async function   addFriend(request, reply)
@@ -64,8 +64,8 @@ export async function   removeFriend(request, reply)
     const   idUser = request.user.idUser;
     const   friendSlug = request.body.slug;
 
-    if (checkSlugFormat(request) == false)
-        return reply.code(400).send( {error : "Invalid format for the friend's slug"} );
+    // if (checkSlugFormat(request) == false)
+    //     return reply.code(400).send( {error : "Invalid format for the friend's slug"} );
     try
     {
         const friend = db.prepare("   SELECT \

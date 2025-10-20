@@ -1,4 +1,4 @@
-import { checkNicknameFormat } from "../tools/checkFormat.js";
+// import { checkNicknameFormat } from "../tools/checkFormat.js";
 
 export default async function   updateNickname (request, reply)
 {

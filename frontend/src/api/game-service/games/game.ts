@@ -196,7 +196,7 @@ export async function getFinishedGames(slug: string): Promise<AllGamesResult> {
 		const countGames = finishedGames.length;
 		const wins = countWins(finishedGames, slug);
 		const losses = countLosses(finishedGames, slug);
-        alert(`Finished games stats:\nTotal: ${countGames}\nWins: ${wins}\nLosses: ${losses}`);
+        // alert(`Finished games stats:\nTotal: ${countGames}\nWins: ${wins}\nLosses: ${losses}`);
 		return { ok: true, games: finishedGames, stats: { wins: wins, losses: losses, total: countGames } };
 
     } catch (error) {

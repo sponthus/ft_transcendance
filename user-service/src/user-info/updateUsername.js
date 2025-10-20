@@ -1,5 +1,5 @@
 import slugify from "slugify";
-import { checkUsernameFormat } from "../tools/checkFormat.js";
+// import { checkUsernameFormat } from "../tools/checkFormat.js";
 import { generateUniqueSlug } from "../tools/generateUnique.js";
 import { notifyChangeData, notifyChangeSlug } from "../internal-service/notifyServices.js";
 import env from '../../config/env.js';

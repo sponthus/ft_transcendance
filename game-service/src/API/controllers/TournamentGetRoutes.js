@@ -1,6 +1,6 @@
 import { getUserIdFromSlug } from "../requests/GetUserIdFromSlug.js"
 import { getUserInfoFromId } from "../requests/GetUserInfoFromId.js"
-import { checkIdFormat, checkSlugFormat } from "../../tools/CheckFormat.js"
+// import { checkIdFormat, checkSlugFormat } from "../../tools/CheckFormat.js"
 
 // Gives the list of tournaments linked to a player
 // Security : Road is protected to logged-in users and from SQLi

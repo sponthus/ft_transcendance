@@ -1,7 +1,7 @@
 import speakeasy from "speakeasy";
 import qrcode from 'qrcode';
 import env from '../../config/env.js';
-import { checkCodeFormat } from "../tools/checkFormat.js";
+// import { checkCodeFormat } from "../tools/checkFormat.js";
 import { decrypt, encrypt,  } from "./cryptSecret.js";
 
 export async function activateTwoFa(request, reply)

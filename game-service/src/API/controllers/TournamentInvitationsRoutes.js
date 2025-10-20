@@ -1,4 +1,4 @@
-import { checkTournamentNameFormat, checkIdNumberFormat } from "../../tools/CheckFormat.js";
+// import { checkTournamentNameFormat, checkIdNumberFormat } from "../../tools/CheckFormat.js";
 import { sendTournamentReady } from "../requests/SendTournamentReady.js";
 import { sendTournamentCancelation } from "../requests/SendTournamentCancelation.js";
 import { sendTournamentAcceptation } from "../requests/SendTournamentAcceptation.js";

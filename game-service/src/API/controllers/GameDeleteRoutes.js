@@ -1,4 +1,4 @@
-import { checkIdFormat } from "../../tools/CheckFormat.js";
+// import { checkIdFormat } from "../../tools/CheckFormat.js";
 
 // Secure with JWT and user ownership, input protected VS SQLi
 // Delete a game if it is pending and belongs to the requesting user
