@@ -21,7 +21,7 @@ export async function   updatePassword(password: string): Promise<UpdatePassword
         }
         console.log("Update password failed");
         const data = await res.json();
-        return ({ ok: false, error: data.error });
+        return ({ ok: false, error: data.message });
     }
     catch (err)
     { 

@@ -17,9 +17,9 @@ export async function   addFriend(request, reply)
                                         WHERE \
                                             slug = ?").get(friendSlug);
         if (!friend)
-            return reply.code(404).send({ error: "This user doesn't exist" });
+            return reply.code(404).send({ message: "This user doesn't exist" });
         if (idUser === friend.id)
-            return reply.code(409).send({ error: "You can't be friend with yourself !" });
+            return reply.code(409).send({ message: "You can't be friend with yourself !" });
         const stmt = db.prepare(" SELECT \
                                         frie_status  \
                                     FROM \
@@ -33,9 +33,9 @@ export async function   addFriend(request, reply)
         if (status)
         {
             if (status.frie_status === 0)
-                return reply.code(409).send({ error: "A friend request is already pending" });
+                return reply.code(409).send({ message: "A friend request is already pending" });
             else if (status.frie_status === 1)
-                return reply.code(409).send({ error: "You're already friend with " + friend.username });
+                return reply.code(409).send({ message: "You're already friend with " + friend.username });
         }
         const statement = db.prepare("  INSERT INTO \
                                             friends (frie_user_id, frie_friend_user_id, frie_status) \
@@ -54,7 +54,7 @@ export async function   addFriend(request, reply)
     }
     catch (err)
     {
-        return reply.code(500).send({ error: "​Internal Servor Error"});
+        return reply.code(500).send({ message: "​Internal Servor Error"});
     }
 }
 
@@ -65,7 +65,7 @@ export async function   removeFriend(request, reply)
     const   friendSlug = request.body.slug;
 
     // if (checkSlugFormat(request) == false)
-    //     return reply.code(400).send( {error : "Invalid format for the friend's slug"} );
+    //     return reply.code(400).send( {message: "Invalid format for the friend's slug"} );
     try
     {
         const friend = db.prepare("   SELECT \
@@ -75,9 +75,9 @@ export async function   removeFriend(request, reply)
                                         WHERE \
                                             slug = ?").get(friendSlug);
         if (!friend)
-            return reply.code(404).send({ error: "This user doesn't exist" });
+            return reply.code(404).send({ message: "This user doesn't exist" });
         if (idUser === friend.id)
-            return reply.code(409).send({ error: "You can't be friend with yourself !" });
+            return reply.code(409).send({ message: "You can't be friend with yourself !" });
         const statement = db.prepare("  DELETE FROM \
                                             friends \
                                         WHERE \
@@ -89,6 +89,6 @@ export async function   removeFriend(request, reply)
     }
     catch (err)
     {
-        return reply.code(500).send({ error: "Internal Server Error" });
+        return reply.code(500).send({ message: "Internal Server Error" });
     }   
 } 

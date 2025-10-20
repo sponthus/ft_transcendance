@@ -17,7 +17,7 @@ export async function   changeGameState(gameState: number): Promise<GameStateRes
         return { ok: true };
     }
     const data = await res.json();    
-    return { ok: false, error: data.error};
+    return { ok: false, error: data.message};
 }
 
 export async function   getGameState(): Promise<GameStateResult>
@@ -32,5 +32,5 @@ export async function   getGameState(): Promise<GameStateResult>
     {
         return { ok: true, gameState: data.gameState};
     }
-    return { ok: false, error: data.error};
+    return { ok: false, error: data.message};
 }

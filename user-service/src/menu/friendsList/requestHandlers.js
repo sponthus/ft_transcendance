@@ -17,9 +17,9 @@ export async function   acceptRequest(request, reply)
                                         WHERE \
                                             slug = ?").get(senderSlug);
         if (!sender)
-            return reply.code(404).send({ error: "This user doesn't exist" });
+            return reply.code(404).send({ message: "This user doesn't exist" });
         if (idUser === sender.id)
-            return reply.code(409).send({ error: "You can't be friend with yourself !" });
+            return reply.code(409).send({ message: "You can't be friend with yourself !" });
         const stmt = db.prepare( "  SELECT \
                                         frie_status \
                                     FROM \
@@ -28,9 +28,9 @@ export async function   acceptRequest(request, reply)
                                         (frie_user_id = ? AND frie_friend_user_id = ?)");
         const existingRequest = stmt.get(sender.id, idUser);
         if (!existingRequest)
-            return reply.code(404).send({ error: "There is no pending request from " + sender.username });
+            return reply.code(404).send({ message: "There is no pending request from " + sender.username });
         if (existingRequest.frie_status === 1)
-            return reply.code(409).send({ error: "You're already friend with " + sender.username });
+            return reply.code(409).send({ message: "You're already friend with " + sender.username });
         const acceptFriendship = db.transaction( (idUser, idSender) =>
         {
             db.prepare("    INSERT INTO \
@@ -59,7 +59,7 @@ export async function   acceptRequest(request, reply)
     }
     catch (err)
     {
-        return reply.code(500).send({ error: "Internal Server Error" + err.message});
+        return reply.code(500).send({ message: "Internal Server Error" + err.message});
     }
 }
 
@@ -78,7 +78,7 @@ export async function   rejectRequest(request, reply)
                                         WHERE \
                                             slug = ?").get(senderSlug);
         if (!sender)
-            return reply.code(404).send({ error: "This user doesn't exist" });
+            return reply.code(404).send({ message: "This user doesn't exist" });
             const stmt = db.prepare( "  SELECT \
                                             frie_status \
                                         FROM \
@@ -87,9 +87,9 @@ export async function   rejectRequest(request, reply)
                                             (frie_user_id = ? AND frie_friend_user_id = ?)");
         const existingRequest = stmt.get(sender.id, idUser);
         if (!existingRequest)
-            return reply.code(404).send({ error: "There is no pending request from " + sender.username });
+            return reply.code(404).send({ message: "There is no pending request from " + sender.username });
         if (existingRequest.frie_status === 1)
-            return reply.code(409).send({ error: "You're already friend with " + sender.username });
+            return reply.code(409).send({ message: "You're already friend with " + sender.username });
         db.prepare("    DELETE FROM \
                             friends \
                         WHERE \
@@ -107,7 +107,7 @@ export async function   rejectRequest(request, reply)
     }
     catch (err)
     {
-        return reply.code(500).send({ error: "Internal Server Error"});
+        return reply.code(500).send({ message: "Internal Server Error"});
     }
 }
 
@@ -134,7 +134,7 @@ export async function   getSentRequests(request, reply)
     }
     catch (err)
     {
-        return reply.code(500).send({ error: "Internal Server Error" });
+        return reply.code(500).send({ message: "Internal Server Error" });
     }
 }
 
@@ -161,6 +161,6 @@ export async function   getReceivedRequests(request, reply)
     }
     catch (err)
     {
-        return reply.code(500).send({ error: "Internal Server Error" });
+        return reply.code(500).send({ message: "Internal Server Error" });
     }
 }

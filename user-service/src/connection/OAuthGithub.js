@@ -40,7 +40,7 @@ export async function loginThroughGithub(request, reply)
     {
         const userInfo = await createUserWithGithubInfos(accessToken.token.access_token, fastify.db);
         if (userInfo.error)
-            reply.code(401).send({ error: userInfo.error});
+            reply.code(401).send({ message: userInfo.error});
         let token;
         let twofa = false;
         if (userInfo.twoFa === 1)
@@ -88,7 +88,7 @@ export async function loginThroughGithub(request, reply)
     catch (err)
     {
         console.log(err);
-        reply.code(500).send({ error: "Internal Server Error" });
+        reply.code(500).send({ message: "Internal Server Error" });
     }
 }
 
@@ -163,5 +163,5 @@ async function getInfoFromGithub(token)
         return { ok: true, userInfo };
     }
     else
-        return { ok: false, error: "Github authentification failed" };  
+        return { ok: false, message: "Github authentification failed" };  
 }

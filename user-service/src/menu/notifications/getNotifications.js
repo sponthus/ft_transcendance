@@ -26,7 +26,7 @@ export async function   getAllNotifications(request, reply)
     }
     catch (err)
     { 
-        return reply.code(500).send({ error: "Internal Server Error" });
+        return reply.code(500).send({ message: "Internal Server Error" });
     }
 }
 
@@ -61,7 +61,7 @@ export async function   getAllSpecificNotifications(request, reply, status) //re
     }
     catch (err)
     { 
-        return reply.code(500).send({ error: "Internal Server Error" });
+        return reply.code(500).send({ message: "Internal Server Error" });
     }
 }
 
@@ -84,6 +84,6 @@ export async function  countUnreadNotifications(request, reply)
     }
     catch (err)
     {
-        return reply.code(500).send({ error : "Internal Server Error" + err.message});
+        return reply.code(500).send({ message: "Internal Server Error" + err.message});
     }
 }

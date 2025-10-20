@@ -27,9 +27,9 @@ export async function registerUser(username: string, password: string): Promise<
         }
         alert('register failed');
         console.log('REGISTER USSSSSSSSSSSER');
-        console.log('️⚡️⚡️⚡️⚡️⚡ Error : ', data.error);
-        await ErrorPopup("Error : " + data.error); //enlever await ErrorPopup ?
-        return { ok: false, error: data.error };
+        console.log('️⚡️⚡️⚡️⚡️⚡ Error : ', data.message);
+        await ErrorPopup("Error : " + data.message); //enlever await ErrorPopup ?
+        return { ok: false, error: data.message };
     }
     catch (err)
     {

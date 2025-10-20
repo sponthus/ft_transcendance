@@ -17,7 +17,7 @@ export async function  activateTwoFa(): Promise<Result>
         {
             return ({ ok: true, qrCode: data.qrCode });
         }
-        return ( { ok: false, error: data.error } );
+        return ( { ok: false, error: data.message } );
     }
     catch (err)
     {
@@ -41,7 +41,7 @@ export async function  checkTwoFaCode(code: string): Promise<Result>
         {
             return ({ ok: true, status: data.status });
         }
-        return ({ ok: false, error: data.error });
+        return ({ ok: false, error: data.message });
     }
     catch (err)
     {
@@ -63,7 +63,7 @@ export async function  desactivateTwoFa(): Promise<Result>
         {
             return ({ ok: true, status: data.status });
         }
-        return ({ ok: false, error: data.error });
+        return ({ ok: false, error: data.message });
     }
     catch (err)
     {

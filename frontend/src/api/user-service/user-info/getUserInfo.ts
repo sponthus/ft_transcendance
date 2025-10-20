@@ -28,7 +28,7 @@ export async function   getUserInfo() : Promise<GetUserInfoResult>
         {
             return ({ ok: true, userInfo: data.userInfo })   
         }
-        return ({ ok: false, error: data.error });
+        return ({ ok: false, error: data.message });
     }
     catch (err)
     {
@@ -50,7 +50,7 @@ export async function   getUserInfoBySlug(slug: string) : Promise<GetUserInfoRes
         {
             return ({ ok: true, userInfo: data.userInfo })   
         }
-        return ({ ok: false, error: data.error });
+        return ({ ok: false, error: data.message });
     }
     catch (err)
     {

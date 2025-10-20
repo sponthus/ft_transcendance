@@ -26,7 +26,7 @@ export async function   addFriend(slug: string): Promise<FriendsResult>
         return { ok: true };
     }
     const data = await res.json(); 
-    return { ok: false, error: data.error};
+    return { ok: false, error: data.message};
 }
 
 export async function   removeFriend(slug: string): Promise<FriendsResult>
@@ -44,7 +44,7 @@ export async function   removeFriend(slug: string): Promise<FriendsResult>
         return { ok: true };
     }
     const data = await res.json();    
-    return { ok: false, error: data.error};
+    return { ok: false, error: data.message};
 }
 
 export async function   getAllFriends(): Promise<FriendsResult>
@@ -59,7 +59,7 @@ export async function   getAllFriends(): Promise<FriendsResult>
     {
         return { ok: true,  friends: data.friends};
     }
-    return { ok: false, error: data.error};
+    return { ok: false, error: data.message};
 }
 
 export async function   getAllFriendsBySlug(slug: string): Promise<FriendsResult>
@@ -74,6 +74,6 @@ export async function   getAllFriendsBySlug(slug: string): Promise<FriendsResult
     {
         return { ok: true,  friends: data.friends};
     }
-    return { ok: false, error: data.error};
+    return { ok: false, error: data.message};
 }
 

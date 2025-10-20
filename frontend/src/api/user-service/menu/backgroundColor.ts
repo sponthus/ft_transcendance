@@ -27,7 +27,7 @@ export async function   changeBackgroundColor(red: number, green: number, blue: 
             console.log("Background color changed");
             return ({ ok: true, rgbColor: data.rgbColor });
         }
-        return ({ ok:false, error: data.error });
+        return ({ ok:false, error: data.message });
     }
     catch (err)
     { 
@@ -50,7 +50,7 @@ export async function   getBackgroundColor(): Promise<ColorResult>
             console.log("Background color changed");
             return ({ ok: true, rgbColor: data.rgbColor });
         }
-        return ({ ok:false, error: data.error });
+        return ({ ok:false, error: data.message });
     }
     catch (err)
     {

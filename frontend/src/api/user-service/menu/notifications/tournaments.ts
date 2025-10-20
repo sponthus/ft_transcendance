@@ -26,7 +26,7 @@ export async function   answerTournament(senderSlug: string, tournamentId: numbe
             return ({ ok: true });
         }
         const data = await res.json();
-        return ({ ok:false, error: data.error });
+        return ({ ok:false, error: data.message });
     }
     catch (err)
     {

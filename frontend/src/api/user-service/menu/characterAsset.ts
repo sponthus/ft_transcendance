@@ -17,7 +17,7 @@ export async function   changeCharacterAsset (asset: number): Promise<AssetResul
         return { ok: true };
     }
     const data = await res.json();    
-    return { ok: false, error: data.error};
+    return { ok: false, error: data.message};
 }
 
 export async function   getCharacterAsset(): Promise<AssetResult>
@@ -32,5 +32,5 @@ export async function   getCharacterAsset(): Promise<AssetResult>
     {
         return { ok: true, asset: data.asset};
     }
-    return { ok: false, error: data.error};
+    return { ok: false, error: data.message};
 }

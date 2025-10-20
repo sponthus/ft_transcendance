@@ -31,11 +31,11 @@ export async function notifyRefresh(idReceivers, sender, message)
             return { ok: true };
         const data = await res.json();
 		console.error("❌ Notify refresh didn't work : ", data);
-        return { ok: false, error: data.error, status: res.status };
+        return { ok: false, message: data.error, status: res.status };
     }
     catch (err)
     {
-        return { ok: false, error: err };
+        return { ok: false, message: err };
     }
 }
 
@@ -60,12 +60,12 @@ export async function notifyChangeData(idUser, username, slug, status="online")
             return { ok: true };
         const data = await res.json();
 		console.log("❌ Notify change didn't work : ", data);
-        return { ok: false, error: data.error, status: res.status };
+        return { ok: false, message: data.error, status: res.status };
     }
     catch (err)
     {
 		console.error("❌ Error notifying change data to session-service:", err);
-        return { ok: false, error: err };
+        return { ok: false, message: err };
     }
 }
 
@@ -89,11 +89,11 @@ export async function notifyChangeSlug(oldSlug, newSlug)
         if (res.ok)
             return { ok: true };
         const data = await res.json();    
-        return { ok: false, error: data.error, status: res.status };
+        return { ok: false, message: data.error, status: res.status };
     }
     catch (err)
     {
-        return { ok: false, error: data.error };
+        return { ok: false, message: data.error };
     }
 }
 
@@ -124,11 +124,11 @@ export async function answerTournament(userId, ownerId, tournamentId, tournament
             return { ok: true };
         }
         const data = await res.json();    
-        return { ok: false, error: data.error, status: res.status };
+        return { ok: false, message: data.error, status: res.status };
     }
     catch (err)
     { 
-        return { ok: false, error: data.error };
+        return { ok: false, message: data.error };
     }
 }
 

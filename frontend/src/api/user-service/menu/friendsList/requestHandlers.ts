@@ -17,7 +17,7 @@ export async function   acceptRequest(slug :string): Promise<RequestResult>
         return { ok: true };
     }
     const data = await res.json();    
-    return { ok: false, error: data.error};
+    return { ok: false, error: data.message};
 }
 
 export async function   rejectRequest(slug :string): Promise<RequestResult>
@@ -34,7 +34,7 @@ export async function   rejectRequest(slug :string): Promise<RequestResult>
         return { ok: true };
     }
     const data = await res.json();    
-    return { ok: false, error: data.error};
+    return { ok: false, error: data.message};
 }
 
 export async function   getSentRequests(): Promise<RequestResult>
@@ -49,7 +49,7 @@ export async function   getSentRequests(): Promise<RequestResult>
     {
         return { ok: true,  requests: data.requests};
     }
-    return { ok: false, error: data.error};
+    return { ok: false, error: data.message};
 }
 
 export async function   getReceivedRequests(): Promise<RequestResult>
@@ -64,6 +64,6 @@ export async function   getReceivedRequests(): Promise<RequestResult>
     {
         return { ok: true,  requests: data.requests};
     }
-    return { ok: false, error: data.error};
+    return { ok: false, error: data.message};
 }
 

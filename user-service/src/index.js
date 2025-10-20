@@ -29,7 +29,7 @@ if (env.nodeEnv === 'production') {
 		console.log("SSL certificates found and accessible");
 	} catch (err) {
 		console.error(err);
-		console.error("❌ Critical error : SSL certificates not found or inaccessible");
+		console.error("❌ Critical message: SSL certificates not found or inaccessible");
 		process.exit(1);
 	}
 
@@ -51,6 +51,7 @@ else
         {
             customOptions:
             {
+                coerceTypes: false,
                 removeAdditional: false,
                 allErrors: true,
             },
@@ -110,7 +111,7 @@ export function getSecret(name)
 	}
     catch (error)
     {
-		console.log("❌ Critical error : Unable to read secret ", name);
+		console.log("❌ Critical message: Unable to read secret ", name);
 		process.exit(1);
 	}
 }
@@ -120,7 +121,7 @@ fastify.decorate("verifyApiKey", async function (request, reply)
     console.log('PASSSSSEEEE PAR LA VERIFICATION API KEY');
     const   apiKey = request.headers['x-internal-api-key'];
     if (!apiKey || apiKey !== getSecret('api_key'))
-		return reply.code(401).send({ error: 'Unauthorized: Invalid API Key' });
+		return reply.code(401).send({ message: 'Unauthorized: Invalid API Key' });
 
     console.log('request.body :', request.body);
     console.log('request.body type :', typeof request.body);
@@ -135,21 +136,21 @@ fastify.decorate("authenticate_2fa", async function (request, reply)
         console.log("PASSE PAR AUTHENTICATE 2FA");
         const result = fastify.unsignCookie(request.cookies.token); 
         if (!result.valid)
-            return reply.code(401).send({ error: "Invalid cookie" });
+            return reply.code(401).send({ message: "Invalid cookie" });
         request.user = await fastify.jwt.verify(result.value);
         // console.debug("Decoded token 2fa : ", request.user);
         if (request.user.twofa_pending === false)
-            return reply.code(401).send({ error: "only tmp token" });
+            return reply.code(401).send({ message: "only tmp token" });
     } 
     catch (err)
     {
         if (err.message === "Authorization token expired")
         {
-            return reply.code(401).send({error : err.message});
+            return reply.code(401).send({message: err.message});
         }
         else
         {
-            return reply.code(400).send({error : err.message});
+            return reply.code(400).send({message: err.message});
         }
     }
 });
@@ -162,13 +163,13 @@ fastify.decorate("authenticate", async function (request, reply)
         // console.debug("\nToken dans le user-service avant unsign cookie : -" + request.cookies.token + "-");
         const result = fastify.unsignCookie(request.cookies.token); //verifie manuellement signature cookie
         if (!result.valid)
-            return reply.code(401).send({ error: "Invalid cookie" });
+            return reply.code(401).send({ message: "Invalid cookie" });
         // console.debug("\nToken dans le user-service : " + result.value + "-");
         request.user = await fastify.jwt.verify(result.value); //Décode et verifie le token et stock ses infos dans request
         // console.debug("USER-SERVICE Decoded token:", request.user);
 
         if (request.user.twofa_pending === true)
-            return reply.code(401).send({ error: "2FA required" });
+            return reply.code(401).send({ message: "2FA required" });
 
 		// Refresh token if it's about to expire soon
 		const now = Date.now() / 1000;
@@ -185,11 +186,11 @@ fastify.decorate("authenticate", async function (request, reply)
 	{
 		if (err.message === "Authorization token expired")
 		{
-            return reply.code(401).send({error : err.message});
+            return reply.code(401).send({message: err.message});
         }
         else
         {
-            return reply.code(400).send({error : err.message});
+            return reply.code(400).send({message: err.message});
         }
     }
     try
@@ -203,12 +204,12 @@ fastify.decorate("authenticate", async function (request, reply)
                                         WHERE \
                                             id = ?").get(idUser);
         if (!userExists)
-            return reply.code(404).send({ error: "User not found" }); // TODO ELODIE bon msg ?
+            return reply.code(404).send({ message: "User not found" }); // TODO ELODIE bon msg ?
 
     }
     catch (err)
     {
-        return reply.code(500).send( {error : "Internal Server Error" + err.message} );
+        return reply.code(500).send( {message: "Internal Server Error" + err.message} );
     }
 });
 
@@ -223,7 +224,7 @@ fastify.decorate("authenticate", async function (request, reply)
 
     // On renvoie un JSON générique pour l’utilisateur
     reply.status(error.statusCode || 500).send({
-        error: error.message || "Internal Server Error"
+        message: error.message || "Internal Server Error"
     });
 });*/
 
@@ -271,12 +272,12 @@ fastify.setNotFoundHandler((req, reply) => {
     if (error.validation)
     {
         const messages = error.validation.map(err => err.message);
-        return reply.status(400).send({ error: messages.join(", ") });
+        return reply.status(400).send({ message: messages.join(", ") });
     }
     if (error.code === "FST_ERR_VALIDATION")
     {
         const messages = error.validation.map(err => err.message);
-        return reply.status(400).send({ error: messages.join(", ") });
+        return reply.status(400).send({ message: messages.join(", ") });
     }
 });*/
 // Fastify listens
