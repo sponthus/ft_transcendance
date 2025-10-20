@@ -2,6 +2,37 @@ import Ajv from "ajv"
 
 let slugRegex = "^(?![_-])(?!.*[_-]$)(?=.*[a-z])(?![0-9_]+)[a-z0-9_-]+$";
 
+// export function rejectExtraBodyProps(schema) {
+//   return function (request, reply, done) {
+//     const allowed = schema && schema.properties ? Object.keys(schema.properties) : [];
+//     const bodyKeys = request.body && typeof request.body === 'object' ? Object.keys(request.body) : [];
+//     const extra = bodyKeys.filter(k => !allowed.includes(k));
+//     if (extra.length > 0) return reply.code(400).send({ error: "Unexpected properties in body", extra });
+//     done();
+//   }
+// }
+
+export const headersWithApiKeyJsonSchema = {
+	type: "object",
+	properties: {
+		anyOf: [ 
+			{ type: "string",
+				const: "x-internal-api-key",
+				minLength: 1, 
+				maxLength: 100 
+			},
+			{
+				type: "string",
+				const: "content-type",
+			}
+		],
+		"x-internal-api-key": { type: "string", minLength: 1, maxLength: 100 },
+		"content-type": { type: "string", const: "application/json" }
+	},
+	required: ["x-internal-api-key"],
+	additionalProperties: false
+}
+
 export const slugSchema = {
   type: "string",
   minLength: 1,
@@ -63,6 +94,12 @@ export const idStringSchema = {
   pattern: "^[0-9]+$"
 };
 
+export const noBodySchema = {
+  type: "object",
+  properties: { },
+  additionalProperties: false
+};
+
 export const tournamentActionSchema = {
   type: "object",
   properties: {
@@ -105,8 +142,8 @@ export const gameCreationSchema = {
     player_a: playerSchema,
     player_b: playerSchema,
     requestedMaxScore: { type: "integer", minimum: 1, maximum: 21 },
-    requestedAi: { type: "number", minimum: 0, maximum: 2 },
-    requestedOption: { type: "number", minimum: 0, maximum: 1 }
+    requestedAi: { type: "integer", minimum: 0, maximum: 2 },
+    requestedOption: { type: "integer", minimum: 0, maximum: 1 }
   },
   required: ["player_a", "player_b"],
   additionalProperties: false

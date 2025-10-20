@@ -176,11 +176,13 @@ export async function createGame(request, reply) {
 		console.error("❌ Player A cannot be equal to Player B");
 		return reply.code(400).send({error: 'Bad input format - Player A cannot be equal to Player B'});
 	}
-
+	
+	const player1Slug = player_a;
+	const player2Slug = player_b;
 	try {
 		if (player_a[0] === '@') {
-			const player1Slug = player_a.slice(1);
-			const player1Id = await getUserIdFromSlug(player1Slug);
+			const player1SlugSliced = player_a.slice(1);
+			const player1Id = await getUserIdFromSlug(player1SlugSliced);
 			if (!player1Id.ok) {
 				console.error("❌ Unable to get userId from slug: ", player_a);
 				return reply.code(404).send({ error: `Requested user ${player_a} not found.`});
@@ -192,12 +194,12 @@ export async function createGame(request, reply) {
 				}
 				let userId = parseInt(player1Id.userId, 10);
 				player_a = `@${userId}`;
-				// console.debug(`Replaced ${player1Slug} with ${player_a}`);
+				console.debug(`Replaced ${player1Slug} with ${player_a}`);
 			}
 		}
 		if (player_b[0] === '@') {
-			const player2Slug = player_b.slice(1);
-			const player2Id = await getUserIdFromSlug(player2Slug);
+			const player2SlugSliced = player_b.slice(1);
+			const player2Id = await getUserIdFromSlug(player2SlugSliced);
 			if (!player2Id.ok) {
 				console.error("❌ Unable to get userId from slug: ", player_b);
 				return reply.code(404).send({ error: `Requested user ${player_b} not found.`});
@@ -209,7 +211,7 @@ export async function createGame(request, reply) {
 				}
 				let userId = parseInt(player2Id.userId, 10);
 				player_b = `@${userId}`;
-				// console.debug(`Replaced ${player2Slug} with ${player_b}`);
+				console.debug(`Replaced ${player2Slug} with ${player_b}`);
 			}
 		}
 	} catch (error) {
@@ -247,7 +249,17 @@ export async function createGame(request, reply) {
 
     try {
         const result = await db.createGame(userId, player_a, player_b, finalMaxScore, finalAi, finalOption);
-        return reply.code(201).send(result);
+        console.debug("Game created with id ", result.game_id);
+		return reply.code(201).send({
+			gameId: result.game_id,
+			status: result.status,
+			player_a: player1Slug,
+			player_b: player2Slug,
+			tournament: result.tournament,
+			maxScore: result.maxScore,
+			ai: result.ai,
+			option: result.option
+		});
     }
     catch (error) {
 		console.error("❌ Error creating game : ")

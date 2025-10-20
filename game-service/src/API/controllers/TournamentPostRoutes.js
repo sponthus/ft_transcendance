@@ -27,6 +27,9 @@ export async function createTournament(request, reply) {
 		return reply.code(400).send({ error: 'A tournament must have 4 players.'});
 	}
 	let has_users_to_wait = false;
+
+	const rawPlayers = [...players];
+	// Transform slugs into userIds for uniform storage - check if invitations needed
     for (let i = 0; i < players.length; i++) {
 		const player = players[i];
 		// if (checkPlayerFormat(player) === false) {
@@ -96,9 +99,27 @@ export async function createTournament(request, reply) {
 			}
 		}
 		if (has_users_to_wait === false) {
-			return reply.code(200).send(result);
+			return reply.code(200).send({
+				tournament_id: result.tournament_id,
+				name: result.name,
+				status: result.status,
+				numberOfPlayers: rawPlayers.length,
+				rounds: result.rounds,
+				nextGameId: result.nextGameId,
+				option: result.option,
+				players: rawPlayers
+			});
 		} else {
-			return reply.code(201).send(result);
+			return reply.code(201).send({
+				tournament_id: result.tournament_id,
+				name: result.name,
+				status: result.status,
+				numberOfPlayers: rawPlayers.length,
+				rounds: result.rounds,
+				nextGameId: result.nextGameId,
+				option: result.option,
+				players: rawPlayers
+			});
 		}
     }
     catch (error) {

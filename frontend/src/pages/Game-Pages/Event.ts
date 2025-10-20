@@ -97,7 +97,7 @@ export class Event {
 			const request = await createLocalGame(this.LocalGamePage._PlayerA, this.LocalGamePage._PlayerB, this.LocalGamePage._MaxScore, this.LocalGamePage._Ai, this.LocalGamePage._option);
 			if (!request.ok) 
 				throw new Error('Failed to create Game');
-			else if (request.ok) {
+			else {
 				const id:number = request.gameId;
 				this.launchGame(id, false);
 			}

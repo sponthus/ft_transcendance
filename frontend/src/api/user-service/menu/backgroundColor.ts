@@ -17,7 +17,10 @@ export async function   changeBackgroundColor(red: number, green: number, blue: 
         const res = await fetch('/api/user/menu/color', 
         {
             method: 'PATCH',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 
+				'Content-Type': 'application/json',
+				'host': window.location.host
+			},
             credentials: 'include',
             body: JSON.stringify({ red, green, blue }),
         });

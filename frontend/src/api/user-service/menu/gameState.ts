@@ -8,7 +8,10 @@ export async function   changeGameState(gameState: number): Promise<GameStateRes
     const res = await fetch('/api/user/menu/state', 
     {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+			'Content-Type': 'application/json',
+			'host': window.location.host
+		},
         credentials: 'include',
         body: JSON.stringify({ gameState }),
     });
@@ -25,6 +28,9 @@ export async function   getGameState(): Promise<GameStateResult>
     const res = await fetch('/api/user/menu/state', 
     {
         method: 'GET',
+		headers: {
+			'host': window.location.host
+		},
         credentials: 'include',
     });
     const data = await res.json();    
