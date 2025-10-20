@@ -73,6 +73,20 @@ export const idSchema = {
 	]
 };
 
+export const tournamentIdParamSchema = {
+	type: "object",
+	properties: { 
+		tournamentId: {
+			type: "string",
+			pattern: "^[0-9]+$",
+			minLength: 1,
+			maxLength: 15
+		} 
+	},
+	required: ["tournamentId"],
+	additionalProperties: false
+}
+
 export const idParamSchema = {
 	type: "object",
 	properties: { 

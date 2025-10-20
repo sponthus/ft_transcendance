@@ -158,7 +158,6 @@ export async function getTournamentMatches(tournamentId: number): Promise<Tourna
         const response = await fetch(`/api/games/${tournamentId}`, {
             method: 'GET',
             headers: {
-                'Content-Type': 'application/json',
                 'host': window.location.host
             },
             credentials: 'include'
@@ -190,7 +189,6 @@ export async function getTournamentNextMatch(tournamentId: number): Promise<Tour
         const response = await fetch(`/api/games/${tournamentId}/next-match`, {
             method: 'GET',
             headers: {
-                'Content-Type': 'application/json',
 				'host': window.location.host
             },
             credentials: 'include'

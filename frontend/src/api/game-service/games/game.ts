@@ -223,7 +223,6 @@ export async function getAllGames(slug: string): Promise<AllGamesResult> {
         const response = await fetch(`/api/games/${slug}/games`, {
             method: 'GET',
             headers: {
-				'Content-Type': 'application/json', 
 				'host': window.location.host
 			},
             credentials: 'include',
