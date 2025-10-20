@@ -1,5 +1,3 @@
-import { checkChangeInfosFormat, checkIdFormat, checkStatusFormat } from "../tools/CheckFormat.js";
-
 // Updates the infos of a user (in case of a change of username/slug)
 // Expecting in the body: username, slug
 // Security : Road is protected to service-only and from SQLi
@@ -11,14 +9,6 @@ export async function changeUserInfos(request, reply) {
 		console.error('❌ No userId found in request params');
 		return reply.status(400).send({error: 'No userId found in request.'});
 	}
-	if (checkIdFormat(userId) === false) {
-		console.error('❌ Bad userId found in request params');
-		return reply.status(400).send({ error: 'Bad userId format.'});
-	}
-	if (checkChangeInfosFormat(request) === false) {
-		console.error('❌ Bad data format sent in request body');
-		return reply.status(400).send({ error: 'Bad data format - expected : username, slug.'});
-	}
 	const { username, slug, status } = request.body;
 
 	const { WebSocketManager } = request.server;
@@ -26,13 +16,10 @@ export async function changeUserInfos(request, reply) {
 		console.error('❌ Error while getting sessions: connexion not found');
 		return reply.status(500).send({ error: 'Internal server error while fetching users'});
 	}
-	if (status.length > 15 || status !== "online" && status !== "playing" && status !== "disconnected") {
-		console.error('❌ Wrong status format sent in request body');
-		return reply.status(400).send({error: 'Wrong status sent for update (playing | online | disconnected).'});
-	}
 
 	try {
 		const data = WebSocketManager.updateUserInfos(Number(userId), username, slug, status);
+		console.log('✅ User infos updated successfully');
 		return reply.status(200).send({ userId: data.userId, username: data.username, slug: data.slug });
 	} catch (err) {
 		console.error('❌ Error while updating user infos:', err.message);
@@ -48,23 +35,10 @@ export async function changeUserStatus(request, reply) {
 	console.log('➡️ User accessed PATCH /status/:userId');
 	
 	const { userId } = request.params;
-	if (!userId) {
-		console.error('❌ No userId found in request params');
-		return reply.status(400).send({error: 'No userId found in request.'});
-	}
-	if (checkIdFormat(userId) === false) {
-		console.error('❌ Bad userId format sent in request params');
-		return reply.status(400).send({ error: 'Bad userId format.'});
-	}
-
 	let { status } = request.body;
 	if (!status) {
 		console.error('❌ No status found in request body');
 		return reply.status(400).send({error: 'No status found in request.'});
-	}
-	if (checkStatusFormat(status) === false) {
-		console.error('❌ Wrong status format sent in request body');
-		return reply.status(400).send({error: 'Wrong status sent for update (playing | not_playing).'});
 	}
 
 	const { WebSocketManager } = request.server;

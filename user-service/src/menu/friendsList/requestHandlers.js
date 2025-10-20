@@ -1,4 +1,4 @@
-import { checkSlugFormat } from "../../tools/checkFormat.js";
+// import { checkSlugFormat } from "../../tools/checkFormat.js";
 import { addNotification, deleteNotification } from "../notifications/notificationsManager.js";
 import { notifyRefresh } from "../../internal-service/notifyServices.js";
 
@@ -8,9 +8,6 @@ export async function   acceptRequest(request, reply)
     const   idUser = request.user.idUser;
     const   senderSlug = request.body.slug;
     
-    if (checkSlugFormat(request) == false)
-        return reply.code(400).send( {error : "Invalid format for the friend's slug"} );
-
     try
     {
         const sender = db.prepare("   SELECT \
@@ -34,8 +31,6 @@ export async function   acceptRequest(request, reply)
             return reply.code(404).send({ error: "There is no pending request from " + sender.username });
         if (existingRequest.frie_status === 1)
             return reply.code(409).send({ error: "You're already friend with " + sender.username });
-        addNotification(db, sender.id, idUser, "friend_accept"); //TODO ELODIE mettre en bas 
-        deleteNotification(db, idUser, sender.id, "friend_request"); // TODO ELODIE ???
         const acceptFriendship = db.transaction( (idUser, idSender) =>
         {
             db.prepare("    INSERT INTO \
@@ -57,6 +52,8 @@ export async function   acceptRequest(request, reply)
                                             users \
                                         WHERE \
                                             id = ?").get(idUser);
+        addNotification(db, sender.id, idUser, "friend_accept");
+        deleteNotification(db, idUser, sender.id, "friend_request");
         notifyRefresh(sender.id, username.username, "friend_accept");
         return reply.code(200).send();
     }
@@ -71,9 +68,6 @@ export async function   rejectRequest(request, reply)
     const   db = request.server.db;
     const   idUser = request.user.idUser;
     const   senderSlug = request.body.slug;
-
-    if (checkSlugFormat(request) == false)
-        return reply.code(400).send( {error : "Invalid format for the friend's slug"} );
 
     try
     {
@@ -96,9 +90,6 @@ export async function   rejectRequest(request, reply)
             return reply.code(404).send({ error: "There is no pending request from " + sender.username });
         if (existingRequest.frie_status === 1)
             return reply.code(409).send({ error: "You're already friend with " + sender.username });
-
-        deleteNotification(db, idUser, sender.id, "friend_request");
-        addNotification(db, sender.id, idUser, "friend_reject");
         db.prepare("    DELETE FROM \
                             friends \
                         WHERE \
@@ -109,6 +100,8 @@ export async function   rejectRequest(request, reply)
                                             users \
                                         WHERE \
                                             id = ?").get(idUser);
+        deleteNotification(db, idUser, sender.id, "friend_request");
+        addNotification(db, sender.id, idUser, "friend_reject");
         notifyRefresh(sender.id, username.username, "friend_reject");
         return reply.code(200).send();    
     }

@@ -1,4 +1,4 @@
-import { checkIdFormat } from '../../tools/CheckFormat.js';
+// import { checkIdFormat } from '../../tools/CheckFormat.js';
 import { sendTournamentCancelation } from '../requests/SendTournamentCancelation.js';
 
 // Tests ok
@@ -15,11 +15,8 @@ export async function deleteTournament(request, reply) {
     if (!tournamentId) {
         return reply.code(400).send({error: 'No tournamentId found in request.'});
     }
-	if (checkIdFormat(tournamentId) === false) {
-		return reply.code(400).send({ error: 'Bad gameId format.'});
-	}
-
-    const { db } = request.server;
+    
+	const { db } = request.server;
     if (!db) {
 		console.error('❌ Error while deleting tournament: database connection not found');
 		return reply.code(500).send({ error: 'Internal server error.'});

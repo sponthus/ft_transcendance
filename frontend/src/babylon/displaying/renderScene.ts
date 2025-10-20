@@ -228,7 +228,7 @@ export class renderScene {
 		this._gameCreatorPage?.renderGamePage();
 	}
 
-	/***************************for debug to delete at end of project***************************/
+	/***************************TODO for debug to delete at end of project***************************/
 	private _setdebugLayer() {
 		window.addEventListener('keydown', (ev) => {
 			if (ev.shiftKey && ev.ctrlKey && ev.altKey &&(ev.key == "i" || ev.key == "I")) {

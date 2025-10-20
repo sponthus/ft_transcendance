@@ -68,7 +68,9 @@ export abstract class BasePage {
     destroy(): void {
         cleanBanner();
 		Array.from(this.banner.children).forEach(child => {child.remove()});
+        this.banner.innerHTML = '';
         Array.from(this.app.children).forEach(child => {child.remove()});
+        this.app.innerHTML = '';
 	}
 
     public async updateBanner(){

@@ -27,8 +27,7 @@ export function initOAuthGithub(fastify)
             auth: OAuth2.GITHUB_CONFIGURATION,
         },
         startRedirectPath: '/oauth/github',
-        callbackUri: 'http://localhost:5173/api/user/oauth/github/callback', //TODO ELODIE  si prod https + port + env de sarah pour ip 
-        // TODO ELODIE FAIRE PAREIL POUR l'URL EN DESSOUSSSSSSSSSSSSSSSSSSSSSSSSSSSSS
+        callbackUri: link,
     });
 }
 
@@ -51,10 +50,10 @@ export async function loginThroughGithub(request, reply)
         }
         else
             token = await reply.jwtSign({ idUser: userInfo.idUser, username: userInfo.username, slug: userInfo.slug }, {expiresIn: '1h'});
-        console.log("\nidUser: ", userInfo.idUser);
-        console.log("\nusername: : ", userInfo.username);
-        console.log("\nslug: : ", userInfo.slug);
-        console.log('GITHUB token : ', token);
+        console.debug("\nidUser: ", userInfo.idUser);
+        console.debug("\nusername: : ", userInfo.username);
+        console.debug("\nslug: : ", userInfo.slug);
+        console.debug('GITHUB token : ', token);
 
 		console.log("ASKING FOR ONLINE 🟠🟠🟠🟠🟠🟠🟠🟠🟠🟠");
 		notifyChangeData(userInfo.idUser, userInfo.username, userInfo.slug, "online");

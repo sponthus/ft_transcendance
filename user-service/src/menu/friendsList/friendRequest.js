@@ -1,5 +1,5 @@
 import { notifyRefresh } from "../../internal-service/notifyServices.js";
-import { checkSlugFormat } from "../../tools/checkFormat.js";
+// import { checkSlugFormat } from "../../tools/checkFormat.js";
 import { addNotification } from "../notifications/notificationsManager.js";
 
 export async function   addFriend(request, reply)
@@ -8,8 +8,6 @@ export async function   addFriend(request, reply)
     const   idUser = request.user.idUser;
     const   friendSlug = request.body.slug;
 
-    if (checkSlugFormat(request) == false)
-        return reply.code(400).send( {error : "Invalid format for the friend's slug"} );
     try
     {   
         const friend = db.prepare("   SELECT \
@@ -39,7 +37,6 @@ export async function   addFriend(request, reply)
             else if (status.frie_status === 1)
                 return reply.code(409).send({ error: "You're already friend with " + friend.username });
         }
-        addNotification(db, friend.id, idUser, "friend_request"); //TODO ELODIE a mettre en bas ? pour eviter qu'il y est la notif si pas d'amis
         const statement = db.prepare("  INSERT INTO \
                                             friends (frie_user_id, frie_friend_user_id, frie_status) \
                                         VALUES \
@@ -50,6 +47,7 @@ export async function   addFriend(request, reply)
                                             users \
                                         WHERE \
                                             id = ?").get(idUser);
+        addNotification(db, friend.id, idUser, "friend_request");
         notifyRefresh(friend.id, username.username, "friend_request");
         statement.run(idUser, friend.id);
         return reply.code(200).send();
@@ -66,9 +64,8 @@ export async function   removeFriend(request, reply)
     const   idUser = request.user.idUser;
     const   friendSlug = request.body.slug;
 
-	// TODO : Not respond 200 when sending with your own slug
-    if (checkSlugFormat(request) == false)
-        return reply.code(400).send( {error : "Invalid format for the friend's slug"} );
+    // if (checkSlugFormat(request) == false)
+    //     return reply.code(400).send( {error : "Invalid format for the friend's slug"} );
     try
     {
         const friend = db.prepare("   SELECT \
@@ -79,7 +76,8 @@ export async function   removeFriend(request, reply)
                                             slug = ?").get(friendSlug);
         if (!friend)
             return reply.code(404).send({ error: "This user doesn't exist" });
-        
+        if (idUser === friend.id)
+            return reply.code(409).send({ error: "You can't be friend with yourself !" });
         const statement = db.prepare("  DELETE FROM \
                                             friends \
                                         WHERE \
