@@ -6,7 +6,7 @@ import { getGamesForSlug } from "./controllers/GameGetRoutes.js"
 import { deleteGame } from "./controllers/GameDeleteRoutes.js"
 import { getTournamentsForSlug, getTournamentMatches, getTournamentNextMatch } from "./controllers/TournamentGetRoutes.js"
 import { deleteTournament } from "./controllers/TournamentDeleteRoutes.js"
-import { gameCreationSchema, idSchema, idParamSchema, slugParamsSchema, tournamentActionSchema, tournamentCreationSchema } from "../tools/CheckFormat.js"
+import { tournamentIdParamSchema, gameCreationSchema, idSchema, idParamSchema, slugParamsSchema, tournamentActionSchema, tournamentCreationSchema } from "../tools/CheckFormat.js"
 
 // Prefix : /api/games
 export default async function routes (fastify, options) {
@@ -56,12 +56,12 @@ export default async function routes (fastify, options) {
 				getTournamentsForSlug);
 			getRoutes.get(`/:tournamentId`,
 				{onRequest: [fastify.authenticate], 
-					schema: { params: idSchema }
+					schema: { params: tournamentIdParamSchema }
 				},
 				getTournamentMatches);
 			getRoutes.get(`/:tournamentId/next-match`, 
 				{onRequest: [fastify.authenticate], 
-					schema: { params: idSchema }
+					schema: { params: tournamentIdParamSchema }
 				},
 				getTournamentNextMatch);
         }

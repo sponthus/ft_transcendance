@@ -14,8 +14,7 @@ export async function getUserIdFromSlug(slug) {
     try {
 		const res = await fetch(`${prefix}://user-service:${env.user_port}/internal-service/${slug}`, {
 			method: 'GET',
-			headers: { 
-				'Content-Type': 'application/json',
+			headers: {
 				'x-internal-api-key': api_key
 			},
 			dispatcher: tlsAgent

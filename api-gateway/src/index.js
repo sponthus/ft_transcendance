@@ -52,53 +52,61 @@ await fastify.register(rateLimit, {
 
 fastify.addHook('onRequest', async (request, reply) => {
 	console.debug("On request hook");
-	if (request.raw && typeof request.raw.url === 'string' && request.raw.url.startsWith('/api/avatars')) {
+	if (request.raw && typeof request.raw.url === 'string' && (request.raw.url.startsWith('/api/avatars') || request.raw.url.startsWith('/health'))) {
         console.log("Skipping preHandler for upload route:", request.raw.url);
         console.log("Gateway headers (raw):", request.raw.headers);
         console.log("Gateway content-type:", request.headers['content-type']);
 		return;
     }
-	if (['GET', 'DELETE'].includes(request.method)) {
+	if (['GET'].includes(request.method)) {
 		const cl = request.headers['content-length'];
 		const te = request.headers['transfer-encoding'];
-		if ((cl && !isNaN(Number(cl)) && Number(cl) > 0) || te) {
-			reply.code(400).send({ error: 'Body not allowed' });
-			return;
+		if (!request.raw.url.startsWith('/api/user/menu/friendlist')) {
+			if ((cl && !isNaN(Number(cl)) && Number(cl) > 0) || te) {
+				reply.code(400).send({ error: 'Body not allowed' });
+				return;
+			}
 		}
 	} else {
 		console.log("Request method is ", request.method);
 	}
 
-	if (env.nodeEnv === 'production' && !host.includes(env.host)) {
-		const host = request.headers['host'];
+	const host = request.headers['host'];
+	if (env.nodeEnv === 'production') {
 		if (!host || typeof host !== 'string') {
 			reply.code(400).send({ error: 'Missing or invalid host header' });
 			return;
 		}
-		reply.code(400).send({ error: 'Host header does not match' });
+		if (!host.includes(env.host)
+			&& !host.includes(`api-gateway:${env.api_port}`)) {
+			reply.code(400).send({ error: 'Host header does not match' });
+		}
 		return;
 	}
-
 });
 
 fastify.addHook('preHandler', async (request, reply) => {
 	console.debug("Pre handler hook");
-	if (request.raw && typeof request.raw.url === 'string' && request.raw.url.startsWith('/api/avatars')) {
+	if (request.raw && typeof request.raw.url === 'string' && (request.raw.url.startsWith('/api/avatars') || request.raw.url.startsWith('/health'))) {
         console.log("Skipping preHandler for upload route:", request.raw.url);
         console.log("Gateway headers (raw):", request.raw.headers);
         console.log("Gateway content-type:", request.headers['content-type']);
 		return;
     }
-	if (['GET', 'DELETE'].includes(request.method) 
-		&& request.body 
-		&& Object.keys(request.body).length > 0) {
-		reply.code(400).send({ error: 'Body not allowed' });
-		return;
+	if (['GET'].includes(request.method)) {
+		const cl = request.headers['content-length'];
+		const te = request.headers['transfer-encoding'];
+		if (!request.raw.url.startsWith('/api/user/menu/friendlist')) {
+			if ((cl && !isNaN(Number(cl)) && Number(cl) > 0) || te) {
+				reply.code(400).send({ error: 'Body not allowed' });
+				return;
+			}
+		}
 	} else {
 		console.log("Request method is ", request.method);
 	}
 	const host = request.headers['host'];
-	if (env.nodeEnv === 'production' 
+	if (env.nodeEnv === 'production' && host
 		&& !host.includes(env.host)
 		&& !host.includes(`api-gateway:${env.api_port}`)) {
 		if (!host || typeof host !== 'string') {
