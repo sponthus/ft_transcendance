@@ -59,25 +59,33 @@ else
         schemaErrorFormatter: (errors, dataVar) =>
         {
             console.log('Error dans schemaErrorFormatter');
-            const formatted = errors.map(err =>(
+            /*const formatted = errors.map(err =>(
             {
                 //field: err.instancePath.replace(/^\//, ''),
                 message: err.message,
                 //source: dataVar
-            }));
-            const err = new Error('validation failed');
-            err.validation = errors;
+            }));*/
+            const firstError = errors[0]; // récupère le premier
+            const formatted = 
+            {
+                field: firstError.instancePath.replace(/^\//, ''),
+                message: firstError.message
+            };
+            const err = new Error(formatted.message);
+            err.validation = errors[0].message;
             err.validationContext = dataVar;
             err.statusCode = 400;
             return err;
-            /*return { 
-                error: 'Bad Request',
-                messages: formatted
-            };*/
         }
     });
 	console.log("App launched in development mode");
 }
+
+        /*const err = new Error('Validation failed');
+        err.validation = errors.message;
+        err.validationContext = dataVar;
+        err.statusCode = 400;
+        return err;*/
 
 console.log(`\nFastify user-service listen on port ${env.user_port}\n`); // debug
 
@@ -273,12 +281,15 @@ fastify.setNotFoundHandler((req, reply) => {
 });*/
 // Fastify listens
 
-fastify.setErrorHandler((error, request, reply) => 
+/*fastify.setErrorHandler((error, request, reply) => 
 {
     console.debug('⚡️⚡️⚡️⚡️⚡ SET ERROR HANDLER');
     if (error.validation)
+    {
+        console.debug('⚡️⚡️⚡️⚡️⚡ Error', error);
         return reply.code(error.validation.statusCode || 400).send(error.validation); // ton JSON formaté
-});
+    }
+});*/
 
 fastify.addHook('onError', (request, reply, error, done) => {
   console.log('🔥 onError triggered');
