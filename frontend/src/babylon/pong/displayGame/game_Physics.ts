@@ -28,6 +28,7 @@ export class GamePhysics {
 	private _bullBob: AbstractMesh | null;
 	private _bullPatrick: AbstractMesh | null;
 	private _menuPause: AbstractMesh | null;
+	private _menuPauseSansCrab: AbstractMesh | null;
 	private _light: HemisphericLight;
 
 	private _score!: Score;
@@ -65,6 +66,7 @@ export class GamePhysics {
 		bullBob: AbstractMesh | null,
 		bullPatrick: AbstractMesh | null,
 		menuPause: AbstractMesh | null,
+		menuPauseSansCrab: AbstractMesh | null,
 		pancartePlayer1: AbstractMesh | null,
 		pancartePlayer2: AbstractMesh | null,
 		light: HemisphericLight
@@ -77,6 +79,7 @@ export class GamePhysics {
 		this._bullBob = bullBob;
 		this._bullPatrick = bullPatrick;
 		this._menuPause = menuPause;
+		this._menuPauseSansCrab = menuPauseSansCrab;
 		this._light = light;
 		this._pancartePlayer1 = pancartePlayer1;
 		this._pancartePlayer2 = pancartePlayer2;
@@ -256,12 +259,16 @@ export class GamePhysics {
 			if (this._serverState.ispaused === true)
 			{
 				this._light.intensity = 0.5;
-				this._menuPause.setEnabled(true);
+				if (this._serverState.gameOption === 1)
+					this._menuPause.setEnabled(true);
+				else
+					this._menuPauseSansCrab?.setEnabled(true);
 			}
 			else
 			{
 				this._light.intensity = 1;
 				this._menuPause.setEnabled(false);
+				this._menuPauseSansCrab?.setEnabled(false);
 			}
 		}
 	}

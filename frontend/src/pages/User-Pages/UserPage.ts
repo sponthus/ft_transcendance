@@ -67,7 +67,10 @@ export class UserPage extends BasePage {
 						this.Statue = 'disconnected 🔴​';
 					if (request.status && request.status.status === "playing")
 						this.Statue = 'playing 🟡​​';
-				}
+				} 
+				// else {
+				// 	ErrorPopup("Unable to get user status : " + request.error);
+				// }
 				this.UserBanner = new UserBanner(this.UserData, this.isOwnProfile, this.Statue);
 				await this.showUserPage();
 			} else {

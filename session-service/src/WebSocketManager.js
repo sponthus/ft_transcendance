@@ -280,16 +280,18 @@ export default class WebSocketManager {
 	/************************** SETTERS **********************************/
 
 	// Useful when a user changes his username or slug
-	updateUserInfos(userId, username, slug) {
+	updateUserInfos(userId, username, slug, status) {
 		if (this.clients.has(Number(userId))) {
 			const client = this.clients.get(Number(userId));
 			client.username = username;
 			client.slug = slug;
-			console.log(`✅ User data modification : ${userId} (${username}) / slug=${slug}`);
+			client.status = status;
+			console.log(`✅ User data modification : ${userId} (${username}) / slug=${slug} / status=${status}`);
 			return {
 				userId: userId,
 				username: username,
-				slug: slug
+				slug: slug,
+				status: status
 			};
 		} 
 		else {
@@ -297,7 +299,7 @@ export default class WebSocketManager {
 				ws: [],
 				username: username,
 				slug: slug,
-				status: 'online',
+				status: status,
 				currentGame: 0,
 				messages: [],
 				exp: 0
@@ -306,7 +308,8 @@ export default class WebSocketManager {
 			return {
 				userId: userId,
 				username: username,
-				slug: slug
+				slug: slug,
+				status: status
 			};
 		}
 	}

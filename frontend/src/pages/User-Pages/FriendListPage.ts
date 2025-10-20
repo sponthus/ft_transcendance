@@ -39,7 +39,7 @@ function createFrienDiv(friend: any): HTMLElement {
 
 	const userIcon: HTMLElement = createDiv(`user-notification-icon-${friend.slug}`, 'flex items-center justify-center bg-orange-300 group-hover:bg-orange-400 rounded-full relative shadow-xl  w-[10%] aspect-square group-hover:shadow-lg transition-all duration-200 transform');
 
-	append(userIcon, [(createImage(`user-notification-${friend.slug}`, 'w-[90%] aspect-square rounded-full object-cover object-center',  `https://localhost:4443/uploads/${friend.avatar}`) as HTMLImageElement)]);
+	append(userIcon, [(createImage(`user-notification-${friend.slug}`, 'w-[90%] aspect-square rounded-full object-cover object-center',  `https://${window.location.hostname}:4443/uploads/${friend.avatar}`) as HTMLImageElement)]);
 
 	const invitationTextDiv = createDiv(`invitation-text-${friend.slug}`, 'flex flex-col items-center text-4xl');
 	invitationTextDiv.innerHTML = `<P class="text-emerald-600 group-hover:font-bold">${friend.username}</p>`;

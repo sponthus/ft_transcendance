@@ -83,7 +83,7 @@ export class LoginPage extends BasePage {
 		append(this.Background, [this.Front]);
 		append(this.app, [this.Background]);
 
-		GithubBtn.addEventListener('click', async(e) => {
+		const popUp = GithubBtn.addEventListener('click', async(e) => {
 			window.open(
 			"http://localhost:5173/api/user/oauth/github",
 			"GitHub Login",
@@ -93,10 +93,25 @@ export class LoginPage extends BasePage {
 		});
 	}
 
+	// let prefix = 'https';
+	// const status = import.meta.env?.MODE;
+    // if (status === "development") {
+	// 	prefix = 'http';
+	// }
+	// let link = `${prefix}://${window.location.host}/api/user/oauth/github`;
+	// GithubBtn.addEventListener('click', async() => {
+	// 	const popup = window.open(
+	// 	link,
+	// 	"GitHub Login",
+	// 	`width=960,height=540,top=${window.screenX + (window.innerWidth - 960) / 2},left=${window.screenY + (window.innerHeight - 540) / 2}`
+	// 	);
+	// 	window.addEventListener('message', this.boundListentoGithubEvent);
+	// });
+
 	private async navigateHome() {
 		console.log('navigation');
-		await navigate('/');
 		window.removeEventListener('message', this.boundListentoGithubEvent);
+		await navigate('/');
 	}
 
 	private async watchForm() {

@@ -1,6 +1,7 @@
 import bcrypt from "bcrypt";
 import env from '../../config/env.js';
 import { checkRegistrationFormat } from "../tools/checkFormat.js";
+import { notifyChangeData } from "../internal-service/notifyServices.js";
 
 export default async function loginUser (request, reply)
 {
@@ -21,7 +22,7 @@ export default async function loginUser (request, reply)
                                             users \
                                         WHERE \
                                             username = ?").get(username);
-        if (!userData)
+        if (!userData || userData && !userData.pw_hash)
             return (reply.code(401).send({error : "Username or password invalid"}));
         if ((bcrypt.compareSync(password, userData.pw_hash) == false))
             return(reply.code(401).send({error : "Username or password invalid"})); //message generique pour les attaques
@@ -35,6 +36,7 @@ export default async function loginUser (request, reply)
         let secure = false;
         if (env.nodeEnv === 'production')
             secure = true;
+		notifyChangeData(idUser, username, slug, "online");
         return reply.code(200).setCookie('token', token,
             {
                 httpOnly: true, 
@@ -46,6 +48,7 @@ export default async function loginUser (request, reply)
     }
     catch (err)
     {
-        return (reply.code(500).send( {error : "Internal Server Error" + err.message} ));
+		console.error(err);
+        return (reply.code(500).send( {error : "Internal Server Error" + err} ));
     }
 }
