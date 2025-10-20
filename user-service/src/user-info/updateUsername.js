@@ -10,8 +10,8 @@ export default async function updateUsername (request, reply)
 	// TODO : Renvoie le token, pas bon non ? 
 	// TODO : Pas de username dans le body = Invalid format for username ?
 	// TODO : Mettre son propre username = 409 ? pas sure, preciser l'erreur peut etre
-    if (checkUsernameFormat(request) == false)
-        return reply.code(400).send( {error : "Invalid format for username"} );
+   /* if (checkUsernameFormat(request) == false)
+        return reply.code(400).send( {error : "Invalid format for username"} );*/
 
     // console.debug('⚡️⚡️⚡️⚡️⚡️ request.body : ', request.body);
 
@@ -52,7 +52,7 @@ export default async function updateUsername (request, reply)
                             id = ?").run(newUsername, slug, newAvatar, idUser);
         notifyChangeData(idUser, newUsername, slug, "online");
         notifyChangeSlug(old.slug , slug);
-        const token = await reply.jwtSign({ idUser, newUsername, slug}, {expiresIn: '1h'});
+        const token = await reply.jwtSign({ idUser, username: newUsername, slug}, {expiresIn: '1h'});
         let secure = false;
         if (env.nodeEnv === 'production')
             secure = true;

@@ -10,10 +10,10 @@ export async function getStatusForSlug(request, reply) {
 		console.error('❌ No slug found in request params');
 		return reply.status(400).send({error: 'No slug found in request.'});
 	}
-	if (checkSlugFormat(slug) === false) {
+	/*if (checkSlugFormat(slug) === false) {
 		console.error('❌ Bad slug format sent in request params');
 		return reply.status(400).send({ error: 'Bad slug format.'});
-	}
+	}*/
 
 	const { WebSocketManager } = request.server;
 	if (!WebSocketManager) {

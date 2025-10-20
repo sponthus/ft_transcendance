@@ -11,9 +11,6 @@ export async function deleteGame(request, reply) {
     if (!gameId) {
         return reply.code(400).send({error: 'No gameId found in request.'});
     }
-	if (checkIdFormat(gameId) === false) {
-		return reply.code(400).send({ error: 'Bad gameId format.'});
-	}
 	gameId = parseInt(gameId, 10);
 
     const { db } = request.server;

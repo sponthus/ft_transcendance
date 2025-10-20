@@ -16,9 +16,9 @@ export async function createTournament(request, reply) {
 	if (!requestingUserId)
 		return reply.code(401).send({ error: "Unauthorized."});
     
-	if (checkTournamentCreationFormat(request) === false) {
-		return reply.code(400).send({ error: 'Bad tournament creation format.'});
-	}
+	/*if (checkTournamentCreationFormat(request) === false) {
+		return reply.code(400).send({ error: 'Bad tournament creation format.'}); SCHEMA CHANGER
+	}*/
     const { name, players, option } = request.body;
 	if (checkDoubles(request.body.players) === true) {
 		return reply.code(400).send({ error: 'Duplicates not allowed.'});

@@ -1,5 +1,103 @@
-import Ajv from "ajv"
+import Ajv from "ajv";
 
+export const slugSchema = {
+  type: "string",
+  minLength: 1,
+  maxLength: 20,
+  pattern: "^(?![_-])(?!.*[_-]$)(?=.*[a-z])(?![0-9_]+)[a-z0-9_-]+$"
+};
+
+export const changeInfosSchema = {
+  type: "object",
+  properties: {
+    slug: { 
+      type: "string",
+      minLength: 3,
+      maxLength: 20,
+      pattern: "^(?![_-])(?!.*[_-]$)(?=.*[a-z])(?![0-9_]+)[a-z0-9_-]+$"
+    },
+    username: { 
+      type: "string",
+      minLength: 3,
+      maxLength: 15,
+      pattern: "^(?![_-])(?!.*[_-]$)(?=.*[A-Za-z])(?![0-9_]+)[A-Za-z0-9_-]+$"
+    }
+  },
+  required: ["slug", "username"],
+  additionalProperties: false
+};
+
+export const sendMessageToGroupSchema = {
+  type: "object",
+  properties: {
+    userIds: {
+      type: "array",
+      items: { type: ["number","string"] },
+      minItems: 1,
+      uniqueItems: true
+    },
+    sender: {
+      type: ["string","number"],
+      minLength: 3,
+      maxLength: 20,
+      pattern: "^(?!\\s)(?!.*\\s$)[a-z0-9 _-]+(-[0-9]+)?$"
+    },
+    message: {
+      type: "string",
+      minLength: 3,
+      maxLength: 20,
+      pattern: "^(?!\\s)(?!.*\\s$)[a-z0-9 _-]+(-[0-9]+)?$"
+    }
+  },
+  required: ["sender","message"],
+  additionalProperties: false
+};
+
+export const sendMessageSchema = {
+  type: "object",
+  properties: {
+    sender: {
+      type: "string",
+      minLength: 3,
+      maxLength: 20,
+      pattern: "^(?!\\s)(?!.*\\s$)[a-z0-9 _-]+(-[0-9]+)?$"
+    },
+    message: {
+      type: "string",
+      minLength: 3,
+      maxLength: 20,
+      pattern: "^(?!\\s)(?!.*\\s$)[a-z0-9 _-]+(-[0-9]+)?$"
+    }
+  },
+  required: ["sender","message"],
+  additionalProperties: false
+};
+
+export const usernameSchema = {
+  type: "string",
+  minLength: 3,
+  maxLength: 20,
+  pattern: "^(?![_-])(?!.*[_-]$)(?=.*[A-Za-z])(?![0-9_]+)[A-Za-z0-9_-]+$"
+};
+
+export const statusSchema = {
+  type: "string",
+  enum: ["playing", "not_playing"]
+};
+
+export const numberIdSchema = {
+  type: "number",
+  minimum: 1
+};
+
+export const idStringSchema = {
+  type: "string",
+  minLength: 1,
+  maxLength: 15,
+  pattern: "^[0-9]+$"
+};
+
+/*
 export function    checkSlugFormat(slug)
 {
     const schema = 
@@ -157,7 +255,7 @@ export function    checkStatusFormat(status)
         return (false);
     return (true);
 }
-
+*/
 export function checkNumberIdFormat(id)
 {
 	const schema =

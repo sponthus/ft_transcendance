@@ -11,9 +11,6 @@ export async function   userAnswerTournament(request, reply)
     const idUser = request.user.idUser;
     const { ownerSlug, tournamentId, tournamentName, answer } = request.body;
 
-	// TODO : No arg = error 500
-    if (checkAnswerFormat(request) == false)
-        return reply.code(400).send( {error : "Invalid format for user answer"} );
     try
     {   
         const ownerId = db.prepare("    SELECT \

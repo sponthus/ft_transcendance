@@ -1,4 +1,5 @@
-import { uploadAvatar, updateName } from "./put.controller.js";
+import { nameSchema } from "./checkFormat.js";
+import { uploadAvatar, updateName } from "./controller.js";
 
 export default async function routes(fastify, options) {
     console.log('Registering routes');
@@ -11,7 +12,8 @@ export default async function routes(fastify, options) {
         },
         async function (patchRoutes) {
             patchRoutes.patch('/update-name',
-                {preHandler: [fastify.verifyApiKey]},
+                {preHandler: [fastify.verifyApiKey],
+                schema: { body: nameSchema }},
                 updateName);
         }
     );
