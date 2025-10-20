@@ -10,12 +10,18 @@ import logger from "../config/logger.js";
 import routes from "./routes/index.js";
 import { initOAuthGithub } from "./connection/OAuthGithub.js";
 import { refreshToken } from "./tools/refreshToken.js";
+import Ajv from "ajv";
+import ajvErrors from "ajv-errors";
 //import { getSecret } from "./tools/getSecret.js";
 
 const __filename = fileURLToPath(import.meta.url); // This filename, from ESM expression to classic path
 export const __dirname = path.dirname(__filename); // Parent folder to this file
 
 let fastify;
+
+const ajv = new Ajv({ allErrors: true, removeAdditional: false });
+ajvErrors(ajv);
+
 if (env.nodeEnv === 'production') {
 	try {
 		fs.accessSync(`/etc/ssl/${env.domain_name}.key`, fs.constants.R_OK);
@@ -36,10 +42,21 @@ if (env.nodeEnv === 'production') {
 	});
 	console.log("App launched in production mode");
 }
-else {
-	fastify = Fastify({
+else
+{
+	fastify = Fastify(
+    {
 		logger: false,
-	});
+        ajv:
+        {
+            customOptions:
+            {
+                removeAdditional: false,
+                allErrors: true,
+            },
+            plugins: [ajvErrors],
+        },
+    });
 	console.log("App launched in development mode");
 }
 
@@ -169,7 +186,7 @@ fastify.decorate("authenticate", async function (request, reply)
 });
 
 
-fastify.setErrorHandler((error, request, reply) => {
+/*fastify.setErrorHandler((error, request, reply) => {
     console.error("⚠️ ERROR GLOBAL CAPTURED");
     console.error("Route:", request.routerPath);
     console.error("Method:", request.method);
@@ -181,7 +198,7 @@ fastify.setErrorHandler((error, request, reply) => {
     reply.status(error.statusCode || 500).send({
         error: error.message || "Internal Server Error"
     });
-});
+});*/
 
 fastify.register(dbConnector);
 
@@ -209,6 +226,32 @@ fastify.setNotFoundHandler((req, reply) => {
     reply.status(404).send("Not found");
 });
 
+fastify.setErrorHandler((error, request, reply) =>
+{
+    console.log("⚡️⚡️⚡️⚡️⚡️⚡ LA LE MSG d'ERRRREUUUURR");
+    if (error.validation)
+    {
+        console.log("LA LE MSG d'ERRRREUUUURR");
+        const errors = error.validation.map(e => ({
+        field: e.instancePath.replace(/^\//, ''),
+        message: e.message
+    }))
+    return reply.status(400).send({ errors })
+  }
+});
+/*fastify.setErrorHandler((error, request, reply) =>
+{
+    if (error.validation)
+    {
+        const messages = error.validation.map(err => err.message);
+        return reply.status(400).send({ error: messages.join(", ") });
+    }
+    if (error.code === "FST_ERR_VALIDATION")
+    {
+        const messages = error.validation.map(err => err.message);
+        return reply.status(400).send({ error: messages.join(", ") });
+    }
+});*/
 // Fastify listens
 fastify.listen({ port: env.user_port, host: `${env.ip}` }, (err, address) => {
     if (err) {

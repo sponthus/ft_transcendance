@@ -3,7 +3,6 @@ import fs from "fs";
 import { __dirname } from "./index.js";
 // import pump from "pump";
 import { fileTypeFromBuffer } from "file-type";
-import { checkNameFormat } from "./checkFormat.js";
 import sharp from "sharp";
 
 export async function uploadAvatar(request, reply) {

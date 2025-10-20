@@ -117,19 +117,37 @@ export const answerSchema = {
 
 export const registrationSchema = {
   type: "object",
-  properties: {
-    username: { 
+  properties:
+  {
+    username:
+    { 
       type: "string", 
       minLength: 3, 
       maxLength: 15, 
       pattern: "^(?![_-])(?!.*[_-]$)(?=.*[A-Za-z])(?![0-9_]+)[A-Za-z0-9_-]+$",
-      not: { const: "default" }
+      not: { const: "default" },
+      errorMessage:
+      {
+        type: "Username must be a string",
+        minLength: "Username must be at least 3 characters",
+        maxLength: "Username cannot be longer than 15 characters",
+        pattern: "Username format is invalid",
+        not: "Username cannot be 'default'",
+      },
     },
-    password: { 
+    password:
+    { 
       type: "string", 
       minLength: 6, 
       maxLength: 15, 
-      pattern: "^(?=.*[a-zA-Z])[^\\[\\]{}();]+$"
+      pattern: "^(?=.*[a-zA-Z])[^\\[\\]{}();]+$",
+      errorMessage:
+      {
+        type: "Password must be a string",
+        minLength: "Password must be at least 6 characters",
+        maxLength: "Password cannot be longer than 15 characters",
+        pattern: "Password contains invalid characters"
+      },
     },
   },
   required: ["username", "password"],
