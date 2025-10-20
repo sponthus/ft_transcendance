@@ -10,7 +10,7 @@ import { getUserStatus } from '../../api/session-service/getStatus.js';
 import { cleanBanner } from '../Banner.js';
 
 export enum BodyState {FRIENDS = 0, HISTORY = 1, TOURNAMENT = 2};
-export let StateBody: number;
+export let StateBody: number = BodyState.FRIENDS;;
 let isChangeBody: Boolean;
 
 export function ChangeStateBody(state: number){
@@ -34,7 +34,6 @@ export class UserPage extends BasePage {
 		super();
 		this.slug = slug;
 		this.Statue = 'Error';
-		StateBody = BodyState.FRIENDS;
 	}
 	
 	async render(): Promise<void> {

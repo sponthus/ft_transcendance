@@ -47,9 +47,9 @@ export async function FillHistory(Body: HTMLElement, party: any, index:number) {
 
 function fillStat(body: HTMLElement, stats: any) {
 	const stat: HTMLElement = createDiv('stat', 'flex items-center justify-center h-[10%] w-full space-x-8');
-	append(stat, [createElement('p', 'win-games',`Win : ${stats.wins}`, '')
-				, createElement('p', 'win-games',`losses : ${stats.losses}`, '')
-				, createElement('p', 'win-games',`totals games : ${stats.total}`, '')]);
+	append(stat, [createElement('p', 'win-games',`Win : ${stats.wins}`, 'text-emerald-600 font-bold text-2xl')
+				, createElement('p', 'win-games',`Losses : ${stats.losses}`, 'text-emerald-600 font-bold text-2xl')
+				, createElement('p', 'win-games',`Total Games : ${stats.total}`, 'text-emerald-600 font-bold text-2xl')]);
 	append(body, [stat]);
 }
 

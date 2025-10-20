@@ -64,6 +64,8 @@ export async function saveUserForm() {
 				throw new Error("dissmatch passwords");
 			if (password && ConfirmPassword) {
 				const req = await updatePassword(password);
+				if (!req.ok)
+					throw new Error(req.error);
 			}
 
 		} catch(error) {

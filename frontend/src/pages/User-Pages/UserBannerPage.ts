@@ -144,6 +144,8 @@ export class UserBanner {
 						if (currentPage) 
 							currentPage.render();
 					}
+					else
+						throw new Error(req.error);
 				} catch (error) {
 					await ErrorPopup(error as string);
 				}
@@ -158,6 +160,8 @@ export class UserBanner {
 						if (currentPage) 
 							currentPage.render();
 					}
+					else
+						throw new Error(req.error);
 				} catch (error) {
 					await ErrorPopup(error as string);
 				}
@@ -172,7 +176,8 @@ export class UserBanner {
 						if (currentPage)
 							currentPage.render();
 					}
-	
+					else
+						throw new Error(req.error);
 				} catch(error) {
 					await ErrorPopup(error as string);
 				}
@@ -187,7 +192,8 @@ export class UserBanner {
 						if (currentPage)
 							currentPage.render();
 					}
-	
+					else
+						throw new Error(req.error);
 				} catch(error) {
 					await ErrorPopup(error as string);
 				}
