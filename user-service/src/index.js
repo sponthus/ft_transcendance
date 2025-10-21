@@ -38,7 +38,28 @@ if (env.nodeEnv === 'production') {
 		https: {
 			key: fs.readFileSync(`/etc/ssl/${env.domain_name}.key`),
 			cert: fs.readFileSync(`/etc/ssl/${env.domain_name}.crt`)
-		}
+		},
+        ajv:
+        {
+            customOptions:
+            {
+                coerceTypes: false,
+                removeAdditional: false,
+                allErrors: true,
+            },
+            plugins: [ajvErrors],
+        },
+        schemaErrorFormatter: (errors, dataVar) => //DataVar (contexte) : body, params
+        {
+            const firstError = errors[0];
+            const errorSchema =  { message: firstError.message };
+            const err = new Error(errorSchema.message);
+            err.validation = errorSchema;
+            err.validationContext = dataVar;
+            err.statusCode = 400;
+            return err;
+        }
+
 	});
 	console.log("App launched in production mode");
 }
@@ -59,21 +80,10 @@ else
         },
         schemaErrorFormatter: (errors, dataVar) =>
         {
-            console.log('Error dans schemaErrorFormatter');
-            /*const formatted = errors.map(err =>(
-            {
-                //field: err.instancePath.replace(/^\//, ''),
-                message: err.message,
-                //source: dataVar
-            }));*/
-            const firstError = errors[0]; // récupère le premier
-            const formatted = 
-            {
-                field: firstError.instancePath.replace(/^\//, ''),
-                message: firstError.message
-            };
-            const err = new Error(formatted.message);
-            err.validation = errors[0].message;
+            const firstError = errors[0];
+            const errorSchema =  { message: firstError.message };
+            const err = new Error(errorSchema.message);
+            err.validation = errorSchema;
             err.validationContext = dataVar;
             err.statusCode = 400;
             return err;
@@ -81,12 +91,6 @@ else
     });
 	console.log("App launched in development mode");
 }
-
-        /*const err = new Error('Validation failed');
-        err.validation = errors.message;
-        err.validationContext = dataVar;
-        err.statusCode = 400;
-        return err;*/
 
 console.log(`\nFastify user-service listen on port ${env.user_port}\n`); // debug
 
