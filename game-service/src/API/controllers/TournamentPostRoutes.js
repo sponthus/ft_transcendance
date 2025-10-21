@@ -1,4 +1,3 @@
-// import { checkPlayerFormat } from "../../tools/CheckFormat.js";
 import { getUserIdFromSlug } from "../requests/GetUserIdFromSlug.js";
 import { sendTournamentInvitation } from "../requests/SendTournamentInvitation.js";
 
@@ -16,9 +15,6 @@ export async function createTournament(request, reply) {
 	if (!requestingUserId)
 		return reply.code(401).send({ error: "Unauthorized."});
     
-	/*if (checkTournamentCreationFormat(request) === false) {
-		return reply.code(400).send({ error: 'Bad tournament creation format.'}); SCHEMA CHANGER
-	}*/
     const { name, players, option } = request.body;
 	if (checkDoubles(request.body.players) === true) {
 		return reply.code(400).send({ error: 'Duplicates not allowed.'});
@@ -32,9 +28,6 @@ export async function createTournament(request, reply) {
 	// Transform slugs into userIds for uniform storage - check if invitations needed
     for (let i = 0; i < players.length; i++) {
 		const player = players[i];
-		// if (checkPlayerFormat(player) === false) {
-		// 	return reply.code(400).send({ error: 'Bad player name format.'});
-		// }
 		if (player[0] === '@') {
 			// console.debug("Resolving slug ", player);
 			const userId = await getUserIdFromSlug(player.slice(1));
