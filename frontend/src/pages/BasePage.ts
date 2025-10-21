@@ -5,7 +5,6 @@ import { checkLog } from "../api/user-service/connection/check-log";
 import { getUserInfo } from "../api/user-service/user-info/getUserInfo";
 import { SessionSocket } from "../core/SessionSocket.js";
 import { setbackgroundImages } from "../Utils/elementMaker";
-import { resolve } from "path";
 import { ErrorPopup } from "./ErrorPage";
 
 export abstract class BasePage {
@@ -66,9 +65,11 @@ export abstract class BasePage {
 	}
 
     destroy(): void {
-		this.banner.innerHTML = '';
-        this.app.innerHTML = '';
         cleanBanner();
+		Array.from(this.banner.children).forEach(child => {child.remove()});
+        this.banner.innerHTML = '';
+        Array.from(this.app.children).forEach(child => {child.remove()});
+        this.app.innerHTML = '';
 	}
 
     public async updateBanner(){

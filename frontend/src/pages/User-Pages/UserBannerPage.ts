@@ -8,8 +8,6 @@ import { currentPage } from '../../core/router.js';
 import { ChangeStateBody, StateBody } from './UserPage.js';
 
 export class UserBanner {
-	
-	// private StateBody!: number;
 	private ProfileBanner!: HTMLElement;
 	private UserData: UserInfo;
 	private isOwnProfile!: boolean;
@@ -75,8 +73,8 @@ export class UserBanner {
 		const AvatarCircle: HTMLElement = createDiv('AvatarCircle',"h-full aspect-square flex items-center justify-center bg-orange-300 rounded-full" );
 		if (this.UserData) {
 			const avatar: string = this.UserData.avatar;
-			const srcImg: string = `https://${window.location.hostname}:4443/uploads/${avatar}`; // problem firefox https autosignate certificate 
-			append(AvatarCircle, [(createImage("user", "w-[95%] h-[95%] rounded-full object-cover object-center", srcImg) as HTMLImageElement)])
+			const srcImg: string = `https://${window.location.hostname}:4443/uploads/${avatar}`;
+			append(AvatarCircle, [(createImage("user", "w-[95%] h-[95%] rounded-full object-cover object-center", `${srcImg}?t=${Date.now()}`) as HTMLImageElement)])
 		}
 		append(AvatarDiv, [AvatarCircle]);
 		if (this.isOwnProfile) 
@@ -146,7 +144,9 @@ export class UserBanner {
 						if (currentPage) 
 							currentPage.render();
 					}
-				}catch (error) {
+					else
+						throw new Error(req.error);
+				} catch (error) {
 					await ErrorPopup(error as string);
 				}
 			});
@@ -160,6 +160,8 @@ export class UserBanner {
 						if (currentPage) 
 							currentPage.render();
 					}
+					else
+						throw new Error(req.error);
 				} catch (error) {
 					await ErrorPopup(error as string);
 				}
@@ -174,7 +176,8 @@ export class UserBanner {
 						if (currentPage)
 							currentPage.render();
 					}
-	
+					else
+						throw new Error(req.error);
 				} catch(error) {
 					await ErrorPopup(error as string);
 				}
@@ -189,7 +192,8 @@ export class UserBanner {
 						if (currentPage)
 							currentPage.render();
 					}
-	
+					else
+						throw new Error(req.error);
 				} catch(error) {
 					await ErrorPopup(error as string);
 				}

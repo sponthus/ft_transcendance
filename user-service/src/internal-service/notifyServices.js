@@ -13,6 +13,7 @@ export async function notifyRefresh(idReceivers, sender, message)
 		receivers = [Number(idReceivers)];
 	else if (Array.isArray(idReceivers) == true)
 		receivers = idReceivers;
+	console.debug("💬 Notify refresh to session-service for users: ", receivers, " - type = ", typeof receivers, typeof receivers[0]);
     try
     {
         const res = await fetch(`${prefix}://session-service:${env.session_port}/message`, 
@@ -28,7 +29,8 @@ export async function notifyRefresh(idReceivers, sender, message)
 	    });
         if (res.ok)
             return { ok: true };
-        const data = await res.json();    
+        const data = await res.json();
+		console.error("❌ Notify refresh didn't work : ", data);
         return { ok: false, error: data.error, status: res.status };
     }
     catch (err)
@@ -39,7 +41,7 @@ export async function notifyRefresh(idReceivers, sender, message)
 
 export async function notifyChangeData(idUser, username, slug, status="online") 
 {
-
+	console.debug("💬 Notify change data to session-service");
     const api_key = getSecret('api_key');
     try
     {
@@ -56,11 +58,13 @@ export async function notifyChangeData(idUser, username, slug, status="online")
 	    });
         if (res.ok)
             return { ok: true };
-        const data = await res.json();    
+        const data = await res.json();
+		console.error("❌ Notify change didn't work : ", data);
         return { ok: false, error: data.error, status: res.status };
     }
     catch (err)
     {
+		console.error("❌ Error notifying change data to session-service:", err);
         return { ok: false, error: err };
     }
 }
@@ -89,7 +93,6 @@ export async function notifyChangeSlug(oldSlug, newSlug)
     }
     catch (err)
     {
-        console.error('failed notify change slug ', err.message);
         return { ok: false, error: data.error };
     }
 }

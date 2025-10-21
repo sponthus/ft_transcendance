@@ -3,7 +3,6 @@ type Failure = { ok: false; error: string };
 
 export type Result = Success | Failure;
 
-
 export async function   updateAvatar(avatar: string): Promise<Result>
 { 
     try
@@ -11,8 +10,11 @@ export async function   updateAvatar(avatar: string): Promise<Result>
         const res = await fetch('/api/user/user-info/avatar', 
         {
             method: 'PATCH',
-            headers: { 'Content-Type': 'application/json' },
             credentials: 'include',
+			headers: {
+				'content-type': 'application/json',
+				'host': window.location.host
+			},
             body: JSON.stringify({ avatar }),
         });
         if (res.ok)

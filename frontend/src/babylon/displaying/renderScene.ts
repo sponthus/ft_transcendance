@@ -27,7 +27,7 @@ export class renderScene {
 
 	private _state!: number;
 
-	private _gameCreatorPage?: GamePage;
+	private _gameCreatorPage?: GamePage | null = null;
 
 
 	constructor(App: HTMLElement) {
@@ -70,7 +70,7 @@ export class renderScene {
 		document.documentElement.style.height = "100%";
 		document.documentElement.style.margin = "0";
 		document.documentElement.style.padding = "0";
-		document.body.style.overflow = "hidden";
+		document.body.style.overflow = "scroll";
 		document.body.style.width = "100%";
 		document.body.style.height = "100%";
 		document.body.style.margin = "0";
@@ -190,6 +190,12 @@ export class renderScene {
 		return this._PongGame;
 	}
 
+	get GamePage(): GamePage | null{
+		if (this._gameCreatorPage)
+			return this._gameCreatorPage;
+		return null;
+	}
+	
 	private _renderingloop() {
 		let lastTime = 0;
 		const targetFPS = 120;
@@ -215,10 +221,6 @@ export class renderScene {
 			}
 		});
 
-		// window.addEventListener('resize', () => {
-		//     // this._engine!.resize();
-		// 	// location.reload();
-		// });
 	}
 
 	private renderPongscene() {
@@ -226,7 +228,7 @@ export class renderScene {
 		this._gameCreatorPage?.renderGamePage();
 	}
 
-	/***************************for debug to delete at end of project***************************/
+	/***************************TODO for debug to delete at end of project***************************/
 	private _setdebugLayer() {
 		window.addEventListener('keydown', (ev) => {
 			if (ev.shiftKey && ev.ctrlKey && ev.altKey &&(ev.key == "i" || ev.key == "I")) {

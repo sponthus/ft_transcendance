@@ -1,12 +1,9 @@
-import { checkNicknameFormat } from "../tools/checkFormat.js";
+// import { checkNicknameFormat } from "../tools/checkFormat.js";
 
 export default async function   updateNickname (request, reply)
 {
-    if (checkNicknameFormat(request) == false)
-        return reply.code(400).send( {error : "Invalid format for nickname"} );
-
 	// TODO : Mettre son propre nickname = 409 ? preciser l'erreur
-	// TODO : Pas de nickname dans le body = Invalid format for nickname ?
+
     const db = request.server.db;
     const newNickname = request.body.nickname;
     const idUser = request.user.idUser;      

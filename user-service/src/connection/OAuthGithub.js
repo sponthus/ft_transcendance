@@ -41,13 +41,21 @@ export async function loginThroughGithub(request, reply)
         const userInfo = await createUserWithGithubInfos(accessToken.token.access_token, fastify.db);
         if (userInfo.error)
             reply.code(401).send({ error: userInfo.error});
-        const token = await reply.jwtSign({ idUser: userInfo.idUser, username: userInfo.username, slug: userInfo.slug }, {expiresIn: '1h'});
-        console.log("\nidUser: ", userInfo.idUser);
-        console.log("\nusername: : ", userInfo.username);
-        console.log("\nslug: : ", userInfo.slug);
-        console.log('GITHUB token : ', token);
+        let token;
+        let twofa = false;
+        if (userInfo.twoFa === 1)
+        {
+            twofa = true;
+            token = await reply.jwtSign({ idUser: userInfo.idUser, username: userInfo.username, slug: userInfo.slug, twofa_pending: true }, {expiresIn: '3m'});
+        }
+        else
+            token = await reply.jwtSign({ idUser: userInfo.idUser, username: userInfo.username, slug: userInfo.slug }, {expiresIn: '1h'});
+        /*console.debug("\nidUser: ", userInfo.idUser);
+        console.debug("\nusername: : ", userInfo.username);
+        console.debug("\nslug: : ", userInfo.slug);
+        console.debug('GITHUB token : ', token);*/
 
-		console.log("ASKING FOR ONLINE 🟠🟠🟠🟠🟠🟠🟠🟠🟠🟠");
+		//console.log("ASKING FOR ONLINE 🟠🟠🟠🟠🟠🟠🟠🟠🟠🟠");
 		notifyChangeData(userInfo.idUser, userInfo.username, userInfo.slug, "online");
         let secure = false;
         if (env.nodeEnv === 'production')
@@ -65,21 +73,12 @@ export async function loginThroughGithub(request, reply)
             secure: secure,
             path: '/',
             maxAge: 3600000
-        }).type('text/html')
-            .send(`
-                <html>
-                  <body>
-                    <script>
-                        window.opener?.postMessage({ success: true }, "${link}");
-                        window.close();
-                    </script>
-                 </body>
-                </html>`);
+        }).send({success: true, twofa: twofa});
     }
     catch (err)
     {
-        console.log(err);
-        reply.code(500).send({ error: "Internal Server Error" + err.message });
+        console.error(err);
+        reply.code(500).send({ error: "Internal Server Error" });
     }
 }
 
@@ -90,23 +89,23 @@ async function createUserWithGithubInfos(AccessToken, db)
         return {result};
     const githubUsername = result.userInfo.login;
     const existingGithubUsername = db.prepare(" SELECT \
-                                                    * \
+                                                    1 \
                                                 FROM \
                                                     users \
                                                 WHERE \
                                                     github_username = ?").get(githubUsername);
     if (existingGithubUsername)
     {
-        console.log("username github exist");
+        console.log("Username github exist");
         const user = db.prepare("   SELECT \
-                                        id, username, slug \
+                                        id, username, slug, twofa_enabled \
                                     FROM \
                                         users \
                                     WHERE \
                                         github_username = ?").get(githubUsername);
-        return { idUser: user.id, username: user.username, slug: user.slug }; 
+        return { idUser: user.id, username: user.username, slug: user.slug, twoFa: user.twofa_enabled}; 
     }
-    console.log("username github doesn't exist");
+    console.log("Username github doesn't exist");
     const existingUsername = db.prepare("   SELECT \
                                                 1 \
                                             FROM \

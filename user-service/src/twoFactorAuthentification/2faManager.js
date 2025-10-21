@@ -1,7 +1,6 @@
 import speakeasy from "speakeasy";
 import qrcode from 'qrcode';
 import env from '../../config/env.js';
-import { checkCodeFormat } from "../tools/checkFormat.js";
 import { decrypt, encrypt,  } from "./cryptSecret.js";
 
 export async function activateTwoFa(request, reply)
@@ -30,7 +29,7 @@ export async function activateTwoFa(request, reply)
         {
             name: `Island Word: ${row.username}`,
             issuer: "Transcendance",
-            length: 20, //Les standards TOTP/HOTP sont pensés pour 20 bytes minimum (SHA-1 digest length).
+            length: 20, //TODO ENLEVER COMMMS Les standards TOTP/HOTP sont pensés pour 20 bytes minimum (SHA-1 digest length).
             symbols: false //plus facile a taper
         });
         //stocker la cle encrypte ici, utilise crypto ? TODO PLUS TARD
@@ -53,7 +52,8 @@ export async function activateTwoFa(request, reply)
         //si je veux une saisie manuelle je dois envoyer la cle secret en clair pause un pb de secu*/
 
         const qrAscii = await qrcode.toString(secret.otpauth_url, {type: 'terminal'}); //temporaire, permet de tester 
-        console.log(qrAscii); //TODO enlever
+        console.log(`QR Ascii generated`);
+        //console.debug(qrAscii); //TODO enlever
 
         return reply.code(200).send({ qrCode: qrDataUrl });
     }
@@ -65,9 +65,6 @@ export async function activateTwoFa(request, reply)
 
 export async function checkTwoFaCode(request, reply)
 {
-    if (checkCodeFormat(request) == false)
-        return reply.code(400).send( {error : "Invalid format for 2FA code "} );
-
     const   db = request.server.db;
     const   idUser = request.user.idUser;
     const   code = request.body.code;
@@ -89,7 +86,7 @@ export async function checkTwoFaCode(request, reply)
         encoding: "base32"
         });
 
-        console.log("💡 Code serveur:", codeServer);*/ //voir le code du serveur
+        console.log("💡 Server code:", codeServer);*/ //voir le code du serveur
 
         const   secret = decrypt(row.twofa_secret);
         console.log('SSSecret 2fa : ', secret);
@@ -174,7 +171,7 @@ export async function desactivateTwoFa(request, reply)
     }
 }
 
-/*
+/* TODO remove ? Change key 
 secret contient : 
 {
   ascii: 'ABCDEFG...', --> cle TOTP generer differement

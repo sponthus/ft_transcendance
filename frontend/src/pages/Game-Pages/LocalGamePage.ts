@@ -1,10 +1,11 @@
+import { UserInfo } from '../../api/user-service/user-info/getUserInfo.js';
 import { createDiv, createElement, createButton, createDropdownDiv, createFormDiv, createCheckBoxLabel, append, createImage, createInput, setbackgroundImages} from '../../Utils/elementMaker.js';
 
 export class LocalGamePage {
 
 	private Page!: HTMLElement;
 	// private PartyMap!: Map<number, HTMLInputElement>;
-	private Username!: string;
+	private userData!: UserInfo;
 
 	/*************************for creatingGame*************************/
 	private PlayerA!: string;
@@ -33,10 +34,10 @@ export class LocalGamePage {
 	/*************************utils div*************************/
 	private SettingPan!: HTMLElement;
 
-	constructor(Page: HTMLElement, UserName: string) { //transition-transform duration-300 ease-out
+	constructor(Page: HTMLElement, userData: UserInfo) {
 		this.Page = Page;
-		this.Username = UserName;
-		this.PlayerA = this.Username; //this.Username; change to this.username
+		this.userData = userData;
+		this.PlayerA = '@' + this.userData.slug;
 	}
 
 	async render() {
@@ -118,7 +119,7 @@ export class LocalGamePage {
 
 		const playerADiv: HTMLElement = createDiv('player-name', 'relative flex h-[30%] w-full space-x-4');
 		this.PlayerAInput = createInput(['', '', '', true], 'PlayerA', 'h-full w-[40%]');
-		this.PlayerAInput.value = this.PlayerA;
+		this.PlayerAInput.value = this.userData.username;
 		if (this.Ai > 0)
 			this.PlayerAInput.readOnly = true;
 		append(playerADiv, [createImage('playerA', 'z-5 object-center object-fill h-full w-[40%]', 'game_ui/setting/playerA.png'), this.PlayerAInput]);
@@ -251,8 +252,8 @@ export class LocalGamePage {
 		return this.reversbtn;
 	}
 	
-	get _username(): string {
-		return this.Username;
+	get _userData(): UserInfo {
+		return this.userData;
 	}
 	/******************************************setter*************************************/
 	set setPlayerA(PlayerA: string){

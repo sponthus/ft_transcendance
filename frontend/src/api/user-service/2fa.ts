@@ -10,6 +10,9 @@ export async function  activateTwoFa(): Promise<Result>
         const res = await fetch('/api/user/2fa/setup', 
         {
             method: 'POST',
+			headers: {
+				'host': window.location.host
+			},
             credentials: 'include',
         });
         const data = await res.json();

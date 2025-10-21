@@ -12,6 +12,9 @@ export async function deleteTournament(tournamentId: number): Promise<SimpleResu
 	try {
 		const response = await fetch(`/api/games/tournament/${tournamentId}`, {
 			method: 'DELETE',
+			headers: { 
+				'host': window.location.host
+			},
             credentials: 'include'
 		});
 		if (!response.ok) {

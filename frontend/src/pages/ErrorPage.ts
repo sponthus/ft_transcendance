@@ -1,4 +1,3 @@
-import { error } from "console";
 import { popUp } from "../Utils/popUp";
 import { append, createButton, createDiv, createElement } from "../Utils/elementMaker";
 import { resolve } from "path";

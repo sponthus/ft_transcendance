@@ -132,9 +132,14 @@ function setAvatarLoginUserInfo(userData: UserInfo) {
 
 async function SetUserImg(userIcon: HTMLElement, userData: UserInfo) {
 	const avatar: string = userData.avatar;
-	const srcImg: string = `https://${window.location.hostname}:4443/uploads/${avatar}`;
+	let link = `https://${window.location.hostname}:4443/uploads/${avatar}`;
+	// const status = import.meta.env?.MODE;
+	// if (status === 'development') {
+	// 	link = `http://${window.location.hostname}:5173/uploads/${avatar}`;
+	// }
+	const srcImg: string = link;
 
-	append(userIcon, [(createImage('user', 'w-12 h-12 rounded-full object-cover object-center', srcImg) as HTMLImageElement)]);
+	append(userIcon, [(createImage('user', 'w-12 h-12 rounded-full object-cover object-center', `${srcImg}?t=${Date.now()}`) as HTMLImageElement)]);
 }
 
 function SetLogOutEvent() {
@@ -180,18 +185,27 @@ export function updateResize() {
 }
 
 export function cleanBanner() {
-	if (wrapper)
-		wrapper.innerHTML = '';
-	if (logo)
+	if (logo) {
+		while(logo.firstChild)
+			logo.firstChild.remove();
 		logo.innerHTML = '';
-	if (userInfo)
-		userInfo.innerHTML = '';
+	}
+	if (userInfo) {
+		while(userInfo.firstChild)
+			userInfo.firstChild.remove();
+		userInfo.innerHTML = '';	
+	}
 	if (navLinks) {
-		Array.from(navLinks.children).forEach(child=>{
-			Array.from(child.children).forEach(element => {
-				element.remove();
-			});
-			child.remove();
-		})
+		while(navLinks.firstChild) {
+			while(navLinks.firstChild.firstChild)
+				navLinks.firstChild.firstChild.remove();
+			navLinks.firstChild.remove();
+		}
+		navLinks.innerHTML = '';
+	}
+	if (wrapper){
+		while(wrapper.firstChild)
+			wrapper.firstChild.remove();
+		wrapper.innerHTML = '';
 	}
 }

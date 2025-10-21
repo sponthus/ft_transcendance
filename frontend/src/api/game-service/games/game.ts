@@ -53,7 +53,10 @@ export async function createLocalGame(player_a: string, player_b: string, maxSco
     console.log(' playA ' + player_a + ' playB ' + player_b);
     const res = await fetch('/api/games/game', {
         method: 'POST',
-        headers: {'Content-Type': 'application/json',},
+        headers: {
+			'Content-Type': 'application/json',
+			'host': window.location.host
+		},
         credentials: 'include',
         body: JSON.stringify({
             player_a: player_a,
@@ -68,7 +71,7 @@ export async function createLocalGame(player_a: string, player_b: string, maxSco
     if (res.ok) {
         return {
             ok: true,
-            gameId: data.game_id,
+            gameId: data.gameId,
             status: data.status,
             player_a: data.player_a,
             player_b: data.player_b,
@@ -99,6 +102,9 @@ export async function startGame(gameId: number): Promise<GameInfoResult> {
     try {
         const request = await fetch(`/api/games/${gameId}`, {
             method: 'POST',
+			headers: {
+				'host': window.location.host
+			},
             credentials: 'include',
         });
         if (!request.ok) {
@@ -196,7 +202,7 @@ export async function getFinishedGames(slug: string): Promise<AllGamesResult> {
 		const countGames = finishedGames.length;
 		const wins = countWins(finishedGames, slug);
 		const losses = countLosses(finishedGames, slug);
-        alert(`Finished games stats:\nTotal: ${countGames}\nWins: ${wins}\nLosses: ${losses}`);
+        // alert(`Finished games stats:\nTotal: ${countGames}\nWins: ${wins}\nLosses: ${losses}`);
 		return { ok: true, games: finishedGames, stats: { wins: wins, losses: losses, total: countGames } };
 
     } catch (error) {
@@ -216,7 +222,9 @@ export async function getAllGames(slug: string): Promise<AllGamesResult> {
     try {
         const response = await fetch(`/api/games/${slug}/games`, {
             method: 'GET',
-            headers: {'Content-Type': 'application/json', },
+            headers: {
+				'host': window.location.host
+			},
             credentials: 'include',
         });
 
@@ -247,6 +255,9 @@ export async function deleteGame(gameId: number): Promise<SimpleResult> {
     try {
         const response = await fetch(`/api/games/${gameId}`, {
             method: 'DELETE',
+			headers: { 
+				'host': window.location.host
+			},
             credentials: 'include',
         });
         if (!response.ok) {
