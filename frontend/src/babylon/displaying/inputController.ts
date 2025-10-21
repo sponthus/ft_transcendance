@@ -93,26 +93,26 @@ export class PlayerInput {
 
 		let hasMovement = false;
 
-		if (this._inputMap['w'] || this._inputMap["arrowup"]) {
+		if (this._inputMap['w']) {
 			this._directionVector.x += 1;
 			this._moveVector.z += speed;
 			hasMovement = true;
 		
 		}
 	
-		if (this._inputMap['s'] || this._inputMap["arrowdown"]){
+		if (this._inputMap['s']){
 			this._directionVector.x -= 1;
 			this._moveVector.z -= speed;
 			hasMovement = true;
 		}
 	
-		if (this._inputMap['a'] || this._inputMap["arrowleft"]){
+		if (this._inputMap['a']){
 			this._directionVector.z += 1;
 			this._moveVector.x -= speed;
 			hasMovement = true;
 		}
 
-		if (this._inputMap['d'] || this._inputMap["arrowright"]) {
+		if (this._inputMap['d']) {
 			this._directionVector.z -= 1;
 			this._moveVector.x += speed;
 			hasMovement = true;
