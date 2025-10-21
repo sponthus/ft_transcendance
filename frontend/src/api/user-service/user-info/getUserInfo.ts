@@ -7,6 +7,7 @@ export type UserInfo = //VA ETRE CHANGER, le token renvoie le username et l'id d
     slug: string;
     created_at: string;
     friendship_status: string;
+    twofa_enabled: number;
 };
 
 type getUserInfoSuccess = {ok: true; userInfo: UserInfo}
@@ -27,6 +28,7 @@ export async function   getUserInfo() : Promise<GetUserInfoResult>
             credentials: 'include',
         });
         const data = await res.json();
+        console.log(data.userInfo);
         if (res.ok)
         {
             return ({ ok: true, userInfo: data.userInfo })   

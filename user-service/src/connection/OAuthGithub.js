@@ -50,12 +50,12 @@ export async function loginThroughGithub(request, reply)
         }
         else
             token = await reply.jwtSign({ idUser: userInfo.idUser, username: userInfo.username, slug: userInfo.slug }, {expiresIn: '1h'});
-        /*console.debug("\nidUser: ", userInfo.idUser);
+        console.debug("\nidUser: ", userInfo.idUser);
         console.debug("\nusername: : ", userInfo.username);
         console.debug("\nslug: : ", userInfo.slug);
-        console.debug('GITHUB token : ', token);*/
+        console.debug('GITHUB token : ', token);
 
-		//console.log("ASKING FOR ONLINE 🟠🟠🟠🟠🟠🟠🟠🟠🟠🟠");
+		console.log("ASKING FOR ONLINE 🟠🟠🟠🟠🟠🟠🟠🟠🟠🟠");
 		notifyChangeData(userInfo.idUser, userInfo.username, userInfo.slug, "online");
         let secure = false;
         if (env.nodeEnv === 'production')
@@ -65,7 +65,7 @@ export async function loginThroughGithub(request, reply)
 		if (env.nodeEnv === 'production') {
 			link = `${prefix}://${env.host}:4443/`;
 		}
-
+        console.log("succesfully connected with github 🟠🟠🟠🟠🟠🟠🟠🟠🟠🟠")
         return reply.code(200).setCookie('token', token,
         {
             httpOnly: true,
@@ -106,7 +106,7 @@ async function createUserWithGithubInfos(AccessToken, db)
                                                     github_username = ?").get(githubUsername);
     if (existingGithubUsername)
     {
-        console.log("Username github exist");
+        console.log("username github exist");
         const user = db.prepare("   SELECT \
                                         id, username, slug, twofa_enabled \
                                     FROM \
@@ -115,7 +115,7 @@ async function createUserWithGithubInfos(AccessToken, db)
                                         github_username = ?").get(githubUsername);
         return { idUser: user.id, username: user.username, slug: user.slug, twoFa: user.twofa_enabled}; 
     }
-    console.log("Username github doesn't exist");
+    console.log("username github doesn't exist");
     const existingUsername = db.prepare("   SELECT \
                                                 1 \
                                             FROM \

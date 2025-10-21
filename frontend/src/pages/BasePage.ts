@@ -34,6 +34,7 @@ export abstract class BasePage {
                 const req = await getUserInfo();
                 if (!req.ok)
                     throw new Error(req.error);
+                console.log("user info : ", req.userInfo);
                 const userData = req.userInfo;
                 const socket = SessionSocket.getInstance(); //Creation du socket du user
                 await renderLoggedInBanner(this.banner, userData);
