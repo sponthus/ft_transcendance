@@ -3,6 +3,7 @@ import {AllGamesInfos, getFinishedGames } from '../../api/game-service/games/gam
 import { UserInfo } from '../../api/user-service/user-info/getUserInfo.js';
 import { ErrorPopup } from '../ErrorPage.js';
 
+// TODO fixed scroll 
 
 export async function DisplayHistoryPage(Body: HTMLElement, UserData: UserInfo) {
 	Body.className = "flex flex-col items-center bg-orange-300  bg-opacity-50 w-full h-[60%] flex overflow-auto gap-4";

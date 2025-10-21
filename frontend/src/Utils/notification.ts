@@ -6,6 +6,7 @@ import { markNotificationsRead } from "../api/user-service/menu/notifications/ma
 import { ErrorPopup } from "../pages/ErrorPage";
 import { answerTournament } from "../api/user-service/menu/notifications/tournaments";
 import { currentPage, WebPath } from "../core/router";
+import { UserPage } from "../pages/User-Pages/UserPage";
 
 const notificationWrapper: HTMLElement = createDiv('notif-wrapper','relative flex items-center');
 let isNotificationOpen: boolean = false;
@@ -51,7 +52,7 @@ function acceptFriendInvitation(acceptBtn: HTMLButtonElement, userData: UserInfo
 		try {
 			const req = await acceptRequest(userData.slug);
 			if (req.ok) {
-				if (currentPage && WebPath.startsWith('/user'))
+				if (currentPage instanceof UserPage)
 					currentPage.render();
 				else
 					refreshNotification();
@@ -72,8 +73,11 @@ export function acceptTournamentinvitation(acceptBtn: HTMLButtonElement, tournam
 		e.preventDefault();
 		try {
 			const req = await answerTournament(tournament.slug, tournament.notif_tournament_id, tournament.notif_tournament_name, "accept");
-			if (req.ok)
+			if (req.ok) {
+				if (currentPage instanceof UserPage)
+					currentPage.render();				
 				refreshNotification();
+			}
 			else
 				throw new Error(req.error);
 		} catch(error) {
@@ -206,7 +210,9 @@ async function fillReceiveRequest(parent: HTMLElement) {
 function addUSerData(userData: UserInfo, parent: HTMLAnchorElement, textContent: string) {
 	const userIcon: HTMLElement = createDiv(`user-notification-icon-${userData.slug}`, 'flex items-center justify-center bg-orange-300 group-hover:bg-orange-400 rounded-full relative shadow-xl w-[20%] aspect-square group-hover:shadow-lg transition-all duration-200 transform');
 
-	append(userIcon, [(createImage(`user-notification-${userData.slug}`, ' w-[90%] aspect-square rounded-full object-cover object-center',  `https://${window.location.hostname}:4443/uploads/${userData.avatar}`) as HTMLImageElement)]);
+	const srcImg = `https://${window.location.hostname}:4443/uploads/${userData.avatar}`;
+	
+	append(userIcon, [(createImage(`user-notification-${userData.slug}`, ' w-[90%] aspect-square rounded-full object-cover object-center', `${srcImg}?t=${Date.now()}`) as HTMLImageElement)]);
 
 	const invitationTextDiv = createDiv(`invitation-text-${userData.slug}`, 'flex flex-col items-center');
 	invitationTextDiv.innerHTML = `<P class="text-emerald-600 group-hover:font-bold">${textContent}</p>`;
@@ -217,9 +223,10 @@ function addUSerData(userData: UserInfo, parent: HTMLAnchorElement, textContent:
 function addInvitation(userdata: UserInfo, tournament: AllNotifs | null) : HTMLAnchorElement {
 	const InvitationDiv: HTMLAnchorElement = createAnchorElement(`notification-${userdata.slug}`, '', `/user/${userData.slug}`, 'group flex items-center justify between w-full h-24 hover:bg-orange-200 space-x-4 shadow-xl w-14 h-14 group-hover:shadow-lg transition-all duration-200 transform');
 
+	const srcImg = `https://${window.location.hostname}:4443/uploads/${userdata.avatar}`;
 	const userIcon: HTMLElement = createDiv(`user-notification-icon-${userdata.slug}`, 'flex items-center justify-center bg-orange-300 group-hover:bg-orange-400 rounded-full relative shadow-xl w-[30%] aspect-square group-hover:shadow-lg transition-all duration-200 transform');
 
-	append(userIcon, [(createImage(`user-notification-${userdata.slug}`, 'w-[90%] aspect-square rounded-full object-cover object-center',  `https://${window.location.hostname}:4443/uploads/${userdata.avatar}`) as HTMLImageElement)]);
+	append(userIcon, [(createImage(`user-notification-${userdata.slug}`, 'w-[90%] aspect-square rounded-full object-cover object-center',  `${srcImg}?t=${Date.now()}`) as HTMLImageElement)]);
 
 	let msg: string = `User ${userdata.username} has sent you a friend invitation`;
 	if (tournament)

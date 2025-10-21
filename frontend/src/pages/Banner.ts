@@ -132,12 +132,7 @@ function setAvatarLoginUserInfo(userData: UserInfo) {
 
 async function SetUserImg(userIcon: HTMLElement, userData: UserInfo) {
 	const avatar: string = userData.avatar;
-	let link = `https://${window.location.hostname}:4443/uploads/${avatar}`;
-	// const status = import.meta.env?.MODE;
-	// if (status === 'development') {
-	// 	link = `http://${window.location.hostname}:5173/uploads/${avatar}`;
-	// }
-	const srcImg: string = link;
+	let srcImg: string = `https://${window.location.hostname}:4443/uploads/${avatar}`;
 
 	append(userIcon, [(createImage('user', 'w-12 h-12 rounded-full object-cover object-center', `${srcImg}?t=${Date.now()}`) as HTMLImageElement)]);
 }
