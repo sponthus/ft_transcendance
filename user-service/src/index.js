@@ -73,22 +73,22 @@ export function getSecret(name)
 
 fastify.decorate("verifyApiKey", async function (request, reply)
 {
-    console.log('PASSSSSEEEE PAR LA VERIFICATION API KEY');
+    console.log('Check API key');
     const   apiKey = request.headers['x-internal-api-key'];
     if (!apiKey || apiKey !== getSecret('api_key'))
 		return reply.code(401).send({ error: 'Unauthorized: Invalid API Key' });
 
-    console.log('request.body :', request.body);
-    console.log('request.body type :', typeof request.body);
+    //console.debug('request.body :', request.body);
+    //console.debug('request.body type :', typeof request.body);
 
-    console.log('FINNNIII  LA VERIFICATION API KEY');
+    console.log('Check API key success');
 });
 
 fastify.decorate("authenticate_2fa", async function (request, reply)
 {
     try 
     {
-        console.log("PASSE PAR AUTHENTICATE 2FA");
+        console.log("Check 2FA");
         const result = fastify.unsignCookie(request.cookies.token); 
         if (!result.valid)
             return reply.code(401).send({ error: "Invalid cookie" });
@@ -170,7 +170,7 @@ fastify.decorate("authenticate", async function (request, reply)
 
 
 fastify.setErrorHandler((error, request, reply) => {
-    console.error("⚠️ ERROR GLOBAL CAPTURED");
+    console.error("⚠️ Global error captured");
     console.error("Route:", request.routerPath);
     console.error("Method:", request.method);
     console.error("Body:", request.body);
