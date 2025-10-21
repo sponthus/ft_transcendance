@@ -3,8 +3,8 @@
   "version": "1.0.0",
   "description": "Frontend service",
   "scripts": {
-    "dev": "vite --clearScreen false --host $IP --mode development",
-    "build": "tsc && vite build --clearScreen false --mode production",
+    "dev": "vite --clearScreen false --host $IP --mode development && touch dist/build-ready",
+    "build": "tsc && vite build --clearScreen false --mode production && touch dist/build-ready",
     "preview": "vite preview --clearScreen false"
   },
   "author": "endoliam, mbogey",
