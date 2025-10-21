@@ -1,6 +1,7 @@
 import Fastify from "fastify";
 import fastifyJwt from '@fastify/jwt';
 import fastifyCookie from '@fastify/cookie';
+import { Worker } from 'worker_threads';
 import { fileURLToPath } from "url";
 import { WebSocketServer } from "ws";
 import path from "path";
@@ -147,4 +148,3 @@ WSManager.initializeWebSocket();
 server.listen(env.game_ws_port, () => {
     console.log('WebSocket server listening on port ', env.game_ws_port);
 });
-

@@ -20,7 +20,7 @@ class DatabaseEventHandler {
     }
 
     async   handleGameStarted(eventData) {
-        console.log('💾 Updating DB: Game started', eventData.gameId);
+        // console.log('💾 Updating DB: Game started', eventData.gameId);
 
         try {
             this.DatabaseHandler.updateGameStatus(eventData.gameId, 'ongoing');
@@ -38,7 +38,7 @@ class DatabaseEventHandler {
     }
 
     async   handlePlayerDisconnected(eventData) {
-        console.log('💾 Update DatabaseHandler: Disconnected player', eventData);
+        // console.log('💾 Update DatabaseHandler: Disconnected player', eventData);
 
         try {
 			this.DatabaseHandler.updateGameStatus(eventData.gameId, 'canceled');
@@ -62,7 +62,7 @@ class DatabaseEventHandler {
     }
 
     async   handlePlayerScored(eventData) {
-        console.log('💾 Loading score:', eventData);
+        // console.log('💾 Loading score:', eventData);
 
 		try {
 			this.DatabaseHandler.updateScore(eventData.gameId, eventData.scoreA, eventData.scoreB);
@@ -74,7 +74,7 @@ class DatabaseEventHandler {
     }
 
     async   handleGameEnded(eventData) {
-        console.log('💾 Ending game in DatabaseHandler:', eventData.gameId);
+        // console.log('💾 Ending game in DatabaseHandler:', eventData.gameId);
 
         try {
 			this.DatabaseHandler.updateGameStatus(eventData.gameId, 'finished');
@@ -87,7 +87,7 @@ class DatabaseEventHandler {
     }
 
 	async handleTournamentGameEnded(eventData) {
-		console.log('🔄 End of a tournament game in DatabaseHandler:', eventData.tournamentId);
+		// console.log('🔄 End of a tournament game in DatabaseHandler:', eventData.tournamentId);
 	
 		try {
 			this.DatabaseHandler.endTournamentGame(eventData.tournamentId, eventData.gameId)

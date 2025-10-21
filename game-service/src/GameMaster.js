@@ -1,4 +1,5 @@
 import GameServer from "./GameServer.js";
+import { Worker } from 'worker_threads';
 import { updateUserStatus } from "./API/requests/UpdateUserStatus.js";
 import fs from 'fs';
 
@@ -36,8 +37,8 @@ export default class GameMaster {
                 throw new Error("No game found for this id");
 			if (game.userId !== userId)
                 throw new Error("This game is not yours");
-            game.ws = ws;
             game.server.addWs(ws);
+			game.ws = ws;
 			console.log(`✅ User ${userId} authenticated to game ${gameId}`);
             const update = await updateUserStatus(userId, 'playing');
 			if (!update.ok) {
@@ -102,13 +103,57 @@ export default class GameMaster {
 		if (players.length != 2) {
 			throw new Error("Invalid number of players");
 		}
+		const worker = new Worker('./src/pongWorker.js', { 
+			workerData: {
+				gameId: Number(gameId),
+				tournamentId: tournament,
+				userId,
+				maxScore,
+				ai,
+				option,
+				qtable: this.qtable
+			}
+		});
 		this.games.set(Number(gameId), {
-			server: new GameServer(Number(gameId), tournament, userId, maxScore, ai, option, this.qtable),
+			server: new GameServer(
+				Number(gameId), 
+				tournament, 
+				userId, 
+				maxScore, 
+				ai, 
+				option, 
+				this.qtable, 
+				worker
+			),
 			tournament: tournament,
             userId: userId,
             ws: null,
-			players: players
+			players: players,
+			worker: worker
 		});
+
+		// GameMaster.js (dans createServer après this.games.set)
+		worker.on('message', (msg) => {
+			const gameObj = this.games.get(Number(gameId));
+			if (msg.type === 'stateUpdate') {
+				gameObj.server.ws.send(JSON.stringify({
+					type: 'stateUpdate',
+					gameState: msg.state
+				}));
+			}
+			else if (msg.type === 'endGame') {
+				console.log("Sending endGame to ws");
+				gameObj.server.ws.send(JSON.stringify({
+					type: 'endGame',
+					winner: msg.winner,
+					scoreA: msg.scoreA,
+					scoreB: msg.scoreB
+				}));
+				gameObj.server.end = true;
+				this.endServer(gameId);
+			}
+		});
+
 		// console.debug("Games map after creation:");
 		// console.debug(this.games);
     }
@@ -120,10 +165,12 @@ export default class GameMaster {
             return ;
         }
         if (this.games.has(Number(gameId))) {
-            const user = this.games.get(Number(gameId)).userId;
-            this.games.delete(Number(gameId));
+			const game = this.games.get(Number(gameId));
+            const user = game.userId;
             console.log("🔴 GameServer stopped");
             this.updateUserStatus(user);
+            this.games.delete(Number(gameId));
+			game.worker.terminate();
         } else {
             console.debug(`No server associated with gameId ${gameId}`);
         }

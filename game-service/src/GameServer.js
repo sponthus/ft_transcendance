@@ -1,11 +1,12 @@
 import { gameEventEmitter } from "./GameEventEmitter.js";
 import { PongGame } from "./pongGame.js";
 import GameMaster from "./GameMaster.js";
+import { parentPort } from 'worker_threads';
 
 // Handles game logic for one game actually running
 export default class GameServer {
     
-    constructor(gameId, tournamentId, userId, maxScore, ai, option, qtable) {
+    constructor(gameId, tournamentId, userId, maxScore, ai, option, qtable, worker) {
         this.gameId = gameId;
 		this.tournamentId = tournamentId;
         this.userId = userId;
@@ -14,6 +15,7 @@ export default class GameServer {
         this.maxScore = maxScore;
 		this.ai = ai;
 		this.option = option;
+		this.worker = worker;
 		if (ai != 0) {
 			this.qtable = qtable;
 		}
@@ -44,14 +46,15 @@ export default class GameServer {
 			return;
 		}
 		this.ws = ws;
-		if (this.ai != 0)
-			this.game = new PongGame(this.gameId, this.ai, this.option, this.qtable);
-		else
-			this.game = new PongGame(this.gameId, this.ai, this.option);
+		// if (this.ai != 0)
+		// 	this.game = new PongGame(this.gameId, this.ai, this.option, this.qtable);
+		// else
+		// 	this.game = new PongGame(this.gameId, this.ai, this.option);
 		this.setHandlers(this.game);
+		
 	}
 
-    setHandlers(game) {
+    setHandlers() {
 		// console.debug("Handlers are set");
         this.ws.on('close', () => {
             if (this.end == false) {
@@ -59,7 +62,7 @@ export default class GameServer {
 					tournamentId: this.tournamentId,
 					userId: this.userId
 				});
-				this.destroy();
+				this.worker.postMessage({ type: 'disconnect'});
 			}
         });
 
@@ -78,11 +81,17 @@ export default class GameServer {
 
 			switch (data.type) {
 				case "input":
-					game.setInputs(data.input);
+					if (this.worker)
+						this.worker.postMessage({ type: 'input', input: data.input });
+					else
+						console.error("ERR: No worker to process input");
 					break;
 
 				case "start":
-					this.startGame();
+					if (this.worker)
+						this.worker.postMessage({ type: 'start' });
+					else
+						console.error("ERR: No worker to process input");
 					break;
 				
 				case "ping":
@@ -100,7 +109,7 @@ export default class GameServer {
 					tournamentId: this.tournamentId,
 					userId: this.userId
 				});
-				this.destroy();
+				this.worker.postMessage({ type: 'disconnect'});
 			}
 		});
     }
@@ -110,90 +119,5 @@ export default class GameServer {
             this.sendToWs(ws, { type: 'pong' });
         } else
 			console.error("❌ Unable to send pong back");
-    }
-	
-    startGame() {
-        this.state = 'playing';
-        gameEventEmitter.emitGameEvent('game:started', this.gameId, {
-			tournamentId: this.tournamentId,
-			userId: this.userId
-		});
-
-        // à chaque tick du serveur
-		let tick = 0;
-		let action = 2; // 0 = UP, 1 = DOWN, 2 = STILL (default 1st action)
-        let ticks_per_decision = 62; // 1 / 0.016 = 62.5
-		// console.debug("Ticks per decision : ");
-		// console.debug(ticks_per_decision);
-		this.intervalId = setInterval(() => {
-			// console.log("Tick ", tick);
-			// Appliquer les inputs pour déplacer le paddle
-            if (tick % ticks_per_decision == 0) {
-				// console.log("Decision tick ", tick);
-				// console.log("Main action is ", action);
-				action = this.game.update(action, true);
-			}
-            else
-				action = this.game.update(action);
-			let gameState = this.game.getState();
-			// broadcast du nouvel état
-            const stateMsg = JSON.stringify({
-                type: "stateUpdate",
-                gameState: gameState
-            });
-            this.scoreA = gameState.score.s1;
-			this.scoreB = gameState.score.s2;
-            // balance le message a tout les players connecté
-            if (this.ws.readyState === 1) {
-				this.ws.send(stateMsg);
-			} else {
-				console.log("❌ Unable to send game state");
-			}
-			if ((this.scoreA >= this.maxScore || this.scoreB >= this.maxScore) && this.end === false) {
-                this.end = true;
-				this.state == "finished";
-				this.endGame();
-            }
-			tick++;
-        }, 16); // 60fps = 16ms
-    }
-
-    endGame() {
-		let winner = '';
-		if (this.scoreA == this.maxScore || this.scoreB == this.maxScore) {
-			if (this.scoreA > this.scoreB)
-				winner = 'A'
-			else if (this.scoreB > this.scoreA)
-				winner = 'B'
-			else
-				winner = '='
-		} else
-			winner = '0'
-		if (this.ws.readyState === 1) {
-			this.ws.send(JSON.stringify({
-                type: "endGame",
-                winner: winner,
-				scoreA: this.scoreA,
-				scoreB: this.scoreB
-            }));
-		} else {
-			console.log(" ❌ Unable to send endGame");
-		}
-        gameEventEmitter.emitGameEvent('game:ended', this.gameId, {
-            scoreA: this.scoreA,
-            scoreB: this.scoreB
-        });
-		if (this.tournamentId != 0) {
-			gameEventEmitter.emitTournamentEvent('tournament:endgame', this.tournamentId, {
-				gameId: this.gameId
-			});
-		}
-        this.destroy();
-    }
-
-    destroy() {
-		console.log("🛑 Destroying game server ", this.gameId);
-        clearInterval(this.intervalId);
-        GameMaster.getInstance().endServer(this.gameId);
     }
 }
