@@ -218,7 +218,7 @@ fastify.decorate("authenticate", async function (request, reply)
 });
 
 
-/*fastify.setErrorHandler((error, request, reply) => {
+fastify.setErrorHandler((error, request, reply) => {
     console.error("⚠️ ERROR GLOBAL CAPTURED");
     console.error("Route:", request.routerPath);
     console.error("Method:", request.method);
@@ -230,7 +230,7 @@ fastify.decorate("authenticate", async function (request, reply)
     reply.status(error.statusCode || 500).send({
         message: error.message || "Internal Server Error"
     });
-});*/
+});
 
 fastify.register(dbConnector);
 

@@ -7,6 +7,7 @@ export async function addTournamentNotif (request, reply)
   
     //TODO tester schema
     console.debug('request.body :', request.body);
+    //TODO check que les users existe bien
     try
     {
         let receiverIds;
