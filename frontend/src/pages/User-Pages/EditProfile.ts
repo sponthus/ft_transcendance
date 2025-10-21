@@ -249,7 +249,7 @@ export class EditProfile extends popUp {
 			formData.append('avatar-input', file);
 			const req = await uploadAvatar(formData);
 			if (req.ok) {
-				console.log('STRING AVATAR : ', req.avatar);
+				// console.log('STRING AVATAR : ', req.avatar);
 				const pathReq = await updateAvatar(req.avatar);
 				if (pathReq.ok) {
 					await this.updateUserData();
@@ -271,7 +271,7 @@ export class EditProfile extends popUp {
 		try {
 			const req = await getUserInfo();
 			if (req.ok) {
-				console.log('new usernme = ', req.userInfo.username)
+				// console.log('new usernme = ', req.userInfo.username)
 				this.UserData = req.userInfo;
 			}
 			else
