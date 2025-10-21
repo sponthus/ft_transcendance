@@ -1,6 +1,5 @@
 import bcrypt from "bcrypt";
 import env from '../../config/env.js';
-// import { checkRegistrationFormat } from "../tools/checkFormat.js";
 import { notifyChangeData } from "../internal-service/notifyServices.js";
 
 export default async function loginUser (request, reply)
@@ -10,9 +9,6 @@ export default async function loginUser (request, reply)
 
     if (!username || !password)
         return (reply.code(400).send({error : "Username and password are required"}));
-
-    // if (checkRegistrationFormat(request) == false)
-    //     return reply.code(400).send( {error : "Invalid format for username or password"} );
 
     try 
     {

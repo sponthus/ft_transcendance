@@ -1,4 +1,3 @@
-// import { checkSlugFormat } from "../../tools/checkFormat.js";
 import { addNotification, deleteNotification } from "../notifications/notificationsManager.js";
 import { notifyRefresh } from "../../internal-service/notifyServices.js";
 

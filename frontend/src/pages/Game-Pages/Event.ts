@@ -137,8 +137,6 @@ export class Event {
 			this.LocalGamePage._backBtn.classList.add('-translate-x-96');
 		if (this.LocalGamePage._settingPan)
 			this.LocalGamePage._settingPan.classList.add('translate-x-96');
-		this.LocalGamePage.setPlayerA = this.LocalGamePage._playerAInput.value;
-		this.LocalGamePage.setPlayerB = this.LocalGamePage._playerBinput.value;
 		this.StatePage = PageState.PARTY;
 		await this.GamePage.generate1v1GamePage();
 	}
@@ -150,9 +148,11 @@ export class Event {
 			this.LocalGamePage._botBtn.classList.add('scale-110');
 			this.LocalGamePage._playerBtn.classList.add('hover:scale-110');
 			this.LocalGamePage._playerBtn.classList.remove('scale-110');
-			this.LocalGamePage.setPlayerAInput = this.LocalGamePage._username; // change to uysername
+			this.LocalGamePage.setPlayerAInput = this.LocalGamePage._userData.username;
+			this.LocalGamePage.setPlayerA = '@' + this.LocalGamePage._userData.slug;
 			this.LocalGamePage.setPlayerAReadonly = true;
 			this.LocalGamePage.setPlayerBInput = "Crabby the bot";
+			this.LocalGamePage.setPlayerB = this.LocalGamePage._playerBinput.value;
 			this.LocalGamePage.setPlayerBReadonly = true;
 			this.LocalGamePage.setAi = 1;
 		}
@@ -165,9 +165,11 @@ export class Event {
 			this.LocalGamePage._playerBtn.classList.add('scale-110');
 			this.LocalGamePage._botBtn.classList.add('hover:scale-110');
 			this.LocalGamePage._botBtn.classList.remove('scale-110');
-			this.LocalGamePage.setPlayerAInput = "player A";
-			this.LocalGamePage.setPlayerAReadonly = false;
+			this.LocalGamePage.setPlayerAInput = this.LocalGamePage._userData.username;
+			this.LocalGamePage.setPlayerA = '@' + this.LocalGamePage._userData.slug;
+			this.LocalGamePage.setPlayerAReadonly = true;
 			this.LocalGamePage.setPlayerBInput = "player B";
+			this.LocalGamePage.setPlayerB = this.LocalGamePage._playerBinput.value;
 			this.LocalGamePage.setPlayerBReadonly = false;
 			this.LocalGamePage.setAi = 0;
 		}
@@ -177,12 +179,24 @@ export class Event {
 		const tmp: string = this.LocalGamePage._playerAInput.value;
 		this.LocalGamePage.setPlayerAInput = this.LocalGamePage._playerBinput.value;
 		this.LocalGamePage.setPlayerBInput = tmp;
-		this.LocalGamePage.setPlayerA = this.LocalGamePage._playerAInput.value;
-		this.LocalGamePage.setPlayerB = this.LocalGamePage._playerBinput.value;
+		this.reversePlayerName();
 		if (this.LocalGamePage._Ai === 1)
 			this.LocalGamePage.setAi = 2;
 		else if (this.LocalGamePage._Ai === 2)
 			this.LocalGamePage.setAi = 1;
+	}
+
+	private reversePlayerName() {
+		const tmpA = this.LocalGamePage._PlayerA;
+		const tmpB = this.LocalGamePage._PlayerB;
+		if (tmpB.startsWith('@'))
+			this.LocalGamePage.setPlayerA = '@' + this.LocalGamePage._userData.slug;
+		else
+			this.LocalGamePage.setPlayerA = this.LocalGamePage._playerAInput.value;
+		if (tmpA.startsWith('@'))
+			this.LocalGamePage.setPlayerB = '@' + this.LocalGamePage._userData.slug;
+		else
+			this.LocalGamePage.setPlayerB = this.LocalGamePage._playerBinput.value;
 	}
 
 	/**********increase score limit**********/
@@ -334,7 +348,7 @@ export class Event {
 					this.GamePage.generateWaitingScreen(res.tournament.tournament_id);
 				}
 				else {
-					this.setStatePage = PageState.BRACKET;
+					this.StatePage = PageState.BRACKET;
 					this.GamePage.generateBracketTournament(res.tournament.tournament_id);
 				}
 			}

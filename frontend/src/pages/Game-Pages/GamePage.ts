@@ -3,10 +3,12 @@ import { renderScene } from '../../babylon/displaying/renderScene.js';
 import { createDiv, createElement, createButton, createDropdownDiv, append, createImage, setbackgroundImages} from '../../Utils/elementMaker.js';
 import { LocalGamePage } from './LocalGamePage.js';
 import { TournamentPage } from "./tounramentPage.js";
-import { Event } from './Event.js';
+import { Event, PageState } from './Event.js';
 import { getUserInfo, UserInfo } from '../../api/user-service/user-info/getUserInfo.js';
 import { endGamePage } from './endGamePage.js';
 import { ErrorPopup } from '../ErrorPage.js';
+
+export type Waiting = {idTournament: number, IsWaiting: boolean};
 
 export async function renderDropdown(Parent: HTMLElement, Options: string[], Name: string, TextContent: string): Promise<void> {
 	const Div = createDropdownDiv(Options, Name, TextContent, 
@@ -28,18 +30,21 @@ export class GamePage extends popUp {
 	private userData!: UserInfo;
 	private BackBtn!: HTMLButtonElement;
 
+	private IsWaitingScreen!: Waiting;
+
 	constructor(render: renderScene) {
 		super("Pong Game");
 		this.render = render;
 		this.startGamePage();
 		this.initPage();
+		this.IsWaitingScreen = {idTournament : 0, IsWaiting : false};
 	}
 	
 	async startGamePage() {
 		await this.getUsername();
 		this.initPopUpPage();
 		this.EndGamePage = new endGamePage(this.Page);
-		this.LocalGamePage = new LocalGamePage(this.Page, this.userName!);
+		this.LocalGamePage = new LocalGamePage(this.Page, this.userData!);
 		this.TournamentPage = new TournamentPage(this.Page, this.userName!);
 		this.Event = new Event(this.LocalGamePage, this.TournamentPage, this);
 		this._Title.remove();
@@ -73,6 +78,7 @@ export class GamePage extends popUp {
 
 	/*********************************************function for rendering tournament Mod Page**********************************************/
 	async generateTournamentPage() {
+		this.IsWaitingScreen = {idTournament : 0, IsWaiting : false};
 		this._Body.className = "relative flex flex-col items-center justify-center h-[70%] min-h-[590px] min-w-[576px] w-[30%] transition-all duration-300 rounded-xl shadow-2xl";
 		this.Page.className = "flex flex-col items-center w-full h-full transition-all opacity-0 duration-300 rounded-xl space-y-4";
 		setTimeout(async() => {
@@ -83,6 +89,7 @@ export class GamePage extends popUp {
 	}
 
 	async generateNewTournamentPage() {
+		this.IsWaitingScreen = {idTournament : 0, IsWaiting : false};
 		this.TournamentPage._playBtn.classList.add('translate-x-96');
 		this.TournamentPage._continueBtn.classList.add('-translate-x-96');
 		this.TournamentPage._backBtn.classList.add('-translate-x-96');
@@ -97,6 +104,7 @@ export class GamePage extends popUp {
 	}
 
 	async generateContinueTournamentPage() {
+		this.IsWaitingScreen = {idTournament : 0, IsWaiting : false};
 		this.TournamentPage._playBtn.classList.add('translate-x-96');
 		this.TournamentPage._continueBtn.classList.add('-translate-x-96');
 		this.TournamentPage._backBtn.classList.add('-translate-x-96');
@@ -111,6 +119,7 @@ export class GamePage extends popUp {
 	}
 
 	async generateWaitingScreen(IdTournament: number) {
+		this.IsWaitingScreen = {idTournament : IdTournament, IsWaiting : true};
 		this._Body.className = "relative flex flex-col items-center justify-center h-[90%] min-h-[813px] w-[50%] min-w-[960px] transition-all duration-300 rounded-xl shadow-2xl";
 		this.Page.className = "flex flex-col items-center w-full h-full transition-all opacity-0 duration-300 rounded-xl space-y-4";
 		setTimeout(async() => {
@@ -118,11 +127,11 @@ export class GamePage extends popUp {
 			this.TournamentPage.renderWaitingScreen(IdTournament);
 			this.Event.manageWaitingScreenEvent();
 			// manage Event waiting
-
-		},300);
+		}, 300);
 	}
 
 	async generateBracketTournament(IdTournament: number) {
+		this.IsWaitingScreen = {idTournament : 0, IsWaiting : false};
 		this._Body.className = "relative flex flex-col items-center justify-center h-[90%] min-h-[813px] w-[50%] min-w-[960px] transition-all duration-300 rounded-xl shadow-2xl";
 		this.Page.className = "flex flex-col items-center w-full h-full transition-all opacity-0 duration-300 rounded-xl space-y-4";
 		setTimeout(async() => {
@@ -134,6 +143,7 @@ export class GamePage extends popUp {
 
 	/*********************************************function for rendering 1v1 Mod Page**********************************************/
 	async generate1v1GamePage() {
+		this.IsWaitingScreen = {idTournament : 0, IsWaiting : false};
 		this._Body.className = "relative flex flex-col items-center justify-center  h-[70%] min-h-[590px] min-w-[576px] w-[30%] transition-all duration-300 rounded-xl shadow-2xl";
 		this.Page.className = "flex flex-col items-center w-full h-full transition-all opacity-0 duration-300 rounded-xl space-y-4";
 		setTimeout(async() => {
@@ -144,6 +154,7 @@ export class GamePage extends popUp {
     }
 	
 	async generate1v1SettingPage(){
+		this.IsWaitingScreen = {idTournament : 0, IsWaiting : false};
 		this._Body.className = "relative flex flex-col items-center justify-center h-[80%] min-h-[723px] w-[35%] min-w-[672px] transition-all duration-300 rounded-xl shadow-2xl";
 		this.LocalGamePage._playBtn.classList.add('translate-x-96');
 		this.LocalGamePage._settingBtn.classList.add('-translate-x-96');
@@ -158,11 +169,13 @@ export class GamePage extends popUp {
 
 	/*********************************************function for rendering Game Mod Select Page**********************************************/
 	async generateGamePage() {
+		this.IsWaitingScreen = {idTournament : 0, IsWaiting : false};
 		this.Page.classList.add("justify-center");
 		this.createGamePageDiv();
 	}
 
 	async generateEndGamePage(tournament: boolean, id: number) {
+		this.IsWaitingScreen = {idTournament : 0, IsWaiting : false};
 		this._Body.className = "relative flex flex-col items-center justify-center  h-[70%] min-h-[590px] min-w-[576px] w-[30%] transition-all duration-300 rounded-xl shadow-2xl";
 		this.Page.className = "flex flex-col items-center w-full h-full transition-all opacity-0 duration-300 rounded-xl space-y-4";
 		setTimeout(async() => {
@@ -238,5 +251,13 @@ export class GamePage extends popUp {
 
 	get _backBtn(): HTMLButtonElement {
 		return this.BackBtn;
+	}
+
+	get IsWaiting() : Waiting {
+		return this.IsWaitingScreen;
+	}
+
+	get _Event(): Event {
+		return this.Event;
 	}
 }

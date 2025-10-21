@@ -141,7 +141,7 @@ export class RegisterPage extends BasePage {
 					return ; // back to home
 				}
 				else {
-					return ; // registerUser already await ErrorPopups user
+					return ;
 				}
 			});
 		}

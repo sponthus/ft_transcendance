@@ -65,6 +65,7 @@ export class Game extends BasePage {
 	destroy(): void {
 		this.banner.innerHTML = '';
 		this.app.innerHTML = '';
+		document.body.style.overflow = "";
 		cleanBanner();
 		if (this._renderScene) {
 			if (this._renderScene.homeScene)
@@ -75,7 +76,12 @@ export class Game extends BasePage {
 				this._renderScene.engine.stopRenderLoop();
 				this._renderScene.engine.dispose();
 			}
+			this._renderScene.PongGame!.GamePhysics!.stopGame();
 		}
+	}
+
+	get renderScene() {
+		return this._renderScene;
 	}
 }
 

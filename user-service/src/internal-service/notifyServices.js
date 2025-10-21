@@ -59,7 +59,7 @@ export async function notifyChangeData(idUser, username, slug, status="online")
         if (res.ok)
             return { ok: true };
         const data = await res.json();
-		console.log("❌ Notify change didn't work : ", data);
+		console.error("❌ Notify change didn't work : ", data);
         return { ok: false, error: data.error, status: res.status };
     }
     catch (err)

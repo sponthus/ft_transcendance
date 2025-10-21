@@ -1,9 +1,8 @@
 import path from "path";
 import fs from "fs";
 import { __dirname } from "./index.js";
-// import pump from "pump";
+import pump from "pump";
 import { fileTypeFromBuffer } from "file-type";
-// import { checkNameFormat } from "./checkFormat.js";
 import sharp from "sharp";
 
 export async function uploadAvatar(request, reply) {
@@ -29,7 +28,7 @@ export async function uploadAvatar(request, reply) {
 		let seenAnyPart = false;
 		for await (const part of parts) {
 			seenAnyPart = true;
-			console.debug("Part received : ", { type: part.type, fieldname: part.fieldname, filename: part.filename, mimetype: part.mimetype })
+			// console.debug("Part received : ", { type: part.type, fieldname: part.fieldname, filename: part.filename, mimetype: part.mimetype })
 			if (part.type === 'file') {
 				const allowedTypes = ['image/jpeg', 'image/png'];
 				if (!allowedTypes.includes(part.mimetype)) {
@@ -75,7 +74,7 @@ export async function uploadAvatar(request, reply) {
 					}
 					catch (err)
 					{
-						console.log("Sharp failed to read image: ", err.mesage);
+						console.error("Sharp failed to read image: ", err.mesage);
 						return reply.code(400).send({error: "Corrupted or invalid image"});
 					}
 	
@@ -89,7 +88,7 @@ export async function uploadAvatar(request, reply) {
 					return reply.code(500).send({ error: "Internal Server Error"});
 				}
 			} else {
-				console.debug("Non-file part received, skipping");
+				console.warn("Non-file part received, skipping");
 				continue ;
 			}
 		}
@@ -129,6 +128,6 @@ export async function updateName(request, reply)
     }
     catch (err)
     {
-        return reply.code(500).send({ error: "Internal Server Error" + err.message});
+        return reply.code(500).send({ error: "Internal Server Error"});
     }
 }

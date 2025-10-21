@@ -17,10 +17,9 @@
 ## :memo: Status
 <p align="center">
   <strong>Ongoing :</strong> <br>
-  :star: Complete the status service in backend<br>
-  :star: Complete frontend style<br>
-  :star: Complete AI opponent<br>
-  :star: Complete user authentication (2 FA) <br>
+  :star: Check the whole API security<br>
+  :star: Check frontend style<br>
+  :star: Complete evaluations !<br>
 </p>
 
 ## :orange_book: Features (WIP)
@@ -44,7 +43,7 @@ From the project directory, use :
 ```shell
 make
 ```
-Be awarwe that this is a WIP, and not designed to be a finished product !
+Be awarwe that this is a WIP and a project, not designed to be a finished product !
 
 :hugs: Thanx !
 ---
