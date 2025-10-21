@@ -5,7 +5,7 @@ import GameMaster from "./GameMaster.js";
 // Handles game logic for one game actually running
 export default class GameServer {
     
-    constructor(gameId, tournamentId, userId, maxScore, ai, option) {
+    constructor(gameId, tournamentId, userId, maxScore, ai, option, qtable) {
         this.gameId = gameId;
 		this.tournamentId = tournamentId;
         this.userId = userId;
@@ -14,6 +14,9 @@ export default class GameServer {
         this.maxScore = maxScore;
 		this.ai = ai;
 		this.option = option;
+		if (ai != 0) {
+			this.qtable = qtable;
+		}
         console.log("🟢 Game server up");
 
         this.scoreA = 0;
@@ -41,7 +44,10 @@ export default class GameServer {
 			return;
 		}
 		this.ws = ws;
-		this.game = new PongGame(this.gameId, this.ai, this.option);
+		if (this.ai != 0)
+			this.game = new PongGame(this.gameId, this.ai, this.option, this.qtable);
+		else
+			this.game = new PongGame(this.gameId, this.ai, this.option);
 		this.setHandlers(this.game);
 	}
 

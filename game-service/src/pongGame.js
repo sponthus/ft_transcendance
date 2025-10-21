@@ -1,5 +1,4 @@
 import { gameEventEmitter } from "./GameEventEmitter.js";
-import fs from 'fs';
 
 let X_PADDLE_HEIGHT = 1.0;
 let X_INFERIOR_BALL_LIMIT = -5.8;
@@ -12,7 +11,7 @@ let AREA_NUMBER = 16;
 // Option : 0 = classical pong, 1 = with crabmehameha
 // Player : paddle1 = player2 et vice versa
 export class PongGame {
-	constructor(gameId, ai, option) {
+	constructor(gameId, ai, option, qtable = {}) {
 		if (ai == 0)
 			this.gameMode = 0;
 		else {
@@ -20,14 +19,7 @@ export class PongGame {
 				this.gameMode = 1;
 			else 
 				this.gameMode = 2;
-			
-			// Load Q-table from JSON file
-			const data = fs.readFileSync("q_table.json", "utf-8");
-			this.qtable = JSON.parse(data);
-			console.debug("Q-Table loaded");
-			// console.debug(this.qtable);
-			// console.debug(typeof this.qtable);
-			// console.debug(typeof this.qtable["00"]);
+			this.qtable = qtable;
 		}
 		this.gameOption = 1;
 		if (option)
