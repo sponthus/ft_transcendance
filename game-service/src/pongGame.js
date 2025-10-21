@@ -76,40 +76,15 @@ export class PongGame {
 		this.input1 = this.inputs || {};
 	}
 
-	// Schema of state in 3 situations (0, 1, 2))
-	// get_ai_state_situation()
-	// {
-	// 	let state;
-	// 	if (this.gameMode == 1) {
-	// 		if ((this.paddle1.x <= this.ball.x && this.ball.x <= this.paddle1.x + X_PADDLE_HEIGHT) 
-	// 			|| (this.paddle1.x - X_PADDLE_HEIGHT <= this.ball.x && this.ball.x <= this.paddle1.x))
-	// 			state = 0 // Ball is in the paddle range -> Best action = 2
-	// 		else if (this.ball.x < this.paddle1)
-	// 			state = 1 // Ball is under paddle -> Best action is up 0
-	// 		else
-	// 			state = 2 // Ball is over paddle -> Best action is down 1
-	// 	}
-	// 	else if (this.gameMode == 2) {
-	// 		if ((this.paddle2.x <= this.ball.x && this.ball.x <= this.paddle2.x + X_PADDLE_HEIGHT) 
-	// 			|| (this.paddle2.x - X_PADDLE_HEIGHT <= this.ball.x && this.ball.x <= this.paddle2.x))
-	// 			state = 0 // Ball is in the paddle range -> Best action = 2
-	// 		else if (this.ball.x < this.paddle2)
-	// 			state = 1 // Ball is under paddle -> Best action is up 0
-	// 		else
-	// 			state = 2 // Ball is over paddle -> Best action is down 1
-	// 	}
-	// 	return state
-	// }
-
 	// Mixes action and state of game to get the key of Q-table
 	get_ai_state(action, predicted_impact)
 	{
 		const ai_area = this.get_ai_position();
 		const impact_area = this.get_predicted_impact_area(predicted_impact);
-		// console.log("impact_area value:", impact_area, "type:", typeof impact_area);
+		// console.debug("impact_area value:", impact_area, "type:", typeof impact_area);
 		const state = `${ai_area}-${impact_area}-${action}`;
 		// String(ai_area) + '-' + String(impact_area) + '-' + str_action;
-		// console.log("State for Q-table :", state, " with ai_area ", ai_area, " / impact area ", impact_area, " and action ", action);
+		// console.debug("State for Q-table :", state, " with ai_area ", ai_area, " / impact area ", impact_area, " and action ", action);
 		return state;
 	}
 
@@ -118,9 +93,9 @@ export class PongGame {
 	{
 		const ai_area = this.get_ai_position();
 		const impact_area = old_state.split('-')[1];
-		// console.log("impact_area value:", impact_area, "type:", typeof impact_area);
+		// console.debug("impact_area value:", impact_area, "type:", typeof impact_area);
 		const state = `${ai_area}-${impact_area}-${action}`;
-		// console.log("State for Q-table :", state, " with ai_area ", ai_area, " / impact area ", impact_area, " and action ", action);
+		// console.debug("State for Q-table :", state, " with ai_area ", ai_area, " / impact area ", impact_area, " and action ", action);
 		return state;
 	}
 

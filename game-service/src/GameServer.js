@@ -122,7 +122,7 @@ export default class GameServer {
         // à chaque tick du serveur
 		let tick = 0;
 		let action = 2; // 0 = UP, 1 = DOWN, 2 = STILL (default 1st action)
-        let ticks_per_decision = Math.floor(1 / 0.016);
+        let ticks_per_decision = 62; // 1 / 0.016 = 62.5
 		// console.debug("Ticks per decision : ");
 		// console.debug(ticks_per_decision);
 		this.intervalId = setInterval(() => {
@@ -135,13 +135,14 @@ export default class GameServer {
 			}
             else
 				action = this.game.update(action);
+			let gameState = this.game.getState();
 			// broadcast du nouvel état
             const stateMsg = JSON.stringify({
                 type: "stateUpdate",
-                gameState: this.game.getState()
+                gameState: gameState
             });
-            this.scoreA = this.game.getState().score.s1;
-			this.scoreB = this.game.getState().score.s2;
+            this.scoreA = gameState.score.s1;
+			this.scoreB = gameState.score.s2;
             // balance le message a tout les players connecté
             if (this.ws.readyState === 1) {
 				this.ws.send(stateMsg);
@@ -154,7 +155,7 @@ export default class GameServer {
 				this.endGame();
             }
 			tick++;
-        }, 16); // 60fps
+        }, 16); // 60fps = 16ms
     }
 
     endGame() {
