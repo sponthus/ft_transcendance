@@ -7,7 +7,7 @@
 	}
     catch (error)
     {
-		console.log("❌ Critical error : Unable to read secret ", name);
+		console.log("❌ Critical message: Unable to read secret ", name);
 		process.exit(0);
 	}
 }*/

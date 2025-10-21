@@ -8,7 +8,7 @@ export default async function updateAvatar (request, reply)
     if (!newAvatar.toLowerCase().endsWith('.png') && 
         !newAvatar.toLowerCase().endsWith('.jpg') &&
         !newAvatar.toLowerCase().endsWith('.jpeg'))
-        return reply.code(400).send({ error: "Invalid avatar file" });
+        return reply.code(400).send({ message: "Invalid avatar file" });
     try 
     {
         const currentAvatar = db.prepare("  SELECT \
@@ -18,7 +18,7 @@ export default async function updateAvatar (request, reply)
                                             WHERE \
                                                 id = ?").get(idUser);
         if (currentAvatar === newAvatar)
-            return reply.code(400).send( {error: "Avatar is already set to this value"} );
+            return reply.code(400).send( {message: "Avatar is already set to this value"} );
 
         db.prepare("    UPDATE \
                             users \
@@ -30,6 +30,6 @@ export default async function updateAvatar (request, reply)
     }
     catch (err)
     {
-        return reply.code(500).send({ error : "Internal Server Error" });
+        return reply.code(500).send({ message: "Internal Server Error" });
     }
 }

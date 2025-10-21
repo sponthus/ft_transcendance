@@ -5,7 +5,7 @@ export async function   changeGameState (request, reply)
     const   newState = request.body.gameState;
 
     if (newState !== 0 && newState !== 1)
-        return reply.code(400).send( { error: "Invalid Game State. Must be 0 or 1" } );
+        return reply.code(400).send( { message: "Invalid Game State. Must be 0 or 1" } );
     try
     {
         const State = db.prepare("  SELECT \
@@ -15,7 +15,7 @@ export async function   changeGameState (request, reply)
                                     WHERE \
                                         menu_user_id = ?").get(idUser);
         if (State.menu_game_state === newState)
-            return reply.code(409).send( { error : "Game State is already at this value" } );
+            return reply.code(409).send( { message: "Game State is already at this value" } );
         const statement = db.prepare("  UPDATE \
                                             menu_state \
                                         SET \
@@ -27,7 +27,7 @@ export async function   changeGameState (request, reply)
     }
     catch (err)
     {
-        return reply.code(500).send ({ error: "Internal Server Error" });
+        return reply.code(500).send ({ message: "Internal Server Error" });
     }
     
 }
@@ -50,7 +50,7 @@ export async function   getGameState (request, reply)
     }
     catch (err)
     {
-        return reply.code(500).send({ error: "Internal Server Error" + err.message});
+        return reply.code(500).send({ message: "Internal Server Error" + err.message});
     }
 }
 

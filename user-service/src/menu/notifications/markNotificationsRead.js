@@ -17,6 +17,6 @@ export async function markNotificationsRead(request, reply)
     }
     catch (err)
     {
-        return reply.code(500).send({ error: "Internal Server Error" });
+        return reply.code(500).send({ message: "Internal Server Error" });
     }
 }

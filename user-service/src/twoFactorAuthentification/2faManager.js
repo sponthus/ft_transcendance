@@ -17,7 +17,7 @@ export async function activateTwoFa(request, reply)
                                     WHERE \
                                         id = ?").get(idUser);
         if (stmt.twofa_secret && stmt.twofa_enabled === 1)
-            return reply.code(400).send({ error: "2FA setup already activated" });
+            return reply.code(400).send({ message: "2FA setup already activated" });
 
         const row = db.prepare("    SELECT \
                                         username \
@@ -59,7 +59,7 @@ export async function activateTwoFa(request, reply)
     }
     catch (err)
     {   
-        return reply.code(500).send({ error: "Internal Server Error" });
+        return reply.code(500).send({ message: "Internal Server Error" });
     }
 }
 
@@ -79,7 +79,7 @@ export async function checkTwoFaCode(request, reply)
                                         id = ?").get(idUser);
         
         if (!row || !row.twofa_secret)
-            return reply.code(400).send({ error: "No 2FA setup found" });
+            return reply.code(400).send({ message: "No 2FA setup found" });
 
         /*const codeServer = speakeasy.totp({
          secret: row.twofa_secret,
@@ -98,7 +98,7 @@ export async function checkTwoFaCode(request, reply)
             window: 1 //si il ya de la latence ou un decalage avec l' heure du user c'est 30s + 30s ??
         });
         if (!codeVerified)
-            return reply.code(401).send({ error: "Invalid 2FA code" });
+            return reply.code(401).send({ message: "Invalid 2FA code" });
        
         let status = "2FA verified"
         if (row.twofa_enabled === 0)
@@ -137,7 +137,7 @@ export async function checkTwoFaCode(request, reply)
     }
     catch (err)
     {
-        return reply.code(500).send({ error: "Internal Server Error" + err.message});
+        return reply.code(500).send({ message: "Internal Server Error" + err.message});
     }
 }
 
@@ -155,7 +155,7 @@ export async function desactivateTwoFa(request, reply)
                                     WHERE \
                                         id = ?").get(idUser);
          if (!row || row.twofa_enabled === 0)
-            return reply.code(400).send({ error: "2FA is not active" });
+            return reply.code(400).send({ message: "2FA is not active" });
         db.prepare("    UPDATE \
                             users \
                         SET \
@@ -167,7 +167,7 @@ export async function desactivateTwoFa(request, reply)
     }
     catch (err)
     {
-        return reply.code(500).send({ error: "Internal Server Error" });
+        return reply.code(500).send({ message: "Internal Server Error" });
     }
 }
 

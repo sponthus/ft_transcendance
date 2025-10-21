@@ -13,11 +13,11 @@ export default async function loginThroughToken(request, reply)
                                                 WHERE \
                                                         id = ?").get(idUser);
                 if (!userData)
-					return reply.code(404).send({ error: "User not found" });
+					return reply.code(404).send({ message: "User not found" });
                 return reply.code(200).send({ username: userData.username, slug: userData.slug });
         }
         catch (err)
         {
-                return reply.code(500).send({error : "Internal Server Error"});
+                return reply.code(500).send({message: "Internal Server Error"});
         }
 }

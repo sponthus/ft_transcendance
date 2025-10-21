@@ -20,7 +20,7 @@ export async function   countUnreadNotifications(): Promise<NotifResult>
         {
             return { ok: true, count: data.count};
         }
-        return { ok: false, error: data.error};
+        return { ok: false, error: data.message};
     }
     catch (err)
     {

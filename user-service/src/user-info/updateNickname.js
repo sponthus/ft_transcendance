@@ -16,7 +16,7 @@ export default async function   updateNickname (request, reply)
                                                 WHERE \
                                                     nickname = ?').get(newNickname);
         if (existingNickname)
-             return reply.code(409).send({error: "Nickname already exist"});
+             return reply.code(409).send({message: "Nickname already exist"});
         db.prepare ("   UPDATE \
                             users \
                         SET \
@@ -27,6 +27,6 @@ export default async function   updateNickname (request, reply)
     }
     catch (err)
     {
-        return reply.code(500).send( {error : "Internal Server Error"} );
+        return reply.code(500).send( {message: "Internal Server Error"} );
     }
 }

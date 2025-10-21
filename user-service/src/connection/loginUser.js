@@ -8,7 +8,10 @@ export default async function loginUser (request, reply)
     const { username, password } = request.body;
 
     if (!username || !password)
-        return (reply.code(400).send({error : "Username and password are required"}));
+        return (reply.code(400).send({message: "Username and password are required"}));
+
+    // if (checkRegistrationFormat(request) == false)
+    //     return reply.code(400).send( {message: "Invalid format for username or password"} );
 
     try 
     {
@@ -19,9 +22,9 @@ export default async function loginUser (request, reply)
                                         WHERE \
                                             username = ?").get(username);
         if (!userData || userData && !userData.pw_hash)
-            return (reply.code(401).send({error : "Username or password invalid"}));
+            return (reply.code(401).send({message: "Username or password invalid"}));
         if ((bcrypt.compareSync(password, userData.pw_hash) == false))
-            return(reply.code(401).send({error : "Username or password invalid"})); //message generique pour les attaques
+            return(reply.code(401).send({message: "Username or password invalid"})); //message generique pour les attaques
         const idUser = userData.id;
         const slug = userData.slug;
         let token = 0;
@@ -45,6 +48,6 @@ export default async function loginUser (request, reply)
     catch (err)
     {
 		console.error(err);
-        return (reply.code(500).send( {error : "Internal Server Error" + err} ));
+        return (reply.code(500).send( {message: "Internal Server Error" + err} ));
     }
 }

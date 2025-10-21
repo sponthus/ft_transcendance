@@ -8,7 +8,7 @@ export async function   changeBackgroundColor(request, reply)
 	// TODO : If color is a string, gives 500 ?
 	// TODO : If no color is given, gives 200 ?
     if ((red < 0 || red > 255) || (green < 0 || green > 255) || (blue < 0 || blue > 255))
-        return reply.code(400).send({ error: "Invalid RGB value. Each component must be between 0 and 255." });
+        return reply.code(400).send({ message: "Invalid RGB value. Each component must be between 0 and 255." });
     try
     {
         const rgbColor = db.prepare("   SELECT \
@@ -18,7 +18,7 @@ export async function   changeBackgroundColor(request, reply)
                                         WHERE \
                                             menu_user_id = ?").get(idUser);
         if (rgbColor.menu_color_r === red && rgbColor.menu_color_g === green && rgbColor.menu_color_b === blue)
-            return reply.code(409).send( {error : "Rgb color already set to this value"} );
+            return reply.code(409).send( {message: "Rgb color already set to this value"} );
         db.prepare("    UPDATE \
                             menu_state \
                         SET \
@@ -29,7 +29,7 @@ export async function   changeBackgroundColor(request, reply)
     }
     catch (err)
     {
-        return reply.code(500).send({ error: "Internal Server Error" });
+        return reply.code(500).send({ message: "Internal Server Error" });
     }
 }
 
@@ -50,6 +50,6 @@ export async function   getBackgroundColor(request, reply)
     }
     catch (err)
     {
-        return reply.code(500).send({ error: "Internal Server Error" });
+        return reply.code(500).send({ message: "Internal Server Error" });
     }
 }

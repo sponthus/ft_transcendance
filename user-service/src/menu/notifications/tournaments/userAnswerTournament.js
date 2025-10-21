@@ -17,7 +17,7 @@ export async function   userAnswerTournament(request, reply)
                                         WHERE \
                                             slug = ?").get(ownerSlug);
         if (!ownerId || !ownerId.id)
-            return reply.code(404).send({ error: "Resource not found" });
+            return reply.code(404).send({ message: "Resource not found" });
 
         db.prepare(     "DELETE FROM \
                             notifications \
@@ -45,10 +45,10 @@ export async function   userAnswerTournament(request, reply)
 		{
 			return reply.code(200).send(); // TODO METTRE EN HAUT 
 		}
-        return reply.code(req.status).send({ error: req.error });
+        return reply.code(req.status).send({ message: req.error });
     }
     catch(err)
     {
-        return reply.code(500).send({ error: "Internal Server Error"});
+        return reply.code(500).send({ message: "Internal Server Error"});
     }
 }

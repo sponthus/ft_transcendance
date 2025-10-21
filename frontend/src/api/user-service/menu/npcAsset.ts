@@ -20,7 +20,7 @@ export async function   changeNpcAsset (asset: number): Promise<AssetResult>
         return { ok: true };
     }
     const data = await res.json();    
-    return { ok: false, error: data.error};
+    return { ok: false, error: data.message};
 }
 
 export async function   getNpcAsset(): Promise<AssetResult>
@@ -35,5 +35,5 @@ export async function   getNpcAsset(): Promise<AssetResult>
     {
         return { ok: true, asset: data.asset};
     }
-    return { ok: false, error: data.error};
+    return { ok: false, error: data.message};
 }

@@ -7,7 +7,7 @@ export async function   changeNpcAsset (request, reply)
 	// TODO : Gives 500 is asset="abc"
 	// TODO : Gives 409 if no asset in body
     if (newAsset < 0 || newAsset > 11)
-        return reply.code(400).send( { error: "Invalid NPC asset. Must between 0 and 11" } );
+        return reply.code(400).send( { message: "Invalid NPC asset. Must between 0 and 11" } );
     try
     {
         const State = db.prepare (" SELECT \
@@ -17,7 +17,7 @@ export async function   changeNpcAsset (request, reply)
                                     WHERE \
                                         menu_user_id = ?").get(idUser);
         if (State.menu_asset === newAsset)
-            return reply.code(409).send( { error : "NPC asset is already at this value" } );
+            return reply.code(409).send( { message: "NPC asset is already at this value" } );
         const statement = db.prepare("  UPDATE \
                                             menu_state \
                                         SET \
@@ -29,7 +29,7 @@ export async function   changeNpcAsset (request, reply)
     }
     catch (err)
     {
-        return reply.code(500).send ({ error: "Internal Server Error" });
+        return reply.code(500).send ({ message: "Internal Server Error" });
     }
     
 }
@@ -51,6 +51,6 @@ export async function   getNpcAsset (request, reply)
     }
     catch (err)
     {
-        return reply.code(500).send({ error: "Internal Server Error" });
+        return reply.code(500).send({ message: "Internal Server Error" });
     }
 }

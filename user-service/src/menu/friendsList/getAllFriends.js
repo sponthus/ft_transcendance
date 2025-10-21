@@ -21,7 +21,7 @@ export async function   getAllFriends(request, reply)
     }
     catch (err)
     {
-        return reply.code(500).send({ error: "Internal Server Error" });
+        return reply.code(500).send({ message: "Internal Server Error" });
     }
 }
 
@@ -39,7 +39,7 @@ export async function   getAllFriendsBySlug(request, reply)
                                     WHERE \
                                         slug = ?").get(slug);
         if (!user || !user.id)
-            return reply.code(404).send({ error: "Resource not found" });
+            return reply.code(404).send({ message: "Resource not found" });
         const friends = db.prepare("    SELECT \
                                             users.username, users.slug, users.avatar \
                                         FROM \
@@ -56,6 +56,6 @@ export async function   getAllFriendsBySlug(request, reply)
     }
     catch (err)
     {
-        return reply.code(500).send({ error: "Internal Server Error" });
+        return reply.code(500).send({ message: "Internal Server Error" });
     }
 }
