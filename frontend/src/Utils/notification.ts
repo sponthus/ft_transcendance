@@ -6,7 +6,6 @@ import { markNotificationsRead } from "../api/user-service/menu/notifications/ma
 import { ErrorPopup } from "../pages/ErrorPage";
 import { answerTournament } from "../api/user-service/menu/notifications/tournaments";
 import { currentPage, WebPath } from "../core/router";
-import { UserPage } from "../pages/User-Pages/UserPage";
 
 const notificationWrapper: HTMLElement = createDiv('notif-wrapper','relative flex items-center');
 let isNotificationOpen: boolean = false;
@@ -52,7 +51,7 @@ function acceptFriendInvitation(acceptBtn: HTMLButtonElement, userData: UserInfo
 		try {
 			const req = await acceptRequest(userData.slug);
 			if (req.ok) {
-				if (currentPage instanceof UserPage)
+				if (currentPage && currentPage.constructor && currentPage.constructor.name === "UserPage")
 					currentPage.render();
 				else
 					refreshNotification();
@@ -74,9 +73,10 @@ export function acceptTournamentinvitation(acceptBtn: HTMLButtonElement, tournam
 		try {
 			const req = await answerTournament(tournament.slug, tournament.notif_tournament_id, tournament.notif_tournament_name, "accept");
 			if (req.ok) {
-				if (currentPage instanceof UserPage)
-					currentPage.render();				
-				refreshNotification();
+				if (currentPage && currentPage.constructor && currentPage.constructor.name === "UserPage")
+					currentPage.render();
+				else			
+					refreshNotification();
 			}
 			else
 				throw new Error(req.error);
