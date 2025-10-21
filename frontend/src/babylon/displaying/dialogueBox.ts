@@ -36,13 +36,14 @@ export class dialogueBox {
 		this._texture.addControl(this._dialoguetext);
 	}
 
-	private async _typeText() {
+	private _typeText() {
 		for (let index: number = 0; index < this._msg.length; index++) {
-			setTimeout(() => {
+			setTimeout(async() => {
 				this._dialoguetext.text = this._msg.slice(0, index + 1);
-			}, 50);
-			if (!this._dialogue.isEnabled())
+			}, 50 * index);
+			if (!this._dialogue.isEnabled()) {
 				break ;
+			}
 		}
 	}
 

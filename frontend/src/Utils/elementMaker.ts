@@ -107,7 +107,6 @@ export function createDropdownDiv(Options: string[], Name: string, TextContent: 
 }
 
 export function append(Parent: HTMLElement, Childs: HTMLElement[]) {
-
 	Childs.forEach(Child => {
 		Parent.appendChild(Child);
 	})

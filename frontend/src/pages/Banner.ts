@@ -1,5 +1,3 @@
-// import { currentPage, navigate } from '../core/router.js';
-// import { modifyUserAvatar , modifyUserInfo } from "../api/user.js";
 import {UserInfo } from '../api/user-service/user-info/getUserInfo.js';
 import { append, createAnchorElement, createDiv, createImage, createElement } from '../Utils/elementMaker.js';
 import { createSearchBarDiv } from '../Utils/slidingSearch.js';
