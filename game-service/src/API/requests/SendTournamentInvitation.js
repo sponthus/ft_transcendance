@@ -21,7 +21,7 @@ export async function sendTournamentInvitation(userId, inviterId, tournamentId, 
 			},
 			body : JSON.stringify({
 				type: "tournament_invite",
-				receiverId: "8",//userId,
+				receiverId: userId,
 				senderId: inviterId,
 				tournamentId: tournamentId,
 				tournamentName: tournamentName

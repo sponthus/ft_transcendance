@@ -2,8 +2,8 @@ export const idUserSchema = {
   type: "object",
   properties: {
     idUser: { 
-      type: "number", 
-      minimum: 1,
+      type: "string", 
+      pattern: '^[1-9][0-9]*$',
       errorMessage: {
         type: "idUser must be a number",
         minimum: "idUser must be at least 1"
