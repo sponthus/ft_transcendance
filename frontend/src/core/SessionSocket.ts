@@ -198,8 +198,10 @@ export class SessionSocket {
 			return;
 		}
 		else if (data.type === "message") {
-			console.log("receive friend request frome data.type message");
+			console.log("receive friend request frome data.type message : ", data);
 			refreshNotification();
+			if (data.message == "friend_accept" && currentPage && currentPage.constructor && currentPage.constructor.name === "UserPage")
+				currentPage.render();
 			if (data.message === "tournament_ready" || data.message === "tournament_cancel") {
 				if (currentPage instanceof Game){
 					if (currentPage.renderScene?.GamePage) {
@@ -217,7 +219,6 @@ export class SessionSocket {
 				}
 			}
 			return;
-			// TODO Emma Add logic here, when recieving a friend request message
 		} else if (data.type === "auth_success") {
 			this.reconnectAttempts = 0;
 		}

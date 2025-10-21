@@ -38,10 +38,11 @@ export class dialogueBox {
 
 	private async _typeText() {
 		for (let index: number = 0; index < this._msg.length; index++) {
-			this._dialoguetext.text = this._msg.slice(0, index + 1);
+			setTimeout(() => {
+				this._dialoguetext.text = this._msg.slice(0, index + 1);
+			}, 50);
 			if (!this._dialogue.isEnabled())
 				break ;
-			await sleep(50);
 		}
 	}
 

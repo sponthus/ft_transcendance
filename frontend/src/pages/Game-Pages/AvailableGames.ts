@@ -1,6 +1,5 @@
 
-import { createDiv, createElement, createButton, createDropdownDiv, createFormDiv, createCheckBoxLabel, append, setbackgroundImages} from '../../Utils/elementMaker.js';
-import { createLocalGame, getAvailableGames, startGame, deleteGame } from "../../api/game-service/games/game.js"
+import { createDiv, createElement, createButton, append, setbackgroundImages} from '../../Utils/elementMaker.js';
 import { getUserInfo } from "../../api/user-service/user-info/getUserInfo.js";
 import { getAvailableTournaments, TournamentsInfos } from  "../../api/game-service/tournaments/getTournaments.js";
 import { deleteTournament } from  "../../api/game-service/tournaments/deleteTournament.js";

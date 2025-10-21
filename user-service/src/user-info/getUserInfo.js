@@ -32,7 +32,6 @@ export async function   getUserInfoBySlug (request, reply)
                                         users.avatar, \
                                         users.slug, \
                                         users.created_at, \
-                                        users.twofa_enabled \
                                         CASE \
                                             WHEN f.frie_status = 1 THEN 'friends' \
                                             WHEN f.frie_user_id = ? AND f.frie_status = 0 THEN 'request_sent' \

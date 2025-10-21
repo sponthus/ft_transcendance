@@ -1,11 +1,10 @@
-import { createDiv, createElement, createButton, createDropdownDiv, createFormDiv, createCheckBoxLabel, append, setbackgroundImages, createImage} from '../../Utils/elementMaker.js';
-import { getAllTournaments, getTournamentMatches, GameInfos, getFinishedTournaments } from '../../api/game-service/tournaments/getTournaments.js';
+import { createDiv, createElement, createButton, append, setbackgroundImages, createImage} from '../../Utils/elementMaker.js';
+import {  getTournamentMatches, GameInfos, getFinishedTournaments } from '../../api/game-service/tournaments/getTournaments.js';
 import { getUserInfoBySlug, UserInfo } from '../../api/user-service/user-info/getUserInfo.js';
 import { FillHistory, fillHistoryStubborn } from './HistoryPage.js';
 import { ErrorPopup } from '../ErrorPage.js';
 import { AllNotifs, getAllNotifications } from '../../api/user-service/menu/notifications/getNotifications.js';
 import { acceptTournamentinvitation, declineTournamentInvitation } from '../../Utils/notification.js';
-import { isIfStatement } from 'typescript';
 
 
 

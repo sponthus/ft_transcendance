@@ -1,4 +1,4 @@
-import { createDiv, append, createInput, createButton, createElement, createAnchorElement } from "./elementMaker";
+import { createDiv, append, createInput, createButton, createAnchorElement } from "./elementMaker";
 import { navigate } from "../core/router";
 import { getAllUsers, AllUsers } from "../api/user-service/menu/getAllUsers";
 import { ErrorPopup } from "../pages/ErrorPage";

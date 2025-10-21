@@ -1,6 +1,5 @@
-import { navigate } from "../../core/router";
 import { BasePage } from "../BasePage";
-import { createDiv, createElement, createButton, createDropdownDiv, createFormDiv, createCheckBoxLabel, append, createImage, setbackgroundImages} from '../../Utils/elementMaker.js';
+import { createDiv, createButton, append, setbackgroundImages} from '../../Utils/elementMaker.js';
 import { renderGameSetting, getAvatarAsset, getCurrentNpcAsset } from "./GameSettings";
 import { cleanForm, renderProfileSetting, saveUserForm } from "./ProfileSetting";
 import { changeNpcAsset } from "../../api/user-service/menu/npcAsset";

@@ -28,7 +28,6 @@ export async function   getUserInfo() : Promise<GetUserInfoResult>
             credentials: 'include',
         });
         const data = await res.json();
-        console.log(data.userInfo);
         if (res.ok)
         {
             return ({ ok: true, userInfo: data.userInfo })   

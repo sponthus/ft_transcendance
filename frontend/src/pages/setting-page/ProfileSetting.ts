@@ -1,7 +1,7 @@
 
 import { updatePassword } from '../../api/user-service/user-info/updatePassword.js';
 import { activateTwoFaBtn } from '../../Utils/2FAPopUp.js';
-import {createFormDiv, append, createElement, setbackgroundImages, createImage, createButton, createDiv, createInput} from '../../Utils/elementMaker.js';
+import {createFormDiv, append, createElement, setbackgroundImages, createButton} from '../../Utils/elementMaker.js';
 import { ErrorPopup } from '../ErrorPage.js';
 
 let form: HTMLFormElement;

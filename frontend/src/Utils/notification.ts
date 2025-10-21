@@ -1,11 +1,11 @@
-import { acceptRequest, getReceivedRequests, rejectRequest } from "../api/user-service/menu/friendsList/requestHandlers";
+import { acceptRequest, rejectRequest } from "../api/user-service/menu/friendsList/requestHandlers";
 import { getUserInfoBySlug, UserInfo } from "../api/user-service/user-info/getUserInfo";
 import { append, createDiv, createButton, createImage, createAnchorElement } from "./elementMaker";
-import { getAllNotifications, AllNotifs, getReadNotifications, getUnreadNotifications } from "../api/user-service/menu/notifications/getNotifications";
+import { getAllNotifications, AllNotifs, getUnreadNotifications } from "../api/user-service/menu/notifications/getNotifications";
 import { markNotificationsRead } from "../api/user-service/menu/notifications/markNotificationRead";
 import { ErrorPopup } from "../pages/ErrorPage";
 import { answerTournament } from "../api/user-service/menu/notifications/tournaments";
-import { currentPage, WebPath } from "../core/router";
+import { currentPage } from "../core/router";
 
 const notificationWrapper: HTMLElement = createDiv('notif-wrapper','relative flex items-center');
 let isNotificationOpen: boolean = false;

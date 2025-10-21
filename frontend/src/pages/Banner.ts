@@ -1,8 +1,7 @@
 // import { currentPage, navigate } from '../core/router.js';
 // import { modifyUserAvatar , modifyUserInfo } from "../api/user.js";
 import {UserInfo } from '../api/user-service/user-info/getUserInfo.js';
-// import { Socket } from '../core/Socket.js';
-import { append, createAnchorElement, createButton, createDiv, createImage, createInput, createElement } from '../Utils/elementMaker.js';
+import { append, createAnchorElement, createDiv, createImage, createElement } from '../Utils/elementMaker.js';
 import { createSearchBarDiv } from '../Utils/slidingSearch.js';
 import { createNotificationDiv } from '../Utils/notification.js';
 import { logoutUser } from '../api/user-service/connection/logoutUser.js';

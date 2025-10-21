@@ -10,7 +10,7 @@ import { PlayerInput } from "./displaying/inputController.js";
 import { renderGround } from "./displaying/renderGround.js";
 import { renderAsset } from "./displaying/renderAsset.js";
 import { sleep } from "./displaying/dialogueBox.js";
-import { cleanBanner, renderBaseBanner, renderLoggedInBanner} from "../pages/Banner.js";
+import { cleanBanner} from "../pages/Banner.js";
 import { ErrorPopup } from "../pages/ErrorPage.js";
 
 export class Game extends BasePage {

@@ -5,7 +5,7 @@ import * as BABYLON from "@babylonjs/core";
 import "@babylonjs/loaders/glTF";
 import { renderAnimation } from "./animations";
 import { renderAsset } from "../displaying/renderAsset";
-import { dialogueBox, sleep } from "./dialogueBox";
+import { dialogueBox } from "./dialogueBox";
 import { renderScene } from "./renderScene";
 
 export class PlayerInput {
