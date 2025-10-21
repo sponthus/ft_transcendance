@@ -5,7 +5,7 @@ export async function   getUserInfo (request, reply)
     try
     {
        const user = db.prepare("   SELECT \
-                                        id, username, nickname, avatar, slug, created_at \
+                                        id, username, nickname, avatar, slug, created_at, twofa_enabled \
                                     FROM \
                                         users \
                                     WHERE \

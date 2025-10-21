@@ -94,8 +94,8 @@ export async function updateName(request, reply)
 {
     const   { oldName, newName } = request.body;
 
-    if (checkNameFormat(request) === false)
-        return reply.code(400).send({ error: "Invalid format for request" });
+    console.log('ENTRER DANS UPDATE NAME');
+    console.log('ENTRER DANS UPDATE NAME');
     try
     {
         const uploadDir = path.join(process.cwd(), "uploads"); //cwd --> current working directory
@@ -115,6 +115,7 @@ export async function updateName(request, reply)
     }
     catch (err)
     {
-        return reply.code(500).send({ error: "Internal Server Error" + err.message});
+        console.log('ERRRRROOOOOORR', err.message);
+        return reply.code(500).send({ error: "Internal Server Error" + err.mesage});
     }
 }

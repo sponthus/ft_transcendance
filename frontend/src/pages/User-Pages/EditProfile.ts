@@ -268,12 +268,10 @@ export class EditProfile extends popUp {
 		const req = await uploadAvatar(formData);
 		if (req.ok) {
 			await ErrorPopup("Avatar updated successfully!");
-			console.log('STRING AVATAR : ', req.avatar);
 			const pathReq = await updateAvatar(req.avatar);
 			if (pathReq.ok) {
 				await this.updateUserData();	
 				await navigate(`/user/${this.UserData.slug}`); //TODO A REMETTRE
-				await ErrorPopup("avatar modify successfully");
 				return ;
 			}
 			else {

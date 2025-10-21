@@ -7,6 +7,7 @@ export type UserInfo = //VA ETRE CHANGER, le token renvoie le username et l'id d
     slug: string;
     created_at: string;
     friendship_status: string;
+    twofa_enabled: number;
 };
 
 type getUserInfoSuccess = {ok: true; userInfo: UserInfo}

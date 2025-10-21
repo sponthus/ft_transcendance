@@ -5,6 +5,7 @@ import { createLogo } from './RegisterPage.js';
 import { createDiv, createElement, append, createFormDiv, createButton, createAnchorElement } from '../Utils/elementMaker.js';
 import { ErrorPopup } from "./ErrorPage.js";
 import { loginTwoFa } from "../Utils/2FAPopUp.js";
+import { getUserInfo } from "../api/user-service/user-info/getUserInfo.js";
 
 export class LoginPage extends BasePage {
 
@@ -83,6 +84,19 @@ export class LoginPage extends BasePage {
 			"GitHub Login",
 			`width=960,height=540,top=${window.screenX + (window.innerWidth - 960) / 2},left=${window.screenY + (window.innerHeight - 540) / 2}`
 			);
+			/*const timer = setInterval(async() => {
+				if (popup && popup.closed) {clearInterval(timer);}
+				const req = await getUserInfo();
+				if (req.ok) {
+					clearInterval(timer);
+					if (popup && !popup.closed)
+						popup.close();
+					if (req.userInfo.twofa_enabled ===1)
+						await loginTwoFa();
+					else
+						await navigate('/');
+				}
+			}, 4000);*/
 			const timer = setInterval(() => {
 			  if (popup && popup.closed) {
 			    clearInterval(timer);
