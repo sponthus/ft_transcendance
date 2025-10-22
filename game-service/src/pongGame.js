@@ -121,7 +121,11 @@ export class PongGame {
 	// Schematization of ball position in AREA_NUMBER areas
 	get_ai_position()
 	{
-		let area_percent = (this.paddle1.x - X_INFERIOR_BALL_LIMIT) / BALL_RANGE;
+		let area_percent = 0.0;
+		if (this.gameMode == 1)
+			area_percent = (this.paddle1.x - X_INFERIOR_BALL_LIMIT) / BALL_RANGE;
+		else
+			area_percent = (this.paddle2.x - X_INFERIOR_BALL_LIMIT) / BALL_RANGE;
 		area_percent = Math.max(0.0, Math.min(1.0, area_percent)); // for security
 		const area_zone = Math.min(AREA_NUMBER, Math.floor(area_percent * AREA_NUMBER) + 1);
 		if (this.gameMode == 2)
