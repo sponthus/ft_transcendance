@@ -1,16 +1,25 @@
 import EventEmitter from 'node:events';
 
 export class GameEventEmitter extends EventEmitter {
+	static instance = null;
+
     constructor() {
         super();
+		GameEventEmitter.instance = this;
         this.setMaxListeners(15); // More simultaneous listeners
+    }
+
+	static getInstance() {
+        if (!GameEventEmitter.instance) {
+            GameEventEmitter.instance = new GameEventEmitter();
+        }
+        return GameEventEmitter.instance;
     }
 
     // Helper method to emit events with standard format
     emitGameEvent(eventType, gameId, data = {}) {
         const eventData = {
             gameId,
-            timestamp: new Date(),
             ...data
         };
 
@@ -20,7 +29,6 @@ export class GameEventEmitter extends EventEmitter {
 	emitTournamentEvent(eventType, tournamentId, data = {}) {
         const eventData = {
             tournamentId,
-            timestamp: new Date(),
             ...data
         };
 
@@ -28,4 +36,4 @@ export class GameEventEmitter extends EventEmitter {
     }
 }
 
-export const gameEventEmitter = new GameEventEmitter();
+export const gameEventEmitter = GameEventEmitter.getInstance();

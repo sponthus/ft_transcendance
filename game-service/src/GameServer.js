@@ -54,7 +54,9 @@ export default class GameServer {
     setHandlers(game) {
 		// console.debug("Handlers are set");
         this.ws.on('close', () => {
+			console.log("❌ WebSocket closed by client");
             if (this.end == false) {
+				console.log("❌ Player disconnected from game ", this.gameId);
 				gameEventEmitter.emitGameEvent('player:disconnected', this.gameId, {
 					tournamentId: this.tournamentId,
 					userId: this.userId
@@ -96,6 +98,7 @@ export default class GameServer {
 
 		this.ws.on('error', (error) => {
 			if (this.end == false) {
+				console.error("❌ WebSocket error: ", error);
 				gameEventEmitter.emitGameEvent('player:disconnected', this.gameId, {
 					tournamentId: this.tournamentId,
 					userId: this.userId
@@ -114,6 +117,7 @@ export default class GameServer {
 	
     startGame() {
         this.state = 'playing';
+		console.log("▶️ Starting game ", this.gameId, " - tournament ", this.tournamentId);
         gameEventEmitter.emitGameEvent('game:started', this.gameId, {
 			tournamentId: this.tournamentId,
 			userId: this.userId
@@ -150,7 +154,8 @@ export default class GameServer {
 				console.log("❌ Unable to send game state");
 			}
 			if ((this.scoreA >= this.maxScore || this.scoreB >= this.maxScore) && this.end === false) {
-                this.end = true;
+                console.log("🏆 Game ended with score ", this.scoreA, "-", this.scoreB);
+				this.end = true;
 				this.state == "finished";
 				this.endGame();
             }
@@ -176,6 +181,7 @@ export default class GameServer {
 				scoreA: this.scoreA,
 				scoreB: this.scoreB
             }));
+			console.log("✅ endGame sent to player with winner ", winner);
 		} else {
 			console.log(" ❌ Unable to send endGame");
 		}
@@ -191,9 +197,18 @@ export default class GameServer {
         this.destroy();
     }
 
+	clean() {
+		clearInterval(this.intervalId);
+		this.game = null;
+		if (this.ws && this.ws.readyState === 1) {
+			this.ws.close();
+		}
+		this.ws = null;
+	}
+
     destroy() {
 		console.log("🛑 Destroying game server ", this.gameId);
-        clearInterval(this.intervalId);
+		this.clean();
         GameMaster.getInstance().endServer(this.gameId);
     }
 }
