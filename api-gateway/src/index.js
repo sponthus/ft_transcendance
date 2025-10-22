@@ -51,7 +51,7 @@ await fastify.register(rateLimit, {
 });
 
 fastify.addHook('onRequest', async (request, reply) => {
-	console.debug("On request hook");
+	// console.debug("On request hook");
 	if (!request) {
 		console.warn('Missing request object');
 		reply.code(400).send({ error: 'Invalid request' });
@@ -110,7 +110,7 @@ fastify.addHook('onRequest', async (request, reply) => {
 
 	// Validate host header in production
 	const host = request.headers['host'];
-	// if (env.nodeEnv === 'production') {
+	if (env.nodeEnv === 'production') {
 		if (!host || typeof host !== 'string') {
 			console.warn('Missing or invalid host header');
 			reply.code(400).send({ message: 'Missing or invalid host header' });
@@ -122,7 +122,7 @@ fastify.addHook('onRequest', async (request, reply) => {
 			reply.code(400).send({ message: 'Host header does not match' });
 		}
 		return;
-	// }
+	}
 });
 
 // Protection of attacks looking for valid URL by hardly protecting 404

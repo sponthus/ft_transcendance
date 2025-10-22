@@ -374,6 +374,8 @@ export default class DatabaseHandler {
                     // At 1st round, edit next-game
                     nextGameId = gameResults[0];
                     updateNextGameStmt.run(nextGameId, tournamentId);
+					// console.log("Next game for tournament ", tournamentId, " is ", nextGameId);
+					// console.log("Games created for round 0: ", gameResults);
                 } else {
                     // Final round = 1 game
                     if (round == totalRounds) {
@@ -709,7 +711,7 @@ export default class DatabaseHandler {
 	// Test is ok / 4 players
 	endTournamentGame(tournamentId, gameId) {
 		const transaction = this.db.transaction((tournamentId, gameId) => {
-			console.log("--- Ending tournament game ", gameId, " for tournament ", tournamentId);
+			// console.debug("--- Ending tournament game ", gameId, " for tournament ", tournamentId);
 			// Find current match round & number
 			const currentMatchStmt = this.db.prepare(`
 	SELECT tm.round, tm.match_number, g.winner
@@ -722,7 +724,7 @@ export default class DatabaseHandler {
 			if (!currentMatch) 
 				throw new Error("Current match not found");
 		
-			console.log("Current match: ", currentMatch);
+			// console.debug("Current match: ", currentMatch);
 			// Find next match on the same round 
 			const nextMatchSameRoundStmt = this.db.prepare(`
 	SELECT game_id
@@ -735,11 +737,11 @@ export default class DatabaseHandler {
 				currentMatch.round,
 				currentMatch.match_number + 1
 			);
-			console.log("Next match same round: ", nextMatch);
+			// console.debug("Next match same round: ", nextMatch);
 
 			// No more match on this round -> Is there a new round ?
 			if (!nextMatch) {
-				console.log("No next match on the same round, looking for next round");
+				// console.debug("No next match on the same round, looking for next round");
 				// Find next round match 0
 				const nextMatchNextRoundStmt = this.db.prepare(`
 	SELECT game_id
@@ -750,7 +752,7 @@ export default class DatabaseHandler {
 					tournamentId,
 					currentMatch.round + 1
 				);
-				console.log("Next match next round: ", nextMatch);
+				// console.debug("Next match next round: ", nextMatch);
 			}
 		
 			const updateNextGameStmt = this.db.prepare(`
@@ -762,7 +764,7 @@ export default class DatabaseHandler {
 			if (nextMatch) {
 				// Update tournament next_game
 				updateNextGameStmt.run(nextMatch.game_id, tournamentId);
-				console.log("Next match found, updating next_game to ", nextMatch.game_id);
+				// console.debug("Next match found, updating next_game to ", nextMatch.game_id);
 
 				// Update players for the next game, at the right spot
 				const nextRound = 1;
@@ -778,7 +780,7 @@ export default class DatabaseHandler {
 				`);
 				const nextRoundMatch = nextRoundMatchStmt.get(tournamentId, nextRound, nextMatchNumber);
 
-				console.log("Next round match to update players: ", nextRoundMatch);
+				// console.debug("Next round match to update players: ", nextRoundMatch);
 				if (nextRoundMatch) {
 					// Slot to fill
 					if (currentMatch.match_number % 2 === 0 && nextRoundMatch.player_a === "undefined") {
@@ -799,11 +801,11 @@ export default class DatabaseHandler {
 					const updateTournamentStatus = this.updateTournamentStatusLogic(tournamentId, "between_games");
 					if (!updateTournamentStatus.ok) {
 						throw new Error("Could not update tournament status: " + updateTournamentStatus.error);
-					} // TODO check throw ?
+					}
 				}
 			} 
 			else {
-				console.log("No next match, tournament is over");
+				// console.log("No next match, tournament is over");
 				// Tournament is over, no next game
 				updateNextGameStmt.run(null, tournamentId);
 
@@ -866,7 +868,7 @@ export default class DatabaseHandler {
 			`);
 		const res = updatePlayerStmt.run(newStatus, tournamentId, `@${userId}`);
 		if (res.changes === 0) {
-			console.log("No changes made when updating player status");
+			// console.debug("No changes made when updating player status");
 			return {ok: false, error: "Player already accepted or declined invitation"};
 		}
 		return {ok: true};
