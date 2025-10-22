@@ -14,6 +14,6 @@ export default async function logoutUser(request, reply)
     }
     catch (err)
     {
-        return reply.code(500).send({ error: "Internal Servor Error" });
+        return reply.code(500).send({ message: "Internal Servor Error" });
     }
 }

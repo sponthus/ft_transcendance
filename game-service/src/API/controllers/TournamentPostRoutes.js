@@ -71,8 +71,8 @@ export async function createTournament(request, reply) {
 		for (let player of playersCopy) {
 			// Send notification = Tournament invitation
 			if (player[0] === '@') {
-				const playerId = player.slice(1);
-				if (Number(playerId) != requestingUserId) {
+				const playerId = Number(player.slice(1));
+				if (playerId != requestingUserId) {
 					const notification = await sendTournamentInvitation(playerId, requestingUserId, result.tournament_id, result.name);
 					if (!notification.ok) {
 						console.error("❌ Unable to send tournament invitation to ", player);

@@ -34,7 +34,7 @@ export async function   getNotifications(url: string): Promise<NotifResult>
         {
             return { ok: true, notifs: data.notifs};
         }
-        return { ok: false, error: data.error};
+        return { ok: false, error: data.message};
     }
     catch (err)
     {

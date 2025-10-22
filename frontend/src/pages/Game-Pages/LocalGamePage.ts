@@ -1,10 +1,9 @@
 import { UserInfo } from '../../api/user-service/user-info/getUserInfo.js';
-import { createDiv, createElement, createButton, createDropdownDiv, createFormDiv, createCheckBoxLabel, append, createImage, createInput, setbackgroundImages} from '../../Utils/elementMaker.js';
+import { createDiv, createElement, createButton, append, createImage, createInput, setbackgroundImages} from '../../Utils/elementMaker.js';
 
 export class LocalGamePage {
 
 	private Page!: HTMLElement;
-	// private PartyMap!: Map<number, HTMLInputElement>;
 	private userData!: UserInfo;
 
 	/*************************for creatingGame*************************/

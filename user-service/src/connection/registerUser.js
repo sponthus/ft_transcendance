@@ -18,7 +18,7 @@ export default async function registerUser(request, reply)
                                         WHERE \
                                             username = ?').get(username);
     if (existingUser)
-        return reply.code(409).send({error: "Username already exist"});
+        return reply.code(409).send({message: "Username already exist"});
 
     try 
     {
@@ -46,7 +46,7 @@ export default async function registerUser(request, reply)
     }
     catch (err)
     {
-        return (reply.code(500).send( {error : "Internal Server Error" + err.message} ));
+        return (reply.code(500).send( {message: "Internal Server Error" + err.message} ));
     }
 }
 

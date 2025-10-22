@@ -903,11 +903,11 @@ export default class DatabaseHandler {
 			else {
 				let players = rows
 					.filter(row => row.has_accepted === ACCEPTED)
-					.map(row => row.name.slice(1));
+					.map(row => Number(row.name.slice(1)));
 
 				const waitingFor = rows
 					.filter(row => row.has_accepted === WAITING)
-					.map(row => row.name.slice(1));
+					.map(row => Number(row.name.slice(1)));
 				if (waitingFor.length === 0) {
 					return {ok: true, waitingFor: [], players: players};
 				}

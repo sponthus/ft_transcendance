@@ -1,4 +1,4 @@
-import { createDiv, createButton, append} from '../../Utils/elementMaker.js';
+import { createButton} from '../../Utils/elementMaker.js';
 import { createLocalGame, startGame } from "../../api/game-service/games/game.js"
 import { LocalGamePage } from './LocalGamePage.js';
 import { GamePage } from './GamePage.js';
@@ -9,7 +9,6 @@ import { getUserInfo } from "../../api/user-service/user-info/getUserInfo.js";
 import { createTournament } from "../../api/game-service/tournaments/newTournament.js";
 import { ErrorPopup } from '../ErrorPage.js';
 import { AllUsers, getAllUsers } from '../../api/user-service/menu/getAllUsers.js';
-import { SessionSocket } from '../../core/SessionSocket.js';
 import { TournamentsInfos } from '../../api/game-service/tournaments/getTournaments.js';
 
 export enum PageState {MOD = 0, TOURNAMENT = 1, PARTY = 2, LOCALSETTING = 3, NEWTOURNAMENT = 4, CONTINUETOURNAMENT = 5, BRACKET = 6, WAITING = 7, WIN = 8};

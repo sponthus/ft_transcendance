@@ -17,7 +17,7 @@ export async function   connectWithGithub(): Promise<OAuthResult>
         {
             return { ok: true };
         }
-        return { ok: false, error: data.error};
+        return { ok: false, error: data.message};
     }
     catch (err)
     {

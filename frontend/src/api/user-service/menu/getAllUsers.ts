@@ -24,5 +24,5 @@ export async function   getAllUsers(): Promise<UsersResult>
     {
         return { ok: true, users: data.users};
     }
-    return { ok: false, error: data.error};
+    return { ok: false, error: data.message};
 }

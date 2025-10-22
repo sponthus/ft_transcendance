@@ -7,6 +7,7 @@ export type UserInfo = //VA ETRE CHANGER, le token renvoie le username et l'id d
     slug: string;
     created_at: string;
     friendship_status: string;
+    twofa_enabled: number;
 };
 
 type getUserInfoSuccess = {ok: true; userInfo: UserInfo}
@@ -31,7 +32,7 @@ export async function   getUserInfo() : Promise<GetUserInfoResult>
         {
             return ({ ok: true, userInfo: data.userInfo })   
         }
-        return ({ ok: false, error: data.error });
+        return ({ ok: false, error: data.message });
     }
     catch (err)
     {
@@ -53,7 +54,7 @@ export async function   getUserInfoBySlug(slug: string) : Promise<GetUserInfoRes
         {
             return ({ ok: true, userInfo: data.userInfo })   
         }
-        return ({ ok: false, error: data.error });
+        return ({ ok: false, error: data.message });
     }
     catch (err)
     {

@@ -42,8 +42,10 @@ export async function getIdUserFromSlug(request, reply)
 export async function getUserInfosFromId(request, reply)
 {
 	const { idUser } = request.params;
+	const UserId = parseInt(idUser);
+
     const   db = request.server.db;
-	console.debug("➡️ Getting info for user id ", idUser);
+	console.debug("➡️ Getting info for user id ", UserId);
 
 	// TODO add sanitization of idUser
     try
@@ -53,7 +55,7 @@ export async function getUserInfosFromId(request, reply)
                                     FROM \
                                         users \
                                     WHERE \
-                                        id = ?").get(idUser);
+                                        id = ?").get(UserId);
 		if (!userInfo)
 			return reply.code(404).send({ error: "User not found" });
         return reply.code(200).send({ userInfo : userInfo });

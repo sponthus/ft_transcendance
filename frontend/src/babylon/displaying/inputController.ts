@@ -5,7 +5,7 @@ import * as BABYLON from "@babylonjs/core";
 import "@babylonjs/loaders/glTF";
 import { renderAnimation } from "./animations";
 import { renderAsset } from "../displaying/renderAsset";
-import { dialogueBox, sleep } from "./dialogueBox";
+import { dialogueBox } from "./dialogueBox";
 import { renderScene } from "./renderScene";
 
 export class PlayerInput {
@@ -57,7 +57,7 @@ export class PlayerInput {
 		this._animation.startClose();
 
 		this._dialoguePong = new dialogueBox("press 'E' to\n play pong", scene, this._sandCastle);
-		this._dialogueNpc = new dialogueBox("Hi friend !", scene, this._npc);
+		this._dialogueNpc = new dialogueBox("Have you seen\n Bob ?", scene, this._npc);
 		this._dialogueChest = new dialogueBox("press 'E\n to open", scene, this._chest);
 
 		this._setInput();
@@ -93,26 +93,26 @@ export class PlayerInput {
 
 		let hasMovement = false;
 
-		if (this._inputMap['w'] || this._inputMap["arrowup"]) {
+		if (this._inputMap['w']) {
 			this._directionVector.x += 1;
 			this._moveVector.z += speed;
 			hasMovement = true;
 		
 		}
 	
-		if (this._inputMap['s'] || this._inputMap["arrowdown"]){
+		if (this._inputMap['s']){
 			this._directionVector.x -= 1;
 			this._moveVector.z -= speed;
 			hasMovement = true;
 		}
 	
-		if (this._inputMap['a'] || this._inputMap["arrowleft"]){
+		if (this._inputMap['a']){
 			this._directionVector.z += 1;
 			this._moveVector.x -= speed;
 			hasMovement = true;
 		}
 
-		if (this._inputMap['d'] || this._inputMap["arrowright"]) {
+		if (this._inputMap['d']) {
 			this._directionVector.z -= 1;
 			this._moveVector.x += speed;
 			hasMovement = true;
@@ -191,7 +191,6 @@ export class PlayerInput {
 			if (distance > thresholdSq) {
 				if (this._dialogueNpc._isvisible()) {
 					this._dialogueNpc?.hideDialogue();
-					this._dialogueNpc?.changeDialogue("Hi friend !");
 					this._npcTimerStarted = false;
 				}
 				return ;
@@ -201,11 +200,6 @@ export class PlayerInput {
 			if (distance < thresholdSq) {
 				if (!this._npcTimerStarted ) {
 					this._npcTimerStarted = true;
-					setTimeout(() => {
-						if (this._dialogueNpc && this._dialogueNpc.msg !== "How are you\n today ?") {
-							this._dialogueNpc?.changeDialogue("How are you\n today ?");
-						}
-					}, 2000);
 				}
 			}
 		}

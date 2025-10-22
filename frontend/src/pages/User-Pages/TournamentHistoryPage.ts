@@ -1,11 +1,12 @@
-import { createDiv, createElement, createButton, createDropdownDiv, createFormDiv, createCheckBoxLabel, append, setbackgroundImages, createImage} from '../../Utils/elementMaker.js';
-import { getAllTournaments, getTournamentMatches, GameInfos, getFinishedTournaments } from '../../api/game-service/tournaments/getTournaments.js';
+import { createDiv, createElement, createButton, append, setbackgroundImages, createImage} from '../../Utils/elementMaker.js';
+import {  getTournamentMatches, GameInfos, getFinishedTournaments } from '../../api/game-service/tournaments/getTournaments.js';
 import { getUserInfoBySlug, UserInfo } from '../../api/user-service/user-info/getUserInfo.js';
 import { FillHistory, fillHistoryStubborn } from './HistoryPage.js';
 import { ErrorPopup } from '../ErrorPage.js';
 import { AllNotifs, getAllNotifications } from '../../api/user-service/menu/notifications/getNotifications.js';
 import { acceptTournamentinvitation, declineTournamentInvitation } from '../../Utils/notification.js';
-import { isIfStatement } from 'typescript';
+
+
 
 let btnsMap: Map<HTMLButtonElement, HTMLElement> = new  Map<HTMLButtonElement, HTMLElement>();
 let isopen: boolean;
@@ -47,8 +48,10 @@ async function addNotification(body: HTMLElement, notif: AllNotifs) {
 		UserData = req.userInfo;
 		const notifDiv: HTMLElement = createDiv('invitation', 'flex items-center h-[30%] justify-around w-full hover:bg-orange-400 hover:bg-opacity-50 space-x-8 transition-all duration-300 gap-4');
 		
+		const srcImg = `https://${window.location.hostname}:4443/uploads/${UserData.avatar}`;
+
 		const userIcon: HTMLElement = createDiv(`user-notification-icon-${UserData.slug}`, 'flex items-center justify-center bg-orange-300 group-hover:bg-orange-400 rounded-full shadow-xl w-[9%] aspect-square group-hover:shadow-lg transition-all duration-200 transform');
-		append(userIcon, [(createImage(`user-notification-${UserData.slug}`, 'w-[90%] aspect-square rounded-full object-cover object-center',  `https://${window.location.hostname}:4443/uploads/${UserData.avatar}`) as HTMLImageElement)]);
+		append(userIcon, [(createImage(`user-notification-${UserData.slug}`, 'w-[90%] aspect-square rounded-full object-cover object-center', `${srcImg}?t=${Date.now()}`) as HTMLImageElement)]);
 		const invitationTextDiv = createDiv(`invitation-text-${UserData.slug}`, 'flex flex-col items-center');
 		invitationTextDiv.innerHTML = `<P class="text-emerald-600 group-hover:font-bold">user ${UserData.username} invite you to play tournament ${notif.notif_tournament_name}</p>`;
 

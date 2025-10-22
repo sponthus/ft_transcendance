@@ -33,8 +33,9 @@ export async function sendTournamentInvitation(userId, inviterId, tournamentId, 
 			console.log('invitation envoye');
 			return { ok: true };
 		}
-		const data = await res.json(); //il est la car au dessus c'est vide :) juste le ok
-		return { ok: false, error: data.error };
+		const data = await res.json();
+		console.error("❌ Error while sending tournament invitation: ", data.message); //il est la car au dessus c'est vide :) juste le ok
+		return { ok: false, error: data.message };
 	} catch (error) {
 		console.error("❌ Error while sending tournament invitation: ", error);
 		return { ok: false, error: "Internal error while sending tournament invitation"};
