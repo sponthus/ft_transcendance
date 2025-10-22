@@ -1,8 +1,9 @@
-import { activateTwoFa, checkTwoFaCode } from '../api/user-service/2fa.js';
+import { activateTwoFa, checkTwoFaCode, desactivateTwoFa} from '../api/user-service/2fa.js';
 import {append, createElement, createImage, createButton, createDiv, createInput} from './elementMaker.js';
 import { popUp } from './popUp.js';
 import { ErrorPopup } from '../pages/ErrorPage.js';
 import { navigate } from '../core/router.js';
+import { getUserInfo } from '../api/user-service/user-info/getUserInfo.js';
 
 let Inputs: HTMLInputElement[] = [];
 let Success: boolean;
@@ -12,9 +13,55 @@ export async function activateTwoFaBtn() {
 		const req = await activateTwoFa();
 		if (req.ok)
 			await addPopUpContent(req.qrCode!, false);
+		else {
+			const request = await getUserInfo();
+			if (!request.ok)
+				throw new Error(request.error);
+			else {
+				if (request.userInfo.twofa_enabled === 1)
+					await desactivateTwoFaPopup();
+				else
+					throw new Error(req.error);
+			}
+				
+		}
 	} catch(error) {
 		await ErrorPopup(error as string);
 	}
+}
+
+export async function desactivateTwoFaPopup() {
+	const DelPop: popUp = new popUp('2FA Authentification');
+	DelPop.Title.className = "text-center text-emerald-600 font-bold"
+	DelPop.Body.className = 'flex flex-col items-center justify-center bg-orange-200 rounded-xl shadow-xl p-6 w-80 space-y-4 -translate-y-96 transition-transform duration-300 ease-out';
+
+	const containerBtn: HTMLElement = createDiv('container-btn', 'flex items-center justify-around w-full');
+
+	const Btn: HTMLButtonElement = createButton('yes', 'bg-emerald-600 p-2 rounded-full text-white hover:scale-105 active:scale-95 transition-all duration-300', 'Yes');
+	const backBtn: HTMLButtonElement = createButton('No', 'bg-red-500 p-2 rounded-full text-white hover:scale-105 active:scale-95 transition-all duration-300', 'No');
+
+	append(containerBtn, [backBtn, Btn]);
+
+	const Div: HTMLElement = createDiv('msg', 'border-2 p-4 border-emerald-600 flex items-center justify-center');
+	append(Div, [createElement('p', 'msg', `Do you want to desactivate 2FA authentification ?`, 'text-emerald-600')]);
+
+	DelPop.appendsToBody([Div, containerBtn]);
+	DelPop.addOverlayToWindow();
+	setTimeout(async() => {DelPop.Body.classList.remove('-translate-y-96');},100);
+
+	Btn.addEventListener('click', async() => {
+		try {
+			const req = await desactivateTwoFa();
+			if (!req.ok)
+				throw new Error(req.error);
+			else
+				DelPop.removeOverlayToWindow();
+		}
+		catch (err) {
+			await ErrorPopup(err as string);
+		}
+	})
+	backBtn.addEventListener('click', () => {DelPop.removeOverlayToWindow();})
 }
 
 export async function loginTwoFa() {
@@ -26,18 +73,20 @@ async function addPopUpContent(url: string, active: boolean) {
    
     Success = false;
 	const QrPop: popUp = new popUp('2FA Authentification');
-	QrPop.Body.className = 'flex flex-col items-center justify-center bg-orange-200 rounded-xl shadow-xl p-6 w-80 space-y-4';
+	QrPop.Title.className = "text-center text-emerald-600 font-bold"
+	QrPop.Body.className = 'flex flex-col items-center justify-center bg-orange-200 rounded-xl shadow-xl p-6 w-80 space-y-4 -translate-y-96 transition-transform duration-300 ease-out';
 
 	const containerBtn: HTMLElement = createDiv('container-btn', 'flex items-center justify-around w-full');
 
-	const Btn: HTMLButtonElement = createButton('ok', 'bg-red-500 p-2 rounded-full text-white hover:scale-105 active:scale-95 transition-all duration-300', 'ok');
-	const backBtn: HTMLButtonElement = createButton('back', 'bg-red-500 p-2 rounded-full text-white hover:scale-105 active:scale-95 transition-all duration-300', 'back');
+	const Btn: HTMLButtonElement = createButton('ok', 'bg-emerald-600 p-2 rounded-full text-white hover:scale-105 active:scale-95 transition-all duration-300', 'Ok');
+	const backBtn: HTMLButtonElement = createButton('back', 'bg-red-500 p-2 rounded-full text-white hover:scale-105 active:scale-95 transition-all duration-300', 'Back');
 
 	append(containerBtn, [backBtn, Btn]);
     if (!active)
 	    QrPop.appendToBody(createImage('qr-code', 'object-center', url));
     QrPop.appendsToBody([addCodeInput(), containerBtn]);
 	QrPop.addOverlayToWindow();
+	setTimeout(async() => {QrPop.Body.classList.remove('-translate-y-96');},100);
 	EventInputs();
 	Btn.addEventListener('click', async() => {
         let str: string = "";
@@ -55,9 +104,7 @@ async function addPopUpContent(url: string, active: boolean) {
 			await ErrorPopup(error as string);
 		}
 	})
-	backBtn.addEventListener('click', () => {
-		QrPop.removeOverlayToWindow();
-	})
+	backBtn.addEventListener('click', () => {QrPop.removeOverlayToWindow();})
 }
 
 function EventInputs() {
