@@ -247,14 +247,14 @@ export class EditProfile extends popUp {
 			formData.append('avatar-input', file);
 			const req = await uploadAvatar(formData);
 			if (req.ok) {
-				const pathReq = await updateAvatar(req.avatar);
-				if (pathReq.ok) {
+				//const pathReq = await updateAvatar(req.avatar);
+				//if (pathReq.ok) {
 					await this.updateUserData();
 					await navigate(`/user/${this.UserData.slug}`);
 					return ;
-				}
-				else
-					throw new Error("Error while uploading avatar path in db" + (pathReq.error || "Unknown error"));
+				//}
+				//else
+				//	throw new Error("Error while uploading avatar path in db" + (pathReq.error || "Unknown error"));
 			}
 			else
 				throw new Error("Upload failed: " + (req.error || "Unknown error"));

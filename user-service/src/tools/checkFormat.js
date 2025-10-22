@@ -1,6 +1,46 @@
 import Ajv from 'ajv';
 import addErrors from "ajv-errors";
 
+export const avatarSchema = {
+  type: "object",
+  properties: {
+    avatar: {
+      type: "string",
+      minLength: 5,
+      maxLength: 255,
+      pattern: "^[A-Za-z0-9 _-]+\\.(png|jpg|jpeg)$",
+      errorMessage: {
+        type: "Avatar must be a string",
+        minLength: "Avatar must be at least 5 characters",
+        maxLength: "Avatar cannot be longer than 255 characters",
+        pattern: "Avatar must be a valid image file (png, jpg, jpeg)"
+      }
+    },
+    slug: {
+      type: "string",
+      minLength: 3,
+      maxLength: 20,
+      pattern: "^(?![_-])(?!.*[_-]$)(?=.*[a-z])(?![0-9_]+)[a-z0-9_-]+$",
+      errorMessage: {
+        type: "Slug must be a string",
+        minLength: "Slug must be at least 3 characters",
+        maxLength: "Slug cannot be longer than 20 characters",
+        pattern: "Slug format is invalid"
+      }
+    },
+    idUser: {
+      type: "number",
+      minimum: 1,
+      errorMessage: {
+        type: "idUser must be a number",
+        minimum: "idUser must be at least 1"
+      }
+    }
+  },
+  required: ["avatar", "slug", "idUser"],
+  additionalProperties: false
+}
+
 export const idUserSchema = {
   type: "object",
   properties: {
@@ -311,38 +351,6 @@ export const codeSchema = {
   required: ["code"],
   additionalProperties: false
 };
-
-export function checkAvatarFormat(request) {
-
-  const avatarSchema = {
-    type: "object",
-    properties: {
-      avatar: {
-        type: "string",
-        minLength: 5,
-        maxLength: 255,
-        pattern: "^.+\\.(png|jpg|jpeg)$",
-        errorMessage: {
-          type: "Avatar must be a string",
-          minLength: "Avatar must be at least 5 characters",
-          maxLength: "Avatar cannot be longer than 255 characters",
-          pattern: "Avatar must be a valid image file (png, jpg, jpeg)"
-        }
-      }
-    },
-    required: ["avatar"],
-    additionalProperties: false
-  };
-  const ajv = new Ajv({ allErrors: true });
-  addErrors(ajv);
-  const validate = ajv.compile(avatarSchema);
-  const valid = validate(request.body);
-
-  if (!valid) {
-    const firstError = validate.errors[0]?.message || "Invalid avatar format";
-    return { valid: false, error: firstError };
-  }
-}
 
 /*export const idUserSchema = {
   type: "object",
