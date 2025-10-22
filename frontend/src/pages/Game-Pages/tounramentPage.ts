@@ -398,4 +398,8 @@ export class TournamentPage {
 	set setOption(Option: number){
 		this.Option = Option;
 	}
+
+	set setIsFinal(final : boolean) {
+		this.isFinal = final;
+	}
 }
