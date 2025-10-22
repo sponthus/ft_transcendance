@@ -7,14 +7,17 @@ import { UserBanner } from './UserBannerPage.js';
 import { DisplayeTournamentHistoryPage } from './TournamentHistoryPage.js';
 import { ErrorPopup } from '../ErrorPage.js';
 import { getUserStatus } from '../../api/session-service/getStatus.js';
+import { cleanBanner } from '../Banner.js';
 
 export enum BodyState {FRIENDS = 0, HISTORY = 1, TOURNAMENT = 2};
-export let StateBody: number;
+export let StateBody: number = BodyState.FRIENDS;;
 let isChangeBody: Boolean;
 
 export function ChangeStateBody(state: number){
-	isChangeBody = true;
-	StateBody = state;
+	if (state != StateBody) {
+		isChangeBody = true;
+		StateBody = state;
+	}
 }
 
 export class UserPage extends BasePage {
@@ -32,8 +35,7 @@ export class UserPage extends BasePage {
 	constructor(slug: string) {
 		super();
 		this.slug = slug;
-		this.Statue = '​error 🔴';
-		StateBody = BodyState.FRIENDS;
+		this.Statue = 'Error';
 	}
 	
 	async render(): Promise<void> {
@@ -58,17 +60,16 @@ export class UserPage extends BasePage {
 				if (this.slug != this.UserData.slug)
 					await this.fillUserData()
 				const request = await getUserStatus(this.UserData.slug);
-				if (request.ok) {
+				if (!request.ok)
+					throw new Error(request.error);
+				else {
 					if (request.status && request.status.status === "online")
 						this.Statue = 'online 🟢​';
 					if (request.status && request.status.status === "disconnected")
 						this.Statue = 'disconnected 🔴​';
 					if (request.status && request.status.status === "playing")
 						this.Statue = 'playing 🟡​​';
-				} 
-				// else {
-				// 	ErrorPopup("Unable to get user status : " + request.error);
-				// }
+				}
 				this.UserBanner = new UserBanner(this.UserData, this.isOwnProfile, this.Statue);
 				await this.showUserPage();
 			} else {
@@ -147,12 +148,14 @@ export class UserPage extends BasePage {
 
 	private async BannerEvents() {
 		this.UserBanner.botBannerEvents();
-		document.addEventListener('click', () => {
-			if (isChangeBody) {
-				this.renderBodyProfile();
-				isChangeBody = false;
-			}
-		})
+		document.addEventListener('click', this.onBodyStateChange);
+	}
+
+	private onBodyStateChange = (event: Event): void => {
+		if (isChangeBody) {
+			this.renderBodyProfile();
+			isChangeBody = false;
+		}
 	}
 
 	private async editingEvents() {
@@ -162,5 +165,14 @@ export class UserPage extends BasePage {
 	private async addInApp() {
 		if (this.Background) 
 			this.app.appendChild(this.Background);
+	}
+
+	destroy(): void {
+		cleanBanner();
+		Array.from(this.banner.children).forEach(child => {child.remove()});
+		this.banner.innerHTML = '';
+        Array.from(this.app.children).forEach(child => {child.remove()});
+		this.app.innerHTML = '';
+		document.removeEventListener('click',  this.onBodyStateChange);
 	}
 }

@@ -10,6 +10,9 @@ export async function   markNotificationsRead(): Promise<NotifResult>
         const res = await fetch("/api/user/notifications/mark", 
         {
             method: 'POST',
+			headers: {
+				'host': window.location.host
+			},
             credentials: 'include',
         });
         if (res.ok) 

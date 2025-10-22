@@ -11,8 +11,8 @@ export let currentPage: BasePage | null = null;
 export let WebPath: string;
 
 export async function renderRoute(path: string) {
-	if (currentPage)
-		currentPage.destroy();
+	// if (currentPage)
+	currentPage?.destroy();
     let userData;
     const req = await getUserInfo(); //Est-ce que je peux y mettre en appel en amont pour eviter une surchage de call API ?
     if (req.ok)
@@ -85,7 +85,9 @@ export async function renderRoute(path: string) {
         await currentPage.render();
     }
     else {
-        document.getElementById('app')!.innerHTML = `<h1>404 - Page not found</h1>`;
+		const app =  document.getElementById('app');
+		if (app)
+       app.innerHTML = `<h1>404 - Page not found</h1>`;
     }
 }
 

@@ -17,7 +17,10 @@ export async function   addFriend(slug: string): Promise<FriendsResult>
     const res = await fetch('/api/user/menu/friendslist', 
     {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+			'Content-Type': 'application/json',
+			'host': window.location.host
+		},
         credentials: 'include',
         body: JSON.stringify({ slug }),
     });

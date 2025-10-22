@@ -1,4 +1,4 @@
-import { createDiv, append, createInput, createButton, createElement, createAnchorElement } from "./elementMaker";
+import { createDiv, append, createInput, createButton, createAnchorElement } from "./elementMaker";
 import { navigate } from "../core/router";
 import { getAllUsers, AllUsers } from "../api/user-service/menu/getAllUsers";
 import { ErrorPopup } from "../pages/ErrorPage";
@@ -24,7 +24,7 @@ function createSlidingSearchBar() : HTMLElement {
 
 	const searchInput: HTMLInputElement = createInput(['text', 'search', 'search...', true], 'search', 'w-64 px-4 py-2 pl-4 pr-12 text-sm border-0 rounded-full bg-transparent focus:outline-none opacity-0 transition-opacity duration-300');
 
-	const closeButton = createDiv('close-btn', 'absolute right-2 top-1/2 transform -translate-y-1/2 w-6 h-6 text-gray-500 hover:text-gray-700 opacity-0 transition-opacity duration-300');
+	const closeButton = createDiv('close-btn', 'absolute right-2 top-1/2 transform -translate-y-1/2 w-6 h-6 text-gray-500 hover:text-gray-700 opacity-0 transition-opacity duration-300  active:scale-95');
 	closeButton.innerHTML = `
 		<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 			<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
@@ -38,7 +38,7 @@ function createSlidingSearchBar() : HTMLElement {
 
 function createSearchToggle(): HTMLButtonElement {
 
-	const searchToggle: HTMLButtonElement = createButton('search-toggle', 'flex items-center justify-center w-10 h-10 bg-emerald-600 hover:bg-emerald-700 text-white rounded-full shadow-md hover:shadow-lg transition-all duration-200 transform hover:scale-105', 'search');
+	const searchToggle: HTMLButtonElement = createButton('search-toggle', 'flex items-center justify-center w-10 h-10 bg-emerald-600 hover:bg-emerald-700 text-white rounded-full shadow-md hover:shadow-lg transition-all duration-200 transform hover:scale-105  active:scale-95', 'search');
 	searchToggle.innerHTML = `
 		<svg class="w-5 h-5 text-orange-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 			<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m21 21-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
@@ -68,6 +68,10 @@ function handleSearchEnter() {
 				if (value.username.toLocaleLowerCase().substring(0, searchTerm.length) === searchTerm) {
 					const UserText: HTMLAnchorElement = createAnchorElement(`${value.slug}`, `${value.slug}`, `/user/${value.slug}`, 'text-emerald-600 hover:bg-orange-400 hover:font-bold text-xl w-full text-center transition-all duration-200 hover:scale-105 shadow-xl');
 					searchPanel.appendChild(UserText);
+					UserText.onclick = async() => {
+						closeSearchPanel();
+						await navigate(`/user/${value.slug}`);
+					}
 				}
 			})
 		}
@@ -125,15 +129,20 @@ async function fillUserTab() {
 function closeSearch() {
 	isSearchOpen = false;
 
+	if (searchPanel)
+		closeSearchPanel();
+	
 	const searchInput: HTMLInputElement = document.getElementById("search-input") as HTMLInputElement;
 	const closeButton: HTMLElement = document.getElementById('close-btn-div') as HTMLElement;
-
-	searchInput.className = 'w-64 px-4 py-2 pl-4 pr-12 text-sm border-0 rounded-full bg-transparent focus:outline-none opacity-0 transition-opacity duration-300';
-	closeButton.className = 'absolute right-2 top-1/2 transform -translate-y-1/2 w-6 h-6 text-gray-500 hover:text-gray-700 opacity-0 transition-opacity duration-300';
+	if (searchInput)
+		searchInput.className = 'w-64 px-4 py-2 pl-4 pr-12 text-sm border-0 rounded-full bg-transparent focus:outline-none opacity-0 transition-opacity duration-300';
+	if (closeButton)
+		closeButton.className = 'absolute right-2 top-1/2 transform -translate-y-1/2 w-6 h-6 text-gray-500 hover:text-gray-700 opacity-0 transition-opacity duration-300';
 		
 	setTimeout(() => {
 		(document.getElementById("sliding-search-bar-div") as HTMLElement).className = 'absolute right-0 top-0 w-0 overflow-hidden transition-all duration-300 ease-in-out bg-orange-100 rounded-full shadow-lg';
-		searchInput.value = '';
+		if (searchInput)
+			searchInput.value = '';
 	}, 150);
 }
 
@@ -147,18 +156,19 @@ function openSearchPanel() {
 	searchPanel.className = 'flex flex-col items-center space-y-4 absolute right-0 top-16 w-80 h-72 overflow-y-auto transition-all duration-300 ease-in-out bg-orange-100 rounded-xl shadow-lg border-2 border-emerald-500 opacity-100';
 }
 
-function closeSearchPanel() {
-	removeAllChild(searchPanel);
+function  closeSearchPanel() {
+	if (searchPanel)
+		removeAllChild(searchPanel);
 	isOpen = false;
 	searchPanel.className = 'flex flex-col items-center space-y-4 absolute right-0 top-16 w-0 h-0 overflow-y-auto transition-all duration-300 ease-in-out bg-orange-100 rounded-xl shadow-lg border-2 border-emerald-300 opacity-0';
 }
 
-function handleSearch() {
-	const searchInput = document.getElementById('search-input') as HTMLInputElement;
-	if (!searchInput) return;
+// function handleSearch() {
+// 	const searchInput = document.getElementById('search-input') as HTMLInputElement;
+// 	if (!searchInput) return;
 
-	const searchTerm = searchInput.value.trim();
-	if (searchTerm) {
-		navigate(`/search?q=${encodeURIComponent(searchTerm)}`);
-	}
-}
+// 	const searchTerm = searchInput.value.trim();
+// 	if (searchTerm) {
+// 		navigate(`/search?q=${encodeURIComponent(searchTerm)}`);
+// 	}
+// }

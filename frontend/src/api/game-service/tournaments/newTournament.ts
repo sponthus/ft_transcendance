@@ -44,6 +44,7 @@ export async function createTournament(name: string, playersList: Array<string>,
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
+				'host': window.location.host
 			},
             credentials: 'include',
 			body: JSON.stringify({

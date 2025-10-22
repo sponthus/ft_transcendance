@@ -1,11 +1,11 @@
-import { navigate } from "../../core/router";
 import { BasePage } from "../BasePage";
-import { createDiv, createElement, createButton, createDropdownDiv, createFormDiv, createCheckBoxLabel, append, createImage, setbackgroundImages} from '../../Utils/elementMaker.js';
+import { createDiv, createButton, append, setbackgroundImages} from '../../Utils/elementMaker.js';
 import { renderGameSetting, getAvatarAsset, getCurrentNpcAsset } from "./GameSettings";
 import { cleanForm, renderProfileSetting, saveUserForm } from "./ProfileSetting";
 import { changeNpcAsset } from "../../api/user-service/menu/npcAsset";
 import { changeCharacterAsset } from "../../api/user-service/menu/characterAsset";
 import { ErrorPopup } from '../ErrorPage.js';
+import { cleanBanner } from "../Banner";
 
 enum PageState {GAME = 0, PROFILE = 1};
 
@@ -193,5 +193,12 @@ export class SettingPage extends BasePage {
 		} catch (error) {
 			await ErrorPopup(error as string);
 		}
+	}
+
+	destroy(): void {
+		this.banner.innerHTML = '';
+		this.app.innerHTML = '';
+		
+		cleanBanner();
 	}
 }

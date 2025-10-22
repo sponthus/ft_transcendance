@@ -1,5 +1,4 @@
 import { notifyRefresh } from "../../internal-service/notifyServices.js";
-// import { checkSlugFormat } from "../../tools/checkFormat.js";
 import { addNotification } from "../notifications/notificationsManager.js";
 
 export async function   addFriend(request, reply)

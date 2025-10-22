@@ -25,7 +25,6 @@ export class EditProfile extends popUp {
 		this.createReturnAndSaveBtn();
 		this.isEdit = false;
 		this.UserData = UserData;
-		// this.slug = state.user?.slug;
 	}
 
 	render(div: HTMLElement, Id: string) {
@@ -189,18 +188,17 @@ export class EditProfile extends popUp {
 	}
 
 	private async saveUsername() {
-		const Form = document.getElementById('Edit-form');
-		
-		const username: string = (Form?.querySelector('input[name="username"]') as HTMLInputElement).value;
-
-		// alert("Changing username to " + username);
-		// console.log("new username = ", username)
 		try {
-			if (username == this.UserData.username) {
-				// alert("No changes detected in username");
+			const Form = document.getElementById('Edit-form');
+			if (!Form)
 				return ;
-			}
-			// alert("Changing username to " + username);
+			const username: string = (Form?.querySelector('input[name="username"]') as HTMLInputElement).value;
+			if (!username)
+				throw new Error("Please, enter new username");
+			if (username == this.UserData.username)
+				return ;
+			if (username.length > 15)
+				throw new Error("username must have maximum 15 characters");
 			const req = await updateUsername(username);
 			if (req.ok) {
 				this.cleanBody();
@@ -216,70 +214,53 @@ export class EditProfile extends popUp {
 	}
 
 	async openUploadForm() {
-		const form = document.getElementById('avatar-upload-form') as HTMLFormElement;
-		if (!form) 
-			return ;
-
-		const input = form.querySelector('input[type="file"]') as HTMLInputElement;
-		if (!input.files || input.files.length === 0) {
-			await ErrorPopup("Please, select a file");
-			return;
-			}
-			
-		const file = input.files[0];
-
-		// Vérifie que le fichier est bien un vrai JPEG (lecture des 3 premiers octets)
-  		const headerBuffer = await file.slice(0, 8).arrayBuffer();
-		const bytes = new Uint8Array(headerBuffer);
-		let verif = 0;
-		// Signature JPEG : 0xFF 0xD8 0xFF
-  		if (bytes[0] === 0xFF
-			&& bytes[1] === 0xD8
-			&& bytes[2] === 0xFF)
-		{
-				verif = 1;
-		}
-		if (bytes[0] === 0x89 &&
-			bytes[1] === 0x50 &&
-			bytes[2] === 0x4E &&
-			bytes[3] === 0x47 &&
-			bytes[4] === 0x0D &&
-			bytes[5] === 0x0A &&
-			bytes[6] === 0x1A &&
-			bytes[7] === 0x0A)
-		{
-				verif = 1;
-		}
-		if (verif === 0)
-		{
-			ErrorPopup("File is not jpg or png");
-			return;
-		}
-		const maxSizeBytes = 5 * 1024 * 1024;
-		if (file.size > maxSizeBytes)
-    	{
-				ErrorPopup("File is more than 5GB");
+		try {
+			const form = document.getElementById('avatar-upload-form') as HTMLFormElement;
+			if (!form)
 				return;
-		}
-		
-		const formData = new FormData();
-		formData.append('avatar-input', file);
-		// Makes 2 requests : upload to upload service + change avatar in user db
-		const req = await uploadAvatar(formData);
-		if (req.ok) {
-			await ErrorPopup("Avatar updated successfully!");
-			const pathReq = await updateAvatar(req.avatar);
-			if (pathReq.ok) {
-				await this.updateUserData();	
-				await navigate(`/user/${this.UserData.slug}`); //TODO A REMETTRE
-				return ;
+			const input = form.querySelector('input[type="file"]') as HTMLInputElement;
+			if (!input.files || input.files.length === 0)
+				throw new Error("Please, select a file");
+			const file = input.files[0];
+  			const headerBuffer = await file.slice(0, 8).arrayBuffer();
+			const bytes = new Uint8Array(headerBuffer);
+			let verif = 0;
+  			if (bytes[0] === 0xFF
+				&& bytes[1] === 0xD8
+				&& bytes[2] === 0xFF)
+			{verif = 1;}
+			if (bytes[0] === 0x89 &&
+				bytes[1] === 0x50 &&
+				bytes[2] === 0x4E &&
+				bytes[3] === 0x47 &&
+				bytes[4] === 0x0D &&
+				bytes[5] === 0x0A &&
+				bytes[6] === 0x1A &&
+				bytes[7] === 0x0A)
+			{verif = 1;}
+			if (verif === 0)
+				throw new Error("File is not jpg or png");
+			const maxSizeBytes = 5 * 1024 * 1024;
+			if (file.size > maxSizeBytes)
+				throw new Error("File is more than 5GB");
+			const formData = new FormData();
+			formData.append('avatar-input', file);
+			const req = await uploadAvatar(formData);
+			if (req.ok) {
+				const pathReq = await updateAvatar(req.avatar);
+				if (pathReq.ok) {
+					await this.updateUserData();
+					await navigate(`/user/${this.UserData.slug}`);
+					return ;
+				}
+				else
+					throw new Error("Error while uploading avatar path in db" + (pathReq.error || "Unknown error"));
 			}
-			else {
-				await ErrorPopup("Error while uploading avatar path in db" + (pathReq.error || "Unknown error"));
-			}
-		}
-		else {
-			await ErrorPopup("Upload failed: " + (req.error || "Unknown error"));
+			else
+				throw new Error("Upload failed: " + (req.error || "Unknown error"));
+
+		} catch(error) {
+			await ErrorPopup(error as string);
 		}
 	}
 
@@ -287,7 +268,6 @@ export class EditProfile extends popUp {
 		try {
 			const req = await getUserInfo();
 			if (req.ok) {
-				console.log('new usernme = ', req.userInfo.username)
 				this.UserData = req.userInfo;
 			}
 			else

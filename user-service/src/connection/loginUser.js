@@ -1,6 +1,5 @@
 import bcrypt from "bcrypt";
 import env from '../../config/env.js';
-// import { checkRegistrationFormat } from "../tools/checkFormat.js";
 import { notifyChangeData } from "../internal-service/notifyServices.js";
 
 export default async function loginUser (request, reply)

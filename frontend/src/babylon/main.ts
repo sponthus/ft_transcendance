@@ -10,7 +10,7 @@ import { PlayerInput } from "./displaying/inputController.js";
 import { renderGround } from "./displaying/renderGround.js";
 import { renderAsset } from "./displaying/renderAsset.js";
 import { sleep } from "./displaying/dialogueBox.js";
-import { cleanBanner, renderBaseBanner, renderLoggedInBanner} from "../pages/Banner.js";
+import { cleanBanner} from "../pages/Banner.js";
 import { ErrorPopup } from "../pages/ErrorPage.js";
 
 export class Game extends BasePage {
@@ -39,18 +39,24 @@ export class Game extends BasePage {
 			if (this._renderScene.engine)
 				this._renderScene.engine.displayLoadingUI();
 			
-			if (this._renderScene.homeScene) {
+			if (this._renderScene.homeScene && !this._renderScene.homeScene.isDisposed) {
 				this._renderAsset = new renderAsset(this._renderScene.homeScene);
 				await this._renderAsset._load();
-				this._animation =  new renderAnimation(this._renderScene.homeScene, this._renderAsset);
-				this._animation.startidle();
-				this._animation.startidlenpc();
-				this._renderMap = new renderMap(this._renderScene.homeScene,  this._renderAsset.LoadedMap);
+				if (!this._renderScene.homeScene.isDisposed) {
+					this._animation =  new renderAnimation(this._renderScene.homeScene, this._renderAsset);
+					this._animation.startidle();
+					this._animation.startidlenpc();
+				}
+				if (!this._renderScene.homeScene.isDisposed) 
+					this._renderMap = new renderMap(this._renderScene.homeScene,  this._renderAsset.LoadedMap);
 		
-				this._renderGround = new renderGround(this._renderScene.homeScene);
-				await this._renderGround._loadground();
+				if (!this._renderScene.homeScene.isDisposed) {
+					this._renderGround = new renderGround(this._renderScene.homeScene);
+					await this._renderGround._loadground();
+				}
 		
-				this._input = new PlayerInput(this._renderScene.homeScene, this._renderAsset, this._animation, this._renderScene);
+				if (!this._renderScene.homeScene.isDisposed && this._renderAsset && this._animation)
+					this._input = new PlayerInput(this._renderScene.homeScene, this._renderAsset, this._animation, this._renderScene);
 			}
 
 			await sleep(3000);
@@ -65,17 +71,24 @@ export class Game extends BasePage {
 	destroy(): void {
 		this.banner.innerHTML = '';
 		this.app.innerHTML = '';
+		document.body.style.overflow = "";
 		cleanBanner();
 		if (this._renderScene) {
-			if (this._renderScene.homeScene)
+			if (this._renderScene.homeScene && !this._renderScene.homeScene.isDisposed)
 				this._renderScene.homeScene.dispose();
-			if (this._renderScene.pongScene)
+			if (this._renderScene.pongScene && !this._renderScene.pongScene.isDisposed)
 				this._renderScene.pongScene.dispose();
-			if (this._renderScene.engine) {
+			if (this._renderScene.engine && !this._renderScene.engine.isDisposed) {
 				this._renderScene.engine.stopRenderLoop();
 				this._renderScene.engine.dispose();
 			}
+			if (this._renderScene && this._renderScene.PongGame && this._renderScene.PongGame.GamePhysics)
+				this._renderScene.PongGame!.GamePhysics!.stopGame();
 		}
+	}
+
+	get renderScene() {
+		return this._renderScene;
 	}
 }
 

@@ -10,6 +10,9 @@ export async function   countUnreadNotifications(): Promise<NotifResult>
         const res = await fetch('/api/user/notifications/mark', 
         {
             method: 'GET',
+            headers: {
+                'host': window.location.host
+            },
             credentials: 'include',
         });
         const data = await res.json();    

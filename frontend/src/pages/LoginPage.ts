@@ -62,7 +62,6 @@ export class LoginPage extends BasePage {
 								, (createAnchorElement('bot-ling',  "Sign up", "/register", "text-emerald-800 hover:text-emerald-900 font-medium hover:underline") as HTMLAnchorElement)]);
 	}
 
-	
 	private async addInApp() {
 		const GithubBtn = createButton('gitHub', 'group flex items-center w-full justify-center gap-2 px-4 py-2 bg-orange-300 rounded-lg hover:bg-orange-400 transition active:scale-95 hover:scale-105 text-emerald-600', '');
 		GithubBtn.innerHTML = `
@@ -74,7 +73,7 @@ export class LoginPage extends BasePage {
 
 		let prefix = 'https';
 		const status = import.meta.env?.MODE;
-        if (status === "development") {
+    	if (status === "development") {
 			prefix = 'http';
 		}
 		let link = `${prefix}://${window.location.host}/api/user/oauth/github`;
@@ -84,11 +83,13 @@ export class LoginPage extends BasePage {
 			"GitHub Login",
 			`width=960,height=540,top=${window.screenX + (window.innerWidth - 960) / 2},left=${window.screenY + (window.innerHeight - 540) / 2}`
 			);
-			/*const timer = setInterval(async() => {
-				if (popup && popup.closed) {clearInterval(timer);}
+			let Time: number = 0;
+			const timerId = setInterval(async() => {
+				console.log("Time is : ", Time);
+				if (popup && popup.closed) {clearInterval(timerId);}
 				const req = await getUserInfo();
 				if (req.ok) {
-					clearInterval(timer);
+					clearInterval(timerId);
 					if (popup && !popup.closed)
 						popup.close();
 					if (req.userInfo.twofa_enabled ===1)
@@ -96,14 +97,15 @@ export class LoginPage extends BasePage {
 					else
 						await navigate('/');
 				}
-			}, 4000);*/
-			const timer = setInterval(() => {
-			  if (popup && popup.closed) {
-			    clearInterval(timer);
-			    navigate('/')
-			  }
-			}, 1000)
-		})
+				if (Time >= 120000) {
+					clearInterval(timerId);
+					await ErrorPopup("Error : Timeout, please retry");
+					if (popup && !popup.closed)
+						popup.close();
+				}
+				Time += 4000;
+			}, 4000);
+		});
 	}
 
 	private async watchForm() {

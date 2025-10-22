@@ -8,7 +8,10 @@ export async function   changeCharacterAsset (asset: number): Promise<AssetResul
     const res = await fetch('/api/user/menu/character/asset', 
     {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+			'Content-Type': 'application/json',
+			'host': window.location.host
+		},
         credentials: 'include',
         body: JSON.stringify({ asset }),
     });

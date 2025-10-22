@@ -11,7 +11,10 @@ export async function   answerTournament(senderSlug: string, tournamentId: numbe
         const res = await fetch('/api/user/notifications/tournament/answer', 
         {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 
+				'Content-Type': 'application/json',
+				'host': window.location.host
+			},
             credentials: 'include',
             body: JSON.stringify(
             {   

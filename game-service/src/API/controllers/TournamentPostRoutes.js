@@ -1,4 +1,3 @@
-// import { checkPlayerFormat } from "../../tools/CheckFormat.js";
 import { getUserIdFromSlug } from "../requests/GetUserIdFromSlug.js";
 import { sendTournamentInvitation } from "../requests/SendTournamentInvitation.js";
 
@@ -16,9 +15,6 @@ export async function createTournament(request, reply) {
 	if (!requestingUserId)
 		return reply.code(401).send({ error: "Unauthorized."});
     
-	/*if (checkTournamentCreationFormat(request) === false) {
-		return reply.code(400).send({ error: 'Bad tournament creation format.'}); SCHEMA CHANGER
-	}*/
     const { name, players, option } = request.body;
 	if (checkDoubles(request.body.players) === true) {
 		return reply.code(400).send({ error: 'Duplicates not allowed.'});
@@ -27,11 +23,11 @@ export async function createTournament(request, reply) {
 		return reply.code(400).send({ error: 'A tournament must have 4 players.'});
 	}
 	let has_users_to_wait = false;
+
+	const rawPlayers = [...players];
+	// Transform slugs into userIds for uniform storage - check if invitations needed
     for (let i = 0; i < players.length; i++) {
 		const player = players[i];
-		// if (checkPlayerFormat(player) === false) {
-		// 	return reply.code(400).send({ error: 'Bad player name format.'});
-		// }
 		if (player[0] === '@') {
 			// console.debug("Resolving slug ", player);
 			const userId = await getUserIdFromSlug(player.slice(1));
@@ -96,9 +92,27 @@ export async function createTournament(request, reply) {
 			}
 		}
 		if (has_users_to_wait === false) {
-			return reply.code(200).send(result);
+			return reply.code(200).send({
+				tournament_id: result.tournament_id,
+				name: result.name,
+				status: result.status,
+				numberOfPlayers: rawPlayers.length,
+				rounds: result.rounds,
+				nextGameId: result.nextGameId,
+				option: result.option,
+				players: rawPlayers
+			});
 		} else {
-			return reply.code(201).send(result);
+			return reply.code(201).send({
+				tournament_id: result.tournament_id,
+				name: result.name,
+				status: result.status,
+				numberOfPlayers: rawPlayers.length,
+				rounds: result.rounds,
+				nextGameId: result.nextGameId,
+				option: result.option,
+				players: rawPlayers
+			});
 		}
     }
     catch (error) {

@@ -8,7 +8,10 @@ export async function   acceptRequest(slug :string): Promise<RequestResult>
     const res = await fetch('/api/user/menu/friendslist/request', 
     {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+			'Content-Type': 'application/json',
+			'host': window.location.host
+		},
         credentials: 'include',
         body: JSON.stringify({ slug }),
     });

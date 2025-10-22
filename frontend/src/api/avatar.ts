@@ -13,6 +13,9 @@ export async function uploadAvatar(formData: FormData): Promise<AvatarUploadResu
         const res = await fetch(`/api/avatars/`,
         {
             method: 'PUT',
+			headers: {
+				'host': window.location.host
+			},
             credentials: 'include',
             body: formData,
         });

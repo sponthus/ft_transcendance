@@ -14,7 +14,6 @@ export async function	getAllUsers() {
 		const res = await fetch(`${url}://user-service:${env.user_port}/internal-service/users-info`, {
 			method: 'GET',
 			headers: { 
-				'Content-Type': 'application/json',
 				'x-internal-api-key': api_key
 			},
 			dispatcher: tlsAgent

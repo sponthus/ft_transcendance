@@ -1,8 +1,5 @@
 import env from "../../../../config/env.js";
-// import { getSecret } from "../../../index.js";
 import prefix from "../../../tools/url.js";
-// import tlsAgent from "../../../tools/tlsAgent.js";
-// import { checkAnswerFormat } from "../../../tools/checkFormat.js";
 import { answerTournament } from "../../../internal-service/notifyServices.js";
 
 export async function   userAnswerTournament(request, reply)
@@ -35,12 +32,12 @@ export async function   userAnswerTournament(request, reply)
         let url;
         if (answer === "decline")
         {
-            console.log("decline invitation")
+            console.log("Declined invitation")
             url = `${prefix}://game-service:${env.game_port}/tournament/decline`;
         }
         else
         {
-            console.log("accept invitation")
+            console.log("Accepted invitation")
             url = `${prefix}://game-service:${env.game_port}/tournament/accept`;
         }
         const req = await answerTournament(idUser, ownerId.id, tournamentId, tournamentName, url);

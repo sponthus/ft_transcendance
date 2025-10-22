@@ -8,7 +8,10 @@ export async function   changeNpcAsset (asset: number): Promise<AssetResult>
     const res = await fetch('/api/user/menu/npc/asset', 
     {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+			'Content-Type': 'application/json',
+			'host': window.location.host
+		},
         credentials: 'include',
         body: JSON.stringify({ asset }),
     });

@@ -10,6 +10,9 @@ export async function logoutUser(): Promise<LogoutResult>
         const res = await fetch('/api/user/logout',
         {
             method: 'POST',
+			headers: {
+				'host': window.location.host
+			},
             credentials: 'include'  
         });
         if (res.ok) 

@@ -1,14 +1,16 @@
 
 import { updatePassword } from '../../api/user-service/user-info/updatePassword.js';
 import { activateTwoFaBtn } from '../../Utils/2FAPopUp.js';
-import {createFormDiv, append, createElement, setbackgroundImages, createImage, createButton, createDiv, createInput} from '../../Utils/elementMaker.js';
+import {createFormDiv, append, createElement, setbackgroundImages, createButton} from '../../Utils/elementMaker.js';
 import { ErrorPopup } from '../ErrorPage.js';
 
-let form: HTMLFormElement = createElement('form', "register-form", "", "space-y-6") as HTMLFormElement;
-let twofabtn: HTMLButtonElement = createButton('twofa', 'w-full active:scale-95 hover:scale-105 text-orange-200', '2FA authentification');
+let form: HTMLFormElement;
+let twofabtn: HTMLButtonElement;
 
 
 export async function renderProfileSetting(ButtonDiv: HTMLElement, SettingDiv: HTMLElement, ReturnDiv: HTMLElement) {
+	form = createElement('form', "register-form", "", "space-y-6") as HTMLFormElement;
+	twofabtn = createButton('twofa', 'w-full active:scale-95 hover:scale-105 text-orange-200', '2FA authentification');
 	ButtonDiv.classList.add('opacity-0');
 	ButtonDiv.classList.add('-translate-x-96');
 	SettingDiv.classList.add('translate-x-96');
@@ -62,6 +64,8 @@ export async function saveUserForm() {
 				throw new Error("dissmatch passwords");
 			if (password && ConfirmPassword) {
 				const req = await updatePassword(password);
+				if (!req.ok)
+					throw new Error(req.error);
 			}
 
 		} catch(error) {

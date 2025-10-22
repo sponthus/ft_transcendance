@@ -1,4 +1,4 @@
-import { createDiv, createButton, append} from '../../Utils/elementMaker.js';
+import { createButton} from '../../Utils/elementMaker.js';
 import { createLocalGame, startGame } from "../../api/game-service/games/game.js"
 import { LocalGamePage } from './LocalGamePage.js';
 import { GamePage } from './GamePage.js';
@@ -9,7 +9,6 @@ import { getUserInfo } from "../../api/user-service/user-info/getUserInfo.js";
 import { createTournament } from "../../api/game-service/tournaments/newTournament.js";
 import { ErrorPopup } from '../ErrorPage.js';
 import { AllUsers, getAllUsers } from '../../api/user-service/menu/getAllUsers.js';
-import { SessionSocket } from '../../core/SessionSocket.js';
 import { TournamentsInfos } from '../../api/game-service/tournaments/getTournaments.js';
 
 export enum PageState {MOD = 0, TOURNAMENT = 1, PARTY = 2, LOCALSETTING = 3, NEWTOURNAMENT = 4, CONTINUETOURNAMENT = 5, BRACKET = 6, WAITING = 7, WIN = 8};
@@ -97,7 +96,7 @@ export class Event {
 			const request = await createLocalGame(this.LocalGamePage._PlayerA, this.LocalGamePage._PlayerB, this.LocalGamePage._MaxScore, this.LocalGamePage._Ai, this.LocalGamePage._option);
 			if (!request.ok) 
 				throw new Error('Failed to create Game');
-			else if (request.ok) {
+			else {
 				const id:number = request.gameId;
 				this.launchGame(id, false);
 			}
@@ -137,8 +136,6 @@ export class Event {
 			this.LocalGamePage._backBtn.classList.add('-translate-x-96');
 		if (this.LocalGamePage._settingPan)
 			this.LocalGamePage._settingPan.classList.add('translate-x-96');
-		this.LocalGamePage.setPlayerA = this.LocalGamePage._playerAInput.value;
-		this.LocalGamePage.setPlayerB = this.LocalGamePage._playerBinput.value;
 		this.StatePage = PageState.PARTY;
 		await this.GamePage.generate1v1GamePage();
 	}
@@ -150,9 +147,11 @@ export class Event {
 			this.LocalGamePage._botBtn.classList.add('scale-110');
 			this.LocalGamePage._playerBtn.classList.add('hover:scale-110');
 			this.LocalGamePage._playerBtn.classList.remove('scale-110');
-			this.LocalGamePage.setPlayerAInput = this.LocalGamePage._username; // change to uysername
+			this.LocalGamePage.setPlayerAInput = this.LocalGamePage._userData.username;
+			this.LocalGamePage.setPlayerA = '@' + this.LocalGamePage._userData.slug;
 			this.LocalGamePage.setPlayerAReadonly = true;
 			this.LocalGamePage.setPlayerBInput = "Crabby the bot";
+			this.LocalGamePage.setPlayerB = this.LocalGamePage._playerBinput.value;
 			this.LocalGamePage.setPlayerBReadonly = true;
 			this.LocalGamePage.setAi = 1;
 		}
@@ -165,9 +164,11 @@ export class Event {
 			this.LocalGamePage._playerBtn.classList.add('scale-110');
 			this.LocalGamePage._botBtn.classList.add('hover:scale-110');
 			this.LocalGamePage._botBtn.classList.remove('scale-110');
-			this.LocalGamePage.setPlayerAInput = "player A";
-			this.LocalGamePage.setPlayerAReadonly = false;
+			this.LocalGamePage.setPlayerAInput = this.LocalGamePage._userData.username;
+			this.LocalGamePage.setPlayerA = '@' + this.LocalGamePage._userData.slug;
+			this.LocalGamePage.setPlayerAReadonly = true;
 			this.LocalGamePage.setPlayerBInput = "player B";
+			this.LocalGamePage.setPlayerB = this.LocalGamePage._playerBinput.value;
 			this.LocalGamePage.setPlayerBReadonly = false;
 			this.LocalGamePage.setAi = 0;
 		}
@@ -177,12 +178,24 @@ export class Event {
 		const tmp: string = this.LocalGamePage._playerAInput.value;
 		this.LocalGamePage.setPlayerAInput = this.LocalGamePage._playerBinput.value;
 		this.LocalGamePage.setPlayerBInput = tmp;
-		this.LocalGamePage.setPlayerA = this.LocalGamePage._playerAInput.value;
-		this.LocalGamePage.setPlayerB = this.LocalGamePage._playerBinput.value;
+		this.reversePlayerName();
 		if (this.LocalGamePage._Ai === 1)
 			this.LocalGamePage.setAi = 2;
 		else if (this.LocalGamePage._Ai === 2)
 			this.LocalGamePage.setAi = 1;
+	}
+
+	private reversePlayerName() {
+		const tmpA = this.LocalGamePage._PlayerA;
+		const tmpB = this.LocalGamePage._PlayerB;
+		if (tmpB.startsWith('@'))
+			this.LocalGamePage.setPlayerA = '@' + this.LocalGamePage._userData.slug;
+		else
+			this.LocalGamePage.setPlayerA = this.LocalGamePage._playerAInput.value;
+		if (tmpA.startsWith('@'))
+			this.LocalGamePage.setPlayerB = '@' + this.LocalGamePage._userData.slug;
+		else
+			this.LocalGamePage.setPlayerB = this.LocalGamePage._playerBinput.value;
 	}
 
 	/**********increase score limit**********/
@@ -334,7 +347,7 @@ export class Event {
 					this.GamePage.generateWaitingScreen(res.tournament.tournament_id);
 				}
 				else {
-					this.setStatePage = PageState.BRACKET;
+					this.StatePage = PageState.BRACKET;
 					this.GamePage.generateBracketTournament(res.tournament.tournament_id);
 				}
 			}

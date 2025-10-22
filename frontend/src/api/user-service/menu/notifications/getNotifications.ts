@@ -23,7 +23,10 @@ export async function   getNotifications(url: string): Promise<NotifResult>
     {
         const res = await fetch(url, 
         {
-            method: 'GET', 
+            method: 'GET',
+			headers: {
+				'host': window.location.host
+			},
             credentials: 'include',
         });
         const data = await res.json();    

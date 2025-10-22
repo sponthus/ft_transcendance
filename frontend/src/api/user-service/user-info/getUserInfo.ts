@@ -22,6 +22,9 @@ export async function   getUserInfo() : Promise<GetUserInfoResult>
         const res = await fetch('/api/user/user-info', 
         {
             method: 'GET',
+			headers: {
+				'host': window.location.host
+			},
             credentials: 'include',
         });
         const data = await res.json();

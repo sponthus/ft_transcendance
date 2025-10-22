@@ -1,4 +1,3 @@
-// import { checkTournamentNameFormat, checkIdNumberFormat } from "../../tools/CheckFormat.js";
 import { sendTournamentReady } from "../requests/SendTournamentReady.js";
 import { sendTournamentCancelation } from "../requests/SendTournamentCancelation.js";
 import { sendTournamentAcceptation } from "../requests/SendTournamentAcceptation.js";
@@ -16,19 +15,7 @@ export async function acceptTournamentInvitation(request, reply) {
 	if (!acceptingUserId || !tournamentId) {
 		return reply.code(400).send({ error: 'Bad request - userId and tournamentId are required.' });
 	}
-	// console.debug("Accepting user ", acceptingUserId, " for tournament ", tournamentId); //SCHEMA CHANGER
-	/*if (checkIdNumberFormat(acceptingUserId) === false) {
-		return reply.code(400).send({ error: 'Bad userId format.' });
-	}
-	if (checkIdNumberFormat(ownerUserId) === false) {
-		return reply.code(400).send({ error: 'Bad ownerUserId format.' });
-	}
-	if (checkIdNumberFormat(tournamentId) === false) {
-		return reply.code(400).send({ error: 'Bad tournamentId format.' });
-	}
-	if (checkTournamentNameFormat(tournamentName) === false) {
-		return reply.code(400).send({ error: 'Bad tournamentName format.' });
-	}*/
+	// console.debug("Accepting user ", acceptingUserId, " for tournament ", tournamentId);
 
 	const { db } = request.server;
 	if (!db) {
@@ -132,18 +119,6 @@ export async function declineTournamentInvitation(request, reply) {
 	if (!refusingUserId || !tournamentId || !tournamentName || !ownerUserId) {
 		return reply.code(400).send({ error: 'Bad request, missing arguments.' });
 	}
-	/*if (checkIdNumberFormat(ownerUserId) === false) {
-		return reply.code(400).send({ error: 'Bad ownerUserId format.' });
-	}
-	if (checkIdNumberFormat(tournamentId) === false) {
-		return reply.code(400).send({ error: 'Bad tournamentId format.' });
-	}
-	if (checkIdNumberFormat(refusingUserId) === false) {
-		return reply.code(400).send({ error: 'Bad refusingUserId format.' });
-	}
-	if (checkTournamentNameFormat(tournamentName) === false) {
-		return reply.code(400).send({ error: 'Bad tournamentName format.' });
-	}*/
 
 	const { db } = request.server;
 	if (!db) {

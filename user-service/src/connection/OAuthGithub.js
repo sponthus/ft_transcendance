@@ -65,7 +65,7 @@ export async function loginThroughGithub(request, reply)
 		if (env.nodeEnv === 'production') {
 			link = `${prefix}://${env.host}:4443/`;
 		}
-
+        console.log("succesfully connected with github 🟠🟠🟠🟠🟠🟠🟠🟠🟠🟠")
         return reply.code(200).setCookie('token', token,
         {
             httpOnly: true,

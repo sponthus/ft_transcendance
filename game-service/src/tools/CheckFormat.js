@@ -2,6 +2,27 @@ import Ajv from "ajv"
 
 let slugRegex = "^(?![_-])(?!.*[_-]$)(?=.*[a-z])(?![0-9_]+)[a-z0-9_-]+$";
 
+export const headersWithApiKeyJsonSchema = {
+	type: "object",
+	properties: {
+		anyOf: [ 
+			{ type: "string",
+				const: "x-internal-api-key",
+				minLength: 1, 
+				maxLength: 100 
+			},
+			{
+				type: "string",
+				const: "content-type",
+			}
+		],
+		"x-internal-api-key": { type: "string", minLength: 1, maxLength: 100 },
+		"content-type": { type: "string", const: "application/json" }
+	},
+	required: ["x-internal-api-key"],
+	additionalProperties: false
+}
+
 export const slugSchema = {
   type: "string",
   minLength: 1,
@@ -42,6 +63,20 @@ export const idSchema = {
 	]
 };
 
+export const tournamentIdParamSchema = {
+	type: "object",
+	properties: { 
+		tournamentId: {
+			type: "string",
+			pattern: "^[0-9]+$",
+			minLength: 1,
+			maxLength: 15
+		} 
+	},
+	required: ["tournamentId"],
+	additionalProperties: false
+}
+
 export const idParamSchema = {
 	type: "object",
 	properties: { 
@@ -61,6 +96,12 @@ export const idStringSchema = {
   minLength: 1,
   maxLength: 15,
   pattern: "^[0-9]+$"
+};
+
+export const noBodySchema = {
+  type: "object",
+  properties: { },
+  additionalProperties: false
 };
 
 export const tournamentActionSchema = {
@@ -105,156 +146,12 @@ export const gameCreationSchema = {
     player_a: playerSchema,
     player_b: playerSchema,
     requestedMaxScore: { type: "integer", minimum: 1, maximum: 21 },
-    requestedAi: { type: "number", minimum: 0, maximum: 2 },
-    requestedOption: { type: "number", minimum: 0, maximum: 1 }
+    requestedAi: { type: "integer", minimum: 0, maximum: 2 },
+    requestedOption: { type: "integer", minimum: 0, maximum: 1 }
   },
   required: ["player_a", "player_b"],
   additionalProperties: false
 };
-
-/*export function    checkSlugFormat(slug)
-{
-    const schema = 
-    {
-        type: "string",
-        minLength: 1,
-        maxLength: 20,
-        pattern: "^(?![_-])(?!.*[_-]$)(?=.*[a-z])(?![0-9_]+)[a-z0-9_-]+$" // Same as username without maj
-    };
-    const ajv = new Ajv();
-    const contract = ajv.compile(schema);
-    const valid = contract(slug);
-    if (!valid)
-        return (false);
-    return (true);
-}
-
-export function checkTournamentNameFormat(name)
-{
-	const schema = 
-	{
-		type: "string",
-		minLength: 3,
-		maxLength: 30,
-		pattern: "^(?![=+\\-@])(?![ _-])(?!.*[ _-]$)(?!^[ _-]+$)(?!.*[\\r\\n\\t])(?=.*[A-Za-zÀ-ÖØ-öø-ÿ0-9])[A-Za-zÀ-ÖØ-öø-ÿ0-9 _-]+$"
-	};
-	const ajv = new Ajv();
-	const contract = ajv.compile(schema);
-	const valid = contract(name);
-	if (!valid)
-		return (false);
-	return (true);
-}
-
-export function	checkTournamentCreationFormat(request)
-{
-	const schema = 
-	{
-		type: "object",
-		properties:
-		{
-			name: { 
-				type: "string", 
-				minLength: 3, 
-				maxLength: 30, 
-				pattern: "^(?![=+\\-@])(?![ _-])(?!.*[ _-]$)(?!^[ _-]+$)(?!.*[\\r\\n\\t])(?=.*[A-Za-zÀ-ÖØ-öø-ÿ0-9])[A-Za-zÀ-ÖØ-öø-ÿ0-9 _-]+$" 
-			},
-			players: 
-			{ 
-				type: "array", 
-				anyOf: [
-					{ minItems: 4, maxItems: 4 },
-					{ minItems: 8, maxItems: 8 }
-				],
-				items: { type: "string" },
-				uniqueItems: true 
-			},
-			option: { type: "number", minimum: 0, maximum: 1 }
-		},
-		required: ["name", "players", "option"],
-		additionalProperties: false
-	};
-	const ajv = new Ajv();
-	const BodyContract = ajv.compile(schema);
-	const valid = BodyContract(request.body);
-    return {
-        valid,
-        errors: BodyContract.errors
-    };
-}
-
-export function	checkGameCreationFormat(request)
-{
-	const schema = 
-	{
-		type: "object",
-		properties:
-		{
-			player_a: { 
-				type: "string", 
-				minLength: 3, 
-				maxLength: 21, 
-				pattern: "^(?!@?[_-])(?!.*[_-]$)(?!^\\s)(?!.*\\s$)(?!.*\\s{2})(?!.*(?:\\s.*){3})(?=.*[A-Za-z])(?!@?[0-9_-]+$)@?[A-Za-z0-9 _-]+$" }, // Accepts 2 spaces, @ at beginning
-			player_b: { 
-				type: "string", 
-				minLength: 3, 
-				maxLength: 21, 
-				pattern: "^(?!@?[_-])(?!.*[_-]$)(?!^\\s)(?!.*\\s$)(?!.*\\s{2})(?!.*(?:\\s.*){3})(?=.*[A-Za-z])(?!@?[0-9_-]+$)@?[A-Za-z0-9 _-]+$" }, // Accepts 2 spaces, @ at beginning
-			requestedMaxScore: { type: "integer", minimum: 1, maximum: 21 },
-			requestedAi: { type: "number", minimum: 0, maximum: 2 },
-			requestedOption: { type: "number", minimum: 0, maximum: 1 }
-		},
-		required: ["player_a", "player_b"],
-		additionalProperties: false
-	};
-	const ajv = new Ajv();
-	const BodyContract = ajv.compile(schema);
-	const valid = BodyContract(request.body);
-    return {
-        valid,
-        errors: BodyContract.errors
-    };
-}
-
-export function    checkPlayerFormat(username)
-{
-    const schema = 
-    {
-        type: "string", 
-		minLength: 3, 
-		maxLength: 21, 
-		pattern: "^(?!@?[_-])(?!.*[_-]$)(?!^\\s)(?!.*\\s$)(?!.*\\s{2})(?!.*(?:\\s.*){3})(?=.*[A-Za-z])(?!@?[0-9_-]+$)@?[A-Za-z0-9 _-]+$" // Updated pattern
-	};
-    const ajv = new Ajv();
-    const contract = ajv.compile(schema);
-    const valid = contract(username);
-	if (!valid) {
-		console.error("❌ Player format error: ");
-		console.error(contract.errors);
-	}
-    if (!valid)
-        return (false);
-    return (true);
-}
-
-export function    checkIdNumberFormat(id)
-{
-    const schema = 
-    {
-        type: "number",
-        minimum: 1
-    };
-    const ajv = new Ajv();
-    const contract = ajv.compile(schema);
-    const valid = contract(id);
-    if (!valid) {
-		console.error("❌ ID number format error: ");
-		console.error(contract.errors);
-        return (false);
-	}
-    return (true);
-}
-*/
 
 export function    checkIdFormat(id)
 {
