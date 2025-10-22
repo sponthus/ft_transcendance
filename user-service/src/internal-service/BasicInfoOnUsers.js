@@ -22,7 +22,6 @@ export async function getIdUserFromSlug(request, reply)
     const   db = request.server.db;
 
 	// TODO add input sanitization
-	// TODO Add 404 not found if slug doesn't exist
     try
     {
         const idUser = db.prepare(  "SELECT \
@@ -31,6 +30,8 @@ export async function getIdUserFromSlug(request, reply)
                                         users \
                                     WHERE \
                                         slug = ?").get(slug);
+		if (!idUser)
+			return reply.code(404).send({ error: "User not found" });
         return reply.code(200).send({ idUser : idUser });
     }
     catch (err)
