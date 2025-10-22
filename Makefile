@@ -86,6 +86,7 @@ clean-db:
 	@echo " ✔ DB deleted";
 
 clean-modules:
+	@rm -rf $(FRONTEND_DIR)/dist
 	@rm -rf $(FRONTEND_DIR)/node_modules \
 		$(USERS_DIR)/node_modules \
 		$(UPLOAD_DIR)/node_modules \
