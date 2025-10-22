@@ -109,8 +109,10 @@ export default class GameMaster {
             ws: null,
 			players: players
 		});
-		// console.debug("Games map after creation:");
-		// console.debug(this.games);
+		console.debug("Games map after creation:");
+		console.debug(this.games);
+		// console.debug(process._getActiveHandles().length);
+		// console.debug(process._getActiveRequests().length);
     }
 
     // Call when a game is finished to destroy its object completely
@@ -120,7 +122,10 @@ export default class GameMaster {
             return ;
         }
         if (this.games.has(Number(gameId))) {
-            const user = this.games.get(Number(gameId)).userId;
+			const gamePart = this.games.get(Number(gameId));
+            const user = gamePart.userId;
+			gamePart.server.clean();
+			gamePart.server = null;
             this.games.delete(Number(gameId));
             console.log("🔴 GameServer stopped");
             this.updateUserStatus(user);
