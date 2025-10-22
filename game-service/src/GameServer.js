@@ -122,7 +122,7 @@ export default class GameServer {
         // à chaque tick du serveur
 		let tick = 0;
 		let action = 2; // 0 = UP, 1 = DOWN, 2 = STILL (default 1st action)
-        let ticks_per_decision = 62; // 1 / 0.016 = 62.5
+        let ticks_per_decision = 30; // 1 / 0.033 = 30.3
 		// console.debug("Ticks per decision : ");
 		// console.debug(ticks_per_decision);
 		this.intervalId = setInterval(() => {
@@ -155,7 +155,7 @@ export default class GameServer {
 				this.endGame();
             }
 			tick++;
-        }, 16); // 60fps = 16ms
+        }, 33); // 30 fps = 33ms
     }
 
     endGame() {

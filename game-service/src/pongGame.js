@@ -6,6 +6,13 @@ let X_SUPERIOR_BALL_LIMIT = 5.8;
 let Z_PADDLE_LEFT = -8;
 let Z_PADDLE_RIGHT = 8;
 let AREA_NUMBER = 16;
+let BALL_LIMIT_RIGHT = Z_PADDLE_RIGHT - 0.4;
+let BALL_LIMIT_LEFT = Z_PADDLE_LEFT + 0.4;
+let BALL_SUP_LIMIT = X_SUPERIOR_BALL_LIMIT - 0.1;
+let BALL_INF_LIMIT = X_INFERIOR_BALL_LIMIT + 0.1;
+let PADDLE_INF_LIMIT = X_INFERIOR_BALL_LIMIT + 0.5;
+let PADDLE_SUP_LIMIT = X_SUPERIOR_BALL_LIMIT - 0.5;
+let BALL_RANGE = X_SUPERIOR_BALL_LIMIT - X_INFERIOR_BALL_LIMIT;
 
 // AI : 0 = no AI, 1 = AI as player1, 2 = AI as player2
 // Option : 0 = classical pong, 1 = with crabmehameha
@@ -32,7 +39,7 @@ export class PongGame {
 
 		this.inputs = {}; // { player1: {...}, player2: {...} }
 		this.input1 = {};
-		this.dt = 0.16666; // 1/60
+		this.dt = 0.28; // 1/60
 		this.ispaused = true;
 		this.spell1 = { x: -0.22, y: 1.9, z : -10.56};
 		this.isSpellGo1 = false;
@@ -59,9 +66,6 @@ export class PongGame {
 
 		this.die1 = false;
 		this.die2 = false;
-
-		this.groundLimitePositif = X_SUPERIOR_BALL_LIMIT;
-		this.groundLimiteNegatif = X_INFERIOR_BALL_LIMIT;
 
 		this.pauseBegin = true;
 		this.timePauseBegin = 20;
@@ -117,7 +121,7 @@ export class PongGame {
 	// Schematization of ball position in AREA_NUMBER areas
 	get_ai_position()
 	{
-		let area_percent = (this.paddle1.x - X_INFERIOR_BALL_LIMIT) / (X_SUPERIOR_BALL_LIMIT - X_INFERIOR_BALL_LIMIT);
+		let area_percent = (this.paddle1.x - X_INFERIOR_BALL_LIMIT) / BALL_RANGE;
 		area_percent = Math.max(0.0, Math.min(1.0, area_percent)); // for security
 		const area_zone = Math.min(AREA_NUMBER, Math.floor(area_percent * AREA_NUMBER) + 1);
 		if (this.gameMode == 2)
@@ -168,7 +172,7 @@ export class PongGame {
 	{
 		if (predicted_impact == undefined)
 			return 0;
-		let area_percent = (predicted_impact - X_INFERIOR_BALL_LIMIT) / (X_SUPERIOR_BALL_LIMIT - X_INFERIOR_BALL_LIMIT);
+		let area_percent = (predicted_impact - X_INFERIOR_BALL_LIMIT) / BALL_RANGE;
 		area_percent = Math.max(0.0, Math.min(1.0, area_percent)); // security
 		const area_zone = Math.min(AREA_NUMBER, Math.floor(area_percent * AREA_NUMBER) + 1);
 		if (this.gameMode == 2)
@@ -335,11 +339,11 @@ export class PongGame {
 		{
 			switch (ai_action) {
 				case 0: // UP
-					if (this.paddle1.x < this.groundLimitePositif - 0.5)
+					if (this.paddle1.x < PADDLE_SUP_LIMIT)
 						this.paddle1.x += this.speedPaddle * this.dt;
 					break;
 				case 1: // DOWN
-					if (this.paddle1.x > this.groundLimiteNegatif + 0.5)
+					if (this.paddle1.x > PADDLE_INF_LIMIT)
 						this.paddle1.x -= this.speedPaddle * this.dt;
 					break;
 				case 2: // STILL
@@ -358,9 +362,9 @@ export class PongGame {
 		}
 		else
 		{
-			if (this.input1['7'] && this.paddle1.x > this.groundLimiteNegatif + 0.5)
+			if (this.input1['7'] && this.paddle1.x > PADDLE_INF_LIMIT)
 				this.paddle1.x -= this.speedPaddle * this.dt;
-			if (this.input1['9'] && this.paddle1.x < this.groundLimitePositif - 0.5)
+			if (this.input1['9'] && this.paddle1.x < PADDLE_SUP_LIMIT)
 				this.paddle1.x += this.speedPaddle * this.dt;
 		}
 	}
@@ -371,11 +375,11 @@ export class PongGame {
 		{
 			switch (ai_action) {
 				case 1: // UP -> Revert = DOWN
-					if (this.paddle2.x < this.groundLimitePositif - 0.5)
+					if (this.paddle2.x < PADDLE_SUP_LIMIT)
 						this.paddle2.x += this.speedPaddle * this.dt;
 					break;
 				case 0: // DOWN -> Revert = UP
-					if (this.paddle2.x > this.groundLimiteNegatif + 0.5)
+					if (this.paddle2.x > PADDLE_INF_LIMIT)
 						this.paddle2.x -= this.speedPaddle * this.dt;
 					break;
 				case 2: // STILL
@@ -386,9 +390,9 @@ export class PongGame {
 		}
 		else
 		{
-			if (this.input1.d && this.paddle2.x > this.groundLimiteNegatif + 0.5)
+			if (this.input1.d && this.paddle2.x > PADDLE_INF_LIMIT)
 				this.paddle2.x -= this.speedPaddle * this.dt;
-			if (this.input1.a && this.paddle2.x < this.groundLimitePositif - 0.5)
+			if (this.input1.a && this.paddle2.x < PADDLE_SUP_LIMIT)
 				this.paddle2.x += this.speedPaddle * this.dt;
 		}
 		
@@ -402,14 +406,14 @@ export class PongGame {
 
 	checkCollisionWall()
 	{
-		if (this.ball.x < this.groundLimiteNegatif )
+		if (this.ball.x < X_INFERIOR_BALL_LIMIT )
 		{
-			this.ball.x = this.groundLimiteNegatif + 0.1;
+			this.ball.x = BALL_INF_LIMIT;
 			this.ball.dirX *= -1;
 		}
-		if (this.ball.x > this.groundLimitePositif)
+		else if (this.ball.x > X_SUPERIOR_BALL_LIMIT)
 		{
-			this.ball.x = this.groundLimitePositif - 0.1;
+			this.ball.x = BALL_SUP_LIMIT;
 			this.ball.dirX *= -1;
 		}
 	}
@@ -426,9 +430,9 @@ export class PongGame {
 				this.ball.speed += 0.2;
 			this.ball.dirZ *= -1;
 			if (this.ball.z < 0)
-				this.ball.z = Z_PADDLE_LEFT + 0.4;
+				this.ball.z = BALL_LIMIT_LEFT;
 			else
-				this.ball.z = Z_PADDLE_RIGHT - 0.4;
+				this.ball.z = BALL_LIMIT_RIGHT;
 			const relativeImpact = (this.ball.x - paddle.x);// * 0.5;
 
 			// Clamp entre -1 et 1
@@ -444,12 +448,21 @@ export class PongGame {
 
 	checkGoal()
 	{
-		if (this.ball.z < -9 || this.ball.z > 9)
+		if (this.ball.z < -9)
 		{
-			if (this.ball.z < -9)
-				this.score.s1++;
-			else
-				this.score.s2++;
+			this.score.s1++;
+			gameEventEmitter.emitGameEvent('player:scored', this.gameId, {
+				scoreA: this.score.s1,
+				scoreB: this.score.s2
+			});
+			//anim but
+			//temps dattente de 3seconde? avant reprise
+			this.timePauseBegin = 25;
+			this.reset();
+			//this.ball.dirZ *= -1;
+		} else if (this.ball.z > 9)
+		{
+			this.score.s2++;
 			gameEventEmitter.emitGameEvent('player:scored', this.gameId, {
 				scoreA: this.score.s1,
 				scoreB: this.score.s2
@@ -537,7 +550,7 @@ export class PongGame {
 				this.spell1.y = 0.4;
 				this.spell1.z = -7;//this.paddle.z + 1;
 			}
-			if (this.spell1.z > 9)
+			else if (this.spell1.z > 9)
 			{
 				this.isSpellGo1 = false;
 				this.spell1.x = -0.22;
@@ -555,7 +568,7 @@ export class PongGame {
 				this.spell2.y = 0.4;
 				this.spell2.z = 7;//this.paddle.z + 1;
 			}
-			if (this.spell2.z < -9)
+			else if (this.spell2.z < -9)
 			{
 				this.isSpellGo2 = false;
 				this.spell2.x = 0.22;
