@@ -83,7 +83,7 @@ async function AddTournaments(Body: HTMLElement, UserData: UserInfo) {
 		const games = res.tournaments;
 		if (games.length === 0) {
 			if (isInvite === false)
-				Body.textContent = "there is no tournaments";
+				Body.textContent = "There is no tournaments";
 		}
 		else {
 			fillTournamentStubborn(Body);

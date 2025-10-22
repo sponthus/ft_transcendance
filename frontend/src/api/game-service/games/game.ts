@@ -185,6 +185,7 @@ export async function getFinishedGames(slug: string): Promise<AllGamesResult> {
         }
         const finishedGames: AllGamesInfos[] = allGamesResult.games
             .filter(game => game.status === 'finished')
+            .filter(game => game.tournament_id === 0)
             .map(game => ({
                 id: game.id,
                 status: game.status,

@@ -24,7 +24,7 @@ function createSlidingSearchBar() : HTMLElement {
 
 	const searchInput: HTMLInputElement = createInput(['text', 'search', 'search...', true], 'search', 'w-64 px-4 py-2 pl-4 pr-12 text-sm border-0 rounded-full bg-transparent focus:outline-none opacity-0 transition-opacity duration-300');
 
-	const closeButton = createDiv('close-btn', 'absolute right-2 top-1/2 transform -translate-y-1/2 w-6 h-6 text-gray-500 hover:text-gray-700 opacity-0 transition-opacity duration-300');
+	const closeButton = createDiv('close-btn', 'absolute right-2 top-1/2 transform -translate-y-1/2 w-6 h-6 text-gray-500 hover:text-gray-700 opacity-0 transition-opacity duration-300  active:scale-95');
 	closeButton.innerHTML = `
 		<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 			<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
@@ -38,7 +38,7 @@ function createSlidingSearchBar() : HTMLElement {
 
 function createSearchToggle(): HTMLButtonElement {
 
-	const searchToggle: HTMLButtonElement = createButton('search-toggle', 'flex items-center justify-center w-10 h-10 bg-emerald-600 hover:bg-emerald-700 text-white rounded-full shadow-md hover:shadow-lg transition-all duration-200 transform hover:scale-105', 'search');
+	const searchToggle: HTMLButtonElement = createButton('search-toggle', 'flex items-center justify-center w-10 h-10 bg-emerald-600 hover:bg-emerald-700 text-white rounded-full shadow-md hover:shadow-lg transition-all duration-200 transform hover:scale-105  active:scale-95', 'search');
 	searchToggle.innerHTML = `
 		<svg class="w-5 h-5 text-orange-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 			<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m21 21-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
@@ -129,6 +129,9 @@ async function fillUserTab() {
 function closeSearch() {
 	isSearchOpen = false;
 
+	if (searchPanel)
+		closeSearchPanel();
+	
 	const searchInput: HTMLInputElement = document.getElementById("search-input") as HTMLInputElement;
 	const closeButton: HTMLElement = document.getElementById('close-btn-div') as HTMLElement;
 	if (searchInput)
