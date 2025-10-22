@@ -92,17 +92,17 @@ export class Event {
 			}
 			const userData = req.userInfo;
 			if (!userData?.id)
-				throw new Error('user not connected');
+				throw new Error('User not connected');
 			const request = await createLocalGame(this.LocalGamePage._PlayerA, this.LocalGamePage._PlayerB, this.LocalGamePage._MaxScore, this.LocalGamePage._Ai, this.LocalGamePage._option);
 			if (!request.ok) 
-				throw new Error('Failed to create Game');
+				throw new Error('Failed to create game: ' + request.error);
 			else {
 				const id:number = request.gameId;
 				this.launchGame(id, false);
 			}
 		}
 		catch (error) {
-			await ErrorPopup('Error creating Game PLease try again: ' + error);
+			await ErrorPopup('Error creating game, please try again: ' + error);
 		}
 	}
 

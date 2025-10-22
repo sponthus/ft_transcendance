@@ -81,9 +81,11 @@ export async function createLocalGame(player_a: string, player_b: string, maxSco
 			option: option
         };
     } else {
-        // Invalid or expired token = Disconnect
-        await ErrorPopup("❌ API Error starting game : " + data?.error as string  || "Game start impossible");
-        return { ok: false, error: data?.error as string  || "Game start impossible" };
+		let error = 'Game creation impossible';
+		if (data?.message) {
+			error = data.message as string;
+		}
+        return { ok: false, error: error };
     }
 }
 
