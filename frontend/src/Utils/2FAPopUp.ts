@@ -1,4 +1,4 @@
-import { activateTwoFa, checkTwoFaCode, desactivateTwoFa} from '../api/user-service/2fa.js';
+import { activateTwoFa, checkTwoFaCode, deleteCookieTwofa, desactivateTwoFa} from '../api/user-service/2fa.js';
 import {append, createElement, createImage, createButton, createDiv, createInput} from './elementMaker.js';
 import { popUp } from './popUp.js';
 import { ErrorPopup } from '../pages/ErrorPage.js';
@@ -105,7 +105,7 @@ async function addPopUpContent(url: string, active: boolean) {
 		}
 	})
 	backBtn.addEventListener('click', async() => {
-		//remove cookies
+		deleteCookieTwofa();
 		QrPop.removeOverlayToWindow();
 	})
 }
