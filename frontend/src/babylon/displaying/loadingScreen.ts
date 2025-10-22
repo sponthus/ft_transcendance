@@ -25,7 +25,9 @@ export class LoadingScreen {
  											</div>
 										</div>`;
 		this._canvas = canvas;
-		(document.getElementById('app') as HTMLElement).appendChild(this._loadingDiv);
+		const app = (document.getElementById('app') as HTMLElement)
+		if (app)
+			app.appendChild(this._loadingDiv);
 	}
 
 	displayLoadingUI() {
@@ -38,7 +40,9 @@ export class LoadingScreen {
 
 	dispose() {
 		if (this._loadingDiv) {
-		    (document.getElementById('app') as HTMLElement).removeChild(this._loadingDiv);
+			const app = (document.getElementById('app') as HTMLElement)
+			if (app)
+		    	app.removeChild(this._loadingDiv);
 		}
 	}
 }

@@ -1,4 +1,4 @@
-import { createDiv, createButton, append} from '../../Utils/elementMaker.js';
+import { createButton} from '../../Utils/elementMaker.js';
 import { createLocalGame, startGame } from "../../api/game-service/games/game.js"
 import { LocalGamePage } from './LocalGamePage.js';
 import { GamePage } from './GamePage.js';
@@ -9,7 +9,6 @@ import { getUserInfo } from "../../api/user-service/user-info/getUserInfo.js";
 import { createTournament } from "../../api/game-service/tournaments/newTournament.js";
 import { ErrorPopup } from '../ErrorPage.js';
 import { AllUsers, getAllUsers } from '../../api/user-service/menu/getAllUsers.js';
-import { SessionSocket } from '../../core/SessionSocket.js';
 import { TournamentsInfos } from '../../api/game-service/tournaments/getTournaments.js';
 
 export enum PageState {MOD = 0, TOURNAMENT = 1, PARTY = 2, LOCALSETTING = 3, NEWTOURNAMENT = 4, CONTINUETOURNAMENT = 5, BRACKET = 6, WAITING = 7, WIN = 8};
@@ -92,18 +91,22 @@ export class Event {
 			    return ;
 			}
 			const userData = req.userInfo;
-			if (!userData?.id)
-				throw new Error('user not connected');
+			if (!userData?.id) {
+				await ErrorPopup('User not connected');
+				return ;
+			}
 			const request = await createLocalGame(this.LocalGamePage._PlayerA, this.LocalGamePage._PlayerB, this.LocalGamePage._MaxScore, this.LocalGamePage._Ai, this.LocalGamePage._option);
-			if (!request.ok) 
-				throw new Error('Failed to create Game');
+			if (!request.ok) {
+				await ErrorPopup('Failed to create game: ' + request.error);
+				return;
+			}
 			else {
 				const id:number = request.gameId;
 				this.launchGame(id, false);
 			}
 		}
 		catch (error) {
-			await ErrorPopup('Error creating Game PLease try again: ' + error);
+			await ErrorPopup('Error creating game, please try again: ' + error);
 		}
 	}
 
@@ -137,8 +140,18 @@ export class Event {
 			this.LocalGamePage._backBtn.classList.add('-translate-x-96');
 		if (this.LocalGamePage._settingPan)
 			this.LocalGamePage._settingPan.classList.add('translate-x-96');
+		this.SetUpPlayers();
 		this.StatePage = PageState.PARTY;
 		await this.GamePage.generate1v1GamePage();
+	}
+
+	private SetUpPlayers() {
+		if (this.LocalGamePage._Ai === 0) {
+			if (this.LocalGamePage._PlayerA && !this.LocalGamePage._PlayerA.startsWith('@'))
+				this.LocalGamePage.setPlayerA = this.LocalGamePage._playerAInput.value;
+			if (this.LocalGamePage._PlayerB && !this.LocalGamePage._PlayerB.startsWith('@'))
+				this.LocalGamePage.setPlayerB = this.LocalGamePage._playerBinput.value;
+		}
 	}
 
 	/**********active bot player button**********/
@@ -189,14 +202,22 @@ export class Event {
 	private reversePlayerName() {
 		const tmpA = this.LocalGamePage._PlayerA;
 		const tmpB = this.LocalGamePage._PlayerB;
-		if (tmpB.startsWith('@'))
+		if (tmpB.startsWith('@')) {
 			this.LocalGamePage.setPlayerA = '@' + this.LocalGamePage._userData.slug;
-		else
+			this.LocalGamePage._playerAInput.readOnly = true;
+		}
+		else {
 			this.LocalGamePage.setPlayerA = this.LocalGamePage._playerAInput.value;
-		if (tmpA.startsWith('@'))
+			this.LocalGamePage._playerAInput.readOnly = false;
+		}
+		if (tmpA.startsWith('@')) {
 			this.LocalGamePage.setPlayerB = '@' + this.LocalGamePage._userData.slug;
-		else
+			this.LocalGamePage._playerBinput.readOnly = true;
+		}
+		else {
 			this.LocalGamePage.setPlayerB = this.LocalGamePage._playerBinput.value;
+			this.LocalGamePage._playerBinput.readOnly = true;
+		}
 	}
 
 	/**********increase score limit**********/

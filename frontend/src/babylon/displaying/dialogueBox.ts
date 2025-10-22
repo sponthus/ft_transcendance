@@ -31,17 +31,20 @@ export class dialogueBox {
 		this._dialoguetext.fontSize = 22;
 		this._dialoguetext.fontFamily = "Gloria Hallelujah";
 		this._dialoguetext.textWrapping = true;
-		this._dialoguetext.text = msg;
+		this._dialoguetext.text = "";
 
 		this._texture.addControl(this._dialoguetext);
 	}
 
-	private async _typeText() {
+	private _typeText() {
 		for (let index: number = 0; index < this._msg.length; index++) {
-			this._dialoguetext.text = this._msg.slice(0, index + 1);
-			if (!this._dialogue.isEnabled())
+			setTimeout(async() => {
+				this._dialoguetext.text = this._msg.slice(0, index + 1);
+			}, 50 * index);
+			if (!this._dialogue.isEnabled()) {
+				this.clearDialogue();
 				break ;
-			await sleep(50);
+			}
 		}
 	}
 
@@ -55,13 +58,15 @@ export class dialogueBox {
 	}
 
 	hideDialogue() {
+		this.clearDialogue();
 		this._dialogue.setEnabled(false);
 	}
 
 	changeDialogue(msg: string) {
-		this._dialoguetext.text = "";
+		this.clearDialogue();
 		this._msg = msg;
-		this._typeText();
+		if (this._dialogue.isEnabled())
+			this._typeText();
 	}
 
 	clearDialogue() {

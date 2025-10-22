@@ -58,26 +58,32 @@ export class DisplayAssets {
 
 	public async load(): Promise<void>
 	{
-		const result = await ImportMeshAsync("/assets/crabSamourail.glb", this._scene);
-		this._crab1 = result.meshes[0];
-		this._crab1.position.z = -8;
-		this._crab1.scaling = new Vector3(0.18, 0.18, 0.18);
-		this._crab1.rotation = new Vector3(0, 0, 0);
-		result.animationGroups.forEach(anim => anim.stop());
+		if (this._scene && !this._scene.isDisposed) {
+			const result = await ImportMeshAsync("/assets/crabSamourail.glb", this._scene);
+			this._crab1 = result.meshes[0];
+			this._crab1.position.z = -8;
+			this._crab1.scaling = new Vector3(0.18, 0.18, 0.18);
+			this._crab1.rotation = new Vector3(0, 0, 0);
+			result.animationGroups.forEach(anim => anim.stop());
 
-		this._crab1Walk = result.animationGroups.filter(anim => anim.name.includes("walk")) || null;
+			this._crab1Walk = result.animationGroups.filter(anim => anim.name.includes("walk")) || null;
+		}
 
-		
-		const result2 = await ImportMeshAsync("/assets/crabKing.glb", this._scene);
-		this._crab2 = result2.meshes[0];
-		this._crab2.position.z = 8;
-		this._crab2.scaling = new Vector3(0.18, 0.18, 0.18);
-		this._crab2.rotation = new Vector3(0, 3.14, 0);
 
-		const result3 = await ImportMeshAsync("/assets/chateauSable.glb", this._scene);
-		this._caste = result3.meshes[0];
-		this._caste.position = new Vector3(0, -2, 0);
-		result3.animationGroups.forEach(anim => anim.start(true, 1.0));
+		if (this._scene && !this._scene.isDisposed) {
+			const result2 = await ImportMeshAsync("/assets/crabKing.glb", this._scene);
+			this._crab2 = result2.meshes[0];
+			this._crab2.position.z = 8;
+			this._crab2.scaling = new Vector3(0.18, 0.18, 0.18);
+			this._crab2.rotation = new Vector3(0, 3.14, 0);
+		}
+
+		if (this._scene && !this._scene.isDisposed) {
+			const result3 = await ImportMeshAsync("/assets/chateauSable.glb", this._scene);
+			this._caste = result3.meshes[0];
+			this._caste.position = new Vector3(0, -2, 0);
+			result3.animationGroups.forEach(anim => anim.start(true, 1.0));
+		}
 		// const result4 = await ImportMeshAsync("/assets/bobAnime.glb", this._scene);
 		// this._bob = result4.meshes[0];
 		// this._bob.scaling = new Vector3(2, 2, 2);
@@ -85,110 +91,134 @@ export class DisplayAssets {
 		// this._bobAnime = result.animationGroups.filter(anim => anim.name.includes("bob")) || null;
 
 
-		const result4 = await ImportMeshAsync("/assets/patrick.glb", this._scene);
-		this._patrick = result4.meshes[0];
-		this._patrick.position.x = 5.8;
-		this._patrick.position.y = -0.2;
-		this._patrick.position.z = 3;
-		this._patrick.scaling = new Vector3(1.1, 1.1, 1.1);
-		this._patrick.rotation = new Vector3(0, 4.3, 0);
+		if (this._scene && !this._scene.isDisposed) {
+			const result4 = await ImportMeshAsync("/assets/patrick.glb", this._scene);
+			this._patrick = result4.meshes[0];
+			this._patrick.position.x = 5.8;
+			this._patrick.position.y = -0.2;
+			this._patrick.position.z = 3;
+			this._patrick.scaling = new Vector3(1.1, 1.1, 1.1);
+			this._patrick.rotation = new Vector3(0, 4.3, 0);
+		}
 
-		const result5 = await ImportMeshAsync("/assets/bob.glb", this._scene);
-		this._bob = result5.meshes[0];
-		this._bob.position.x = 7.5;
-		this._bob.position.y = -0.3;
-		this._bob.position.z = -2;
-		this._bob.scaling = new Vector3(0.4, 0.4, 0.4);
-		this._bob.rotation = new Vector3(0, 4.7, 0);
+		if (this._scene && !this._scene.isDisposed) {
+			const result5 = await ImportMeshAsync("/assets/bob.glb", this._scene);
+			this._bob = result5.meshes[0];
+			this._bob.position.x = 7.5;
+			this._bob.position.y = -0.3;
+			this._bob.position.z = -2;
+			this._bob.scaling = new Vector3(0.4, 0.4, 0.4);
+			this._bob.rotation = new Vector3(0, 4.7, 0);	
+		}
 
-		const result6 = await ImportMeshAsync("/assets/ananas.glb", this._scene);
-		this._ananas = result6.meshes[0];
-		this._ananas.position.x = 8;
-		this._ananas.position.y = -1;
-		this._ananas.position.z = 6.4;
-		//this._ananas.scaling = new Vector3(1.2, 1.2, 1.2);
-		//this._ananas.rotation = new Vector3(0, 4.7, 0);
+		if (this._scene && !this._scene.isDisposed) {
+			const result6 = await ImportMeshAsync("/assets/ananas.glb", this._scene);
+			this._ananas = result6.meshes[0];
+			this._ananas.position.x = 8;
+			this._ananas.position.y = -1;
+			this._ananas.position.z = 6.4;
+			//this._ananas.scaling = new Vector3(1.2, 1.2, 1.2);
+			//this._ananas.rotation = new Vector3(0, 4.7, 0);
+		}
 
-		const result7 = await ImportMeshAsync("/assets/gary.glb", this._scene);
-		this._gary = result7.meshes[0];
-		this._gary.position.x = -6.2;
-		this._gary.position.y = 0.1;
-		this._gary.position.z = -6;
-		this._gary.scaling = new Vector3(0.02, 0.02, 0.02);
-		//this._ananas.rotation = new Vector3(0, 4.7, 0);
+		if (this._scene && !this._scene.isDisposed) {
+			const result7 = await ImportMeshAsync("/assets/gary.glb", this._scene);
+			this._gary = result7.meshes[0];
+			this._gary.position.x = -6.2;
+			this._gary.position.y = 0.1;
+			this._gary.position.z = -6;
+			this._gary.scaling = new Vector3(0.02, 0.02, 0.02);
+			//this._ananas.rotation = new Vector3(0, 4.7, 0);
+		}
 
-		const result8 = await ImportMeshAsync("/assets/MenuPause.glb", this._scene);
-        this._menuPause = result8.meshes[0];
-        // this._test.position.x = 8;
-        // this._test.position.y = -2;
-        // this._test.position.z = 8;
-        //this._test.billboardMode = Mesh.BILLBOARDMODE_ALL;
-        this._menuPause.scaling = new Vector3(0.035, 0.035, 0.035);
-        // créer le parent et l'attacher à la caméra
-        const hudParent = new TransformNode("hudParent", this._scene);
-        hudParent.parent = this._scene.activeCamera!;        // le parent suit la caméra
-        hudParent.position = new Vector3(0, 0, 2);           // 3 unités devant en espace local caméra
+		if (this._scene && !this._scene.isDisposed){
+			const result8 = await ImportMeshAsync("/assets/MenuPause.glb", this._scene);
+			this._menuPause = result8.meshes[0];
+			// this._test.position.x = 8;
+			// this._test.position.y = -2;
+			// this._test.position.z = 8;
+			//this._test.billboardMode = Mesh.BILLBOARDMODE_ALL;
+			this._menuPause.scaling = new Vector3(0.035, 0.035, 0.035);
+			// créer le parent et l'attacher à la caméra
+			const hudParent = new TransformNode("hudParent", this._scene);
+			hudParent.parent = this._scene.activeCamera!;        // le parent suit la caméra
+			hudParent.position = new Vector3(0, 0, 2);           // 3 unités devant en espace local caméra
+			// attacher ton mesh au parent
+			this._menuPause.parent = hudParent;
+			this._menuPause.billboardMode = Mesh.BILLBOARDMODE_ALL;   // si tu veux garder le billboard
+			// appliquer l'offset 180°
+			this._menuPause.rotationQuaternion = Quaternion.RotationAxis(new Vector3(0, 1, 0), Math.PI);
+			this._menuPause.setEnabled(false);
+		}
+		
 
-        // attacher ton mesh au parent
-        this._menuPause.parent = hudParent;
-        this._menuPause.billboardMode = Mesh.BILLBOARDMODE_ALL;   // si tu veux garder le billboard
-        // appliquer l'offset 180°
-        this._menuPause.rotationQuaternion = Quaternion.RotationAxis(new Vector3(0, 1, 0), Math.PI);
-		this._menuPause.setEnabled(false);
-
-		const result14 = await ImportMeshAsync("/assets/MenuPauseSansCrabmehameha.glb", this._scene);
-        this._menuPauseSansCrab = result14.meshes[0];
-        // this._test.position.x = 8;
-        // this._test.position.y = -2;
-        // this._test.position.z = 8;
-        //this._test.billboardMode = Mesh.BILLBOARDMODE_ALL;
-        this._menuPauseSansCrab.scaling = new Vector3(0.035, 0.035, 0.035);
-        // créer le parent et l'attacher à la caméra
-        const hudParent2 = new TransformNode("hudParen2", this._scene);
-        hudParent2.parent = this._scene.activeCamera!;        // le parent suit la caméra
-        hudParent2.position = new Vector3(0, 0, 2);           // 3 unités devant en espace local caméra
-
-        // attacher ton mesh au parent
-        this._menuPauseSansCrab.parent = hudParent2;
-        this._menuPauseSansCrab.billboardMode = Mesh.BILLBOARDMODE_ALL;   // si tu veux garder le billboard
-        // appliquer l'offset 180°
-        this._menuPauseSansCrab.rotationQuaternion = Quaternion.RotationAxis(new Vector3(0, 1, 0), Math.PI);
-		this._menuPauseSansCrab.setEnabled(false);
-
-		const result9 = await ImportMeshAsync("/assets/bullDiscussion2D.glb", this._scene);
-		this._bullBob = result9.meshes[0];
-		//this._bullBob.scaling = new Vector3(2, 2, 2);
-		this._bullBob.position = new Vector3(8, 4.5, -2);
-		this._bullBob.billboardMode = Mesh.BILLBOARDMODE_ALL;
-		this._bullBob.setEnabled(false);
+		if (this._scene && !this._scene.isDisposed) {
+			const result14 = await ImportMeshAsync("/assets/MenuPauseSansCrabmehameha.glb", this._scene);
+			this._menuPauseSansCrab = result14.meshes[0];
+			// this._test.position.x = 8;
+			// this._test.position.y = -2;
+			// this._test.position.z = 8;
+			//this._test.billboardMode = Mesh.BILLBOARDMODE_ALL;
+			this._menuPauseSansCrab.scaling = new Vector3(0.035, 0.035, 0.035);
+			// créer le parent et l'attacher à la caméra
+			const hudParent2 = new TransformNode("hudParen2", this._scene);
+			hudParent2.parent = this._scene.activeCamera!;        // le parent suit la caméra
+			hudParent2.position = new Vector3(0, 0, 2);           // 3 unités devant en espace local caméra
+			// attacher ton mesh au parent
+			this._menuPauseSansCrab.parent = hudParent2;
+			this._menuPauseSansCrab.billboardMode = Mesh.BILLBOARDMODE_ALL;   // si tu veux garder le billboard
+			// appliquer l'offset 180°
+			this._menuPauseSansCrab.rotationQuaternion = Quaternion.RotationAxis(new Vector3(0, 1, 0), Math.PI);
+			this._menuPauseSansCrab.setEnabled(false);
+		}
 
 
-		const result10 = await ImportMeshAsync("/assets/bullDiscussion2DPatrick.glb", this._scene);
-		this._bullPatrick = result10.meshes[0];
-		this._bullPatrick.position = new Vector3(7, 3.5, 3.5);
-		this._bullPatrick.billboardMode = Mesh.BILLBOARDMODE_ALL;
-		this._bullPatrick.setEnabled(false);
+		if (this._scene && !this._scene.isDisposed) {
+			const result9 = await ImportMeshAsync("/assets/bullDiscussion2D.glb", this._scene);
+			this._bullBob = result9.meshes[0];
+			//this._bullBob.scaling = new Vector3(2, 2, 2);
+			this._bullBob.position = new Vector3(8, 4.5, -2);
+			this._bullBob.billboardMode = Mesh.BILLBOARDMODE_ALL;
+			this._bullBob.setEnabled(false);
+		}
 
-		const result12 = await ImportMeshAsync("/assets/pancarte.glb", this._scene);
-		this._pancartePlayer1 = result12.meshes[0];
-		this._pancartePlayer1.position = new Vector3(7, 2, 10.5);
-		this._pancartePlayer1.scaling = new Vector3(8,8,8);
-		//this._pancartePlayer1.billboardMode = Mesh.BILLBOARDMODE_ALL;
 
-		const result13 = await ImportMeshAsync("/assets/pancarte.glb", this._scene);
-		this._pancartePlayer2 = result13.meshes[0];
-		this._pancartePlayer2.position = new Vector3(7, 1.8, -10.5);
-		this._pancartePlayer2.scaling = new Vector3(8,8,8);"@babylonjs/core";
+		if (this._scene && !this._scene.isDisposed) {
+			const result10 = await ImportMeshAsync("/assets/bullDiscussion2DPatrick.glb", this._scene);
+			this._bullPatrick = result10.meshes[0];
+			this._bullPatrick.position = new Vector3(7, 3.5, 3.5);
+			this._bullPatrick.billboardMode = Mesh.BILLBOARDMODE_ALL;
+			this._bullPatrick.setEnabled(false);
+		}
 
-		this._caste.freezeWorldMatrix(); // plus de recalculs de position/rotation/scale
-		this._caste.doNotSyncBoundingInfo = true; // plus de bounding box à recalculer
-		this._caste.isPickable = false; // si t'as pas besoin de clic dessus
-		this._caste.receiveShadows = false; // si pas de shadow nécessaire
+		if (this._scene && !this._scene.isDisposed) {
+			const result12 = await ImportMeshAsync("/assets/pancarte.glb", this._scene);
+			this._pancartePlayer1 = result12.meshes[0];
+			this._pancartePlayer1.position = new Vector3(7, 2, 10.5);
+			this._pancartePlayer1.scaling = new Vector3(8,8,8);
+			//this._pancartePlayer1.billboardMode = Mesh.BILLBOARDMODE_ALL;
+		}
+
+		if (this._scene && !this._scene.isDisposed) {
+			const result13 = await ImportMeshAsync("/assets/pancarte.glb", this._scene);
+			this._pancartePlayer2 = result13.meshes[0];
+			this._pancartePlayer2.position = new Vector3(7, 1.8, -10.5);
+			this._pancartePlayer2.scaling = new Vector3(8,8,8);"@babylonjs/core";
+		}
+
+		if (this._caste){
+			this._caste.freezeWorldMatrix(); // plus de recalculs de position/rotation/scale
+			this._caste.doNotSyncBoundingInfo = true; // plus de bounding box à recalculer
+			this._caste.isPickable = false; // si t'as pas besoin de clic dessus
+			this._caste.receiveShadows = false; // si pas de shadow nécessaire
+		}
 
 		this.playWalk1();
 
-		await this._makingSkybox();
-		await this._renderWater();
+		if (this._scene && !this._scene.isDisposed)
+			await this._makingSkybox();
+		if (this._scene && !this._scene.isDisposed)
+			await this._renderWater();
 	}
 
 	public playWalk1()

@@ -6,23 +6,11 @@ import env from '../../config/env.js';
 
 export default async function updateUsername (request, reply)
 {
-	// console.debug("⚡️⚡️⚡️⚡️⚡️ updateUsername called ⚡️⚡️⚡️⚡️⚡️");
-	// TODO : Renvoie le token, pas bon non ? 
-	// TODO : Pas de username dans le body = Invalid format for username ?
-	// TODO : Mettre son propre username = 409 ? pas sure, preciser l'erreur peut etre
-   /* if (checkUsernameFormat(request) == false)
-        return reply.code(400).send( {error : "Invalid format for username"} );*/
-
-    // console.debug('⚡️⚡️⚡️⚡️⚡️ request.body : ', request.body);
-
     const db = request.server.db;
     const newUsername = request.body.username;
     const idUser = request.user.idUser;
     try 
     {
-        /*if (checkIfUserCanUpdateUsername(db, idUser) == false) //recuperer travail ecole
-            return reply.code(400).send( { error: "Username can be change only once a day" } );*/
-
         const existingUsername = db.prepare('   SELECT \
                                                     1 \
                                                 FROM \
@@ -31,7 +19,7 @@ export default async function updateUsername (request, reply)
                                                     username = ?').get(newUsername);
         if (existingUsername) {
 			console.warn('Username already exist : ', newUsername);
-            return reply.code(409).send({error: "Username already exist"});
+            return reply.code(409).send({message: "Username already exist"});
 		}
         const old = db.prepare("    SELECT \
                                         slug, avatar \
@@ -68,16 +56,6 @@ export default async function updateUsername (request, reply)
     catch (err)
     {
 		console.error(err);
-        return reply.code(500).send({ error : "Internal Server Error" + err.message });
+        return reply.code(500).send({ message: "Internal Server Error" });
     }
-}
-
-function checkIfUserCanUpdateUsername (db, idUser)
-{
-    const   Date = db.prepare("SELECT last_username_change FROM users WHERE id = ?").get(idUser);
-    const   creationTime = new Date(Date.last_username_change);
-    const   actualTime = new Date();
-
-    const   diff = (actualTime - creationTime) / (1000 * 60 * 60);
-    
 }

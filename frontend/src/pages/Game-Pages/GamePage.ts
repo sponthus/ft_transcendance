@@ -3,7 +3,7 @@ import { renderScene } from '../../babylon/displaying/renderScene.js';
 import { createDiv, createElement, createButton, createDropdownDiv, append, createImage, setbackgroundImages} from '../../Utils/elementMaker.js';
 import { LocalGamePage } from './LocalGamePage.js';
 import { TournamentPage } from "./tounramentPage.js";
-import { Event, PageState } from './Event.js';
+import { Event } from './Event.js';
 import { getUserInfo, UserInfo } from '../../api/user-service/user-info/getUserInfo.js';
 import { endGamePage } from './endGamePage.js';
 import { ErrorPopup } from '../ErrorPage.js';

@@ -1,4 +1,4 @@
-import { createDiv, createElement, createButton, createImage, createInput, createCheckBoxLabel, append, setbackgroundImages, createAnchorElement} from '../../Utils/elementMaker.js';
+import { createDiv, createElement, createButton, createImage, createInput, append, setbackgroundImages, createAnchorElement} from '../../Utils/elementMaker.js';
 import { availableGames } from './AvailableGames.js';
 import { getTournamentMatches, GameInfos, getTournamentNextMatch, TournamentsInfos } from "../../api/game-service/tournaments/getTournaments.js" 
 import { ErrorPopup } from '../ErrorPage.js';
@@ -6,9 +6,6 @@ import { getUserInfoBySlug } from '../../api/user-service/user-info/getUserInfo.
 
 export class TournamentPage {
 	private Page!: HTMLElement;
-	// private NewTournamentForm!: HTMLElement;
-	// private BracketDiv!: HTMLElement;
-	// private FormMap!: Map<HTMLElement, HTMLInputElement>;
 	private PartyMap!: Map<TournamentsInfos, HTMLButtonElement>;
 	private AvailableGames: availableGames;
 	private Tournament?: any;
@@ -400,5 +397,9 @@ export class TournamentPage {
 
 	set setOption(Option: number){
 		this.Option = Option;
+	}
+
+	set setIsFinal(final : boolean) {
+		this.isFinal = final;
 	}
 }

@@ -9,44 +9,34 @@ const schema = {
     required: ["DOMAIN_NAME", "HOST", "IP", "API_PORT", "USER_PORT", "GAME_PORT", "UPLOAD_PORT", "SESSION_PORT", "SESSION_WS_PORT", "LOG_LEVEL", "NODE_ENV", "USERS_DB_FILE", "GAMES_DB_FILE"],
     properties: {
 		DOMAIN_NAME: {
-			type: "string",
-			default: "localhost"
+			type: "string"
 		},
 		HOST: {
-			type: "string",
-			default: "localhost"
+			type: "string"
 		},
 		IP: {
-			type: "string",
-			default: "0.0.0.0"
+			type: "string"
 		},
         API_PORT: {
-            type: "number",
-            default: 3000,
+            type: "number"
         },
 		USER_PORT: {
-            type: "number",
-            default: 3001,
+            type: "number"
         },
 		GAME_PORT: {
-			type: "number",
-            default: 3002,
+			type: "number"
 		},
 		UPLOAD_PORT: {
-			type: "number",
-			default: 3003
+			type: "number"
 		},
 		SESSION_PORT: {
-			type: "number",
-			default: 3004
+			type: "number"
 		},
 		SESSION_WS_PORT: {
-			type: "number",
-			default: 5000
+			type: "number"
 		},
 		GAME_WS_PORT: {
-			type: "number",
-			default: 4000
+			type: "number"
 		},
         LOG_LEVEL: {
             type: "string",

@@ -1,8 +1,5 @@
-// import { currentPage, navigate } from '../core/router.js';
-// import { modifyUserAvatar , modifyUserInfo } from "../api/user.js";
 import {UserInfo } from '../api/user-service/user-info/getUserInfo.js';
-// import { Socket } from '../core/Socket.js';
-import { append, createAnchorElement, createButton, createDiv, createImage, createInput, createElement } from '../Utils/elementMaker.js';
+import { append, createAnchorElement, createDiv, createImage, createElement } from '../Utils/elementMaker.js';
 import { createSearchBarDiv } from '../Utils/slidingSearch.js';
 import { createNotificationDiv } from '../Utils/notification.js';
 import { logoutUser } from '../api/user-service/connection/logoutUser.js';
@@ -30,8 +27,8 @@ export async function renderLoggedOutBanner(banner: HTMLElement): Promise<void> 
 
 	setLogoutUserInfo();
 
-	createItem('/login', 'Login', 'px-4 py-2 text-emerald-600  hover:text-emerald-800 hover:bg-orange-300 rounded-md transition-colors rounded-xl shadow-md hover:shadow-lg transition-all duration-200 transform hover:scale-105');
-	createItem('/register', 'Register', 'px-4 py-2 bg-emerald-600 text-green-200 hover:bg-emerald-800 rounded-md transition-colors rounded-xl shadow-md hover:shadow-lg transition-all duration-200 transform hover:scale-105');
+	createItem('/login', 'Login', 'px-4 py-2 text-emerald-600  hover:text-emerald-800 hover:bg-orange-300 rounded-md transition-colors rounded-xl shadow-md hover:shadow-lg transition-all duration-200 transform hover:scale-105 active:scale-95');
+	createItem('/register', 'Register', 'px-4 py-2 bg-emerald-600 text-green-200 hover:bg-emerald-800 rounded-md transition-colors rounded-xl shadow-md hover:shadow-lg transition-all duration-200 transform hover:scale-105 active:scale-95');
 }
 
 export async function renderLoggedInBanner(banner: HTMLElement, userData: UserInfo): Promise<void> {	
@@ -42,9 +39,9 @@ export async function renderLoggedInBanner(banner: HTMLElement, userData: UserIn
 
 	createSearchBarDiv(navLinks);
 	createNotificationDiv(navLinks);
-	createItem('/setting', "Settings", "px-4 py-2 text-emerald-600 hover:text-emerald-800 hover:bg-orange-300 rounded-md transition-colors rounded-xl shadow-md hover:shadow-lg transition-all duration-200 transform hover:scale-105");
-	createItem(`/user/${userData.slug}`, 'Profile', 'px-4 py-2 text-emerald-600 hover:text-emerald-800 hover:bg-orange-300 rounded-md transition-colors rounded-xl shadow-md hover:shadow-lg transition-all duration-200 transform hover:scale-105');
-	createItem('/', 'Logout', 'px-4 py-2 text-red-200 bg-red-600 hover:text-red-300 hover:bg-red-800 rounded-md transition-colors cursor-pointer rounded-xl shadow-md hover:shadow-lg transition-all duration-200 transform hover:scale-105');
+	createItem('/setting', "Settings", "px-4 py-2 text-emerald-600 hover:text-emerald-800 hover:bg-orange-300 rounded-md transition-colors rounded-xl shadow-md hover:shadow-lg transition-all duration-200 transform hover:scale-105 active:scale-95");
+	createItem(`/user/${userData.slug}`, 'Profile', 'px-4 py-2 text-emerald-600 hover:text-emerald-800 hover:bg-orange-300 rounded-md transition-colors rounded-xl shadow-md hover:shadow-lg transition-all duration-200 transform hover:scale-105 active:scale-95');
+	createItem('/', 'Logout', 'px-4 py-2 text-red-200 bg-red-600 hover:text-red-300 hover:bg-red-800 rounded-md transition-colors cursor-pointer rounded-xl shadow-md hover:shadow-lg transition-all duration-200 transform hover:scale-105 active:scale-95');
 	SetLogOutEvent();
 }
 
@@ -58,7 +55,7 @@ function initPage(){
 }
 
 function initLogo() {
-	const logoLink: HTMLAnchorElement = createAnchorElement('logo-link', '', '/', 'text-2xl font-bold text-emerald-400 hover:text-emerald-800 transition-colors') as HTMLAnchorElement;
+	const logoLink: HTMLAnchorElement = createAnchorElement('logo-link', '', '/', 'text-2xl font-bold text-emerald-400 hover:text-emerald-800 transition-colors active:scale-95') as HTMLAnchorElement;
 	const logoImg: HTMLImageElement = createImage('logo', 'mx-auto object-cover rounded-full hover:bg-emerald-600 object-center h-12 w-18  hover:shadow-lg transition-all duration-200 transform hover:scale-105', '/logo/logoIlsandWorld.png') as HTMLImageElement;
 
 	append(logoLink, [logoImg]);
@@ -121,7 +118,7 @@ async function setTextLoginUserInfo(usersForm: HTMLElement, userData: UserInfo) 
 function setAvatarLoginUserInfo(userData: UserInfo) {
 	const userIconbutton: HTMLAnchorElement = createAnchorElement('user-icon', '', `/user/${userData.slug}`, 'flex items-center mr-2');
 
-	const userIcon: HTMLElement = createDiv('user-icon', 'flex items-center justify-center bg-orange-300 hover:bg-orange-400 rounded-full relative shadow-xl w-14 h-14 hover:shadow-lg transition-all duration-200 transform hover:scale-105')
+	const userIcon: HTMLElement = createDiv('user-icon', 'flex items-center justify-center bg-orange-300 hover:bg-orange-400 rounded-full relative shadow-xl w-14 h-14 hover:shadow-lg transition-all duration-200 transform hover:scale-105 active:scale-95')
 
 	SetUserImg(userIcon, userData);
 
@@ -132,12 +129,7 @@ function setAvatarLoginUserInfo(userData: UserInfo) {
 
 async function SetUserImg(userIcon: HTMLElement, userData: UserInfo) {
 	const avatar: string = userData.avatar;
-	let link = `https://${window.location.hostname}:4443/uploads/${avatar}`;
-	// const status = import.meta.env?.MODE;
-	// if (status === 'development') {
-	// 	link = `http://${window.location.hostname}:5173/uploads/${avatar}`;
-	// }
-	const srcImg: string = link;
+	let srcImg: string = `https://${window.location.hostname}:4443/uploads/${avatar}`;
 
 	append(userIcon, [(createImage('user', 'w-12 h-12 rounded-full object-cover object-center', `${srcImg}?t=${Date.now()}`) as HTMLImageElement)]);
 }

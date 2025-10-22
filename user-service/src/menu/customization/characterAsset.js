@@ -7,7 +7,7 @@ export async function   changeCharacterAsset (request, reply)
 	// TODO If no asset is given (no "asset" in body), gives 409
 	// TODO Check of schema is added to response and gives 500 (try "asd" as asset)
     if (newAsset < 0 || newAsset > 18)
-        return reply.code(400).send( { error: "Invalid character asset. Must between 0 and 18" } );
+        return reply.code(400).send( { message: "Invalid character asset. Must between 0 and 18" } );
     try
     {
         const State = db.prepare (" SELECT \
@@ -17,7 +17,7 @@ export async function   changeCharacterAsset (request, reply)
                                     WHERE \
                                         menu_user_id = ?").get(idUser);
         if (State.menu_asset === newAsset)
-            return reply.code(409).send( { error : "Character asset is already at this value" } );
+            return reply.code(409).send( { message: "Character asset is already at this value" } );
         const statement = db.prepare("  UPDATE \
                                             menu_state \
                                         SET \
@@ -29,7 +29,7 @@ export async function   changeCharacterAsset (request, reply)
     }
     catch (err)
     {
-        return reply.code(500).send ({ error: "Internal Server Error" + err.message });
+        return reply.code(500).send ({ message: "Internal Server Error" + err.message });
     }
     
 }
@@ -51,6 +51,6 @@ export async function   getCharacterAsset (request, reply)
     }
     catch (err)
     {
-        return reply.code(500).send({ error: "Internal Server Error" });
+        return reply.code(500).send({ message: "Internal Server Error" });
     }
 }

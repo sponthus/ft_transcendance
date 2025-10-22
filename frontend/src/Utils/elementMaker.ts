@@ -1,4 +1,3 @@
-import { className } from "@babylonjs/core";
 import { DropDown } from "../Utils/dropDown";
 import { navigate } from "../core/router";
 
@@ -108,7 +107,6 @@ export function createDropdownDiv(Options: string[], Name: string, TextContent: 
 }
 
 export function append(Parent: HTMLElement, Childs: HTMLElement[]) {
-
 	Childs.forEach(Child => {
 		Parent.appendChild(Child);
 	})

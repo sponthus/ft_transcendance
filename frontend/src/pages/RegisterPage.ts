@@ -1,9 +1,10 @@
-import { checkLog } from "../api/user-service/connection/check-log.js";
 import { registerUser } from "../api/user-service/connection/registerUser.js";
 import { navigate } from '../core/router.js';
 import { BasePage } from "./BasePage.js";
 import { createDiv, createElement, append, createFormDiv, createButton, createAnchorElement } from '../Utils/elementMaker.js';
 import { ErrorPopup } from "./ErrorPage.js";
+import { getUserInfo } from "../api/user-service/user-info/getUserInfo.js";
+import { loginTwoFa } from "../Utils/2FAPopUp.js";
 
 /*************************************Function for creating Top Text*************************************/
 export function createLogo(Link: string): HTMLElement{
@@ -96,26 +97,47 @@ export class RegisterPage extends BasePage {
 		append(this.Background, [this.Front]);
 		append(this.app, [this.Background]);
 
-		let link = '';
+		let prefix = 'https';
 		const status = import.meta.env?.MODE;
-        if (status === "development") {
-			link = `http://localhost:5173/api/user/oauth/github`;
-		} else {
-			link = `https://${window.location.host}/api/user/oauth/github`;
+    	if (status === "development") {
+			prefix = 'http';
 		}
+		let link = `${prefix}://${window.location.host}/api/user/oauth/github`;
 		GithubBtn.addEventListener('click', async() => {
 			const popup = window.open(
-    		link,
-    		"GitHub Login",
-    		`width=960,height=540,top=${window.screenX + (window.innerWidth - 960) / 2},left=${window.screenY + (window.innerHeight - 540) / 2}`
-  			);
-			const timer = setInterval(() => {
-			  if (popup && popup.closed) {
-			    clearInterval(timer);
-			    navigate('/');
-			  }
-			}, 1000)
-		})
+			link,
+			"GitHub Login",
+			`width=960,height=540,top=${window.screenX + (window.innerWidth - 960) / 2},left=${window.screenY + (window.innerHeight - 540) / 2}`
+			);
+			let Time: number = 0;
+			const timerId = setInterval(async() => {
+				console.log("Time is : ", Time);
+				const req = await getUserInfo();
+				if (req.ok) {
+					clearInterval(timerId);
+					if (popup && !popup.closed)
+						popup.close();
+						await navigate('/');
+				}
+				else {
+					if (req.error === "2FA required") {
+						clearInterval(timerId);
+						if (popup && !popup.closed)
+							popup.close();
+						await loginTwoFa();
+					}
+					console.log(req.error);
+				}
+				if (popup && popup.closed) {clearInterval(timerId);}
+				if (Time >= 120000) {
+					clearInterval(timerId);
+					await ErrorPopup("Error : Timeout, please retry");
+					if (popup && !popup.closed)
+						popup.close();
+				}
+				Time += 2000;
+			}, 2000);
+		});
 	}
 
 	private async watchForm() {		

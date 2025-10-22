@@ -19,16 +19,15 @@ export async function checkLog(): Promise<Result>
     });
     if (res.ok)
     {
-        console.log("Log check successful"); // Debug
-        return { ok: true }//, user: { username: data.username, slug: data.slug } };
+        console.log("Log check successful"); 
+        return { ok: true }
     }
     const data = await res.json();
     console.log("Log check failure");
     console.log('status = ', res.status);
     if (res.status === 401)
     {
-        //await ErrorPopup(data.error);
-        return { ok: false, error: data.error};
+        return { ok: false, error: data.message};
     }
     return { ok: false };
 }

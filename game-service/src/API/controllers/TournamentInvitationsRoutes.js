@@ -45,10 +45,11 @@ export async function acceptTournamentInvitation(request, reply) {
 					return reply.code(400).send({ error: result.error });
 				default:
 					// Unknown error
-					return reply.code(500).send({ error: "Internal server error" });
+					return reply.code(500).send({ error: result.error || "Internal server error" });
 			}
 		}
 
+		const players = result.playerIds;
 		// Acceptation notification to the user, cancel tournament if error + send notif
 		const acceptNotification = await sendTournamentAcceptation(ownerUserId, acceptingUserId, tournamentId, tournamentName);
 		if (acceptNotification.ok === false) {
@@ -65,7 +66,7 @@ export async function acceptTournamentInvitation(request, reply) {
 				} else {
 					console.log("❓ Tournament cancelation notification sent to players ", players);
 				}
-				return reply.code(500).send({ error: 'Internal server error' });
+				return reply.code(acceptNotification.code || 500).send({ error: acceptNotification.error || "Internal server error" });
 			}
 		} else {
 			console.log("❓ Tournament acceptation notification sent to owner ", ownerUserId);
@@ -73,8 +74,6 @@ export async function acceptTournamentInvitation(request, reply) {
 		if (result.ready === true) {
 			const players = result.playerIds;
 			console.log("All players accepted for tournament ", tournamentId, " - Sending ready notifications to players ", players);
-
-
 
 			// Send notification = Tournament is ready to start
 			const notification = await sendTournamentReady(players, ownerUserId, tournamentId, tournamentName);
@@ -92,7 +91,7 @@ export async function acceptTournamentInvitation(request, reply) {
 					} else {
 						console.log("❓ Tournament cancelation notification sent to players ", players);
 					}
-					return reply.code(500).send({ error: 'Internal server error' });
+					return reply.code(notification.code || 500).send({ error: notification.error || 'Internal server error' });
 				}
 			} else {
 				console.log("❓ Tournament ready notification sent to players ", players);
@@ -162,6 +161,6 @@ export async function declineTournamentInvitation(request, reply) {
 	} catch (error) {
 		console.error('❌ Error declining tournament invitation : ');
 		console.error(error);
-		return reply.code(500).send({ error: 'Internal server error while declining tournament invitation.' });
+		return reply.code(500).send({ error: 'Internal server error' });
 	}
 }

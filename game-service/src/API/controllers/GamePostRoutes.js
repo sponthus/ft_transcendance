@@ -133,7 +133,8 @@ export async function startGame(request, reply) {
             return reply.code(500).send({error: 'Internal server error while fetching games.'});
         }
         gameMaster.createServer(gameId, userId, maxScore, tournament, ai, option, [player_a, player_b]);
-        return reply.code(201).send({
+        console.debug("✅ Game server created with gameId " + gameId);
+		return reply.code(201).send({
             gameId: gameId, 
             status: status, 
             player_a: player_a, 

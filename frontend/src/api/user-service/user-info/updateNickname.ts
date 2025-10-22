@@ -25,7 +25,7 @@ export async function   updateNickname(nickname: string): Promise<UpdateNickname
         }
         console.log("Update nickname failed");
         const data = await res.json();
-        return ( { ok: false, error: data.error } );
+        return ( { ok: false, error: data.message } );
     }
     catch (err)
     {

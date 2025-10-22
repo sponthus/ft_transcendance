@@ -14,8 +14,10 @@ export let StateBody: number = BodyState.FRIENDS;;
 let isChangeBody: Boolean;
 
 export function ChangeStateBody(state: number){
-	isChangeBody = true;
-	StateBody = state;
+	if (state != StateBody) {
+		isChangeBody = true;
+		StateBody = state;
+	}
 }
 
 export class UserPage extends BasePage {
@@ -149,7 +151,7 @@ export class UserPage extends BasePage {
 		document.addEventListener('click', this.onBodyStateChange);
 	}
 
-		private onBodyStateChange = (event: Event): void => {
+	private onBodyStateChange = (event: Event): void => {
 		if (isChangeBody) {
 			this.renderBodyProfile();
 			isChangeBody = false;

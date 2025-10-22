@@ -5,7 +5,7 @@ export async function   getUserInfo (request, reply)
     try
     {
        const user = db.prepare("   SELECT \
-                                        id, username, nickname, avatar, slug, created_at \
+                                        id, username, nickname, avatar, slug, created_at, twofa_enabled \
                                     FROM \
                                         users \
                                     WHERE \
@@ -14,7 +14,7 @@ export async function   getUserInfo (request, reply)
     }
     catch (err)
     {
-        return reply.code(500).send({ error: "Internal Server Error" });
+        return reply.code(500).send({ message: "Internal Server Error" });
     }
 }
 
@@ -46,11 +46,11 @@ export async function   getUserInfoBySlug (request, reply)
                                     WHERE \
                                         slug = ?").get(idUser, idUser, idUser, idUser, slug);
 		if (!user)
-			return reply.code(404).send({ error: "User not found" });
+			return reply.code(404).send({ message: "User not found" });
 		return reply.code(200).send({ userInfo: user }) 
     }
     catch (err)
     {
-        return reply.code(500).send({ error: "Internal Server Error" + err.message});
+        return reply.code(500).send({ message: "Internal Server Error" + err.message});
     }
 }

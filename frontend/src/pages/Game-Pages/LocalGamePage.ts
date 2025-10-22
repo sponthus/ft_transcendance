@@ -1,18 +1,17 @@
 import { UserInfo } from '../../api/user-service/user-info/getUserInfo.js';
-import { createDiv, createElement, createButton, createDropdownDiv, createFormDiv, createCheckBoxLabel, append, createImage, createInput, setbackgroundImages} from '../../Utils/elementMaker.js';
+import { createDiv, createElement, createButton, append, createImage, createInput, setbackgroundImages} from '../../Utils/elementMaker.js';
 
 export class LocalGamePage {
 
 	private Page!: HTMLElement;
-	// private PartyMap!: Map<number, HTMLInputElement>;
 	private userData!: UserInfo;
 
 	/*************************for creatingGame*************************/
-	private PlayerA!: string;
-	private PlayerB: string = "Crabby the bot";
-	private Ai: number = 1; // ia playerA 2 PlayerB 
-	private MaxScore: number = 5;
-	private Option: number = 1;
+	private PlayerA?: string;
+	private PlayerB?: string;
+	private Ai: number; // ia playerA 2 PlayerB 
+	private MaxScore: number;
+	private Option: number;
 
 	/*************************button*************************/
 	private PlayBtn!: HTMLButtonElement;
@@ -37,7 +36,13 @@ export class LocalGamePage {
 	constructor(Page: HTMLElement, userData: UserInfo) {
 		this.Page = Page;
 		this.userData = userData;
-		this.PlayerA = '@' + this.userData.slug;
+		if (!this.PlayerA)
+			this.PlayerA = '@' + this.userData.slug;
+		if (!this.PlayerB)
+			this.PlayerB = "Crabby the bot";
+		this.Ai = 1;
+		this.MaxScore = 5;
+		this.Option = 1;
 	}
 
 	async render() {
@@ -119,14 +124,26 @@ export class LocalGamePage {
 
 		const playerADiv: HTMLElement = createDiv('player-name', 'relative flex h-[30%] w-full space-x-4');
 		this.PlayerAInput = createInput(['', '', '', true], 'PlayerA', 'h-full w-[40%]');
-		this.PlayerAInput.value = this.userData.username;
+		if (this.PlayerA && this.PlayerA.startsWith('@')) {
+			this.PlayerAInput.value = this.userData.username;
+			if (this.Ai === 0)
+				this.PlayerAInput.readOnly = true;
+		}
+		else if (this.PlayerA)
+			this.PlayerAInput.value = this.PlayerA;
 		if (this.Ai > 0)
 			this.PlayerAInput.readOnly = true;
 		append(playerADiv, [createImage('playerA', 'z-5 object-center object-fill h-full w-[40%]', 'game_ui/setting/playerA.png'), this.PlayerAInput]);
 
 		const playerBDiv: HTMLElement = createDiv('player-name', 'relative flex h-[30%] w-full space-x-4');
 		this.PLayerBInput = createInput(['', '', '', true], 'PlayerA', 'h-full w-[40%]');
-		this.PLayerBInput.value = this.PlayerB;
+		if (this.PlayerB && this.PlayerB.startsWith('@')) {
+			this.PLayerBInput.value = this.userData.username;
+			if (this.Ai === 0)
+				this.PLayerBInput.readOnly = true;
+		}
+		else if (this.PlayerB)
+			this.PLayerBInput.value = this.PlayerB;
 		if (this.Ai > 0)
 			this.PLayerBInput.readOnly = true;
 		append(playerBDiv, [createImage('playerB', 'z-5 object-center object-fill h-full w-[40%]', 'game_ui/setting/playerB.png'), this.PLayerBInput]);
@@ -177,11 +194,15 @@ export class LocalGamePage {
 
 	/******************************************getter*************************************/
 	get _PlayerA() :string{
-		return this.PlayerA;
+		if (this.PlayerA)
+			return this.PlayerA;
+		return "";
 	}
 
 	get _PlayerB(): string {
-		return this.PlayerB;
+		if (this.PlayerB)
+			return this.PlayerB;
+		return "";
 	}
 
 	get _Ai(): number {

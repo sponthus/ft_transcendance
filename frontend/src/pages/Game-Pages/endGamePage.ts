@@ -1,8 +1,7 @@
-import { createDetailMapPlugin } from "@babylonjs/core";
 import { createElement, append, createImage, createButton, createDiv, setbackgroundImages } from "../../Utils/elementMaker";
 import { getAllTournaments, TournamentsInfos } from "../../api/game-service/tournaments/getTournaments";
 import { UserInfo } from "../../api/user-service/user-info/getUserInfo";
-import { AllGamesInfos, AllGamesResult, getAllGames } from "../../api/game-service/games/game";
+import { AllGamesInfos, getAllGames } from "../../api/game-service/games/game";
 import { ErrorPopup } from '../ErrorPage.js';
 
 

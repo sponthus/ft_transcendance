@@ -9,10 +9,12 @@ export async function logoutUser(): Promise<LogoutResult>
     {
         const res = await fetch('/api/user/logout',
         {
-            method: 'POST',
+            method: 'PUT',
 			headers: {
+				'content-type': 'application/json',
 				'host': window.location.host
 			},
+			body: JSON.stringify({action: 'logout'}),
             credentials: 'include'  
         });
         if (res.ok) 
@@ -20,7 +22,7 @@ export async function logoutUser(): Promise<LogoutResult>
             return { ok: true };
         }
         const data = await res.json();
-        return { ok: false, error: data.error };
+        return { ok: false, error: data.message };
     }
     catch (err)
     {

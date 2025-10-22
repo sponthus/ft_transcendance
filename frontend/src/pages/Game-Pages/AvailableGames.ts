@@ -1,6 +1,5 @@
 
-import { createDiv, createElement, createButton, createDropdownDiv, createFormDiv, createCheckBoxLabel, append, setbackgroundImages} from '../../Utils/elementMaker.js';
-import { createLocalGame, getAvailableGames, startGame, deleteGame } from "../../api/game-service/games/game.js"
+import { createDiv, createElement, createButton, append, setbackgroundImages} from '../../Utils/elementMaker.js';
 import { getUserInfo } from "../../api/user-service/user-info/getUserInfo.js";
 import { getAvailableTournaments, TournamentsInfos } from  "../../api/game-service/tournaments/getTournaments.js";
 import { deleteTournament } from  "../../api/game-service/tournaments/deleteTournament.js";
@@ -89,7 +88,7 @@ export class availableGames {
 					append(this.bodyParty, [PartyDiv]);
 					this.PartyMap.set(Party, PartyDiv);
 				})
-				this.ManagePartyEvent();
+				// this.ManagePartyEvent();
 			}
 	}
 
@@ -117,28 +116,28 @@ export class availableGames {
 		append(Div, [CreatedAtDivs]);
 	}
 
-	private ManagePartyEvent() {
-		// document.getElementById("delete-btn")?.addEventListener('click', async(e) => {
-		// 	this.PartyMap?.forEach(async (value, key) => {
-		// 		if (value.checked) {
-		// 			await this.deleteTournament(key);
-		// 			await this.refreshAvailableGames();
-		// 			return ;
-		// 		}
-		// 	})
-		// })
-	}
+	// private ManagePartyEvent() {
+	// 	// document.getElementById("delete-btn")?.addEventListener('click', async(e) => {
+	// 	// 	this.PartyMap?.forEach(async (value, key) => {
+	// 	// 		if (value.checked) {
+	// 	// 			await this.deleteTournament(key);
+	// 	// 			await this.refreshAvailableGames();
+	// 	// 			return ;
+	// 	// 		}
+	// 	// 	})
+	// 	// })
+	// }
 
-	private async deleteTournament(tournamentId: number) {
-		try {
-			const request = await deleteTournament(tournamentId);
-			if (!request.ok) {
-				throw new Error(request.error);
-			}
-			await ErrorPopup(request.message);
-		} catch (error) {
-			await ErrorPopup(error as string);
-		}
-		await this.refreshAvailableGames();
-	}
+	// private async deleteTournament(tournamentId: number) {
+	// 	try {
+	// 		const request = await deleteTournament(tournamentId);
+	// 		if (!request.ok) {
+	// 			throw new Error(request.error);
+	// 		}
+	// 		await ErrorPopup(request.message);
+	// 	} catch (error) {
+	// 		await ErrorPopup(error as string);
+	// 	}
+	// 	await this.refreshAvailableGames();
+	// }
 }

@@ -5,7 +5,7 @@ import * as BABYLON from "@babylonjs/core";
 import "@babylonjs/loaders/glTF";
 import { renderAnimation } from "./animations";
 import { renderAsset } from "../displaying/renderAsset";
-import { dialogueBox, sleep } from "./dialogueBox";
+import { dialogueBox } from "./dialogueBox";
 import { renderScene } from "./renderScene";
 
 export class PlayerInput {
@@ -15,6 +15,7 @@ export class PlayerInput {
 	private _sandCastle? : BABYLON.Mesh;
 	private _npc? : BABYLON.Mesh;
 	private _chest? : BABYLON.Mesh;
+	private _bob?: BABYLON.Mesh;
 	private	_animation: renderAnimation
 	private _previousAngle: number | null = null; //player angle state
 
@@ -24,6 +25,7 @@ export class PlayerInput {
 	private _dialoguePong?: dialogueBox;
 	private _dialogueNpc?: dialogueBox;
 	private _dialogueChest: dialogueBox;
+	private _dialogueBob: dialogueBox;
 
 	private _inputMap: {[key: string]: boolean} = {}; //input keyboard map
 
@@ -33,7 +35,8 @@ export class PlayerInput {
 	private static readonly PROXIMITY_SANDCASTLE = 10;
 	private static readonly PROXIMITY_NPC = 5;
 	private static readonly PROXIMITY_CHEST = 5;
-	private static readonly ANGLE_THRESHOLD = 0.1;
+	private static readonly PROXIMITY_BOB = 5;
+	// private static readonly ANGLE_THRESHOLD = 0.1;
 	private static readonly CORRECTION_ANGLE = Math.PI / 2;
 
 	private _moveVector: BABYLON.Vector3 = BABYLON.Vector3.Zero();
@@ -42,6 +45,7 @@ export class PlayerInput {
 	private _lastSandCastleCheck = 0;
 	private _lastNpcCheck = 0;
 	private _lastChestCheck = 0;
+	private _lasteBobcheck = 0;
 	private static readonly CHECK_INTERVAL = 100;
 
 	constructor (scene: BABYLON.Scene, assets: renderAsset, animation: renderAnimation, renderScene: renderScene) {
@@ -51,14 +55,16 @@ export class PlayerInput {
 		this._chest = assets.chest;
 		this._animation = animation;
 		this._npc = assets.npc;
+		this._bob = assets.Bob;
 	
 		this._renderscene = renderScene;
 		this._isOpen = false;
 		this._animation.startClose();
 
 		this._dialoguePong = new dialogueBox("press 'E' to\n play pong", scene, this._sandCastle);
-		this._dialogueNpc = new dialogueBox("Hi friend !", scene, this._npc);
+		this._dialogueNpc = new dialogueBox("Have you seen\n Bob ?", scene, this._npc);
 		this._dialogueChest = new dialogueBox("press 'E\n to open", scene, this._chest);
+		this._dialogueBob = new dialogueBox("hey\n I'm Bob", scene, this._bob);
 
 		this._setInput();
 	}
@@ -86,35 +92,35 @@ export class PlayerInput {
 	private  _updateFromKeyboard() {
 		if (!this._player)
 		    return ;
-		const speed = 0.15;
+
 
 		this._moveVector.set(0, 0, 0);
 		this._directionVector.set(0, 0, 0);
 
 		let hasMovement = false;
 
-		if (this._inputMap['w'] || this._inputMap["arrowup"]) {
+		if (this._inputMap['w']) {
 			this._directionVector.x += 1;
-			this._moveVector.z += speed;
+			this._moveVector.z += PlayerInput.SPEED;
 			hasMovement = true;
 		
 		}
 	
-		if (this._inputMap['s'] || this._inputMap["arrowdown"]){
+		if (this._inputMap['s']){
 			this._directionVector.x -= 1;
-			this._moveVector.z -= speed;
+			this._moveVector.z -= PlayerInput.SPEED;
 			hasMovement = true;
 		}
 	
-		if (this._inputMap['a'] || this._inputMap["arrowleft"]){
+		if (this._inputMap['a']){
 			this._directionVector.z += 1;
-			this._moveVector.x -= speed;
+			this._moveVector.x -= PlayerInput.SPEED;
 			hasMovement = true;
 		}
 
-		if (this._inputMap['d'] || this._inputMap["arrowright"]) {
+		if (this._inputMap['d']) {
 			this._directionVector.z -= 1;
-			this._moveVector.x += speed;
+			this._moveVector.x += PlayerInput.SPEED;
 			hasMovement = true;
 		}
 
@@ -152,6 +158,10 @@ export class PlayerInput {
 		if (now - this._lastChestCheck > PlayerInput.CHECK_INTERVAL) {
 			this._interactChest();
 			this._lastChestCheck = now;
+		}
+		if (now - this._lasteBobcheck > PlayerInput.CHECK_INTERVAL) {
+			this._interactBob();
+			this._lasteBobcheck = now;
 		}
 	}
 
@@ -191,7 +201,6 @@ export class PlayerInput {
 			if (distance > thresholdSq) {
 				if (this._dialogueNpc._isvisible()) {
 					this._dialogueNpc?.hideDialogue();
-					this._dialogueNpc?.changeDialogue("Hi friend !");
 					this._npcTimerStarted = false;
 				}
 				return ;
@@ -201,11 +210,6 @@ export class PlayerInput {
 			if (distance < thresholdSq) {
 				if (!this._npcTimerStarted ) {
 					this._npcTimerStarted = true;
-					setTimeout(() => {
-						if (this._dialogueNpc && this._dialogueNpc.msg !== "How are you\n today ?") {
-							this._dialogueNpc?.changeDialogue("How are you\n today ?");
-						}
-					}, 2000);
 				}
 			}
 		}
@@ -215,7 +219,7 @@ export class PlayerInput {
 		if (this._player && this._chest && this._dialogueChest) {
 			const distance = BABYLON.Vector3.DistanceSquared(this._player.position, this._chest.position);
 
-			const thresholdSq = PlayerInput.PROXIMITY_NPC ** 2;
+			const thresholdSq = PlayerInput.PROXIMITY_CHEST ** 2;
 
 			if (distance > thresholdSq) {
 				if (this._dialogueChest._isvisible())
@@ -236,6 +240,23 @@ export class PlayerInput {
 				this._inputMap['e'] = false;
 				this._inputMap['E'] = false;
 			}
+		}
+	}
+
+	private _interactBob() {
+		if (this._player && this._bob && this._dialogueBob) {
+			const distance = BABYLON.Vector3.DistanceSquared(this._player.position, this._bob.position);
+
+			const thresholdSq = PlayerInput.PROXIMITY_BOB ** 2;
+
+			if (distance > thresholdSq) {
+				if (this._dialogueBob._isvisible())
+					this._dialogueBob.hideDialogue();
+				return;
+			}
+
+			if (!this._dialogueBob?._isvisible())
+				this._dialogueBob.showDialogue();
 		}
 	}
 

@@ -51,72 +51,77 @@ await fastify.register(rateLimit, {
 });
 
 fastify.addHook('onRequest', async (request, reply) => {
-	console.debug("On request hook");
-	if (request.raw && typeof request.raw.url === 'string' && (request.raw.url.startsWith('/api/avatars') || request.raw.url.startsWith('/health'))) {
-        console.log("Skipping preHandler for upload route:", request.raw.url);
-        console.log("Gateway headers (raw):", request.raw.headers);
-        console.log("Gateway content-type:", request.headers['content-type']);
+	// console.debug("On request hook");
+	if (!request) {
+		console.warn('Missing request object');
+		reply.code(400).send({ error: 'Invalid request' });
 		return;
-    }
+	}
+
 	if (['GET'].includes(request.method)) {
 		const cl = request.headers['content-length'];
 		const te = request.headers['transfer-encoding'];
 		if (!request.raw.url.startsWith('/api/user/menu/friendlist')) {
 			if ((cl && !isNaN(Number(cl)) && Number(cl) > 0) || te) {
+				console.warn('GET request with body detected');
 				reply.code(400).send({ error: 'Body not allowed' });
 				return;
 			}
 		}
+		// Health requests has no body and no header
+		if (request.raw.url.startsWith('/health')) {
+			return;
+		}
 	} else {
-		console.log("Request method is ", request.method);
+		// console.debug("Request method is ", request.method);
+
+		// Validate method
+		if (!request.method) {
+			console.warn('Missing request method');
+			reply.code(400).send({ message: 'Invalid request method' });
+			return;
+		} else if (request.method !== request.method.toUpperCase()) {
+			console.warn('Invalid request method format: ', request.method);
+			reply.code(400).send({ message: 'Invalid request method format' });
+			return;
+		} else if (!['POST', 'PUT', 'DELETE', 'PATCH'].includes(request.method)) {
+			console.warn('Invalid request method detected: ', request.method);
+			reply.code(400).send({ message: 'Invalid request method' });
+			return;
+		}
+
+		// Validate content-type
+		const ct = request.headers['content-type'];
+		// All requests use content-type = json except avatar upload
+		if (!request.raw.url.startsWith('/api/avatars') && ct && ct !== 'application/json') {
+			console.warn('Invalid content-type detected: ', ct);
+			reply.code(400).send({ message: 'Invalid content-type for request' });
+			return;
+		} else if (request.raw.url.startsWith('/api/avatars') && ct && !ct.startsWith('multipart/form-data')) {
+			console.warn('Invalid content-type detected for avatar upload: ', ct);
+			reply.code(400).send({ message: 'Invalid content-type for avatar upload' });
+			return;
+		} else if (!ct) {
+			console.warn('Missing content-type header');
+			reply.code(400).send({ message: 'Missing content-type for request' });
+			return;
+		} // Game POST request has game in address so no body
 	}
 
+	// Validate host header in production
 	const host = request.headers['host'];
 	if (env.nodeEnv === 'production') {
 		if (!host || typeof host !== 'string') {
-			reply.code(400).send({ error: 'Missing or invalid host header' });
+			console.warn('Missing or invalid host header');
+			reply.code(400).send({ message: 'Missing or invalid host header' });
 			return;
 		}
 		if (!host.includes(env.host)
 			&& !host.includes(`api-gateway:${env.api_port}`)) {
-			reply.code(400).send({ error: 'Host header does not match' });
+			console.warn(`Host header does not match /${env.host}/ : /${host}/`);
+			reply.code(400).send({ message: 'Host header does not match' });
 		}
 		return;
-	}
-});
-
-fastify.addHook('preHandler', async (request, reply) => {
-	console.debug("Pre handler hook");
-	if (request.raw && typeof request.raw.url === 'string' && (request.raw.url.startsWith('/api/avatars') || request.raw.url.startsWith('/health'))) {
-        console.log("Skipping preHandler for upload route:", request.raw.url);
-        console.log("Gateway headers (raw):", request.raw.headers);
-        console.log("Gateway content-type:", request.headers['content-type']);
-		return;
-    }
-	if (['GET'].includes(request.method)) {
-		const cl = request.headers['content-length'];
-		const te = request.headers['transfer-encoding'];
-		if (!request.raw.url.startsWith('/api/user/menu/friendlist')) {
-			if ((cl && !isNaN(Number(cl)) && Number(cl) > 0) || te) {
-				reply.code(400).send({ error: 'Body not allowed' });
-				return;
-			}
-		}
-	} else {
-		console.log("Request method is ", request.method);
-	}
-	const host = request.headers['host'];
-	if (env.nodeEnv === 'production' && host
-		&& !host.includes(env.host)
-		&& !host.includes(`api-gateway:${env.api_port}`)) {
-		if (!host || typeof host !== 'string') {
-			reply.code(400).send({ error: 'Missing or invalid host header' });
-			return;
-		}
-		reply.code(400).send({ error: 'Host header does not match' });
-		return;
-	} else {
-		console.log("Host header is valid: ", host);
 	}
 });
 
@@ -175,7 +180,7 @@ fastify.get("/health", async (request, reply) => {
 
 console.log("Routes set"); // debug
 
-// // Default handler for undefined routes
+// Default handler for undefined routes
 // fastify.setNotFoundHandler((req, reply) => {
 //     // Extension = file
 //     if (req.raw.url.includes(".")) {

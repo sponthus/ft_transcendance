@@ -10,12 +10,18 @@ import logger from "../config/logger.js";
 import routes from "./routes/index.js";
 import { initOAuthGithub } from "./connection/OAuthGithub.js";
 import { refreshToken } from "./tools/refreshToken.js";
+import Ajv from "ajv";
+import ajvErrors from "ajv-errors";
 //import { getSecret } from "./tools/getSecret.js";
 
 const __filename = fileURLToPath(import.meta.url); // This filename, from ESM expression to classic path
 export const __dirname = path.dirname(__filename); // Parent folder to this file
 
 let fastify;
+
+const ajv = new Ajv({ allErrors: true, removeAdditional: false });
+ajvErrors(ajv);
+
 if (env.nodeEnv === 'production') {
 	try {
 		fs.accessSync(`/etc/ssl/${env.domain_name}.key`, fs.constants.R_OK);
@@ -23,7 +29,7 @@ if (env.nodeEnv === 'production') {
 		console.log("SSL certificates found and accessible");
 	} catch (err) {
 		console.error(err);
-		console.error("❌ Critical error : SSL certificates not found or inaccessible");
+		console.error("❌ Critical message: SSL certificates not found or inaccessible");
 		process.exit(1);
 	}
 
@@ -32,14 +38,57 @@ if (env.nodeEnv === 'production') {
 		https: {
 			key: fs.readFileSync(`/etc/ssl/${env.domain_name}.key`),
 			cert: fs.readFileSync(`/etc/ssl/${env.domain_name}.crt`)
-		}
+		},
+        ajv:
+        {
+            customOptions:
+            {
+                coerceTypes: false,
+                removeAdditional: false,
+                allErrors: true,
+            },
+            plugins: [ajvErrors],
+        },
+        schemaErrorFormatter: (errors, dataVar) => //DataVar (contexte) : body, params
+        {
+            const firstError = errors[0];
+            const errorSchema =  { message: firstError.message };
+            const err = new Error(errorSchema.message);
+            err.validation = errorSchema;
+            err.validationContext = dataVar;
+            err.statusCode = 400;
+            return err;
+        }
+
 	});
 	console.log("App launched in production mode");
 }
-else {
-	fastify = Fastify({
+else
+{
+	fastify = Fastify(
+    {
 		logger: false,
-	});
+        ajv:
+        {
+            customOptions:
+            {
+                coerceTypes: false,
+                removeAdditional: false,
+                allErrors: true,
+            },
+            plugins: [ajvErrors],
+        },
+        schemaErrorFormatter: (errors, dataVar) =>
+        {
+            const firstError = errors[0];
+            const errorSchema =  { message: firstError.message };
+            const err = new Error(errorSchema.message);
+            err.validation = errorSchema;
+            err.validationContext = dataVar;
+            err.statusCode = 400;
+            return err;
+        }
+    });
 	console.log("App launched in development mode");
 }
 
@@ -66,7 +115,7 @@ export function getSecret(name)
 	}
     catch (error)
     {
-		console.log("❌ Critical error : Unable to read secret ", name);
+		console.log("❌ Critical message: Unable to read secret ", name);
 		process.exit(1);
 	}
 }
@@ -76,7 +125,7 @@ fastify.decorate("verifyApiKey", async function (request, reply)
     console.log('Check API key');
     const   apiKey = request.headers['x-internal-api-key'];
     if (!apiKey || apiKey !== getSecret('api_key'))
-		return reply.code(401).send({ error: 'Unauthorized: Invalid API Key' });
+		return reply.code(401).send({ message: 'Unauthorized: Invalid API Key' });
 
     //console.debug('request.body :', request.body);
     //console.debug('request.body type :', typeof request.body);
@@ -91,22 +140,15 @@ fastify.decorate("authenticate_2fa", async function (request, reply)
         console.log("Check 2FA");
         const result = fastify.unsignCookie(request.cookies.token); 
         if (!result.valid)
-            return reply.code(401).send({ error: "Invalid cookie" });
+            return reply.code(401).send({ message: "Invalid cookie" });
         request.user = await fastify.jwt.verify(result.value);
         // console.debug("Decoded token 2fa : ", request.user);
         if (request.user.twofa_pending === false)
-            return reply.code(401).send({ error: "only tmp token" });
+            return reply.code(401).send({ message: "only tmp token" });
     } 
     catch (err)
     {
-        if (err.message === "Authorization token expired")
-        {
-            return reply.code(401).send({error : err.message});
-        }
-        else
-        {
-            return reply.code(400).send({error : err.message});
-        }
+        return reply.code(401).send({message: err.message});
     }
 });
 
@@ -115,16 +157,19 @@ fastify.decorate("authenticate", async function (request, reply)
     //TODO PENSEZ A VERIFIER SI LE USER EXISTE ET LE RESTE DES TABLLES ?
     try 
     {
-        // console.debug("\nToken dans le user-service avant unsign cookie : -" + request.cookies.token + "-");
+        if (!request.cookies || !request.cookies.token)
+			return reply.code(401).send({ message: "Invalid cookie" });
+		// console.debug("\nToken dans le user-service avant unsign cookie : -" + request.cookies.token + "-");
         const result = fastify.unsignCookie(request.cookies.token); //verifie manuellement signature cookie
         if (!result.valid)
-            return reply.code(401).send({ error: "Invalid cookie" });
+            return reply.code(401).send({ message: "Invalid cookie" });
         // console.debug("\nToken dans le user-service : " + result.value + "-");
         request.user = await fastify.jwt.verify(result.value); //Décode et verifie le token et stock ses infos dans request
         // console.debug("USER-SERVICE Decoded token:", request.user);
 
+		console.log(`token = ${request.token}`)
         if (request.user.twofa_pending === true)
-            return reply.code(401).send({ error: "2FA required" });
+            return reply.code(401).send({ message: "2FA required" });
 
 		// Refresh token if it's about to expire soon
 		const now = Date.now() / 1000;
@@ -139,14 +184,16 @@ fastify.decorate("authenticate", async function (request, reply)
 	}
 	catch (err)
 	{
-		if (err.message === "Authorization token expired")
+        console.log('err : ', err);
+		/*if (err.message === "Authorization token expired")
 		{
-            return reply.code(401).send({error : err.message});
+            return reply.code(401).send({message: err.message});
         }
         else
         {
-            return reply.code(400).send({error : err.message});
-        }
+            return reply.code(400).send({message: err.message});
+        }*/
+        return reply.code(401).send({message: err.message});
     }
     try
     {
@@ -159,12 +206,12 @@ fastify.decorate("authenticate", async function (request, reply)
                                         WHERE \
                                             id = ?").get(idUser);
         if (!userExists)
-            return reply.code(404).send({ error: "User not found" }); // TODO ELODIE bon msg ?
+            return reply.code(404).send({ message: "User not found" }); // TODO ELODIE bon msg ?
 
     }
     catch (err)
     {
-        return reply.code(500).send( {error : "Internal Server Error" + err.message} );
+        return reply.code(500).send( {message: "Internal Server Error" + err.message} );
     }
 });
 
@@ -179,7 +226,7 @@ fastify.setErrorHandler((error, request, reply) => {
 
     // On renvoie un JSON générique pour l’utilisateur
     reply.status(error.statusCode || 500).send({
-        error: error.message || "Internal Server Error"
+        message: error.message || "Internal Server Error"
     });
 });
 
@@ -209,7 +256,49 @@ fastify.setNotFoundHandler((req, reply) => {
     reply.status(404).send("Not found");
 });
 
+/*fastify.setErrorHandler((error, request, reply) =>
+{
+    console.log("⚡️⚡️⚡️⚡️⚡️⚡ LA LE MSG d'ERRRREUUUURR");
+    if (error.validation)
+    {
+        console.log("LA LE MSG d'ERRRREUUUURR");
+        const errors = error.validation.map(e => ({
+        field: e.instancePath.replace(/^\//, ''),
+        message: e.message
+    }))
+    return reply.status(400).send({ errors })
+  }
+});*/
+/*fastify.setErrorHandler((error, request, reply) =>
+{
+    if (error.validation)
+    {
+        const messages = error.validation.map(err => err.message);
+        return reply.status(400).send({ message: messages.join(", ") });
+    }
+    if (error.code === "FST_ERR_VALIDATION")
+    {
+        const messages = error.validation.map(err => err.message);
+        return reply.status(400).send({ message: messages.join(", ") });
+    }
+});*/
 // Fastify listens
+
+/*fastify.setErrorHandler((error, request, reply) => 
+{
+    console.debug('⚡️⚡️⚡️⚡️⚡ SET ERROR HANDLER');
+    if (error.validation)
+    {
+        console.debug('⚡️⚡️⚡️⚡️⚡ Error', error);
+        return reply.code(error.validation.statusCode || 400).send(error.validation); // ton JSON formaté
+    }
+});*/
+
+fastify.addHook('onError', (request, reply, error, done) => {
+  console.log('🔥 onError triggered');
+  done();
+});
+
 fastify.listen({ port: env.user_port, host: `${env.ip}` }, (err, address) => {
     if (err) {
         fastify.log.error(err);

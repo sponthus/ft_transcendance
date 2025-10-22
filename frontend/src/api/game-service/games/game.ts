@@ -81,9 +81,11 @@ export async function createLocalGame(player_a: string, player_b: string, maxSco
 			option: option
         };
     } else {
-        // Invalid or expired token = Disconnect
-        await ErrorPopup("❌ API Error starting game : " + data?.error as string  || "Game start impossible");
-        return { ok: false, error: data?.error as string  || "Game start impossible" };
+		let error = 'Game creation impossible';
+		if (data?.message) {
+			error = data.message as string;
+		}
+        return { ok: false, error: error };
     }
 }
 
@@ -103,8 +105,10 @@ export async function startGame(gameId: number): Promise<GameInfoResult> {
         const request = await fetch(`/api/games/${gameId}`, {
             method: 'POST',
 			headers: {
+				'content-type': 'application/json',
 				'host': window.location.host
 			},
+			body: JSON.stringify({ gameId: gameId }),
             credentials: 'include',
         });
         if (!request.ok) {
@@ -183,6 +187,7 @@ export async function getFinishedGames(slug: string): Promise<AllGamesResult> {
         }
         const finishedGames: AllGamesInfos[] = allGamesResult.games
             .filter(game => game.status === 'finished')
+            .filter(game => game.tournament_id === 0)
             .map(game => ({
                 id: game.id,
                 status: game.status,

@@ -5,7 +5,7 @@ import GameMaster from "./GameMaster.js";
 // Handles game logic for one game actually running
 export default class GameServer {
     
-    constructor(gameId, tournamentId, userId, maxScore, ai, option) {
+    constructor(gameId, tournamentId, userId, maxScore, ai, option, qtable) {
         this.gameId = gameId;
 		this.tournamentId = tournamentId;
         this.userId = userId;
@@ -14,6 +14,9 @@ export default class GameServer {
         this.maxScore = maxScore;
 		this.ai = ai;
 		this.option = option;
+		if (ai != 0) {
+			this.qtable = qtable;
+		}
         console.log("🟢 Game server up");
 
         this.scoreA = 0;
@@ -41,14 +44,19 @@ export default class GameServer {
 			return;
 		}
 		this.ws = ws;
-		this.game = new PongGame(this.gameId, this.ai, this.option);
+		if (this.ai != 0)
+			this.game = new PongGame(this.gameId, this.ai, this.option, this.qtable);
+		else
+			this.game = new PongGame(this.gameId, this.ai, this.option);
 		this.setHandlers(this.game);
 	}
 
     setHandlers(game) {
 		// console.debug("Handlers are set");
         this.ws.on('close', () => {
+			console.log("WebSocket closed by client");
             if (this.end == false) {
+				console.log("❌ Player disconnected from game ", this.gameId);
 				gameEventEmitter.emitGameEvent('player:disconnected', this.gameId, {
 					tournamentId: this.tournamentId,
 					userId: this.userId
@@ -90,6 +98,7 @@ export default class GameServer {
 
 		this.ws.on('error', (error) => {
 			if (this.end == false) {
+				console.error("❌ WebSocket error: ", error);
 				gameEventEmitter.emitGameEvent('player:disconnected', this.gameId, {
 					tournamentId: this.tournamentId,
 					userId: this.userId
@@ -108,6 +117,7 @@ export default class GameServer {
 	
     startGame() {
         this.state = 'playing';
+		// console.log("▶️ Starting game ", this.gameId, " - tournament ", this.tournamentId);
         gameEventEmitter.emitGameEvent('game:started', this.gameId, {
 			tournamentId: this.tournamentId,
 			userId: this.userId
@@ -116,7 +126,7 @@ export default class GameServer {
         // à chaque tick du serveur
 		let tick = 0;
 		let action = 2; // 0 = UP, 1 = DOWN, 2 = STILL (default 1st action)
-        let ticks_per_decision = Math.floor(1 / 0.016);
+        let ticks_per_decision = 30; // 1 / 0.033 = 30.3
 		// console.debug("Ticks per decision : ");
 		// console.debug(ticks_per_decision);
 		this.intervalId = setInterval(() => {
@@ -129,13 +139,14 @@ export default class GameServer {
 			}
             else
 				action = this.game.update(action);
+			let gameState = this.game.getState();
 			// broadcast du nouvel état
             const stateMsg = JSON.stringify({
                 type: "stateUpdate",
-                gameState: this.game.getState()
+                gameState: gameState
             });
-            this.scoreA = this.game.getState().score.s1;
-			this.scoreB = this.game.getState().score.s2;
+            this.scoreA = gameState.score.s1;
+			this.scoreB = gameState.score.s2;
             // balance le message a tout les players connecté
             if (this.ws.readyState === 1) {
 				this.ws.send(stateMsg);
@@ -143,12 +154,13 @@ export default class GameServer {
 				console.log("❌ Unable to send game state");
 			}
 			if ((this.scoreA >= this.maxScore || this.scoreB >= this.maxScore) && this.end === false) {
-                this.end = true;
+                // console.debug("🏆 Game ended with score ", this.scoreA, "-", this.scoreB);
+				this.end = true;
 				this.state == "finished";
 				this.endGame();
             }
 			tick++;
-        }, 16); // 60fps
+        }, 33); // 30 fps = 33ms
     }
 
     endGame() {
@@ -169,6 +181,7 @@ export default class GameServer {
 				scoreA: this.scoreA,
 				scoreB: this.scoreB
             }));
+			console.log("✅ endGame sent to player with winner ", winner);
 		} else {
 			console.log(" ❌ Unable to send endGame");
 		}
@@ -184,9 +197,18 @@ export default class GameServer {
         this.destroy();
     }
 
+	clean() {
+		clearInterval(this.intervalId);
+		this.game = null;
+		if (this.ws && this.ws.readyState === 1) {
+			this.ws.close();
+		}
+		this.ws = null;
+	}
+
     destroy() {
 		console.log("🛑 Destroying game server ", this.gameId);
-        clearInterval(this.intervalId);
+		this.clean();
         GameMaster.getInstance().endServer(this.gameId);
     }
 }

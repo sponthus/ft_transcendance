@@ -58,10 +58,10 @@ down:
 ps:
 	docker compose -f $(COMPOSE_FILE) ps
 
-clean: clean-db clean-modules
+clean: clean-modules
 	docker compose -f $(COMPOSE_FILE) down --rmi all -v --remove-orphans
 
-fclean: clean
+fclean: clean clean-db
 	@echo "⑤ Deep clean = Prune :";
 	@echo " ✔ Images";
 	@docker image prune -f
@@ -86,6 +86,7 @@ clean-db:
 	@echo " ✔ DB deleted";
 
 clean-modules:
+	@rm -rf $(FRONTEND_DIR)/dist
 	@rm -rf $(FRONTEND_DIR)/node_modules \
 		$(USERS_DIR)/node_modules \
 		$(UPLOAD_DIR)/node_modules \

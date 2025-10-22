@@ -3,11 +3,9 @@ import { createDiv, createElement, createButton, createFormDiv, append, createIn
 import { updateUsername } from "../../api/user-service/user-info/updateUsername.js";
 import { getUserInfo } from '../../api/user-service/user-info/getUserInfo.js';
 import { uploadAvatar } from "../../api/avatar.js";
-import { currentPage, navigate } from '../../core/router.js';
+import { navigate } from '../../core/router.js';
 import { ErrorPopup } from '../ErrorPage.js';
 import { updateAvatar } from "../../api/user-service/user-info/modifyUserAvatar.js";
-import { UserPage } from "./UserPage";
-import { SettingPage } from "../setting-page/SettingPage";
 
 enum EditState {AVATAR = 0, USERNAME = 1};
 
@@ -249,7 +247,6 @@ export class EditProfile extends popUp {
 			formData.append('avatar-input', file);
 			const req = await uploadAvatar(formData);
 			if (req.ok) {
-				// console.log('STRING AVATAR : ', req.avatar);
 				const pathReq = await updateAvatar(req.avatar);
 				if (pathReq.ok) {
 					await this.updateUserData();
@@ -271,7 +268,6 @@ export class EditProfile extends popUp {
 		try {
 			const req = await getUserInfo();
 			if (req.ok) {
-				// console.log('new usernme = ', req.userInfo.username)
 				this.UserData = req.userInfo;
 			}
 			else

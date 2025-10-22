@@ -31,9 +31,10 @@ export async function sendTournamentAcceptation(inviterId, inviteeId, tournament
 		if (res.ok)
 			return { ok: true };
 		const data = await res.json();
-		return { ok: false, error: data.error };
+		console.log("Data received from user-service: ", data);
+		return { ok: false, error: data.error, code: data.status };
 	} catch (error) {
-		console.error("❌ Error while sending tournament ready notice: ", error);
-		return { ok: false, error: "Internal error while sending tournament ready notice"};
+		console.error("❌ Error while sending tournament acceptation notice: ", error);
+		return { ok: false, error: "Internal server error", code: 500};
 	}
 }

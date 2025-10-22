@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "type": "module",
   "description": "Backend service",
-  "main": "index.js",
+  "main": "src/index.js",
   "scripts": {
     "start": "node src/index.js",
     "dev": "nodemon --watch src --watch controllers --watch config src/index.js"
@@ -14,6 +14,7 @@
     "@fastify/jwt": "^9.1.0",
     "@fastify/static": "^8.2.0",
     "ajv": "^8.17.1",
+    "ajv-errors": "^3.0.0",
     "better-sqlite3": "^11.10.0",
     "env-schema": "^6.0.1",
     "fastify": "^5.3.3",

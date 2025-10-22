@@ -22,7 +22,7 @@ export async function   updateAvatar(avatar: string): Promise<Result>
             return ({ ok: true });
         }
         const data = await res.json();
-        return ({ ok: false, error: data.error });
+        return ({ ok: false, error: data.message });
     }
     catch (err)
     { 

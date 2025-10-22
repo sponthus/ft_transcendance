@@ -5,7 +5,7 @@ import { createLogo } from './RegisterPage.js';
 import { createDiv, createElement, append, createFormDiv, createButton, createAnchorElement } from '../Utils/elementMaker.js';
 import { ErrorPopup } from "./ErrorPage.js";
 import { loginTwoFa } from "../Utils/2FAPopUp.js";
-import { cleanBanner } from "./Banner.js";
+import { getUserInfo } from "../api/user-service/user-info/getUserInfo.js";
 
 export class LoginPage extends BasePage {
 
@@ -62,18 +62,6 @@ export class LoginPage extends BasePage {
 								, (createAnchorElement('bot-ling',  "Sign up", "/register", "text-emerald-800 hover:text-emerald-900 font-medium hover:underline") as HTMLAnchorElement)]);
 	}
 
-
-	private async listentoGithubEvent (event: MessageEvent): Promise<void> {
-		if (event.origin ===  "http://localhost:5173") {
-			if (event.data.success){
-				await this.navigateHome();
-			}
-			return ;
-		}
-	}
-
-	private boundListentoGithubEvent = this.listentoGithubEvent.bind(this);
-
 	private async addInApp() {
 		const GithubBtn = createButton('gitHub', 'group flex items-center w-full justify-center gap-2 px-4 py-2 bg-orange-300 rounded-lg hover:bg-orange-400 transition active:scale-95 hover:scale-105 text-emerald-600', '');
 		GithubBtn.innerHTML = `
@@ -95,29 +83,35 @@ export class LoginPage extends BasePage {
 			"GitHub Login",
 			`width=960,height=540,top=${window.screenX + (window.innerWidth - 960) / 2},left=${window.screenY + (window.innerHeight - 540) / 2}`
 			);
-			window.addEventListener('message', this.boundListentoGithubEvent);
+			let Time: number = 0;
+			const timerId = setInterval(async() => {
+				console.log("Time is : ", Time);
+				const req = await getUserInfo();
+				if (req.ok) {
+					clearInterval(timerId);
+					if (popup && !popup.closed)
+						popup.close();
+						await navigate('/');
+				}
+				else {
+					if (req.error === "2FA required") {
+						clearInterval(timerId);
+						if (popup && !popup.closed)
+							popup.close();
+						await loginTwoFa();
+					}
+					console.log(req.error);
+				}
+				if (popup && popup.closed) {clearInterval(timerId);}
+				if (Time >= 120000) {
+					clearInterval(timerId);
+					await ErrorPopup("Error : Timeout, please retry");
+					if (popup && !popup.closed)
+						popup.close();
+				}
+				Time += 2000;
+			}, 2000);
 		});
-	}
-
-	// let prefix = 'https';
-	// const status = import.meta.env?.MODE;
-    // if (status === "development") {
-	// 	prefix = 'http';
-	// }
-	// let link = `${prefix}://${window.location.host}/api/user/oauth/github`;
-	// GithubBtn.addEventListener('click', async() => {
-	// 	const popup = window.open(
-	// 	link,
-	// 	"GitHub Login",
-	// 	`width=960,height=540,top=${window.screenX + (window.innerWidth - 960) / 2},left=${window.screenY + (window.innerHeight - 540) / 2}`
-	// 	);
-	// 	window.addEventListener('message', this.boundListentoGithubEvent);
-	// });
-
-	private async navigateHome() {
-		console.log('navigation');
-		window.removeEventListener('message', this.boundListentoGithubEvent);
-		await navigate('/');
 	}
 
 	private async watchForm() {

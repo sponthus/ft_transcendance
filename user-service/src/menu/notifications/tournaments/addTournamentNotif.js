@@ -7,6 +7,7 @@ export async function addTournamentNotif (request, reply)
   
     //TODO tester schema
     console.debug('request.body :', request.body);
+    //TODO check que les users existe bien
     try
     {
         let receiverIds;
@@ -30,7 +31,8 @@ export async function addTournamentNotif (request, reply)
     }
     catch (err)
     { 
-        return reply.code(500).send({ error: "Internal Server Error" + err.message });
+		console.debug(err.message);
+        return reply.code(500).send({ error: "Internal Server Error " + err.message });
     }
 }
 

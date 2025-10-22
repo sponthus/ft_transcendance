@@ -1,3 +1,4 @@
+import { couldStartTrivia } from "typescript";
 import { ErrorPopup } from "../../../pages/ErrorPage";
 
 type AuthSuccess = { ok: true };
@@ -20,13 +21,11 @@ export async function registerUser(username: string, password: string): Promise<
         });
         if (res.ok)
         {
-          //  console.log('token is ' + data.token);
-        //    localStorage.setItem("token", data.token); //plus dans le local storage normalement
             return { ok: true };
         }
         const data = await res.json();
-        await ErrorPopup("Error : " + data.error); //enlever await ErrorPopup ?
-        return { ok: false, error: data.error };
+        await ErrorPopup("Error : " + data.message);
+        return { ok: false, error: data.message };
     }
     catch (err)
     {

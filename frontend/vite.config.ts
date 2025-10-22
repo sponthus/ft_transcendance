@@ -9,6 +9,7 @@ export default defineConfig({
     server: {
         port: VITE_PORT,
         host: `${IP}`,
+		allowedHosts: ['frontend', 'localhost'],
         proxy: {
             '/api': {
                 target: `http://api-gateway:${API_PORT}`,
@@ -22,5 +23,20 @@ export default defineConfig({
                 secure: false,
             },
         },
-    }
+	},
+	plugins: [
+			{
+			name: 'dev-health-endpoint',
+			configureServer(server) {
+				server.middlewares.use('/health', (req, res, next) => {
+				if (req.method === 'GET') {
+					res.setHeader('Content-Type', 'application/json');
+					res.end(JSON.stringify({ status: 'ok' }));
+					return;
+				}
+				next();
+				});
+			}
+			}
+		]
 });
