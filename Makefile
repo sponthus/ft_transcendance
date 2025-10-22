@@ -58,10 +58,10 @@ down:
 ps:
 	docker compose -f $(COMPOSE_FILE) ps
 
-clean: clean-db clean-modules
+clean: clean-modules
 	docker compose -f $(COMPOSE_FILE) down --rmi all -v --remove-orphans
 
-fclean: clean
+fclean: clean clean-db
 	@echo "⑤ Deep clean = Prune :";
 	@echo " ✔ Images";
 	@docker image prune -f
