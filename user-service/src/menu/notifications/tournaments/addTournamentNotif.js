@@ -10,6 +10,19 @@ export async function addTournamentNotif (request, reply)
     //TODO check que les users existe bien
     try
     {
+        const allIds = [receiverId, senderId];
+        // On prépare la bonne quantité de placeholders (un "?" par ID)
+        const placeholders = allIds.map(() => '?').join(', ');
+
+        // On prépare et exécute la requête
+        const row = db.prepare(`
+            SELECT COUNT(id) AS found_count
+            FROM users
+            WHERE id IN (${placeholders})
+            `).get(...allIds); //... donne plusieurs valeurs separement
+        if (row.found_count !== allIds.length)
+            return reply.code(404).send({ error: "Some users you’re trying to notify were not found" });
+
         let receiverIds;
         if (Array.isArray(receiverId))
             receiverIds = receiverId;
@@ -31,7 +44,7 @@ export async function addTournamentNotif (request, reply)
     }
     catch (err)
     { 
-        return reply.code(500).send({ message: "Internal Server Error" + err.message });
+        return reply.code(500).send({ message: "Internal Server Error" });
     }
 }
 

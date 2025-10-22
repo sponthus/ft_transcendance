@@ -1,6 +1,3 @@
-import Ajv from 'ajv';
-import addErrors from "ajv-errors";
-
 export const avatarSchema = {
   type: "object",
   properties: {

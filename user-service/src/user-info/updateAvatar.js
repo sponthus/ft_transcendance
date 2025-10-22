@@ -4,10 +4,7 @@ export default async function updateAvatar (request, reply)
     const newAvatar = request.body.avatar;
     const idUser = request.body.idUser;
     const slug = request.body.slug;
-    //const newAvatar = avatar.toLowerCase();
 
-    //Faire un check pour verifier que le nom de l'image correspond au slug
-    console.debug('Je rentre DANNNNNSSS updateAvatar ', request.body);
     try 
     {
         const user = db.prepare("   SELECT \
