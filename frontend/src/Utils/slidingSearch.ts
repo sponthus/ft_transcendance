@@ -129,6 +129,9 @@ async function fillUserTab() {
 function closeSearch() {
 	isSearchOpen = false;
 
+	if (searchPanel)
+		closeSearchPanel();
+	
 	const searchInput: HTMLInputElement = document.getElementById("search-input") as HTMLInputElement;
 	const closeButton: HTMLElement = document.getElementById('close-btn-div') as HTMLElement;
 	if (searchInput)
