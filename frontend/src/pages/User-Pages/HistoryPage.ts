@@ -15,7 +15,7 @@ export async function DisplayHistoryPage(Body: HTMLElement, UserData: UserInfo) 
 		const stat: any = res.stats;
 		const games: AllGamesInfos[] = res.games;
 		if (games.length === 0) {
-			Body.textContent = "there is no games";
+			Body.textContent = "There is no games";
 		}
 		else {
 			fillStat(Body, stat);

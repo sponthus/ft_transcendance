@@ -501,4 +501,10 @@ export class renderAsset {
 			throw new Error("pirate boat asset not initialized");
 		return this._pirateBoat;
 	}
+
+	get Bob(): BABYLON.Mesh {
+		if (!this._bob)
+			throw new Error("Bob asset not initialized");
+		return this._bob;
+	}
 }

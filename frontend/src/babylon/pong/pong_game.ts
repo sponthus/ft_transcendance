@@ -16,25 +16,29 @@ export class PongGame  {
 
 		if (this._sceneBuilder)
 		{
-			this._displayAssets = new DisplayAssets(
-				this._sceneBuilder.scene
-			);
-			await this._displayAssets.load();
+			if (this._sceneBuilder.scene && !this._sceneBuilder.scene.isDisposed) {
+				this._displayAssets = new DisplayAssets(
+					this._sceneBuilder.scene
+				);
+				await this._displayAssets.load();
+			}
 
-			this._gamePhysics = new GamePhysics(
-				this._sceneBuilder!.ball!,
-				this._sceneBuilder!.scene,
-				this._sceneBuilder!.engine,
-				this._displayAssets.crab1,
-				this._displayAssets.crab2,
-				this._displayAssets.bullBob,
-				this._displayAssets.bullPatrick,
-				this._displayAssets.menuPause,
-				this._displayAssets.menuPauseSansCrab,
-				this._displayAssets.pancartePlayer1,
-				this._displayAssets.pancartePlayer2,
-				this._sceneBuilder!.light
-			);
+			if (this._sceneBuilder.scene && !this._sceneBuilder.scene.isDisposed && this._displayAssets) {
+				this._gamePhysics = new GamePhysics(
+					this._sceneBuilder!.ball!,
+					this._sceneBuilder!.scene,
+					this._sceneBuilder!.engine,
+					this._displayAssets.crab1,
+					this._displayAssets.crab2,
+					this._displayAssets.bullBob,
+					this._displayAssets.bullPatrick,
+					this._displayAssets.menuPause,
+					this._displayAssets.menuPauseSansCrab,
+					this._displayAssets.pancartePlayer1,
+					this._displayAssets.pancartePlayer2,
+					this._sceneBuilder!.light
+				);
+			}
 		}
 	}
 
