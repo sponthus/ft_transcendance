@@ -595,12 +595,17 @@ export default class DatabaseHandler {
 	}
 
 	cancelTournament(tournamentId) {
-		const transaction = this.db.transaction((tournamentId) => {
+		try {
+			const transaction = this.db.transaction((tournamentId) => {
 			const res = this.cancelTournamentLogic(tournamentId, "canceled");
 			return (res);
-		});
-		const result = transaction(tournamentId);
-		return (result);
+			});
+			const result = transaction(tournamentId);
+			return (result);
+		}
+		catch (error) {
+			return { ok: false, error: error.message };
+		}
 	}
 
 	updateTournamentStatusLogic(tournamentId, status) {
@@ -874,7 +879,7 @@ export default class DatabaseHandler {
 				} else {
 					const changeTournamentStatus = this.updateTournamentStatusLogic(tournamentId, "pending");
 					if (!changeTournamentStatus.ok) {
-						return { ok: false, ready: false, error: "Could not change tournament status because: " + changeTournamentStatus.error };
+						return { ok: false, ready: false, error: "Could not change tournament status because: " + changeTournamentStatus.error, players: hasAllPlayerAccepted.players };
 					}
 				}
 				console.log('ICIIIIIIIIIIIIIIIIIIIIIIII :)', hasAllPlayerAccepted);
@@ -938,7 +943,7 @@ export default class DatabaseHandler {
 					throw new Error(result.error);
 				}
 				const cancelTournamentResult = this.cancelTournamentLogic(tournamentId, "canceled");
-				if (!cancelTournamentResult) {
+				if (!cancelTournamentResult.ok) {
 					throw new Error("Could not cancel the tournament because: " + cancelTournamentResult.error);
 				}
 				const getPlayerStmt = this.db.prepare(`
@@ -949,7 +954,7 @@ export default class DatabaseHandler {
 				let playersToNotify = getPlayerStmt
 					.all(tournamentId)
 					.filter(row => row.has_accepted === ACCEPTED || row.has_accepted === WAITING)
-					.map(row => row.name.slice(1));
+					.map(row => Number(row.name.slice(1)));
 				return { ok: true, playersToNotify: playersToNotify };
 			});
 			const result = transaction(userId, tournamentId);

@@ -42,14 +42,26 @@ export const tournamentNameSchema = {
   type: "string",
   minLength: 3,
   maxLength: 30,
-  pattern: nameRegex
+  pattern: nameRegex,
+  errorMessage: {
+	pattern: "Invalid tournament name",
+	minLength: "Tournament name too short",
+	maxLength: "Tournament name too long",
+	type: "Tournament name must be a string"
+  }
 };
 
 export const playerSchema = {
   type: "string", 
   minLength: 3, 
   maxLength: 21, 
-  pattern: nameRegex
+  pattern: nameRegex,
+  errorMessage: {
+	pattern: "Invalid player name",
+	minLength: "Player name too short",
+	maxLength: "Player name too long",
+	type: "Player name must be a string"
+  }
 };
 
 export const idUserSchema = {
@@ -108,14 +120,41 @@ export const noBodySchema = {
 export const tournamentActionSchema = {
   type: "object",
   properties: {
-    userId: { type: "number", minimum: 1 },
-    ownerUserId: { type: "number", minimum: 1 },
-    tournamentId: { type: "number", minimum: 1 },
+    userId: { 
+		type: "number", 
+		minimum: 1,
+		errorMessage: {
+			type: "userId must be a number",
+			minimum: "Invalid userId"
+		}
+	},
+    ownerUserId: { 
+		type: "number", 
+		minimum: 1,
+		errorMessage: {
+			type: "ownerUserId must be a number",
+			minimum: "Invalid ownerUserId"
+		}
+	},
+    tournamentId: { 
+		type: "number", 
+		minimum: 1,
+		errorMessage: {
+			type: "tournamentId must be a number",
+			minimum: "Invalid tournamentId"
+		}
+	},
     tournamentName: { 
       type: "string", 
       minLength: 3, 
       maxLength: 30, 
-      pattern: nameRegex
+      pattern: nameRegex,
+	  errorMessage: {
+		pattern: "Invalid tournament name",
+		minLength: "Tournament name too short",
+		maxLength: "Tournament name too long",
+		type: "Tournament name must be a string"
+	  }
     }
   },
   required: ["userId", "ownerUserId", "tournamentId", "tournamentName"],
@@ -136,11 +175,31 @@ export const tournamentCreationSchema = {
 		type: "string",
 		minLength: 3,
 		maxLength: 21,
-		pattern: nameRegex 
-		},
-      uniqueItems: true
+		pattern: nameRegex,
+		errorMessage: {
+			minLength: "Player name too short",
+			maxLength: "Player name too long",
+			pattern: "Invalid player name"
+		}
+	},
+      uniqueItems: true,
+	  errorMessage: {
+		minItems: "Invalid number of players",
+		maxItems: "Invalid number of players",
+		uniqueItems: "Duplicate player names are not allowed",
+		type: "Players must be an array of strings"
+	  }
     },
-    option: { type: "number", minimum: 0, maximum: 1 }
+    option: { 
+		type: "number", 
+		minimum: 0, 
+		maximum: 1,
+		errorMessage: {
+			type: "Option must be a number",
+			minimum: "Invalid option",
+			maximum: "Invalid option"
+		}
+	}
   },
   required: ["name", "players", "option"],
   additionalProperties: false
@@ -151,9 +210,36 @@ export const gameCreationSchema = {
   properties: {
     player_a: playerSchema,
     player_b: playerSchema,
-    requestedMaxScore: { type: "integer", minimum: 1, maximum: 21 },
-    requestedAi: { type: "integer", minimum: 0, maximum: 2 },
-    requestedOption: { type: "integer", minimum: 0, maximum: 1 }
+    requestedMaxScore: { 
+		type: "integer", 
+		minimum: 1, 
+		maximum: 21,
+		errorMessage: {
+			type: "Invalid max score",
+			minimum: "Invalid max score",
+			maximum: "Invalid max score"
+		}
+	},
+    requestedAi: { 
+		type: "integer", 
+		minimum: 0, 
+		maximum: 2,
+		errorMessage: {
+			type: "Invalid ai option",
+			minimum: "Invalid ai option",
+			maximum: "Invalid ai option"
+		} 
+	},
+    requestedOption: { 
+		type: "integer",
+		minimum: 0, 
+		maximum: 1,
+		errorMessage: {
+			type: "Invalid option",
+			minimum: "Invalid option",
+			maximum: "Invalid option"
+		}
+	},
   },
   required: ["player_a", "player_b"],
   additionalProperties: false

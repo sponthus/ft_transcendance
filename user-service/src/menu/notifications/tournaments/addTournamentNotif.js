@@ -31,7 +31,8 @@ export async function addTournamentNotif (request, reply)
     }
     catch (err)
     { 
-        return reply.code(500).send({ message: "Internal Server Error" + err.message });
+		console.debug(err.message);
+        return reply.code(500).send({ error: "Internal Server Error " + err.message });
     }
 }
 
