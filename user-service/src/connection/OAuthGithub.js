@@ -73,17 +73,8 @@ export async function loginThroughGithub(request, reply)
             secure: secure,
             path: '/',
             maxAge: 3600000
-        }).send({success: true, twofa: twofa});
-     /*   }).type('text/html')
-            .send(`
-                <html>
-                  <body>
-                    <script>
-                        window.opener?.postMessage({ success: true }, "${link}");
-                        window.close();
-                    </script>
-                 </body>
-                </html>`);*/
+            
+        }).send();
     }
     catch (err)
     {
@@ -133,9 +124,9 @@ async function createUserWithGithubInfos(AccessToken, db)
     const createAccountWithGithub = db.transaction( (username, slug, avatar, githubUsername) =>
     {
         let statement = db.prepare('    INSERT INTO \
-                                            users (username, slug, avatar, last_username_change, github_username) \
+                                            users (username, slug, avatar, github_username) \
                                         VALUES \
-                                            (?, ?, ?, CURRENT_TIMESTAMP, ?)');
+                                            (?, ?, ?, ?)');
         const result = statement.run(username, slug, avatar, githubUsername);
         const idUser = result.lastInsertRowid;
         statement = db.prepare('    INSERT INTO \
