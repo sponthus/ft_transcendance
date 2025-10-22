@@ -55,7 +55,7 @@ function initPage(){
 }
 
 function initLogo() {
-	const logoLink: HTMLAnchorElement = createAnchorElement('logo-link', '', '/', 'text-2xl font-bold text-emerald-400 hover:text-emerald-800 transition-colors') as HTMLAnchorElement;
+	const logoLink: HTMLAnchorElement = createAnchorElement('logo-link', '', '/', 'text-2xl font-bold text-emerald-400 hover:text-emerald-800 transition-colors active:scale-95') as HTMLAnchorElement;
 	const logoImg: HTMLImageElement = createImage('logo', 'mx-auto object-cover rounded-full hover:bg-emerald-600 object-center h-12 w-18  hover:shadow-lg transition-all duration-200 transform hover:scale-105', '/logo/logoIlsandWorld.png') as HTMLImageElement;
 
 	append(logoLink, [logoImg]);
@@ -118,7 +118,7 @@ async function setTextLoginUserInfo(usersForm: HTMLElement, userData: UserInfo) 
 function setAvatarLoginUserInfo(userData: UserInfo) {
 	const userIconbutton: HTMLAnchorElement = createAnchorElement('user-icon', '', `/user/${userData.slug}`, 'flex items-center mr-2');
 
-	const userIcon: HTMLElement = createDiv('user-icon', 'flex items-center justify-center bg-orange-300 hover:bg-orange-400 rounded-full relative shadow-xl w-14 h-14 hover:shadow-lg transition-all duration-200 transform hover:scale-105')
+	const userIcon: HTMLElement = createDiv('user-icon', 'flex items-center justify-center bg-orange-300 hover:bg-orange-400 rounded-full relative shadow-xl w-14 h-14 hover:shadow-lg transition-all duration-200 transform hover:scale-105 active:scale-95')
 
 	SetUserImg(userIcon, userData);
 
