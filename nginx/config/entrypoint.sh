@@ -49,26 +49,38 @@ echo "Launching nginx"
 
 # Wait for services to be up
 
-until curl -ks ${PREFIX}://api-gateway:${API_PORT}/health; do
-  echo "Waiting for api-gateway..."
-  sleep 10
-done
+MAX_RETRIES=30
+RETRY_DELAY=10
 
-until curl -ks ${PREFIX}://user-service:${USER_PORT}/health; do
-  echo "Waiting for user-service..."
-  sleep 10
-done
+try_until() {
+	local cmd="$1"
+	local msg="$2"
+	local i=0
+	until eval "$cmd"; do
+		i=$((i+1))
+		if [ "$i" -ge "$MAX_RETRIES" ]; then
+		echo "Timeout: $msg"
+		exit 1
+		fi
+		echo "$msg (try $i/$MAX_RETRIES)"
+		sleep "$RETRY_DELAY"
+	done
+}
 
-until curl -ks ${PREFIX}://game-service:${GAME_PORT}/health; do
-  echo "Waiting for game-service..."
-  sleep 10
-done
+try_until "curl -ks ${PREFIX}://api-gateway:${API_PORT}/health" "Waiting for api-gateway..."
 
-until curl -ks ${PREFIX}://session-service:${SESSION_PORT}/health; do
-  echo "Waiting for session-service..."
-  sleep 10
-done
+try_until "curl -ks ${PREFIX}://user-service:${USER_PORT}/health" "Waiting for user-service..."
 
-echo "\nAll services are up, launching nginx"
+try_until "curl -ks ${PREFIX}://game-service:${GAME_PORT}/health" "Waiting for game-service..."
+
+try_until "curl -ks ${PREFIX}://session-service:${SESSION_PORT}/health" "Waiting for session-service..."
+
+if env | grep -q "^NODE_ENV=development"; then
+	try_until "curl -ks ${PREFIX}://frontend:${VITE_PORT}/health" "Waiting for frontend dev server..."
+else
+	try_until "[ -f /usr/share/nginx/html/build-ready ]" "Waiting for frontend build..."
+fi
+
+echo " > All services are up, launching nginx"
 
 nginx -g "daemon off;"

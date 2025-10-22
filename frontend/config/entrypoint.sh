@@ -16,3 +16,4 @@ if env | grep -q "^NODE_ENV=development"; then
 else
 	exec npm run build
 fi
+

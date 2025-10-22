@@ -1,5 +1,4 @@
 import { gameEventEmitter } from "./GameEventEmitter.js";
-import fs from 'fs';
 
 let X_PADDLE_HEIGHT = 1.0;
 let X_INFERIOR_BALL_LIMIT = -5.8;
@@ -12,7 +11,7 @@ let AREA_NUMBER = 16;
 // Option : 0 = classical pong, 1 = with crabmehameha
 // Player : paddle1 = player2 et vice versa
 export class PongGame {
-	constructor(gameId, ai, option) {
+	constructor(gameId, ai, option, qtable = {}) {
 		if (ai == 0)
 			this.gameMode = 0;
 		else {
@@ -20,14 +19,7 @@ export class PongGame {
 				this.gameMode = 1;
 			else 
 				this.gameMode = 2;
-			
-			// Load Q-table from JSON file
-			const data = fs.readFileSync("q_table.json", "utf-8");
-			this.qtable = JSON.parse(data);
-			console.debug("Q-Table loaded");
-			// console.debug(this.qtable);
-			// console.debug(typeof this.qtable);
-			// console.debug(typeof this.qtable["00"]);
+			this.qtable = qtable;
 		}
 		this.gameOption = 1;
 		if (option)
@@ -84,40 +76,15 @@ export class PongGame {
 		this.input1 = this.inputs || {};
 	}
 
-	// Schema of state in 3 situations (0, 1, 2))
-	// get_ai_state_situation()
-	// {
-	// 	let state;
-	// 	if (this.gameMode == 1) {
-	// 		if ((this.paddle1.x <= this.ball.x && this.ball.x <= this.paddle1.x + X_PADDLE_HEIGHT) 
-	// 			|| (this.paddle1.x - X_PADDLE_HEIGHT <= this.ball.x && this.ball.x <= this.paddle1.x))
-	// 			state = 0 // Ball is in the paddle range -> Best action = 2
-	// 		else if (this.ball.x < this.paddle1)
-	// 			state = 1 // Ball is under paddle -> Best action is up 0
-	// 		else
-	// 			state = 2 // Ball is over paddle -> Best action is down 1
-	// 	}
-	// 	else if (this.gameMode == 2) {
-	// 		if ((this.paddle2.x <= this.ball.x && this.ball.x <= this.paddle2.x + X_PADDLE_HEIGHT) 
-	// 			|| (this.paddle2.x - X_PADDLE_HEIGHT <= this.ball.x && this.ball.x <= this.paddle2.x))
-	// 			state = 0 // Ball is in the paddle range -> Best action = 2
-	// 		else if (this.ball.x < this.paddle2)
-	// 			state = 1 // Ball is under paddle -> Best action is up 0
-	// 		else
-	// 			state = 2 // Ball is over paddle -> Best action is down 1
-	// 	}
-	// 	return state
-	// }
-
 	// Mixes action and state of game to get the key of Q-table
 	get_ai_state(action, predicted_impact)
 	{
 		const ai_area = this.get_ai_position();
 		const impact_area = this.get_predicted_impact_area(predicted_impact);
-		// console.log("impact_area value:", impact_area, "type:", typeof impact_area);
+		// console.debug("impact_area value:", impact_area, "type:", typeof impact_area);
 		const state = `${ai_area}-${impact_area}-${action}`;
 		// String(ai_area) + '-' + String(impact_area) + '-' + str_action;
-		// console.log("State for Q-table :", state, " with ai_area ", ai_area, " / impact area ", impact_area, " and action ", action);
+		// console.debug("State for Q-table :", state, " with ai_area ", ai_area, " / impact area ", impact_area, " and action ", action);
 		return state;
 	}
 
@@ -126,9 +93,9 @@ export class PongGame {
 	{
 		const ai_area = this.get_ai_position();
 		const impact_area = old_state.split('-')[1];
-		// console.log("impact_area value:", impact_area, "type:", typeof impact_area);
+		// console.debug("impact_area value:", impact_area, "type:", typeof impact_area);
 		const state = `${ai_area}-${impact_area}-${action}`;
-		// console.log("State for Q-table :", state, " with ai_area ", ai_area, " / impact area ", impact_area, " and action ", action);
+		// console.debug("State for Q-table :", state, " with ai_area ", ai_area, " / impact area ", impact_area, " and action ", action);
 		return state;
 	}
 

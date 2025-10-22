@@ -107,8 +107,15 @@ export const usernameSchema = {
 };
 
 export const statusSchema = {
-  type: "string",
-  enum: ["playing", "not_playing"]
+  type: "object",
+  properties: {
+    status: {
+      type: "string",
+      enum: ["playing", "not_playing"]
+    }
+  },
+  required: ["status"],
+  additionalProperties: false
 };
 
 export const numberIdSchema = {

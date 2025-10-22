@@ -1,5 +1,6 @@
 import GameServer from "./GameServer.js";
 import { updateUserStatus } from "./API/requests/UpdateUserStatus.js";
+import fs from 'fs';
 
 // Handles every GameServer
 export default class GameMaster {
@@ -11,6 +12,14 @@ export default class GameMaster {
         }
         GameMaster.instance = this;
         this.games = new Map();
+
+		// Load Q-table from JSON file
+		const data = fs.readFileSync("q_table.json", "utf-8");
+		this.qtable = JSON.parse(data);
+		console.debug("Q-Table loaded");
+		// console.debug(this.qtable);
+		// console.debug(typeof this.qtable);
+		// console.debug(typeof this.qtable["00"]);
     }
 
     static getInstance() {
@@ -94,7 +103,7 @@ export default class GameMaster {
 			throw new Error("Invalid number of players");
 		}
 		this.games.set(Number(gameId), {
-			server: new GameServer(Number(gameId), tournament, userId, maxScore, ai, option),
+			server: new GameServer(Number(gameId), tournament, userId, maxScore, ai, option, this.qtable),
 			tournament: tournament,
             userId: userId,
             ws: null,
