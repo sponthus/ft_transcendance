@@ -11,8 +11,10 @@ export async function  activateTwoFa(): Promise<Result>
         {
             method: 'POST',
 			headers: {
+				'content-type': 'application/json',
 				'host': window.location.host
 			},
+			body: JSON.stringify({'action': 'activate'}),
             credentials: 'include',
         });
         const data = await res.json();
@@ -35,7 +37,10 @@ export async function  checkTwoFaCode(code: string): Promise<Result>
         const res = await fetch( "/api/user/2fa/check", 
         {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 
+				'Content-Type': 'application/json', 
+				'host': window.location.host 
+			},
             credentials: 'include',
             body: JSON.stringify({ code }),
         });
@@ -59,6 +64,11 @@ export async function  desactivateTwoFa(): Promise<Result>
         const res = await fetch('/api/user/2fa/desactivate', 
         {
             method: 'POST',
+			headers: { 
+				'Content-Type': 'application/json',
+				'host': window.location.host
+			},
+			body: JSON.stringify({'action': 'desactivate'}),
             credentials: 'include',
         });
         const data = await res.json();

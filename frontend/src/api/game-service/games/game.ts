@@ -103,8 +103,10 @@ export async function startGame(gameId: number): Promise<GameInfoResult> {
         const request = await fetch(`/api/games/${gameId}`, {
             method: 'POST',
 			headers: {
+				'content-type': 'application/json',
 				'host': window.location.host
 			},
+			body: JSON.stringify({ gameId: gameId }),
             credentials: 'include',
         });
         if (!request.ok) {

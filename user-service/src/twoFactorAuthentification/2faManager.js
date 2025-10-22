@@ -7,7 +7,8 @@ export async function activateTwoFa(request, reply)
 {
     const   db = request.server.db;
     const   idUser = request.user.idUser;
-
+	
+	console.debug(`Activate 2FA for user ID: ${idUser}`);
     try
     {
          const stmt = db.prepare("  SELECT \

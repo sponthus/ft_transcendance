@@ -164,7 +164,9 @@ fastify.decorate("authenticate", async function (request, reply)
     //TODO PENSEZ A VERIFIER SI LE USER EXISTE ET LE RESTE DES TABLLES ?
     try 
     {
-        // console.debug("\nToken dans le user-service avant unsign cookie : -" + request.cookies.token + "-");
+        if (!request.cookies || !request.cookies.token)
+			return reply.code(401).send({ message: "Invalid cookie" });
+		// console.debug("\nToken dans le user-service avant unsign cookie : -" + request.cookies.token + "-");
         const result = fastify.unsignCookie(request.cookies.token); //verifie manuellement signature cookie
         if (!result.valid)
             return reply.code(401).send({ message: "Invalid cookie" });
@@ -172,6 +174,7 @@ fastify.decorate("authenticate", async function (request, reply)
         request.user = await fastify.jwt.verify(result.value); //Décode et verifie le token et stock ses infos dans request
         // console.debug("USER-SERVICE Decoded token:", request.user);
 
+		console.log(`token = ${request.token}`)
         if (request.user.twofa_pending === true)
             return reply.code(401).send({ message: "2FA required" });
 

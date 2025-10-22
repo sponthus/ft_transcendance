@@ -1,6 +1,7 @@
 import Ajv from "ajv"
 
 let slugRegex = "^(?![_-])(?!.*[_-]$)(?=.*[a-z])(?![0-9_]+)[a-z0-9_-]+$";
+let nameRegex = "^@?(?=.+[A-Za-z])[A-Za-z0-9]+(?:\\s+[A-Za-z0-9]+)*$"
 
 export const headersWithApiKeyJsonSchema = {
 	type: "object",
@@ -41,14 +42,14 @@ export const tournamentNameSchema = {
   type: "string",
   minLength: 3,
   maxLength: 30,
-  pattern: "^(?![=+\\-@])(?![ _-])(?!.*[ _-]$)(?!^[ _-]+$)(?!.*[\\r\\n\\t])(?=.*[A-Za-zÀ-ÖØ-öø-ÿ0-9])[A-Za-zÀ-ÖØ-öø-ÿ0-9 _-]+$"
+  pattern: nameRegex
 };
 
 export const playerSchema = {
   type: "string", 
   minLength: 3, 
   maxLength: 21, 
-  pattern: "^(?!@?[_-])(?!.*[_-]$)(?!^\\s)(?!.*\\s$)(?!.*\\s{2})(?!.*(?:\\s.*){3})(?=.*[A-Za-z])(?!@?[0-9_-]+$)@?[A-Za-z0-9 _-]+$"
+  pattern: nameRegex
 };
 
 export const idUserSchema = {
@@ -114,7 +115,7 @@ export const tournamentActionSchema = {
       type: "string", 
       minLength: 3, 
       maxLength: 30, 
-      pattern: "^(?![=+\\-@])(?![ _-])(?!.*[ _-]$)(?!^[ _-]+$)(?!.*[\\r\\n\\t])(?=.*[A-Za-zÀ-ÖØ-öø-ÿ0-9])[A-Za-zÀ-ÖØ-öø-ÿ0-9 _-]+$"
+      pattern: nameRegex
     }
   },
   required: ["userId", "ownerUserId", "tournamentId", "tournamentName"],
@@ -131,7 +132,12 @@ export const tournamentCreationSchema = {
         { minItems: 4, maxItems: 4 },
         { minItems: 8, maxItems: 8 }
       ],
-      items: { type: "string" },
+      items: { 
+		type: "string",
+		minLength: 3,
+		maxLength: 21,
+		pattern: nameRegex 
+		},
       uniqueItems: true
     },
     option: { type: "number", minimum: 0, maximum: 1 }

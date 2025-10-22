@@ -105,12 +105,12 @@ fastify.addHook('onRequest', async (request, reply) => {
 			console.warn('Missing content-type header');
 			reply.code(400).send({ message: 'Missing content-type for request' });
 			return;
-		}
+		} // Game POST request has game in address so no body
 	}
 
 	// Validate host header in production
 	const host = request.headers['host'];
-	if (env.nodeEnv === 'production') {
+	// if (env.nodeEnv === 'production') {
 		if (!host || typeof host !== 'string') {
 			console.warn('Missing or invalid host header');
 			reply.code(400).send({ message: 'Missing or invalid host header' });
@@ -122,7 +122,7 @@ fastify.addHook('onRequest', async (request, reply) => {
 			reply.code(400).send({ message: 'Host header does not match' });
 		}
 		return;
-	}
+	// }
 });
 
 // Protection of attacks looking for valid URL by hardly protecting 404
