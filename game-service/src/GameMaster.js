@@ -109,8 +109,8 @@ export default class GameMaster {
             ws: null,
 			players: players
 		});
-		console.debug("Games map after creation:");
-		console.debug(this.games);
+		// console.debug("Games map after creation:");
+		// console.debug(this.games);
 		// console.debug(process._getActiveHandles().length);
 		// console.debug(process._getActiveRequests().length);
     }
