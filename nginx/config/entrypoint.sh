@@ -76,7 +76,7 @@ try_until "curl -ks ${PREFIX}://game-service:${GAME_PORT}/health" "Waiting for g
 try_until "curl -ks ${PREFIX}://session-service:${SESSION_PORT}/health" "Waiting for session-service..."
 
 if env | grep -q "^NODE_ENV=development"; then
-	try_until "curl -ks ${PREFIX}://frontend:${FRONTEND_PORT}/health" "Waiting for frontend dev server..."
+	try_until "curl -ks ${PREFIX}://frontend:${VITE_PORT}/health" "Waiting for frontend dev server..."
 else
 	try_until "[ -f /usr/share/nginx/html/build-ready ]" "Waiting for frontend build..."
 fi
