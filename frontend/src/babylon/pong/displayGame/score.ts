@@ -71,6 +71,8 @@ export class Score {
 		if (this._bullBob)
 			this._bullBob.setEnabled(true);
 		this._textBob.text = this._phrases[Math.floor(Math.random() * this._phrases.length)];
+		if (this._textBob.text === "undefined")
+			this._textBob.text = "Mmmmh...";
 	}
 
 	private _bobGoal()
@@ -78,6 +80,8 @@ export class Score {
 		if (this._bullBob)
 			this._bullBob.setEnabled(true);
 		this._textBob.text = this._goalBob[Math.floor(Math.random() * this._phrases.length)];
+		if (this._textBob.text === "undefined")
+			this._textBob.text = "Mmmmh...";
 	}
 	public updateScore(score1: number, score2: number)
 	{
