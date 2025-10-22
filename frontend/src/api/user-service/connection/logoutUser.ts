@@ -9,7 +9,7 @@ export async function logoutUser(): Promise<LogoutResult>
     {
         const res = await fetch('/api/user/logout',
         {
-            method: 'POST',
+            method: 'PUT',
 			headers: {
 				'content-type': 'application/json',
 				'host': window.location.host

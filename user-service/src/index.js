@@ -148,14 +148,7 @@ fastify.decorate("authenticate_2fa", async function (request, reply)
     } 
     catch (err)
     {
-        if (err.message === "Authorization token expired")
-        {
-            return reply.code(401).send({message: err.message});
-        }
-        else
-        {
-            return reply.code(400).send({message: err.message});
-        }
+        return reply.code(401).send({message: err.message});
     }
 });
 
@@ -191,14 +184,16 @@ fastify.decorate("authenticate", async function (request, reply)
 	}
 	catch (err)
 	{
-		if (err.message === "Authorization token expired")
+        console.log('err : ', err);
+		/*if (err.message === "Authorization token expired")
 		{
             return reply.code(401).send({message: err.message});
         }
         else
         {
             return reply.code(400).send({message: err.message});
-        }
+        }*/
+        return reply.code(401).send({message: err.message});
     }
     try
     {

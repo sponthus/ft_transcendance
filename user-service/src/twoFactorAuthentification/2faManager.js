@@ -172,6 +172,26 @@ export async function desactivateTwoFa(request, reply)
     }
 }
 
+export async function deleteToken (request, reply)
+{
+    try
+    {
+        return reply.code(200).setCookie('token', '',
+        {
+            httpOnly: true,
+            signed: true,
+            secure: false,
+            path: '/',
+            maxAge: 3600000
+            // TODO mettre same site
+        }).send();
+    }
+    catch (err)
+    {
+        return reply.code(500).send({ message: "Internal Servor Error" });
+    } 
+}
+
 /* TODO remove ? Change key 
 secret contient : 
 {

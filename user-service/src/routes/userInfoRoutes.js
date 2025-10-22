@@ -3,7 +3,7 @@ import updateUsername from "../user-info/updateUsername.js";
 import updateNickname from "../user-info/updateNickname.js";
 import updatePassword from "../user-info/updatePassword.js";
 import updateAvatar from "../user-info/updateAvatar.js";
-import { avatarSchema, nicknameSchema, passwordSchema, slugSchema, usernameSchema } from "../tools/checkFormat.js";
+import { nicknameSchema, passwordSchema, slugSchema, usernameSchema } from "../tools/checkFormat.js";
 
 export default async function userInfoRoutes(fastify) 
 {

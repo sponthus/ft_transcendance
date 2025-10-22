@@ -1,8 +1,11 @@
+import Ajv from 'ajv';
+import addErrors from "ajv-errors";
+
 export const idUserSchema = {
   type: "object",
   properties: {
-    idUser: { 
-      type: "string", 
+    idUser: {
+      type: "string",
       pattern: '^[1-9][0-9]*$',
       errorMessage: {
         type: "idUser must be a number",
@@ -17,9 +20,9 @@ export const idUserSchema = {
 export const characterAssetSchema = {
   type: "object",
   properties: {
-    asset: { 
-      type: "integer", 
-      minimum: 0, 
+    asset: {
+      type: "integer",
+      minimum: 0,
       maximum: 18,
       errorMessage: {
         type: "Asset must be an integer",
@@ -35,9 +38,9 @@ export const characterAssetSchema = {
 export const npcAssetSchema = {
   type: "object",
   properties: {
-    asset: { 
-      type: "integer", 
-      minimum: 0, 
+    asset: {
+      type: "integer",
+      minimum: 0,
       maximum: 11,
       errorMessage: {
         type: "Asset must be an integer",
@@ -63,24 +66,24 @@ export const addTournamentNotifSchema = {
     },
     receiverId: {
       anyOf: [
-        { 
-          type: "number", 
+        {
+          type: "number",
           minimum: 1,
           errorMessage: {
             type: "Receiver ID must be a number",
             minimum: "Receiver ID must be at least 1"
           }
         },
-        { 
-          type: "array", 
-          items: { 
-            type: "number", 
+        {
+          type: "array",
+          items: {
+            type: "number",
             minimum: 1,
             errorMessage: {
               type: "Receiver IDs must be numbers",
               minimum: "Each receiver ID must be at least 1"
             }
-          }, 
+          },
           minItems: 1,
           errorMessage: {
             minItems: "Receiver array cannot be empty"
@@ -88,26 +91,26 @@ export const addTournamentNotifSchema = {
         }
       ]
     },
-    senderId: { 
-      type: "number", 
+    senderId: {
+      type: "number",
       minimum: 1,
       errorMessage: {
         type: "Sender ID must be a number",
         minimum: "Sender ID must be at least 1"
       }
     },
-    tournamentId: { 
-      type: "number", 
+    tournamentId: {
+      type: "number",
       minimum: 1,
       errorMessage: {
         type: "Tournament ID must be a number",
         minimum: "Tournament ID must be at least 1"
       }
     },
-    tournamentName: { 
-      type: "string", 
-      minLength: 3, 
-      maxLength: 30, 
+    tournamentName: {
+      type: "string",
+      minLength: 3,
+      maxLength: 30,
       pattern: "^(?![=+\\-@])(?![ _-])(?!.*[ _-]$)(?!^[ _-]+$)(?!.*[\\r\\n\\t])(?=.*[A-Za-zÀ-ÖØ-öø-ÿ0-9])[A-Za-zÀ-ÖØ-öø-ÿ0-9 _-]+$",
       errorMessage: {
         type: "Tournament name must be a string",
@@ -121,25 +124,6 @@ export const addTournamentNotifSchema = {
   additionalProperties: false
 };
 
-export const avatarSchema = {
-  type: "object",
-  properties: {
-    avatar: {
-      type: "string",
-      minLength: 5,
-      maxLength: 255,
-      pattern: "^.+\\.(png|jpg|jpeg)$",
-      errorMessage: {
-        type: "Avatar must be a string",
-        minLength: "Avatar must be at least 5 characters",
-        maxLength: "Avatar cannot be longer than 255 characters",
-        pattern: "Avatar must be a valid image file (png, jpg, jpeg)"
-      }
-    }
-  },
-  required: ["avatar"],
-  additionalProperties: false
-};
 
 export const slugSchema = {
   type: 'object',
@@ -164,10 +148,10 @@ export const slugSchema = {
 export const answerSchema = {
   type: "object",
   properties: {
-    ownerSlug: { 
-      type: "string", 
-      minLength: 3, 
-      maxLength: 20, 
+    ownerSlug: {
+      type: "string",
+      minLength: 3,
+      maxLength: 20,
       pattern: "^(?![_-])(?!.*[_-]$)(?=.*[a-z])(?![0-9_]+)[a-z0-9_-]+$",
       errorMessage: {
         type: "Owner slug must be a string",
@@ -176,18 +160,18 @@ export const answerSchema = {
         pattern: "Owner slug format is invalid"
       }
     },
-    tournamentId: { 
-      type: "number", 
+    tournamentId: {
+      type: "number",
       minimum: 1,
       errorMessage: {
         type: "Tournament ID must be a number",
         minimum: "Tournament ID must be at least 1"
       }
     },
-    tournamentName: { 
-      type: "string", 
-      minLength: 3, 
-      maxLength: 30, 
+    tournamentName: {
+      type: "string",
+      minLength: 3,
+      maxLength: 30,
       pattern: "^(?![=+\\-@])(?![ _-])(?!.*[ _-]$)(?!^[ _-]+$)(?!.*[\\r\\n\\t])(?=.*[A-Za-zÀ-ÖØ-öø-ÿ0-9])[A-Za-zÀ-ÖØ-öø-ÿ0-9 _-]+$",
       errorMessage: {
         type: "Tournament name must be a string",
@@ -196,8 +180,8 @@ export const answerSchema = {
         pattern: "Tournament name contains invalid characters"
       }
     },
-    answer: { 
-      type: "string",  
+    answer: {
+      type: "string",
       enum: ["decline", "accept"],
       errorMessage: {
         type: "Answer must be a string",
@@ -214,10 +198,10 @@ export const registrationSchema = {
   properties:
   {
     username:
-    { 
-      type: "string", 
-      minLength: 3, 
-      maxLength: 15, 
+    {
+      type: "string",
+      minLength: 3,
+      maxLength: 15,
       pattern: "^(?![_-])(?!.*[_-]$)(?=.*[A-Za-z])(?![0-9_]+)[A-Za-z0-9_-]+$",
       not: { const: "default" },
       errorMessage:
@@ -230,10 +214,10 @@ export const registrationSchema = {
       },
     },
     password:
-    { 
-      type: "string", 
-      minLength: 6, 
-      maxLength: 15, 
+    {
+      type: "string",
+      minLength: 6,
+      maxLength: 15,
       pattern: "^(?=.*[a-zA-Z])[^\\[\\]{}();]+$",
       errorMessage:
       {
@@ -251,10 +235,10 @@ export const registrationSchema = {
 export const nicknameSchema = {
   type: "object",
   properties: {
-    nickname: { 
-      type: "string", 
-      minLength: 3, 
-      maxLength: 15, 
+    nickname: {
+      type: "string",
+      minLength: 3,
+      maxLength: 15,
       pattern: "^(?=.*[a-zA-Z])[^\\[\\]{}();]+$",
       errorMessage: {
         type: "Nickname must be a string",
@@ -271,10 +255,10 @@ export const nicknameSchema = {
 export const passwordSchema = {
   type: "object",
   properties: {
-    password: { 
-      type: "string", 
-      minLength: 6, 
-      maxLength: 15, 
+    password: {
+      type: "string",
+      minLength: 6,
+      maxLength: 15,
       pattern: "^(?=.*[a-zA-Z])[^\\[\\]{}();]+$",
       errorMessage: {
         type: "Password must be a string",
@@ -291,10 +275,10 @@ export const passwordSchema = {
 export const usernameSchema = {
   type: "object",
   properties: {
-    username: { 
-      type: "string", 
-      minLength: 3, 
-      maxLength: 15, 
+    username: {
+      type: "string",
+      minLength: 3,
+      maxLength: 15,
       pattern: "^(?![_-])(?!.*[_-]$)(?=.*[A-Za-z])(?![0-9_]+)[A-Za-z0-9_-]+$",
       errorMessage: {
         type: "Username must be a string",
@@ -311,10 +295,10 @@ export const usernameSchema = {
 export const codeSchema = {
   type: "object",
   properties: {
-    code: { 
-      type: "string", 
-      minLength: 6, 
-      maxLength: 6, 
+    code: {
+      type: "string",
+      minLength: 6,
+      maxLength: 6,
       pattern: "^(?=.*[0-9])[0-9]+$",
       errorMessage: {
         type: "Code must be a string",
@@ -327,6 +311,38 @@ export const codeSchema = {
   required: ["code"],
   additionalProperties: false
 };
+
+export function checkAvatarFormat(request) {
+
+  const avatarSchema = {
+    type: "object",
+    properties: {
+      avatar: {
+        type: "string",
+        minLength: 5,
+        maxLength: 255,
+        pattern: "^.+\\.(png|jpg|jpeg)$",
+        errorMessage: {
+          type: "Avatar must be a string",
+          minLength: "Avatar must be at least 5 characters",
+          maxLength: "Avatar cannot be longer than 255 characters",
+          pattern: "Avatar must be a valid image file (png, jpg, jpeg)"
+        }
+      }
+    },
+    required: ["avatar"],
+    additionalProperties: false
+  };
+  const ajv = new Ajv({ allErrors: true });
+  addErrors(ajv);
+  const validate = ajv.compile(avatarSchema);
+  const valid = validate(request.body);
+
+  if (!valid) {
+    const firstError = validate.errors[0]?.message || "Invalid avatar format";
+    return { valid: false, error: firstError };
+  }
+}
 
 /*export const idUserSchema = {
   type: "object",
