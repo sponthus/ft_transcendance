@@ -342,7 +342,6 @@ export class GamePhysics {
 	}
 
 	get Win(): boolean {
-		console.log("getter Win called, returning:", this._Win);
 		return this._Win;
 	}
 

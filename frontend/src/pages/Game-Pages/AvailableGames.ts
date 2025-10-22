@@ -88,7 +88,7 @@ export class availableGames {
 					append(this.bodyParty, [PartyDiv]);
 					this.PartyMap.set(Party, PartyDiv);
 				})
-				this.ManagePartyEvent();
+				// this.ManagePartyEvent();
 			}
 	}
 
@@ -116,28 +116,28 @@ export class availableGames {
 		append(Div, [CreatedAtDivs]);
 	}
 
-	private ManagePartyEvent() {
-		// document.getElementById("delete-btn")?.addEventListener('click', async(e) => {
-		// 	this.PartyMap?.forEach(async (value, key) => {
-		// 		if (value.checked) {
-		// 			await this.deleteTournament(key);
-		// 			await this.refreshAvailableGames();
-		// 			return ;
-		// 		}
-		// 	})
-		// })
-	}
+	// private ManagePartyEvent() {
+	// 	// document.getElementById("delete-btn")?.addEventListener('click', async(e) => {
+	// 	// 	this.PartyMap?.forEach(async (value, key) => {
+	// 	// 		if (value.checked) {
+	// 	// 			await this.deleteTournament(key);
+	// 	// 			await this.refreshAvailableGames();
+	// 	// 			return ;
+	// 	// 		}
+	// 	// 	})
+	// 	// })
+	// }
 
-	private async deleteTournament(tournamentId: number) {
-		try {
-			const request = await deleteTournament(tournamentId);
-			if (!request.ok) {
-				throw new Error(request.error);
-			}
-			await ErrorPopup(request.message);
-		} catch (error) {
-			await ErrorPopup(error as string);
-		}
-		await this.refreshAvailableGames();
-	}
+	// private async deleteTournament(tournamentId: number) {
+	// 	try {
+	// 		const request = await deleteTournament(tournamentId);
+	// 		if (!request.ok) {
+	// 			throw new Error(request.error);
+	// 		}
+	// 		await ErrorPopup(request.message);
+	// 	} catch (error) {
+	// 		await ErrorPopup(error as string);
+	// 	}
+	// 	await this.refreshAvailableGames();
+	// }
 }

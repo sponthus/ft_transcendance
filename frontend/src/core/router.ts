@@ -85,7 +85,9 @@ export async function renderRoute(path: string) {
         await currentPage.render();
     }
     else {
-        document.getElementById('app')!.innerHTML = `<h1>404 - Page not found</h1>`;
+		const app =  document.getElementById('app');
+		if (app)
+       app.innerHTML = `<h1>404 - Page not found</h1>`;
     }
 }
 

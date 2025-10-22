@@ -27,8 +27,8 @@ export async function renderLoggedOutBanner(banner: HTMLElement): Promise<void> 
 
 	setLogoutUserInfo();
 
-	createItem('/login', 'Login', 'px-4 py-2 text-emerald-600  hover:text-emerald-800 hover:bg-orange-300 rounded-md transition-colors rounded-xl shadow-md hover:shadow-lg transition-all duration-200 transform hover:scale-105');
-	createItem('/register', 'Register', 'px-4 py-2 bg-emerald-600 text-green-200 hover:bg-emerald-800 rounded-md transition-colors rounded-xl shadow-md hover:shadow-lg transition-all duration-200 transform hover:scale-105');
+	createItem('/login', 'Login', 'px-4 py-2 text-emerald-600  hover:text-emerald-800 hover:bg-orange-300 rounded-md transition-colors rounded-xl shadow-md hover:shadow-lg transition-all duration-200 transform hover:scale-105 active:scale-95');
+	createItem('/register', 'Register', 'px-4 py-2 bg-emerald-600 text-green-200 hover:bg-emerald-800 rounded-md transition-colors rounded-xl shadow-md hover:shadow-lg transition-all duration-200 transform hover:scale-105 active:scale-95');
 }
 
 export async function renderLoggedInBanner(banner: HTMLElement, userData: UserInfo): Promise<void> {	
@@ -39,9 +39,9 @@ export async function renderLoggedInBanner(banner: HTMLElement, userData: UserIn
 
 	createSearchBarDiv(navLinks);
 	createNotificationDiv(navLinks);
-	createItem('/setting', "Settings", "px-4 py-2 text-emerald-600 hover:text-emerald-800 hover:bg-orange-300 rounded-md transition-colors rounded-xl shadow-md hover:shadow-lg transition-all duration-200 transform hover:scale-105");
-	createItem(`/user/${userData.slug}`, 'Profile', 'px-4 py-2 text-emerald-600 hover:text-emerald-800 hover:bg-orange-300 rounded-md transition-colors rounded-xl shadow-md hover:shadow-lg transition-all duration-200 transform hover:scale-105');
-	createItem('/', 'Logout', 'px-4 py-2 text-red-200 bg-red-600 hover:text-red-300 hover:bg-red-800 rounded-md transition-colors cursor-pointer rounded-xl shadow-md hover:shadow-lg transition-all duration-200 transform hover:scale-105');
+	createItem('/setting', "Settings", "px-4 py-2 text-emerald-600 hover:text-emerald-800 hover:bg-orange-300 rounded-md transition-colors rounded-xl shadow-md hover:shadow-lg transition-all duration-200 transform hover:scale-105 active:scale-95");
+	createItem(`/user/${userData.slug}`, 'Profile', 'px-4 py-2 text-emerald-600 hover:text-emerald-800 hover:bg-orange-300 rounded-md transition-colors rounded-xl shadow-md hover:shadow-lg transition-all duration-200 transform hover:scale-105 active:scale-95');
+	createItem('/', 'Logout', 'px-4 py-2 text-red-200 bg-red-600 hover:text-red-300 hover:bg-red-800 rounded-md transition-colors cursor-pointer rounded-xl shadow-md hover:shadow-lg transition-all duration-200 transform hover:scale-105 active:scale-95');
 	SetLogOutEvent();
 }
 
