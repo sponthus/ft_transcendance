@@ -104,7 +104,10 @@ async function addPopUpContent(url: string, active: boolean) {
 			await ErrorPopup(error as string);
 		}
 	})
-	backBtn.addEventListener('click', () => {QrPop.removeOverlayToWindow();})
+	backBtn.addEventListener('click', async() => {
+		//remove cookies
+		QrPop.removeOverlayToWindow();
+	})
 }
 
 function EventInputs() {

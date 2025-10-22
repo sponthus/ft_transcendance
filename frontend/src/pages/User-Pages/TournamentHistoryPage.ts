@@ -89,7 +89,7 @@ async function AddTournaments(Body: HTMLElement, UserData: UserInfo) {
 			fillTournamentStubborn(Body);
 			games.map((party: any, i: number) => {
 				if (party.status == "done") {
-					const PartyPan = createDiv('tournament-pan', "flex flex-col items-center w-full h-[0%] flex gap-4 opacity-0 transition-all duration-300");
+					const PartyPan = createDiv('tournament-pan', "flex flex-col items-center w-full h-[0%] flex gap-4 opacity-0 transition-all duration-300  overflow-auto");
 					FillPartyTournament(PartyPan, party);
 					const PartyDiv: HTMLButtonElement = createButton("tournament", "flex items-center h-[10%] w-[100%] hover:scale-105 active:scale-95 hover:bg-orange-400 hover:bg-opacity-50 space-x-8 transition-all duration-300", "");
 
