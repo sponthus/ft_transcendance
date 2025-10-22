@@ -136,8 +136,18 @@ export class Event {
 			this.LocalGamePage._backBtn.classList.add('-translate-x-96');
 		if (this.LocalGamePage._settingPan)
 			this.LocalGamePage._settingPan.classList.add('translate-x-96');
+		this.SetUpPlayers();
 		this.StatePage = PageState.PARTY;
 		await this.GamePage.generate1v1GamePage();
+	}
+
+	private SetUpPlayers() {
+		if (this.LocalGamePage._Ai === 0) {
+			if (this.LocalGamePage._PlayerA && !this.LocalGamePage._PlayerA.startsWith('@'))
+				this.LocalGamePage.setPlayerA = this.LocalGamePage._playerAInput.value;
+			if (this.LocalGamePage._PlayerB && !this.LocalGamePage._PlayerB.startsWith('@'))
+				this.LocalGamePage.setPlayerB = this.LocalGamePage._playerBinput.value;
+		}
 	}
 
 	/**********active bot player button**********/
@@ -188,14 +198,22 @@ export class Event {
 	private reversePlayerName() {
 		const tmpA = this.LocalGamePage._PlayerA;
 		const tmpB = this.LocalGamePage._PlayerB;
-		if (tmpB.startsWith('@'))
+		if (tmpB.startsWith('@')) {
 			this.LocalGamePage.setPlayerA = '@' + this.LocalGamePage._userData.slug;
-		else
+			this.LocalGamePage._playerAInput.readOnly = true;
+		}
+		else {
 			this.LocalGamePage.setPlayerA = this.LocalGamePage._playerAInput.value;
-		if (tmpA.startsWith('@'))
+			this.LocalGamePage._playerAInput.readOnly = false;
+		}
+		if (tmpA.startsWith('@')) {
 			this.LocalGamePage.setPlayerB = '@' + this.LocalGamePage._userData.slug;
-		else
+			this.LocalGamePage._playerBinput.readOnly = true;
+		}
+		else {
 			this.LocalGamePage.setPlayerB = this.LocalGamePage._playerBinput.value;
+			this.LocalGamePage._playerBinput.readOnly = true;
+		}
 	}
 
 	/**********increase score limit**********/

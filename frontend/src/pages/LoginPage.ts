@@ -103,8 +103,8 @@ export class LoginPage extends BasePage {
 					if (popup && !popup.closed)
 						popup.close();
 				}
-				Time += 4000;
-			}, 4000);
+				Time += 2000;
+			}, 2000);
 		});
 	}
 
