@@ -41,13 +41,22 @@ else {
 
 console.log('Parameters for fastify are being set ...'); // debug
 
-// Protection of
-// Limits requests from a specific IP :: 100 every 100 seconds
+// Protection of limit requests from a specific IP :: 100 every 100 seconds
 // Otherwise gives a 429 code
+function isTrustedRequest(request) {
+	const ip = request.ip ? request.ip : '';
+	// console.log("IP address is ", ip);
+	if (ip === 'localhost' || ip === env.host) 
+		return true;
+
+	return false;
+}
+
 await fastify.register(rateLimit, {
     global: true,
-    max: 1000, // too change to 100
-    timeWindow: '100 seconds'
+    max: 1000,
+    timeWindow: '100 seconds',
+    allowList: (request) => isTrustedRequest(request)
 });
 
 fastify.addHook('onRequest', async (request, reply) => {
@@ -129,8 +138,9 @@ fastify.addHook('onRequest', async (request, reply) => {
 // Protection of attacks looking for valid URL by hardly protecting 404
 fastify.setNotFoundHandler({
     preHandler: fastify.rateLimit({
-        max: 10,
-        timeWindow: '60 seconds'
+        max: 100,
+        timeWindow: '60 seconds',
+		allowList: ['localhost', env.host],
     })
 }, function (request, reply) {
     reply.code(404).send({ error: 'Not found' })

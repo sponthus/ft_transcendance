@@ -53,6 +53,7 @@ export async function acceptTournamentInvitation(request, reply) {
 		// Acceptation notification to the user, cancel tournament if error + send notif
 		const acceptNotification = await sendTournamentAcceptation(ownerUserId, acceptingUserId, tournamentId, tournamentName);
 		if (acceptNotification.ok === false) {
+			console.error(acceptNotification);
 			console.error("❌ Unable to send tournament acceptation notification to owner ", ownerUserId, ": ", acceptNotification.error);
 			const cancelTournament = await db.cancelTournament(tournamentId);
 			if (cancelTournament.ok === false) {

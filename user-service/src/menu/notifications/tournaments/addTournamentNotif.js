@@ -6,7 +6,7 @@ export async function addTournamentNotif (request, reply)
     const   { type, receiverId, senderId, tournamentId, tournamentName } = request.body;
   
     //TODO tester schema
-    console.debug('request.body :', request.body);
+    // console.debug('request.body :', request.body);
     //TODO check que les users existe bien
     try
     {
