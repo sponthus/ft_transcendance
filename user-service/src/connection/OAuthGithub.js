@@ -34,8 +34,16 @@ export function initOAuthGithub(fastify)
 export async function loginThroughGithub(request, reply)
 {
     const fastify = request.server;
-	// TODO : Add a condition if the request doesn't come from authorization workflow to give other than 500
-    const accessToken = await fastify.auth.getAccessTokenFromAuthorizationCodeFlow(request);
+
+    let accessToken
+    try
+    {
+        accessToken = await fastify.auth.getAccessTokenFromAuthorizationCodeFlow(request);
+    }
+    catch (err)
+    {
+        return reply.code(401).send({ error: "Invalid or expired authorization code." });
+    }
     try
     {
         const userInfo = await createUserWithGithubInfos(accessToken.token.access_token, fastify.db);
@@ -78,7 +86,6 @@ export async function loginThroughGithub(request, reply)
     }
     catch (err)
     {
-        console.log(err);
         reply.code(500).send({ message: "Internal Server Error" });
     }
 }
