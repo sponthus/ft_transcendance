@@ -34,7 +34,7 @@ export const changeInfosSchema = {
     },
 	status: {
 		type: "string",
-		enum: ["online", "playing", "disconnected", "not_playing"]
+		enum: ["online", "disconnected"]
 	}
   },
   required: ["slug", "username"],
@@ -107,18 +107,6 @@ export const usernameSchema = {
   pattern: usernameRegex
 };
 
-export const statusSchema = {
-  type: "object",
-  properties: {
-    status: {
-      type: "string",
-      enum: ["playing", "not_playing"]
-    }
-  },
-  required: ["status"],
-  additionalProperties: false
-};
-
 export const numberIdSchema = {
   type: "number",
   minimum: 1
@@ -151,41 +139,6 @@ export function    checkSlugFormat(slug)
     const ajv = new Ajv();
     const contract = ajv.compile(schema);
     const valid = contract(slug);
-    if (!valid)
-        return (false);
-    return (true);
-}
-
-export function    checkChangeInfosFormat(request)
-{
-    const schema = 
-    {
-        type: "object",
-		properties:
-		{
-			slug: { 
-				type: "string", 
-				minLength: 3, 
-				maxLength: 20,
-				pattern: "^(?![_-])(?!.*[_-]$)(?=.*[a-z])(?![0-9_]+)[a-z0-9_-]+$" // Updated pattern
-			},
-			username: { 
-				type: "string",
-				minLength: 3,
-				maxLength: 15,
-				pattern: "^(?![_-])(?!.*[_-]$)(?=.*[A-Za-z])(?![0-9_]+)[A-Za-z0-9_-]+$" // Updated pattern
-			},
-			status: {
-				type: "string",
-				enum: ["online", "playing", "disconnected"]
-			}
-		},
-		required: ["slug", "username"],
-		additionalProperties: false
-    };
-    const ajv = new Ajv();
-    const contract = ajv.compile(schema);
-    const valid = contract(request.body);
     if (!valid)
         return (false);
     return (true);
@@ -280,22 +233,6 @@ export function    checkUsernameFormat(username)
     return (true);
 }
 
-export function    checkStatusFormat(status)
-{
-    const schema = 
-    {
-        type: "string", 
-		enum: ["playing", "not_playing"]
-	};
-    const ajv = new Ajv();
-    const contract = ajv.compile(schema);
-    const valid = contract(status);
-	if (!valid)
-		console.warn(contract.errors);
-    if (!valid)
-        return (false);
-    return (true);
-}
 */
 export function checkNumberIdFormat(id)
 {

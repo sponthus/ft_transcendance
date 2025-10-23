@@ -1,4 +1,4 @@
-// Gives the status of a user : online, playing, disconnected
+// Gives the status of a user : online, disconnected
 // Security : Road is protected to logged-in users and SQLi
 export async function getStatusForSlug(request, reply) {
 	console.log('➡️ User accessed GET /:slug');

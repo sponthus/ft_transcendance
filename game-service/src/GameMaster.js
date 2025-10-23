@@ -1,5 +1,4 @@
 import GameServer from "./GameServer.js";
-import { updateUserStatus } from "./API/requests/UpdateUserStatus.js";
 import fs from 'fs';
 
 // Handles every GameServer
@@ -39,10 +38,6 @@ export default class GameMaster {
             game.ws = ws;
             game.server.addWs(ws);
 			console.log(`✅ User ${userId} authenticated to game ${gameId}`);
-            const update = await updateUserStatus(userId, 'playing');
-			if (!update.ok) {
-				console.error("❌ Unable to update user status : ", update.error); // Non-blocking
-			}
 			return true;
 		} 
 		else {
@@ -58,17 +53,6 @@ export default class GameMaster {
             }
         }
         return false;
-    }
-
-    async updateUserStatus(userId) {
-        let status;
-        if (this.isUserPlaying(userId))
-            status = "playing";
-        else
-            status = "not_playing";
-        const res = await updateUserStatus(userId, status);
-        if (!res.ok)
-            console.error("Unable to update user status : ", res.error);
     }
 
     getUserIdByWs(targetWs) {
@@ -128,7 +112,6 @@ export default class GameMaster {
 			gamePart.server = null;
             this.games.delete(Number(gameId));
             console.log("🔴 GameServer stopped");
-            this.updateUserStatus(user);
         } else {
             console.debug(`No server associated with gameId ${gameId}`);
         }

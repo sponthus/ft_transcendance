@@ -67,8 +67,6 @@ export class UserPage extends BasePage {
 						this.Statue = 'online 🟢​';
 					if (request.status && request.status.status === "disconnected")
 						this.Statue = 'disconnected 🔴​';
-					if (request.status && request.status.status === "playing")
-						this.Statue = 'playing 🟡​​';
 				}
 				this.UserBanner = new UserBanner(this.UserData, this.isOwnProfile, this.Statue);
 				await this.showUserPage();
