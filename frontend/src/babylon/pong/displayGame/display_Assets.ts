@@ -134,6 +134,9 @@ export class DisplayAssets {
 		if (this._scene && !this._scene.isDisposed){
 			const result8 = await ImportMeshAsync("/assets/MenuPause.glb", this._scene);
 			this._menuPause = result8.meshes[0];
+			result8.animationGroups.forEach(anim => {
+    			anim.start(true); // true = loop infini
+				});
 			// this._test.position.x = 8;
 			// this._test.position.y = -2;
 			// this._test.position.z = 8;
@@ -155,6 +158,9 @@ export class DisplayAssets {
 		if (this._scene && !this._scene.isDisposed) {
 			const result14 = await ImportMeshAsync("/assets/MenuPauseSansCrabmehameha.glb", this._scene);
 			this._menuPauseSansCrab = result14.meshes[0];
+			result14.animationGroups.forEach(anim => {
+    			anim.start(true); // true = loop infini
+				});
 			// this._test.position.x = 8;
 			// this._test.position.y = -2;
 			// this._test.position.z = 8;

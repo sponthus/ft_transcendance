@@ -264,7 +264,7 @@ export class GamePhysics {
 		{
 			if (this._serverState.ispaused === true)
 			{
-				this._light.intensity = 0.5;
+				this._light.intensity = 1;//0.5;
 				if (this._serverState.gameOption === 1)
 					this._menuPause.setEnabled(true);
 				else
