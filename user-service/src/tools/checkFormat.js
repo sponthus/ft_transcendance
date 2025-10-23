@@ -1,6 +1,10 @@
 import Ajv from 'ajv';
 import addErrors from "ajv-errors";
 
+let slugRegex = "^(?![_-])(?!.*[_-]$)(?=.*[a-z])(?![0-9_]+)[a-z0-9_-]+$";
+let tournamentNameRegex = "^@?(?=.*[A-Za-z])[A-Za-z0-9_-]+(?: [A-Za-z0-9_-]+)*$"; // And nickname
+let usernameRegex = "^(?![_-])(?!.*[_-]$)(?=.*[A-Za-z])(?![0-9_]+)[A-Za-z0-9_-]+$";
+
 export const idUserSchema = {
   type: "object",
   properties: {
@@ -111,7 +115,7 @@ export const addTournamentNotifSchema = {
       type: "string",
       minLength: 3,
       maxLength: 30,
-      pattern: "^(?![=+\\-@])(?![ _-])(?!.*[ _-]$)(?!^[ _-]+$)(?!.*[\\r\\n\\t])(?=.*[A-Za-zÀ-ÖØ-öø-ÿ0-9])[A-Za-zÀ-ÖØ-öø-ÿ0-9 _-]+$",
+      pattern: tournamentNameRegex,
       errorMessage: {
         type: "Tournament name must be a string",
         minLength: "Tournament name must be at least 3 characters",
@@ -132,7 +136,7 @@ export const slugSchema = {
       type: 'string',
       minLength: 3,
       maxLength: 20,
-      pattern: '^(?![_-])(?!.*[_-]$)(?=.*[a-z])(?![0-9_]+)[a-z0-9_-]+$',
+      pattern: slugRegex,
       errorMessage: {
         type: "Slug must be a string",
         minLength: "Slug must be at least 3 characters",
@@ -152,7 +156,7 @@ export const answerSchema = {
       type: "string",
       minLength: 3,
       maxLength: 20,
-      pattern: "^(?![_-])(?!.*[_-]$)(?=.*[a-z])(?![0-9_]+)[a-z0-9_-]+$",
+      pattern: slugRegex,
       errorMessage: {
         type: "Owner slug must be a string",
         minLength: "Owner slug must be at least 3 characters",
@@ -172,7 +176,7 @@ export const answerSchema = {
       type: "string",
       minLength: 3,
       maxLength: 30,
-      pattern: "^(?![=+\\-@])(?![ _-])(?!.*[ _-]$)(?!^[ _-]+$)(?!.*[\\r\\n\\t])(?=.*[A-Za-zÀ-ÖØ-öø-ÿ0-9])[A-Za-zÀ-ÖØ-öø-ÿ0-9 _-]+$",
+      pattern: tournamentNameRegex,
       errorMessage: {
         type: "Tournament name must be a string",
         minLength: "Tournament name must be at least 3 characters",
@@ -202,7 +206,7 @@ export const registrationSchema = {
       type: "string",
       minLength: 3,
       maxLength: 15,
-      pattern: "^(?![_-])(?!.*[_-]$)(?=.*[A-Za-z])(?![0-9_]+)[A-Za-z0-9_-]+$",
+      pattern: usernameRegex,
       not: { const: "default" },
       errorMessage:
       {
@@ -239,7 +243,7 @@ export const nicknameSchema = {
       type: "string",
       minLength: 3,
       maxLength: 15,
-      pattern: "^(?=.*[a-zA-Z])[^\\[\\]{}();]+$",
+      pattern: tournamentNameRegex,
       errorMessage: {
         type: "Nickname must be a string",
         minLength: "Nickname must be at least 3 characters",
@@ -279,7 +283,7 @@ export const usernameSchema = {
       type: "string",
       minLength: 3,
       maxLength: 15,
-      pattern: "^(?![_-])(?!.*[_-]$)(?=.*[A-Za-z])(?![0-9_]+)[A-Za-z0-9_-]+$",
+      pattern: usernameRegex,
       errorMessage: {
         type: "Username must be a string",
         minLength: "Username must be at least 3 characters",

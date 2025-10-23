@@ -1,5 +1,4 @@
 import { gameEventEmitter } from '../../GameEventEmitter.js';
-import { updateUserStatus } from '../requests/UpdateUserStatus.js';
 
 // Recieves events
 class DatabaseEventHandler {
@@ -46,12 +45,6 @@ class DatabaseEventHandler {
 				const cancel = this.DatabaseHandler.cancelTournament(eventData.tournamentId);
 				if (!cancel.ok) {
 					console.error("❌ Could not cancel tournament after player disconnection: ", cancel.error);
-				}
-			}
-			if (eventData.userId != null && eventData.userId != 0) {
-				const update = await updateUserStatus(eventData.userId, 'not_playing');
-				if (update.ok == false) {
-					console.error("❌ Could not update user status after disconnection: ", update.error);
 				}
 			}
 			// await this.DatabaseHandler.recordPlayerEvent(eventData.gameId, eventData.playerId, 'disconnected');
