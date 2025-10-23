@@ -30,7 +30,6 @@ export class Game extends BasePage {
 	constructor(slug: string) {
 		super();
 		this._slug = slug;
-		console.log("overflow = ", document.body.style.overflow);
 	}
 
 	async render(): Promise<void>  {

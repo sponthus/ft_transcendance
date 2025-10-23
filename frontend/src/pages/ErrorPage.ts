@@ -6,7 +6,7 @@ export function ErrorPopup(Error: string): Promise<void> {
 	let ErrPopup: popUp;
 	return new Promise((resolve) => {
 		ErrPopup = new popUp("Error");
-		ErrPopup.Body.className = 'flex flex-col items-center justify-center bg-white rounded-xl shadow-xl p-6 w-80 h-[25%] w-[25%] gap-4 -translate-y-96 transition-transform duration-300 ease-out';
+		ErrPopup.Body.className = 'flex flex-col items-center justify-center bg-white rounded-xl shadow-xl p-6 w-80 h-[25%] min-h-[240px] w-[25%] min-w-[320px] gap-4 -translate-y-96 transition-transform duration-300 ease-out';
 		ErrPopup.Title.className = 'text-lg font-bold mb-4 text-red-500 text-center';
 	
 		const Div: HTMLElement = createDiv('error', 'border-2 p-4 border-red-500 flex items-center justify-center');

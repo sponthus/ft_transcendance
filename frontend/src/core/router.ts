@@ -32,6 +32,7 @@ export async function renderRoute(path: string) {
 		path = '/user';
     }
 
+	// console.log("bonjour");
 	WebPath = path;
 	// Static routes
 	switch (path) {
