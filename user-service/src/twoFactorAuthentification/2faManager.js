@@ -176,7 +176,7 @@ export async function deleteToken (request, reply)
 {
     try
     {
-        return reply.code(200).setCookie('token', '',
+        return reply.code(200).clearCookie('token',
         {
             httpOnly: true,
             signed: true,
