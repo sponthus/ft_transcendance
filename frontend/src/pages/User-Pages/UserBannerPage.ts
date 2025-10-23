@@ -196,7 +196,7 @@ export class UserBanner {
 				} catch(error) {
 					await ErrorPopup(error as string);
 				}
-			}))
+			});
 		}
 	}
 
