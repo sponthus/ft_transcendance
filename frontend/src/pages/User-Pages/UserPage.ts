@@ -26,7 +26,7 @@ export class UserPage extends BasePage {
 	private slug!: string;
 	protected BodyDiv!: HTMLElement;
 
-	private UserData?: UserInfo;
+	private UserData?: UserInfo | null = null;
 
 	private isOwnProfile: boolean = true;
 
@@ -59,20 +59,21 @@ export class UserPage extends BasePage {
 				this.UserData = req.userInfo;
 				if (this.slug != this.UserData.slug)
 					await this.fillUserData()
-				const request = await getUserStatus(this.UserData.slug);
-				if (!request.ok)
-					throw new Error(request.error);
-				else {
-					if (request.status && request.status.status === "online")
-						this.Statue = 'online 🟢​';
-					if (request.status && request.status.status === "disconnected")
-						this.Statue = 'disconnected 🔴​';
+				if (this.UserData) {
+					const request = await getUserStatus(this.UserData.slug);
+					if (!request.ok)
+						throw new Error(request.error);
+					else {
+						if (request.status && request.status.status === "online")
+							this.Statue = 'online 🟢​';
+						if (request.status && request.status.status === "disconnected")
+							this.Statue = 'disconnected 🔴​';
+					}
+					this.UserBanner = new UserBanner(this.UserData, this.isOwnProfile, this.Statue);
+					await this.showUserPage();
 				}
-				this.UserBanner = new UserBanner(this.UserData, this.isOwnProfile, this.Statue);
-				await this.showUserPage();
 			} else {
-				await ErrorPopup("Unable to load profile");
-				await navigate('/');
+				throw new Error("Unable to load profile " + req.error);
 			}
 		}
 		catch (error) {
@@ -82,19 +83,15 @@ export class UserPage extends BasePage {
 	}
 
 	private async fillUserData() {
+		this.UserData = null;
 		this.isOwnProfile = false;
-		try {
-			const req = await getUserInfoBySlug(this.slug);
-			if (req.ok) {
-				this.UserData = req.userInfo;
-			} else if (req.error === "User not found") {
-				throw new Error("User not found");
-			} else {
-				throw new Error("Unable to load profile");
-			}
-		} catch (error) {
-			await ErrorPopup(error as string);
+		const req = await getUserInfoBySlug(this.slug);
+		if (req.ok) {
+			this.UserData = req.userInfo;
+		} else if (req.error === "User not found") {
 			await navigate('/');
+		} else {
+			throw new Error("Unable to load profile " + req.error);
 		}
 	}
 

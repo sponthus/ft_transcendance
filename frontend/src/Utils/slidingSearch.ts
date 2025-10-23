@@ -49,14 +49,21 @@ function createSearchToggle(): HTMLButtonElement {
 }
 
 function manageSearchBarEvent() {
-	(document.getElementById("search-toggle-btn") as HTMLButtonElement).addEventListener('click', toggleSearch);
-	(document.getElementById('close-btn-div') as HTMLElement).addEventListener('click', closeSearch);
+	const toggle = (document.getElementById("search-toggle-btn") as HTMLButtonElement);
+	if (toggle)
+		toggle.addEventListener('click', toggleSearch);
+	const close = (document.getElementById('close-btn-div') as HTMLElement)
+	if (close)
+		close.addEventListener('click', closeSearch);
 	handleSearchEnter();
 	eventCloseSearch();
 }
 
 function handleSearchEnter() {
-	(document.getElementById("search-input") as HTMLInputElement).addEventListener('keydown', (e) => {
+	const input = (document.getElementById("search-input") as HTMLInputElement)
+	if (!input)
+		return ;
+	input.addEventListener('keydown', (e) => {
 		const searchInput = document.getElementById('search-input') as HTMLInputElement;
 		if (!searchInput) return;
 
@@ -104,7 +111,9 @@ function toggleSearch() {
 function openSearch() {
 	fillUserTab();
 	isSearchOpen = true;
-	(document.getElementById("sliding-search-bar-div") as HTMLElement).className = 'absolute right-0 top-0 w-72 overflow-hidden transition-all duration-300 ease-in-out bg-orange-100 rounded-full shadow-lg border-2 border-emerald-600';
+	const sliding = (document.getElementById("sliding-search-bar-div") as HTMLElement);
+	if (sliding)
+		sliding.className = 'absolute right-0 top-0 w-72 overflow-hidden transition-all duration-300 ease-in-out bg-orange-100 rounded-full shadow-lg border-2 border-emerald-600';
 	
 	const searchInput: HTMLInputElement = document.getElementById("search-input") as HTMLInputElement;
 	const closeButton: HTMLElement = document.getElementById('close-btn-div') as HTMLElement;
@@ -140,7 +149,9 @@ function closeSearch() {
 		closeButton.className = 'absolute right-2 top-1/2 transform -translate-y-1/2 w-6 h-6 text-gray-500 hover:text-gray-700 opacity-0 transition-opacity duration-300';
 		
 	setTimeout(() => {
-		(document.getElementById("sliding-search-bar-div") as HTMLElement).className = 'absolute right-0 top-0 w-0 overflow-hidden transition-all duration-300 ease-in-out bg-orange-100 rounded-full shadow-lg';
+		const sliding = (document.getElementById("sliding-search-bar-div") as HTMLElement);
+		if (sliding)
+			sliding.className = 'absolute right-0 top-0 w-0 overflow-hidden transition-all duration-300 ease-in-out bg-orange-100 rounded-full shadow-lg';
 		if (searchInput)
 			searchInput.value = '';
 	}, 150);
@@ -163,12 +174,3 @@ function  closeSearchPanel() {
 	searchPanel.className = 'flex flex-col items-center space-y-4 absolute right-0 top-16 w-0 h-0 overflow-y-auto transition-all duration-300 ease-in-out bg-orange-100 rounded-xl shadow-lg border-2 border-emerald-300 opacity-0';
 }
 
-// function handleSearch() {
-// 	const searchInput = document.getElementById('search-input') as HTMLInputElement;
-// 	if (!searchInput) return;
-
-// 	const searchTerm = searchInput.value.trim();
-// 	if (searchTerm) {
-// 		navigate(`/search?q=${encodeURIComponent(searchTerm)}`);
-// 	}
-// }

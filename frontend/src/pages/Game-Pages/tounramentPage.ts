@@ -334,7 +334,9 @@ export class TournamentPage {
 		} catch (error) {
 			await ErrorPopup(error as string);
 		}
-		(document.getElementById(`match-${NextRound}-div`) as HTMLElement)?.classList.add('animate-wiggle');
+		const div = (document.getElementById(`match-${NextRound}-div`) as HTMLElement);
+		if (div)
+			div.classList.add('animate-wiggle');
 	}
 
 

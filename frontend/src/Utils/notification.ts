@@ -127,7 +127,9 @@ export function declineTournamentInvitation(declineBtn: HTMLButtonElement, tourn
 async function openNotification() {
 	isNotificationOpen = true;
 
-	(document.getElementById('sliding-notification-bar-div') as HTMLElement).className = 'absolute left-0 top-16 w-80 h-72 overflow-auto transition-all duration-300 ease-in-out bg-orange-100 rounded-xl shadow-lg border-2 border-emerald-500 opacity-100';
+	const div = (document.getElementById('sliding-notification-bar-div') as HTMLElement)
+	if (div)
+		div.className = 'absolute left-0 top-16 w-80 h-72 overflow-auto transition-all duration-300 ease-in-out bg-orange-100 rounded-xl shadow-lg border-2 border-emerald-500 opacity-100';
 	try {
 		const req = await markNotificationsRead();
 		if (req.ok)
@@ -142,7 +144,9 @@ async function openNotification() {
 async function closeNotification() {
 	isNotificationOpen = false;
 
-	(document.getElementById('sliding-notification-bar-div') as HTMLElement).className = 'absolute left-0 top-16 w-0 h-0 overflow-auto transition-all duration-300 ease-in-out bg-orange-100 rounded-xl shadow-lg border-2 border-emerald-300 opacity-0';
+	const div = (document.getElementById('sliding-notification-bar-div') as HTMLElement);
+	if (div)
+		div.className = 'absolute left-0 top-16 w-0 h-0 overflow-auto transition-all duration-300 ease-in-out bg-orange-100 rounded-xl shadow-lg border-2 border-emerald-300 opacity-0';
 
 	refreshNotification();
 }

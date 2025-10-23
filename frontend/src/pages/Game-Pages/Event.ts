@@ -60,14 +60,20 @@ export class Event {
 
 	/*************************************Functions for Game Mod Event*************************************/
 	async manageGameModEvent() {
-		(document.getElementById('1v1-btn')?.addEventListener('click', async() => {
-			this.StatePage = PageState.PARTY;
-			await this.GamePage.generate1v1GamePage();
-		}));
-		(document.getElementById('tournament-btn')?.addEventListener('click', async() => {
-			this.StatePage = PageState.TOURNAMENT;
-			await this.GamePage.generateTournamentPage();
-		}));
+		const onevsone = (document.getElementById('1v1-btn'))
+		if (onevsone) {
+			onevsone.addEventListener('click', async() => {
+				this.StatePage = PageState.PARTY;
+				await this.GamePage.generate1v1GamePage();
+			});
+		}
+		const tounrnament = (document.getElementById('tournament-btn'));
+		if (tounrnament) {
+			tounrnament.addEventListener('click', async() => {
+				this.StatePage = PageState.TOURNAMENT;
+				await this.GamePage.generateTournamentPage();
+			});
+		}
 		if (this.GamePage._backBtn)
 			this.GamePage._backBtn.addEventListener('click', async() => {this.ReturnToLobby();});
 	}
@@ -189,9 +195,6 @@ export class Event {
 	}
 
 	private reversePlayer() {
-		const tmp: string = this.LocalGamePage._playerAInput.value;
-		this.LocalGamePage.setPlayerAInput = this.LocalGamePage._playerBinput.value;
-		this.LocalGamePage.setPlayerBInput = tmp;
 		this.reversePlayerName();
 		if (this.LocalGamePage._Ai === 1)
 			this.LocalGamePage.setAi = 2;
@@ -200,23 +203,29 @@ export class Event {
 	}
 
 	private reversePlayerName() {
-		const tmpA = this.LocalGamePage._PlayerA;
-		const tmpB = this.LocalGamePage._PlayerB;
+		const tmpA: string = this.LocalGamePage._PlayerA;
+		const tmpB: string = this.LocalGamePage._PlayerB;
+		const tmpAinput: string = this.LocalGamePage._playerAInput.value;
+		const tmpBinput: string = this.LocalGamePage._playerBinput.value;
 		if (tmpB.startsWith('@')) {
 			this.LocalGamePage.setPlayerA = '@' + this.LocalGamePage._userData.slug;
+			this.LocalGamePage.setPlayerAInput = this.LocalGamePage._userData.username;
 			this.LocalGamePage._playerAInput.readOnly = true;
 		}
 		else {
-			this.LocalGamePage.setPlayerA = this.LocalGamePage._playerAInput.value;
+			this.LocalGamePage.setPlayerA = tmpBinput;
+			this.LocalGamePage.setPlayerAInput = this.LocalGamePage._PlayerA;
 			this.LocalGamePage._playerAInput.readOnly = false;
 		}
 		if (tmpA.startsWith('@')) {
 			this.LocalGamePage.setPlayerB = '@' + this.LocalGamePage._userData.slug;
+			this.LocalGamePage.setPlayerBInput = this.LocalGamePage._userData.username;
 			this.LocalGamePage._playerBinput.readOnly = true;
 		}
 		else {
-			this.LocalGamePage.setPlayerB = this.LocalGamePage._playerBinput.value;
-			this.LocalGamePage._playerBinput.readOnly = true;
+			this.LocalGamePage.setPlayerB = tmpAinput;
+			this.LocalGamePage.setPlayerBInput = this.LocalGamePage._PlayerB;
+			this.LocalGamePage._playerBinput.readOnly = false;
 		}
 	}
 
