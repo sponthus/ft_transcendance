@@ -273,6 +273,22 @@ export const answerSchema = {
   additionalProperties: false
 };
 
+export const actionBodySchema = {
+  type: "object",
+  properties: {
+	action: {
+	  type: "string",
+	  enum: ["logout", "markRead", "delete"],
+	  errorMessage: {
+		type: "Invalid action",
+		enum: "Invalid action"
+	    }
+	  }
+	},
+	required: ["action"],
+	additionalProperties: false
+};
+
 export const registrationSchema = {
   type: "object",
   properties:

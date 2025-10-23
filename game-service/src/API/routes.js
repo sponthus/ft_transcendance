@@ -21,7 +21,7 @@ export default async function routes (fastify, options) {
                 createGame);
             postRoutes.post("/:gameId",
 				{onRequest: [fastify.authenticate], 
-					schema: { params: idParamSchema }
+					schema: { params: idParamSchema, body: idParamSchema }
 				},
                 startGame);
             postRoutes.post("/tournament",
@@ -76,7 +76,7 @@ export default async function routes (fastify, options) {
                 deleteGame);
 			deleteRoutes.delete("/tournament/:tournamentId",
 				{onRequest: [fastify.authenticate], 
-					schema: { params: tournamentIdParamSchema }
+					schema: { params: tournamentIdParamSchema, body: tournamentIdParamSchema }
 				},
 				deleteTournament);
 			}

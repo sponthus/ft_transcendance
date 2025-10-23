@@ -14,7 +14,7 @@ export async function uploadAvatar(formData: FormData): Promise<AvatarUploadResu
         {
             method: 'PUT',
 			headers: {
-				'host': window.location.host
+				'host': window.location.host // Content-type automatically set with size
 			},
             credentials: 'include',
             body: formData,

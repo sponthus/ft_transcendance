@@ -70,7 +70,7 @@ export async function startGame(request, reply) {
 						}
 					}
 					console.log("❓ Tournament not ready, waiting for: ", playersToWait.join(", "));
-					return reply.code(404).send({ error: `Tournament not ready, waiting for: ${playersToWait.join(", ")}` });
+					return reply.code(404).send({ error: `Tournament not ready, waiting for players` });
 				} catch (error) {
 					console.error('❌ Error fetching user info: ');
 					console.error(error);
