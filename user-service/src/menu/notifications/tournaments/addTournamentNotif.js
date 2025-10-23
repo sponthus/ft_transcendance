@@ -1,3 +1,4 @@
+import { send } from "process";
 import { notifyRefresh } from "../../../internal-service/notifyServices.js";
 
 export async function addTournamentNotif (request, reply)
@@ -5,22 +6,9 @@ export async function addTournamentNotif (request, reply)
     const   db = request.server.db;
     const   { type, receiverId, senderId, tournamentId, tournamentName } = request.body;
   
-    //TODO tester schema
-    console.debug('request.body :', request.body);
-    //TODO check que les users existe bien
     try
     {
-        const allIds = [receiverId, senderId];
-        // On prépare la bonne quantité de placeholders (un "?" par ID)
-        const placeholders = allIds.map(() => '?').join(', ');
-
-        // On prépare et exécute la requête
-        const row = db.prepare(`
-            SELECT COUNT(id) AS found_count
-            FROM users
-            WHERE id IN (${placeholders})
-            `).get(...allIds); //... donne plusieurs valeurs separement
-        if (row.found_count !== allIds.length)
+        if (checkUsersExist(db, receiverId, senderId) === false)
             return reply.code(404).send({ error: "Some users you’re trying to notify were not found" });
 
         let receiverIds;
@@ -46,6 +34,26 @@ export async function addTournamentNotif (request, reply)
     { 
         return reply.code(500).send({ message: "Internal Server Error" });
     }
+}
+
+function checkUsersExist(db, receiverId, senderId)
+{
+        let allIds = [];
+        if (Array.isArray(receiverId))
+            allIds = [...receiverId];
+        else
+            allIds = [receiverId];
+        allIds.push(senderId);
+        const placeholders = allIds.map(() => '?').join(', ');
+
+        const row = db.prepare(`
+            SELECT COUNT(id) AS found_count
+            FROM users
+            WHERE id IN (${placeholders})
+            `).get(...allIds);
+        if (row.found_count !== allIds.length)
+            return (false);
+        return (true)
 }
 
 function clearNotif(db, receiverId, tournamentId)

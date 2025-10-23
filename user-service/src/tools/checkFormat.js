@@ -121,6 +121,7 @@ export const addTournamentNotifSchema = {
               minimum: "Each receiver ID must be at least 1"
             }
           },
+          uniqueItems: true,
           minItems: 1,
           errorMessage: {
             minItems: "Receiver array cannot be empty"
