@@ -50,7 +50,7 @@ export class LoginPage extends BasePage {
 		const ClassNames: [DivClass:string, LabelClass: string, InputClass: string, TextClass: string] = [""
 										, "block text-sm font-medium text-emerald-600 mb-2"
 										, "w-full px-4 py-3 border bg-orange-200 border-emerald-600 rounded-lg focus:ring-2 focus:ring-emerald-800 focus:border-emerald-8 	00 transition-colors duration-200 placeholder-emerald-600"
-										, "block text-sm  text-center font-medium text-emerald-500 mb-2"];
+										, "block text-sm  text-center font-medium text-emerald-600 mb-2"];
 		
 		append (this.Form, [(createFormDiv(["text", 'username', "username", true], "username",   "Enter your username",  ClassNames) as HTMLElement)
 							, (createFormDiv(["password", 'password', "password", true], "password", "Enter your password", ClassNames) as HTMLElement)
