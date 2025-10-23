@@ -1,6 +1,7 @@
 import Ajv from "ajv";
 
 let slugRegex = "^(?![_-])(?!.*[_-]$)(?=.*[a-z])(?![0-9_]+)[a-z0-9_-]+$";
+let usernameRegex = "^(?![_-])(?!.*[_-]$)(?=.*[A-Za-z])(?![0-9_]+)[A-Za-z0-9_-]+$";
 
 export const slugSchema = {
   type: "string",
@@ -21,7 +22,7 @@ export const changeInfosSchema = {
   properties: {
     slug: { 
       type: "string",
-      minLength: 3,
+      minLength: 4,
       maxLength: 20,
       pattern: slugRegex
     },
@@ -29,7 +30,7 @@ export const changeInfosSchema = {
       type: "string",
       minLength: 3,
       maxLength: 15,
-      pattern: "^(?![_-])(?!.*[_-]$)(?=.*[A-Za-z])(?![0-9_]+)[A-Za-z0-9_-]+$"
+      pattern: usernameRegex
     },
 	status: {
 		type: "string",
@@ -103,7 +104,7 @@ export const usernameSchema = {
   type: "string",
   minLength: 3,
   maxLength: 20,
-  pattern: "^(?![_-])(?!.*[_-]$)(?=.*[A-Za-z])(?![0-9_]+)[A-Za-z0-9_-]+$"
+  pattern: usernameRegex
 };
 
 export const statusSchema = {
