@@ -5,7 +5,6 @@ import { getUserInfo } from '../../api/user-service/user-info/getUserInfo.js';
 import { uploadAvatar } from "../../api/avatar.js";
 import { navigate } from '../../core/router.js';
 import { ErrorPopup } from '../ErrorPage.js';
-import { updateAvatar } from "../../api/user-service/user-info/modifyUserAvatar.js";
 
 enum EditState {AVATAR = 0, USERNAME = 1};
 
@@ -247,14 +246,14 @@ export class EditProfile extends popUp {
 			formData.append('avatar-input', file);
 			const req = await uploadAvatar(formData);
 			if (req.ok) {
-				const pathReq = await updateAvatar(req.avatar);
-				if (pathReq.ok) {
+				//const pathReq = await updateAvatar(req.avatar);
+				//if (pathReq.ok) {
 					await this.updateUserData();
 					await navigate(`/user/${this.UserData.slug}`);
 					return ;
-				}
-				else
-					throw new Error("Error while uploading avatar path in db" + (pathReq.error || "Unknown error"));
+				//}
+				//else
+				//	throw new Error("Error while uploading avatar path in db" + (pathReq.error || "Unknown error"));
 			}
 			else
 				throw new Error("Upload failed: " + (req.error || "Unknown error"));

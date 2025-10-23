@@ -223,13 +223,13 @@ export class GameSocket {
 				console.error("Websocket closed due to authentication error");
 				await logoutUser();
 				await ErrorPopup("Authentication error, please log in again");
-				navigate('/login');
+				await navigate('/login');
 			}
 			else if (event.code == 4003) {
 				console.error("WebSocket closed due to authentication failure");
 				await logoutUser();
 				await ErrorPopup("Session expired, please log in again");
-				navigate('/login');
+				await navigate('/login');
 			} else if (this.playing === true) {
 				await ErrorPopup("Disconnected from game server");
 			}
