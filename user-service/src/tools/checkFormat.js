@@ -59,7 +59,7 @@ export const avatarSchema = {
       type: "string",
       minLength: 3,
       maxLength: 20,
-      pattern: slugSchema,
+      pattern: slugRegex,
       errorMessage: {
         type: "Slug must be a string",
         minLength: "Slug must be at least 3 characters",
@@ -146,14 +146,6 @@ export const addTournamentNotifSchema = {
     receiverId: {
       anyOf: [
         {
-          type: "number",
-          minimum: 1,
-          errorMessage: {
-            type: "Receiver ID must be a number",
-            minimum: "Receiver ID must be at least 1"
-          }
-        },
-        {
           type: "array",
           items: {
             type: "number",
@@ -161,12 +153,21 @@ export const addTournamentNotifSchema = {
             errorMessage: {
               type: "Receiver IDs must be numbers",
               minimum: "Each receiver ID must be at least 1"
-            }
+            },
           },
-          uniqueItems: true,
+		  uniqueItems: true,
           minItems: 1,
           errorMessage: {
-            minItems: "Receiver array cannot be empty"
+            minItems: "Receiver array cannot be empty",
+			uniqueItems: "Receiver IDs must be unique"
+          }
+        },
+		{
+          type: "number",
+          minimum: 1,
+          errorMessage: {
+            type: "Receiver ID must be a number",
+            minimum: "Receiver ID must be at least 1"
           }
         }
       ]

@@ -32,7 +32,7 @@ export async function sendTournamentReady(userIds, inviterId, tournamentId, tour
 			return { ok: true };
 		}
 		const data = await res.json();
-		return { ok: false, error: data.error, code: data.status };
+		return { ok: false, error: data.error, code: res.status };
 	} catch (error) {
 		console.error("❌ Error while sending tournament ready notice: ", error);
 		return { ok: false, error: "Internal server error", code: 500 };

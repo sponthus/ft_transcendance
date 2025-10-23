@@ -8,7 +8,7 @@ export async function addTournamentNotif (request, reply)
     try
     {
         if (checkUsersExist(db, receiverId, senderId) === false)
-            return reply.code(404).send({ error: "Some users you’re trying to notify were not found" });
+            return reply.code(404).send({ error: "Some users you\’re trying to notify were not found" });
 
         let receiverIds;
         if (Array.isArray(receiverId))
@@ -31,7 +31,7 @@ export async function addTournamentNotif (request, reply)
     }
     catch (err)
     { 
-        return reply.code(500).send({ message: "Internal Server Error" });
+        return reply.code(500).send({ error: "Internal Server Error" });
     }
 }
 
