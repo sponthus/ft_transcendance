@@ -31,7 +31,7 @@ env:
 	fi
 	@echo " ✔ .env present"
 
-re: fclean all
+re: clean all
 
 dev: env
 	sh config/change_mode.sh NODE_ENV development
