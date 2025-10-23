@@ -5,7 +5,6 @@ import { getUserInfo } from '../../api/user-service/user-info/getUserInfo.js';
 import { uploadAvatar } from "../../api/avatar.js";
 import { navigate } from '../../core/router.js';
 import { ErrorPopup } from '../ErrorPage.js';
-import { updateAvatar } from "../../api/user-service/user-info/modifyUserAvatar.js";
 
 enum EditState {AVATAR = 0, USERNAME = 1};
 

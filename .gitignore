@@ -12,3 +12,4 @@ secrets
 .venv
 data*
 __pycache__
+build-ready

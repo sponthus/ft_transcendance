@@ -60,8 +60,8 @@ export async function createTournament(name: string, playersList: Array<string>,
 				tournament: data,
 			}
 		} else {
-			if (data.error)
-				return { ok: false, error: data.error as string };
+			if (data.message)
+				return { ok: false, error: data.message as string };
 			else
 				return { ok: false, error: "Unable to create tournament" };
 		}

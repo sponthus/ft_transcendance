@@ -42,7 +42,6 @@ export class renderAsset {
 	
 	constructor (scene: BABYLON.Scene) {
 		this._scene = scene;
-		// this._leafShader = createLeafShader(this._scene);
 		// this._leafShader.backFaceCulling = false;
 	}
 

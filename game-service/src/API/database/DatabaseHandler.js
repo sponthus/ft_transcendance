@@ -374,6 +374,8 @@ export default class DatabaseHandler {
                     // At 1st round, edit next-game
                     nextGameId = gameResults[0];
                     updateNextGameStmt.run(nextGameId, tournamentId);
+					// console.log("Next game for tournament ", tournamentId, " is ", nextGameId);
+					// console.log("Games created for round 0: ", gameResults);
                 } else {
                     // Final round = 1 game
                     if (round == totalRounds) {
@@ -587,6 +589,7 @@ export default class DatabaseHandler {
 		cancelGamesStmt.run(status, tournamentId);
 
 		const result = {
+			ok: true,
 			tournamentId: tournamentId,
 			name: tournament.name,
 			status: status
@@ -595,12 +598,17 @@ export default class DatabaseHandler {
 	}
 
 	cancelTournament(tournamentId) {
-		const transaction = this.db.transaction((tournamentId) => {
+		try {
+			const transaction = this.db.transaction((tournamentId) => {
 			const res = this.cancelTournamentLogic(tournamentId, "canceled");
 			return (res);
-		});
-		const result = transaction(tournamentId);
-		return (result);
+			});
+			const result = transaction(tournamentId);
+			return (result);
+		}
+		catch (error) {
+			return { ok: false, error: error.message };
+		}
 	}
 
 	updateTournamentStatusLogic(tournamentId, status) {
@@ -704,6 +712,7 @@ export default class DatabaseHandler {
 	// Test is ok / 4 players
 	endTournamentGame(tournamentId, gameId) {
 		const transaction = this.db.transaction((tournamentId, gameId) => {
+			// console.debug("--- Ending tournament game ", gameId, " for tournament ", tournamentId);
 			// Find current match round & number
 			const currentMatchStmt = this.db.prepare(`
 	SELECT tm.round, tm.match_number, g.winner
@@ -716,6 +725,7 @@ export default class DatabaseHandler {
 			if (!currentMatch) 
 				throw new Error("Current match not found");
 		
+			// console.debug("Current match: ", currentMatch);
 			// Find next match on the same round 
 			const nextMatchSameRoundStmt = this.db.prepare(`
 	SELECT game_id
@@ -728,9 +738,11 @@ export default class DatabaseHandler {
 				currentMatch.round,
 				currentMatch.match_number + 1
 			);
+			// console.debug("Next match same round: ", nextMatch);
 
 			// No more match on this round -> Is there a new round ?
 			if (!nextMatch) {
+				// console.debug("No next match on the same round, looking for next round");
 				// Find next round match 0
 				const nextMatchNextRoundStmt = this.db.prepare(`
 	SELECT game_id
@@ -741,6 +753,7 @@ export default class DatabaseHandler {
 					tournamentId,
 					currentMatch.round + 1
 				);
+				// console.debug("Next match next round: ", nextMatch);
 			}
 		
 			const updateNextGameStmt = this.db.prepare(`
@@ -752,11 +765,12 @@ export default class DatabaseHandler {
 			if (nextMatch) {
 				// Update tournament next_game
 				updateNextGameStmt.run(nextMatch.game_id, tournamentId);
+				// console.debug("Next match found, updating next_game to ", nextMatch.game_id);
 
 				// Update players for the next game, at the right spot
-				const nextRound = currentMatch.round + 1;
-				// Match 0 & 1 round 0 = match 0 round 1 || Match 2 & 3 round 0 = match 1 round 1 || Round 1 match 0 & 1 -> Round 2 match 0
-				const nextMatchNumber = Math.floor(currentMatch.match_number / 2);
+				const nextRound = 1;
+				// We go round 1 so next match number is 0
+				const nextMatchNumber = 0;
 
 				// Find corresponding game to see it it has player_a & player_b
 				const nextRoundMatchStmt = this.db.prepare(`
@@ -767,6 +781,7 @@ export default class DatabaseHandler {
 				`);
 				const nextRoundMatch = nextRoundMatchStmt.get(tournamentId, nextRound, nextMatchNumber);
 
+				// console.debug("Next round match to update players: ", nextRoundMatch);
 				if (nextRoundMatch) {
 					// Slot to fill
 					if (currentMatch.match_number % 2 === 0 && nextRoundMatch.player_a === "undefined") {
@@ -787,10 +802,11 @@ export default class DatabaseHandler {
 					const updateTournamentStatus = this.updateTournamentStatusLogic(tournamentId, "between_games");
 					if (!updateTournamentStatus.ok) {
 						throw new Error("Could not update tournament status: " + updateTournamentStatus.error);
-					} // TODO check throw ?
+					}
 				}
 			} 
 			else {
+				// console.log("No next match, tournament is over");
 				// Tournament is over, no next game
 				updateNextGameStmt.run(null, tournamentId);
 
@@ -853,7 +869,7 @@ export default class DatabaseHandler {
 			`);
 		const res = updatePlayerStmt.run(newStatus, tournamentId, `@${userId}`);
 		if (res.changes === 0) {
-			console.log("No changes made when updating player status");
+			// console.debug("No changes made when updating player status");
 			return {ok: false, error: "Player already accepted or declined invitation"};
 		}
 		return {ok: true};
@@ -874,7 +890,7 @@ export default class DatabaseHandler {
 				} else {
 					const changeTournamentStatus = this.updateTournamentStatusLogic(tournamentId, "pending");
 					if (!changeTournamentStatus.ok) {
-						return { ok: false, ready: false, error: "Could not change tournament status because: " + changeTournamentStatus.error };
+						return { ok: false, ready: false, error: "Could not change tournament status because: " + changeTournamentStatus.error, players: hasAllPlayerAccepted.players };
 					}
 				}
 				console.log('ICIIIIIIIIIIIIIIIIIIIIIIII :)', hasAllPlayerAccepted);
@@ -934,11 +950,15 @@ export default class DatabaseHandler {
 		try {
 			const transaction = this.db.transaction((userId, tournamentId) => {
 				const result = this.changeInvitationStatusLogic(userId, tournamentId, REFUSED);
+				console.debug("Change invitation status logic result:");
+				console.debug(result);
 				if (!result.ok) {
 					throw new Error(result.error);
 				}
 				const cancelTournamentResult = this.cancelTournamentLogic(tournamentId, "canceled");
-				if (!cancelTournamentResult) {
+				console.debug("Cancel tournament logic result:");
+				console.debug(cancelTournamentResult);
+				if (!cancelTournamentResult.ok) {
 					throw new Error("Could not cancel the tournament because: " + cancelTournamentResult.error);
 				}
 				const getPlayerStmt = this.db.prepare(`
@@ -949,7 +969,8 @@ export default class DatabaseHandler {
 				let playersToNotify = getPlayerStmt
 					.all(tournamentId)
 					.filter(row => row.has_accepted === ACCEPTED || row.has_accepted === WAITING)
-					.map(row => row.name.slice(1));
+					.map(row => Number(row.name.slice(1)));
+				console.debug("Players to notify: ", playersToNotify);
 				return { ok: true, playersToNotify: playersToNotify };
 			});
 			const result = transaction(userId, tournamentId);

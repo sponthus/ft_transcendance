@@ -2,7 +2,7 @@ export default async function logoutUser(request, reply)
 {
     try
     {
-        return reply.code(200).setCookie('token', '',
+        return reply.code(200).clearCookie('token',
         {
             httpOnly: true,
             signed: true,

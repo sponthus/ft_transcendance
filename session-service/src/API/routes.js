@@ -1,6 +1,6 @@
-import { changeInfosSchema, idParamSchema, sendMessageToGroupSchema, slugParamsSchema, slugSchema, statusSchema } from "../tools/CheckFormat.js";
+import { changeInfosSchema, idParamSchema, sendMessageToGroupSchema, slugParamsSchema } from "../tools/CheckFormat.js";
 import { getStatusForSlug } from "./StatusGetRoutes.js"
-import { changeUserInfos, changeUserStatus } from "./StatusPatchRoutes.js"
+import { changeUserInfos } from "./StatusPatchRoutes.js"
 import { sendMessageToUsers } from "./StatusPostRoutes.js"; 
 
 export default async function routes (fastify, options) {
@@ -27,9 +27,6 @@ export default async function routes (fastify, options) {
 			patchRoutes.patch(`/data/:userId`,
 				{onRequest: [fastify.int_authenticate], schema: { params: idParamSchema, body: changeInfosSchema}},
 				changeUserInfos);
-			patchRoutes.patch(`/status/:userId`,
-				{onRequest: [fastify.int_authenticate], schema: { params: idParamSchema, body: statusSchema }},
-				changeUserStatus);
 		}
 	);
 }

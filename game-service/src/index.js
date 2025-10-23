@@ -5,7 +5,7 @@ import { fileURLToPath } from "url";
 import { WebSocketServer } from "ws";
 import path from "path";
 import fs from "fs";
-
+import ajvErrors from "ajv-errors";
 import logger from "../config/logger.js";
 import env from "../config/env.js";
 import DatabaseConnector from "./API/database/DatabaseConnector.js";
@@ -34,8 +34,19 @@ if (env.nodeEnv === 'production') {
 			customOptions: {
 				removeAdditional: false,
 				allErrors: true
-			}
+			},
+			plugins: [ajvErrors]
 		},
+		schemaErrorFormatter: (errors, dataVar) => //DataVar (contexte) : body, params
+        {
+            const firstError = errors[0];
+            const errorSchema =  { message: firstError.message };
+            const err = new Error(errorSchema.message);
+            err.validation = errorSchema;
+            err.validationContext = dataVar;
+            err.statusCode = 400;
+            return err;
+        },
 		https: {
 			key: fs.readFileSync(`/etc/ssl/${env.domain_name}.key`),
 			cert: fs.readFileSync(`/etc/ssl/${env.domain_name}.crt`)
@@ -50,8 +61,19 @@ else {
 			customOptions: {
 				removeAdditional: false,
 				allErrors: true
-			}
+			},
+			plugins: [ajvErrors]
 		},
+		schemaErrorFormatter: (errors, dataVar) => //DataVar (contexte) : body, params
+        {
+            const firstError = errors[0];
+            const errorSchema =  { message: firstError.message };
+            const err = new Error(errorSchema.message);
+            err.validation = errorSchema;
+            err.validationContext = dataVar;
+            err.statusCode = 400;
+            return err;
+        }
 	});
 	console.log("App launched in development mode");
 }

@@ -86,25 +86,31 @@ export class LoginPage extends BasePage {
 			let Time: number = 0;
 			const timerId = setInterval(async() => {
 				console.log("Time is : ", Time);
-				if (popup && popup.closed) {clearInterval(timerId);}
 				const req = await getUserInfo();
 				if (req.ok) {
 					clearInterval(timerId);
 					if (popup && !popup.closed)
 						popup.close();
-					if (req.userInfo.twofa_enabled ===1)
-						await loginTwoFa();
-					else
 						await navigate('/');
 				}
+				else {
+					if (req.error === "2FA required") {
+						clearInterval(timerId);
+						if (popup && !popup.closed)
+							popup.close();
+						await loginTwoFa();
+					}
+					console.log(req.error);
+				}
+				if (popup && popup.closed) {clearInterval(timerId);}
 				if (Time >= 120000) {
 					clearInterval(timerId);
 					await ErrorPopup("Error : Timeout, please retry");
 					if (popup && !popup.closed)
 						popup.close();
 				}
-				Time += 4000;
-			}, 4000);
+				Time += 2000;
+			}, 2000);
 		});
 	}
 

@@ -1,5 +1,5 @@
 import GameServer from "./GameServer.js";
-import { updateUserStatus } from "./API/requests/UpdateUserStatus.js";
+import fs from 'fs';
 
 // Handles every GameServer
 export default class GameMaster {
@@ -11,6 +11,14 @@ export default class GameMaster {
         }
         GameMaster.instance = this;
         this.games = new Map();
+
+		// Load Q-table from JSON file
+		const data = fs.readFileSync("q_table.json", "utf-8");
+		this.qtable = JSON.parse(data);
+		console.debug("Q-Table loaded");
+		// console.debug(this.qtable);
+		// console.debug(typeof this.qtable);
+		// console.debug(typeof this.qtable["00"]);
     }
 
     static getInstance() {
@@ -30,10 +38,6 @@ export default class GameMaster {
             game.ws = ws;
             game.server.addWs(ws);
 			console.log(`✅ User ${userId} authenticated to game ${gameId}`);
-            const update = await updateUserStatus(userId, 'playing');
-			if (!update.ok) {
-				console.error("❌ Unable to update user status : ", update.error); // Non-blocking
-			}
 			return true;
 		} 
 		else {
@@ -49,17 +53,6 @@ export default class GameMaster {
             }
         }
         return false;
-    }
-
-    async updateUserStatus(userId) {
-        let status;
-        if (this.isUserPlaying(userId))
-            status = "playing";
-        else
-            status = "not_playing";
-        const res = await updateUserStatus(userId, status);
-        if (!res.ok)
-            console.error("Unable to update user status : ", res.error);
     }
 
     getUserIdByWs(targetWs) {
@@ -94,7 +87,7 @@ export default class GameMaster {
 			throw new Error("Invalid number of players");
 		}
 		this.games.set(Number(gameId), {
-			server: new GameServer(Number(gameId), tournament, userId, maxScore, ai, option),
+			server: new GameServer(Number(gameId), tournament, userId, maxScore, ai, option, this.qtable),
 			tournament: tournament,
             userId: userId,
             ws: null,
@@ -102,6 +95,8 @@ export default class GameMaster {
 		});
 		// console.debug("Games map after creation:");
 		// console.debug(this.games);
+		// console.debug(process._getActiveHandles().length);
+		// console.debug(process._getActiveRequests().length);
     }
 
     // Call when a game is finished to destroy its object completely
@@ -111,10 +106,12 @@ export default class GameMaster {
             return ;
         }
         if (this.games.has(Number(gameId))) {
-            const user = this.games.get(Number(gameId)).userId;
+			const gamePart = this.games.get(Number(gameId));
+            const user = gamePart.userId;
+			gamePart.server.clean();
+			gamePart.server = null;
             this.games.delete(Number(gameId));
             console.log("🔴 GameServer stopped");
-            this.updateUserStatus(user);
         } else {
             console.debug(`No server associated with gameId ${gameId}`);
         }

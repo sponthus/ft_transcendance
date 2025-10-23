@@ -1,5 +1,5 @@
 export type UserStatus = {
-	status: 'online' | 'disconnected' | 'playing';
+	status: 'online' | 'disconnected';
 	slug: string;
 };
 
@@ -10,7 +10,7 @@ export type StatusResult = {
 };
 
 // GET /:slug
-// Gives the status of a user (online, offline, playing), access it with req.status!.status
+// Gives the status of a user (online, offline), access it with req.status!.status
 // Security : Accessible for every logged-in user
 export async function getUserStatus(slug: string): Promise<StatusResult> {
 	if (!slug) {

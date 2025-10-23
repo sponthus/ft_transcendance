@@ -11,8 +11,10 @@ export async function logoutUser(): Promise<LogoutResult>
         {
             method: 'PUT',
 			headers: {
+				'content-type': 'application/json',
 				'host': window.location.host
 			},
+			body: JSON.stringify({action: 'logout'}),
             credentials: 'include'  
         });
         if (res.ok) 

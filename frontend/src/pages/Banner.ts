@@ -104,8 +104,6 @@ async function setTextLoginUserInfo(usersForm: HTMLElement, userData: UserInfo) 
 				userSatus = 'online 🟢​';
 			if (req.status && req.status.status === "disconnected")
 				userSatus = 'disconnected 🔴​';
-			if (req.status && req.status.status === "playing")
-				userSatus = 'playing 🟡​​';
 		}
 
 	} catch(error) {

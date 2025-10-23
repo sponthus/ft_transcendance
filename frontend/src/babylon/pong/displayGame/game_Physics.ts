@@ -57,6 +57,8 @@ export class GamePhysics {
 	private _advancedTexture2: AdvancedDynamicTexture;
 	private _text: TextBlock;
 
+	private _intervaleId: number | null = null;
+
 	constructor(
 		ball: BallMesh,
 		scene: Scene,
@@ -165,6 +167,10 @@ export class GamePhysics {
 				return;
 			}
 			if (data.type === "endGame") {
+				if (this._intervaleId) {
+					clearInterval(this._intervaleId)
+					this._intervaleId = null;
+				}
 				this.socket?.setPlaying(false);
 				this._scoreValue1 = 0;
 				this._scoreValue2 = 0;
@@ -175,7 +181,7 @@ export class GamePhysics {
 		};
 
 		// envoie les inputs au serveur
-		setInterval(() => {
+		this._intervaleId = window.setInterval(() => {
 			if (this.ready) {
 				this.socket?.send(JSON.stringify({ // traduire en JSON
 					type: "input",

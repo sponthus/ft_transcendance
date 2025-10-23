@@ -74,11 +74,14 @@ export class launchPong {
 		this.Render.PongGame!.GamePhysics!.stopGame(); // Close socket
 		this.Render.PongGame!.GamePhysics!.SetWin = false;
 		this.GamePage.addOverlayToWindow();
-		if (this.tournament && this.GamePage._tournamentPage._tournamentId && !this.GamePage._tournamentPage._isFinal)
+		if (this.tournament && this.GamePage._tournamentPage._tournamentId && !this.GamePage._tournamentPage._isFinal) {
 			this.GamePage.generateBracketTournament(this.GamePage._tournamentPage._tournamentId!);
+		}
 		else {
-			if (this.tournament && this.GamePage._tournamentPage._tournamentId)
+			if (this.tournament && this.GamePage._tournamentPage._tournamentId) {
+				this.GamePage._tournamentPage.setIsFinal = false;
 				this.GamePage.generateEndGamePage(this.tournament, this.GamePage._tournamentPage._tournamentId);
+			}
 			else
 				this.GamePage.generateEndGamePage(this.tournament, id);
 		}

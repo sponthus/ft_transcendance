@@ -7,7 +7,8 @@ export async function activateTwoFa(request, reply)
 {
     const   db = request.server.db;
     const   idUser = request.user.idUser;
-
+	
+	console.debug(`Activate 2FA for user ID: ${idUser}`);
     try
     {
          const stmt = db.prepare("  SELECT \
@@ -175,7 +176,7 @@ export async function deleteToken (request, reply)
 {
     try
     {
-        return reply.code(200).setCookie('token', '',
+        return reply.code(200).clearCookie('token',
         {
             httpOnly: true,
             signed: true,
