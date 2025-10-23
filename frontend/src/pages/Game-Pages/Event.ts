@@ -60,14 +60,20 @@ export class Event {
 
 	/*************************************Functions for Game Mod Event*************************************/
 	async manageGameModEvent() {
-		(document.getElementById('1v1-btn')?.addEventListener('click', async() => {
-			this.StatePage = PageState.PARTY;
-			await this.GamePage.generate1v1GamePage();
-		}));
-		(document.getElementById('tournament-btn')?.addEventListener('click', async() => {
-			this.StatePage = PageState.TOURNAMENT;
-			await this.GamePage.generateTournamentPage();
-		}));
+		const onevsone = (document.getElementById('1v1-btn'))
+		if (onevsone) {
+			onevsone.addEventListener('click', async() => {
+				this.StatePage = PageState.PARTY;
+				await this.GamePage.generate1v1GamePage();
+			});
+		}
+		const tounrnament = (document.getElementById('tournament-btn'));
+		if (tounrnament) {
+			tounrnament.addEventListener('click', async() => {
+				this.StatePage = PageState.TOURNAMENT;
+				await this.GamePage.generateTournamentPage();
+			});
+		}
 		if (this.GamePage._backBtn)
 			this.GamePage._backBtn.addEventListener('click', async() => {this.ReturnToLobby();});
 	}
