@@ -366,9 +366,9 @@ export class PongGame {
 		}
 		else
 		{
-			if (this.input1['7'] && this.paddle1.x > PADDLE_INF_LIMIT)
+			if ((this.input1['4'] || this.input1['5']) && this.paddle1.x > PADDLE_INF_LIMIT)
 				this.paddle1.x -= this.speedPaddle * this.dt;
-			if (this.input1['9'] && this.paddle1.x < PADDLE_SUP_LIMIT)
+			if ((this.input1['6'] || this.input1['8']) && this.paddle1.x < PADDLE_SUP_LIMIT)
 				this.paddle1.x += this.speedPaddle * this.dt;
 		}
 	}
@@ -394,9 +394,9 @@ export class PongGame {
 		}
 		else
 		{
-			if (this.input1.d && this.paddle2.x > PADDLE_INF_LIMIT)
+			if ((this.input1.d || this.input1.s) && this.paddle2.x > PADDLE_INF_LIMIT)
 				this.paddle2.x -= this.speedPaddle * this.dt;
-			if (this.input1.a && this.paddle2.x < PADDLE_SUP_LIMIT)
+			if ((this.input1.a || this.input1.w) && this.paddle2.x < PADDLE_SUP_LIMIT)
 				this.paddle2.x += this.speedPaddle * this.dt;
 		}
 		
