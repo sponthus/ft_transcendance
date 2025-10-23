@@ -200,7 +200,7 @@ export class SessionSocket {
 		else if (data.type === "message") {
 			console.log("receive friend request frome data.type message : ", data);
 			refreshNotification();
-			if (data.message == "friend_accept" && currentPage && currentPage.constructor && currentPage.constructor.name === "UserPage")
+			if ((data.message === "friend_accept"  || data.message === "friend_reject") && currentPage && currentPage.constructor && currentPage.constructor.name === "UserPage")
 				currentPage.render();
 			if (data.message === "tournament_ready" || data.message === "tournament_cancel") {
 				if (currentPage instanceof Game){
