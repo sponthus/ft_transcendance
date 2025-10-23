@@ -71,12 +71,12 @@ export default async function routes (fastify, options) {
         async function (deleteRoutes) {
             deleteRoutes.delete("/:gameId",
 				{onRequest: [fastify.authenticate], 
-					schema: { params: idSchema }
+					schema: { params: idParamSchema }
 				},
                 deleteGame);
 			deleteRoutes.delete("/tournament/:tournamentId",
 				{onRequest: [fastify.authenticate], 
-					schema: { params: idSchema }
+					schema: { params: tournamentIdParamSchema }
 				},
 				deleteTournament);
 			}
