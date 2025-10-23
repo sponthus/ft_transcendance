@@ -45,7 +45,7 @@ export async function   userAnswerTournament(request, reply)
 		{
 			return reply.code(200).send(); // TODO METTRE EN HAUT 
 		}
-        return reply.code(req.status).send({ message: req.error });
+        return reply.code(req.status).send({ message: req.message });
     }
     catch(err)
     {
