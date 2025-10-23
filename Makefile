@@ -20,7 +20,7 @@ ENV = .env
 
 COMPOSE_FILE = ./docker-compose.yml
 
-all: $(ENV) up
+all: $(ENV) down up
 
 $(ENV): env
 
