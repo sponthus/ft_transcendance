@@ -32,7 +32,8 @@ export async function sendTournamentAcceptation(inviterId, inviteeId, tournament
 			return { ok: true };
 		const data = await res.json();
 		console.log("Data received from user-service: ", data);
-		return { ok: false, error: data.error, code: data.status };
+		console.log("Status code: ", res.status);
+		return { ok: false, error: data.error, code: res.status };
 	} catch (error) {
 		console.error("❌ Error while sending tournament acceptation notice: ", error);
 		return { ok: false, error: "Internal server error", code: 500};

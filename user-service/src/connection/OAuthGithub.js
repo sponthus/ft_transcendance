@@ -58,12 +58,12 @@ export async function loginThroughGithub(request, reply)
         }
         else
             token = await reply.jwtSign({ idUser: userInfo.idUser, username: userInfo.username, slug: userInfo.slug }, {expiresIn: '1h'});
-        console.debug("\nidUser: ", userInfo.idUser);
-        console.debug("\nusername: : ", userInfo.username);
-        console.debug("\nslug: : ", userInfo.slug);
-        console.debug('GITHUB token : ', token);
+        // console.debug("\nidUser: ", userInfo.idUser);
+        // console.debug("\nusername: : ", userInfo.username);
+        // console.debug("\nslug: : ", userInfo.slug);
+        // console.debug('GITHUB token : ', token);
 
-		console.log("ASKING FOR ONLINE 🟠🟠🟠🟠🟠🟠🟠🟠🟠🟠");
+		console.log("Asking for online");
 		notifyChangeData(userInfo.idUser, userInfo.username, userInfo.slug, "online");
         let secure = false;
         if (env.nodeEnv === 'production')
@@ -73,7 +73,7 @@ export async function loginThroughGithub(request, reply)
 		if (env.nodeEnv === 'production') {
 			link = `${prefix}://${env.host}:4443/`;
 		}
-        console.log("succesfully connected with github 🟠🟠🟠🟠🟠🟠🟠🟠🟠🟠")
+        console.log("Succesfully connected with github")
         return reply.code(200).setCookie('token', token,
         {
             httpOnly: true,
