@@ -1,7 +1,7 @@
 import Ajv from "ajv"
 
 let slugRegex = "^(?![_-])(?!.*[_-]$)(?=.*[a-z])(?![0-9_]+)[a-z0-9_-]+$";
-let nameRegex = "^@?(?=.+[A-Za-z])[A-Za-z0-9]+(?:\\s+[A-Za-z0-9]+)*$"
+let nameRegex = "^@?(?=.*[A-Za-z])[A-Za-z0-9_-]+(?: [A-Za-z0-9_-]+)*$";
 
 export const headersWithApiKeyJsonSchema = {
 	type: "object",
