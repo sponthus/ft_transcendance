@@ -115,7 +115,7 @@ export const numberIdSchema = {
 export const idParamSchema = {
   type: "object",
   properties: {
-	userId: { type: "string", pattern: "^[0-9]+$", minLength: 1, maxLength: 15 }
+	userId: { type: "string", pattern: "^(?:[1-9][0-9]*)$", minLength: 1, maxLength: 15 }
   }
 };
 
