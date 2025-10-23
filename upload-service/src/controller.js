@@ -4,6 +4,7 @@ import { __dirname } from "./index.js";
 import pump from "pump";
 import { fileTypeFromBuffer } from "file-type";
 import sharp from "sharp";
+import { updateAvatar } from "./updateAvatar.js";
 
 export async function uploadAvatar(request, reply) {
     const user = request.user;
@@ -41,6 +42,14 @@ export async function uploadAvatar(request, reply) {
 				const chunks = [];
 	
 				const fileName = `${slug}${path.extname(part.filename).toLowerCase()}`;
+				const result = await updateAvatar(fileName, user.idUser, user.slug);
+				if (!result.ok)
+				{
+					console.debug('💬 Error update avatar : ', updateAvatar);
+					return reply.code(result.status).send({error : result.error});
+				}
+				else
+					console.debug('💬 Avatar succesfully updated in user-service');
 				const filePath = path.join(avatarDir, fileName);
 	
 				try {
