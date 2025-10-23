@@ -72,12 +72,12 @@ export class UserPage extends BasePage {
 				await this.showUserPage();
 			} else {
 				await ErrorPopup("Unable to load profile");
-				navigate('/');
+				await navigate('/');
 			}
 		}
 		catch (error) {
 			await ErrorPopup(error as string);
-			navigate('/');
+			await navigate('/');
 		}
 	}
 
@@ -94,7 +94,7 @@ export class UserPage extends BasePage {
 			}
 		} catch (error) {
 			await ErrorPopup(error as string);
-			navigate('/');
+			await navigate('/');
 		}
 	}
 

@@ -1,7 +1,7 @@
 /// <reference types="vite/client" />
 import { refreshNotification } from "../Utils/notification";
 import Ajv, { ErrorObject } from "ajv";
-import { currentPage, navigate } from "./router";
+import { currentPage, navigate, WebPath } from "./router";
 import { ErrorPopup } from "../pages/ErrorPage.js";
 import { logoutUser } from "../api/user-service/connection/logoutUser.js";
 import { Game } from "../babylon/main";
@@ -132,13 +132,13 @@ export class SessionSocket {
 				console.error("Websocket closed due to authentication error");
 				await logoutUser();
 				await ErrorPopup("Authentication error, please log in again");
-				navigate('/login');
+				await navigate('/login');
 			}
 			else if (event.code == 4003) {
 				console.error("WebSocket closed due to authentication failure");
 				await logoutUser();
 				await ErrorPopup("Session expired, please log in again");
-				navigate('/login');
+				await navigate('/login');
 			} else {
 				this.reconnect();
 			}
@@ -200,8 +200,12 @@ export class SessionSocket {
 		else if (data.type === "message") {
 			console.log("receive friend request frome data.type message : ", data);
 			refreshNotification();
-			if ((data.message === "friend_accept"  || data.message === "friend_reject" || data.message === "friend_request") && currentPage && currentPage.constructor && currentPage.constructor.name === "UserPage")
+			if (currentPage && WebPath)
+				console.log("RENDER THE CURRENT PAGE : ", currentPage!, WebPath , WebPath.startsWith('/user'));
+			if ((data.message === "friend_accept"  || data.message === "friend_reject" || data.message === "friend_request") && currentPage && WebPath && WebPath.startsWith('/user')) {
+				console.log("JE SUIS UNE PATATE");
 				currentPage.render();
+			}
 			if (data.message === "tournament_ready" || data.message === "tournament_cancel") {
 				if (currentPage instanceof Game){
 					if (currentPage.renderScene?.GamePage) {
@@ -249,7 +253,7 @@ export class SessionSocket {
 			this.close(3000, "Max reconnect attempts reached");
 			await logoutUser();
 			await ErrorPopup("Authentication error, please log in again");
-			navigate('/login');
+			await navigate('/login');
 			return;
 		}
 		this.reconnectAttempts++;
