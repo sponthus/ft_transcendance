@@ -187,22 +187,22 @@ export class renderAsset {
 
 	private  async _loadMap() {
 		/******************************load maps Asset******************************/
-		if (this._scene && !this._scene.isDisposed) {
-			this._loadedMap = {};
-			for (const type in this._titleType) {
-				if (this._titleType[type] != "nothing")
+		this._loadedMap = {};
+		for (const type in this._titleType) {
+			if (this._titleType[type] != "nothing")
 				{
-					const result1 = await ImportMeshAsync(this._titleType[type], this._scene);
-					if (result1) {
-						this._setUpMesh(result1, BABYLON.Vector3.Zero(), 3.5);
-						const mesh = result1.meshes[0];
-						mesh.setEnabled(false);
-						this._loadedMap[type] = mesh;
+					if (this._scene && !this._scene.isDisposed) {
+						const result1 = await ImportMeshAsync(this._titleType[type], this._scene);
+						if (result1) {
+							this._setUpMesh(result1, BABYLON.Vector3.Zero(), 3.5);
+							const mesh = result1.meshes[0];
+							mesh.setEnabled(false);
+							this._loadedMap[type] = mesh;
+						}
 					}
 				}
 			}
 		}
-	}
 
 	private async __loadStageSet(): Promise<void> {
 		if (this._scene && !this._scene.isDisposed) {

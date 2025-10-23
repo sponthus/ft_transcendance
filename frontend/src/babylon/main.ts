@@ -30,6 +30,7 @@ export class Game extends BasePage {
 	constructor(slug: string) {
 		super();
 		this._slug = slug;
+		console.log("overflow = ", document.body.style.overflow);
 	}
 
 	async render(): Promise<void>  {
@@ -72,6 +73,8 @@ export class Game extends BasePage {
 		this.banner.innerHTML = '';
 		this.app.innerHTML = '';
 		document.body.style.overflow = "";
+		document.documentElement.style["overflow"] = "";
+		document.documentElement.style.overflow = "";
 		cleanBanner();
 		if (this._renderScene) {
 			if (this._renderScene.homeScene && !this._renderScene.homeScene.isDisposed)
