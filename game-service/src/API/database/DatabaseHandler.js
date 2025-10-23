@@ -589,6 +589,7 @@ export default class DatabaseHandler {
 		cancelGamesStmt.run(status, tournamentId);
 
 		const result = {
+			ok: true,
 			tournamentId: tournamentId,
 			name: tournament.name,
 			status: status
@@ -949,10 +950,14 @@ export default class DatabaseHandler {
 		try {
 			const transaction = this.db.transaction((userId, tournamentId) => {
 				const result = this.changeInvitationStatusLogic(userId, tournamentId, REFUSED);
+				console.debug("Change invitation status logic result:");
+				console.debug(result);
 				if (!result.ok) {
 					throw new Error(result.error);
 				}
 				const cancelTournamentResult = this.cancelTournamentLogic(tournamentId, "canceled");
+				console.debug("Cancel tournament logic result:");
+				console.debug(cancelTournamentResult);
 				if (!cancelTournamentResult.ok) {
 					throw new Error("Could not cancel the tournament because: " + cancelTournamentResult.error);
 				}
@@ -965,6 +970,7 @@ export default class DatabaseHandler {
 					.all(tournamentId)
 					.filter(row => row.has_accepted === ACCEPTED || row.has_accepted === WAITING)
 					.map(row => Number(row.name.slice(1)));
+				console.debug("Players to notify: ", playersToNotify);
 				return { ok: true, playersToNotify: playersToNotify };
 			});
 			const result = transaction(userId, tournamentId);
