@@ -117,7 +117,8 @@ fastify.addHook('onRequest', async (request, reply) => {
 			return;
 		}
 		if (!host.includes(env.host)
-			&& !host.includes(`api-gateway:${env.api_port}`)) {
+			&& !host.startsWith(`api-gateway`)
+		    && !host.startsWith(`localhost`)) {
 			console.warn(`Host header does not match /${env.host}/ : /${host}/`);
 			reply.code(400).send({ message: 'Host header does not match' });
 		}
