@@ -26,7 +26,7 @@ export const headersWithApiKeyJsonSchema = {
 
 export const slugSchema = {
   type: "string",
-  minLength: 4,
+  minLength: 3,
   maxLength: 20,
   pattern: slugRegex
 };
@@ -53,7 +53,7 @@ export const tournamentNameSchema = {
 
 export const playerSchema = {
   type: "string", 
-  minLength: 4, 
+  minLength: 3, 
   maxLength: 21, 
   pattern: nameRegex,
   errorMessage: {
@@ -173,7 +173,7 @@ export const tournamentCreationSchema = {
       ],
       items: { 
 		type: "string",
-		minLength: 4,
+		minLength: 3,
 		maxLength: 21,
 		pattern: nameRegex,
 		errorMessage: {

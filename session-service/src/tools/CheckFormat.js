@@ -5,7 +5,7 @@ let usernameRegex = "^(?![_-])(?!.*[_-]$)(?=.*[A-Za-z])(?![0-9_]+)[A-Za-z0-9_-]+
 
 export const slugSchema = {
   type: "string",
-  minLength: 1,
+  minLength: 3,
   maxLength: 20,
   pattern: slugRegex
 };
@@ -22,7 +22,7 @@ export const changeInfosSchema = {
   properties: {
     slug: { 
       type: "string",
-      minLength: 4,
+      minLength: 3,
       maxLength: 20,
       pattern: slugRegex
     },
