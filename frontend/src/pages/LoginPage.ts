@@ -118,30 +118,40 @@ export class LoginPage extends BasePage {
 		if (!this.Form) 
 			this.ErrorForm();
 		else {
+			console.log("coucou");
 			this.Form.addEventListener('submit', async (e) => {
-			e.preventDefault();
-			const form = e.target as HTMLFormElement;
-			const formData = new FormData(form);
+				if (this.Form.dataset.locked === "true") return;
+				this.Form.dataset.locked = "true";
+				try {
+					e.preventDefault();
+					const formData = new FormData(this.Form);
 
-			const username = formData.get('username') as string;
-			const password = formData.get('password') as string;
+					const username = formData.get('username') as string;
+					const password = formData.get('password') as string;
 
-			const req = await loginUser(username, password);
-			if (req.ok) {
-				if (req.twoFaEnabled === 1) {
-					await loginTwoFa();
+					const req = await loginUser(username, password);
+					if (req.ok) {
+						if (req.twoFaEnabled === 1) {
+							await loginTwoFa();
+						}
+						else
+							await navigate('/');
+						return ;
+					}
+					else {
+						if (req.error)
+							throw new Error("Connexion failure : " + req.error);
+						else
+							throw new Error("Connexion failure");
 				}
-				else
-					await navigate('/');
-			    return ;
+				
+			} catch(error) {
+				console.log("Erreur attrapée:", error);
+				await ErrorPopup(error as string);
+			} finally {
+				this.Form.dataset.locked = "false";
 			}
-			else {
-			    if (req.error)
-			        await ErrorPopup("Connexion failure : " + req.error);
-			    else
-			        await ErrorPopup("Connexion failure");
-			}
-			});
+		});
 		}
 	}
 

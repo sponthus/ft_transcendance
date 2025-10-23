@@ -145,25 +145,33 @@ export class RegisterPage extends BasePage {
 			this.ErrorForm();
 		else {
 			this.Form.addEventListener('submit', async (e) => {
-				e.preventDefault();
-
-				const formData = new FormData(this.Form);
-				const username = formData.get('username') as string;
-				const password = formData.get('password') as string;
-				const ConfirmPassword = formData.get('ConfirmPassword') as string;
-
-				if (password != ConfirmPassword) {
-					await ErrorPopup("Password miss Match");
-					return ;
+				if (this.Form.dataset.locked === "true") return;
+				this.Form.dataset.locked = "true";
+				try {
+					const formData = new FormData(this.Form);
+					e.preventDefault();
+	
+					const username = formData.get('username') as string;
+					const password = formData.get('password') as string;
+					const ConfirmPassword = formData.get('ConfirmPassword') as string;
+	
+					if (password != ConfirmPassword) {
+						await ErrorPopup("Password miss Match");
+						return ;
+					}
+	
+					const req = await registerUser(username, password);
+					if (req.ok) {
+						await navigate('/');
+						return ;
+					}
+					else {
+						throw new Error(req.error);
 				}
-
-				const req = await registerUser(username, password);
-				if (req.ok) {
-					await navigate('/');
-					return ; // back to home
-				}
-				else {
-					return ;
+				} catch(error) {
+					await ErrorPopup(error as string);
+				} finally {
+					this.Form.dataset.locked = "false";
 				}
 			});
 		}
