@@ -128,7 +128,7 @@ export async function declineTournamentInvitation(request, reply) {
 	try {
 		const result = await db.declineTournamentInvitation(refusingUserId, tournamentId);
 		if (result.ok === false) {
-			console.error(`❌ Unable to decline tournament invitation: /${result.error}/`);
+			console.error(`❌ Unable to decline tournament invitation: /${result.error}/ - /${result.message}`);
 			switch (result.error) {
 				case "Tournament not found":
 					return reply.code(404).send({ error: result.error });
