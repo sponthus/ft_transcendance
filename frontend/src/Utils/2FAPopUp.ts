@@ -105,7 +105,7 @@ async function addPopUpContent(url: string, active: boolean) {
 		}
 	})
 	backBtn.addEventListener('click', async() => {
-		if (!active)
+		if (active)
 			deleteCookieTwofa();
 		QrPop.removeOverlayToWindow();
 	})
