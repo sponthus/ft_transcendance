@@ -203,7 +203,6 @@ export class SessionSocket {
 			if (currentPage && WebPath)
 				console.log("RENDER THE CURRENT PAGE : ", currentPage!, WebPath , WebPath.startsWith('/user'));
 			if ((data.message === "friend_accept"  || data.message === "friend_reject" || data.message === "friend_request") && currentPage && WebPath && WebPath.startsWith('/user')) {
-				console.log("JE SUIS UNE PATATE");
 				currentPage.render();
 			}
 			if (data.message === "tournament_ready" || data.message === "tournament_cancel") {

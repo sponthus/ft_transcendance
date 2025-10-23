@@ -7,10 +7,13 @@ import { ErrorPopup } from '../ErrorPage.js';
 let CurrentAvatarAsset: number = 0;
 let CurrentNpcAsset: number = 0;
 
+
 const AvatarMap: Map<number, HTMLButtonElement> = new Map< number, HTMLButtonElement>();
 const NPCMap: Map<number, HTMLButtonElement> = new Map< number, HTMLButtonElement>();
 
 export async function  renderGameSetting(ButtonDiv: HTMLElement, SettingDiv: HTMLElement, ReturnDiv: HTMLElement){
+	CurrentAvatarAsset = 0;
+	CurrentNpcAsset = 0;
 	await setCurrentAvatar();
 	await setCurrentNpc();
 	ButtonDiv.classList.add('opacity-0');
@@ -95,17 +98,17 @@ function manageEventAvatar(IdBtn: string, IdDiv: string) {
 	const btn = document.getElementById(IdBtn) as HTMLButtonElement;
 	const Div = document.getElementById(IdDiv) as HTMLElement;
 	btn.addEventListener('click', () =>{
-		if (Div.classList.contains("opacity-0")) {
+		if (Div.classList.contains("opacity-0") && Div.classList.contains("h-0")) {
 			Div.classList.remove('h-0');
-			setTimeout(() => {
+			setTimeout(async () => {
 				Div.classList.remove('opacity-0');
 				Div.classList.add('opacity-100');
 			}, 150);
 		}
 		else {
 			Div.classList.add('opacity-0');
-			Div.classList.remove('opacity-100');			
-			setTimeout(() => {
+			Div.classList.remove('opacity-100');		
+			setTimeout(async() => {
 				Div.classList.add('h-0');
 			}, 150);
 
