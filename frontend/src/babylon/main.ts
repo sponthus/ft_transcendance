@@ -82,8 +82,10 @@ export class Game extends BasePage {
 				this._renderScene.engine.stopRenderLoop();
 				this._renderScene.engine.dispose();
 			}
-			if (this._renderScene && this._renderScene.PongGame && this._renderScene.PongGame.GamePhysics)
+			if (this._renderScene.PongGame && this._renderScene.PongGame.GamePhysics)
 				this._renderScene.PongGame!.GamePhysics!.stopGame();
+			if (this._renderScene.GamePage && this._renderScene.GamePage.OverlayDiv.isConnected)
+				this._renderScene.GamePage.removeOverlayToWindow();
 		}
 	}
 
