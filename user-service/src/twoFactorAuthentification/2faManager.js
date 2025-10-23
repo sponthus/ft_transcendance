@@ -33,8 +33,6 @@ export async function activateTwoFa(request, reply)
             length: 20, //TODO ENLEVER COMMMS Les standards TOTP/HOTP sont pensés pour 20 bytes minimum (SHA-1 digest length).
             symbols: false //plus facile a taper
         });
-        //stocker la cle encrypte ici, utilise crypto ? TODO PLUS TARD
-        console.log('Secret 2fa : ', secret.base32);
         const encryptSecret = encrypt(secret.base32);
         db.prepare(    "UPDATE \
                             users \
@@ -49,13 +47,6 @@ export async function activateTwoFa(request, reply)
         //secret.otpauth_url --> pour generer QR code 
         
         const qrDataUrl = await qrcode.toDataURL(secret.otpauth_url) ;
-
-        //si je veux une saisie manuelle je dois envoyer la cle secret en clair pause un pb de secu*/
-
-        const qrAscii = await qrcode.toString(secret.otpauth_url, {type: 'terminal'}); //temporaire, permet de tester 
-        console.log(`QR Ascii generated`);
-        //console.debug(qrAscii); //TODO enlever
-
         return reply.code(200).send({ qrCode: qrDataUrl });
     }
     catch (err)

@@ -28,6 +28,9 @@ export async function   getCharacterAsset(): Promise<AssetResult>
     const res = await fetch('/api/user/menu/character/asset', 
     {
         method: 'GET',
+		headers: {
+			'host': window.location.host
+		},
         credentials: 'include',
     });
     const data = await res.json();    

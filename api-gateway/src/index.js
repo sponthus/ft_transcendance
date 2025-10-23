@@ -45,9 +45,10 @@ console.log('Parameters for fastify are being set ...'); // debug
 // Otherwise gives a 429 code
 function isTrustedRequest(request) {
 	const ip = request.ip ? request.ip : '';
+	// console.log("IP address is ", ip);
 	if (ip === 'localhost' || ip === env.host) 
-	    return true;
-	
+		return true;
+
 	return false;
 }
 
@@ -137,9 +138,9 @@ fastify.addHook('onRequest', async (request, reply) => {
 // Protection of attacks looking for valid URL by hardly protecting 404
 fastify.setNotFoundHandler({
     preHandler: fastify.rateLimit({
-        max: 10,
+        max: 100,
+        timeWindow: '60 seconds',
 		allowList: ['localhost', env.host],
-        timeWindow: '60 seconds'
     })
 }, function (request, reply) {
     reply.code(404).send({ error: 'Not found' })

@@ -4,8 +4,8 @@ import { checkIdFormat, checkNumberIdFormat } from '../tools/CheckFormat.js';
 // Security : Road is protected to service-only, and from SQLi
 export async function sendMessageToUsers(request, reply) {
 	console.log("➡️ Service accessed POST /message");
-	console.debug('request.body :', request.body);
-	console.debug('request.body type :', typeof request.body);
+	// console.debug('request.body :', request.body);
+	// console.debug('request.body type :', typeof request.body);
 
 	const { userIds, sender, message } = request.body;
 	const { WebSocketManager } = request.server;

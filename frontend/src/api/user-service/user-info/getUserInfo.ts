@@ -47,6 +47,9 @@ export async function   getUserInfoBySlug(slug: string) : Promise<GetUserInfoRes
         const res = await fetch(`/api/user/user-info/other/${slug}`, 
         {
             method: 'GET',
+			headers: {
+				'host': window.location.host
+			},
             credentials: 'include',
         });
         const data = await res.json();

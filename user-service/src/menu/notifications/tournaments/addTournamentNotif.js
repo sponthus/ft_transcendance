@@ -1,4 +1,3 @@
-import { send } from "process";
 import { notifyRefresh } from "../../../internal-service/notifyServices.js";
 
 export async function addTournamentNotif (request, reply)
@@ -44,6 +43,7 @@ function checkUsersExist(db, receiverId, senderId)
         else
             allIds = [receiverId];
         allIds.push(senderId);
+        allIds = [...new Set(allIds)]; //delete duplicate if senderId is in ReceiverId
         const placeholders = allIds.map(() => '?').join(', ');
 
         const row = db.prepare(`

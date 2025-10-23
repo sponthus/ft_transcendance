@@ -185,7 +185,7 @@ export default class WebSocketManager {
 				console.warn(`User ${userId} not connected when trying to disconnect`);
 				return;
 			}
-			await this.sleep(15000); // Wait for micro-deconnexions
+			await this.sleep(30000); // Wait for micro-deconnexions
 			const client = this.clients.get(Number(userId));
 			client.ws = client.ws.filter(sock => sock && sock.readyState === 1);
 			if (client.ws.length == 0) {

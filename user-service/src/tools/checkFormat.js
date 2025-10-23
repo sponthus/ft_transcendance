@@ -1,3 +1,41 @@
+export const backgroundColorSchema = {
+  type: "object",
+  properties: {
+	red: {
+	  type: "number",
+	  minimum: 0,
+	  maximum: 255,
+	  errorMessage: {
+		type: "Red must be a number",
+		minimum: "Red must be at least 0",
+		maximum: "Red cannot be higher than 255"
+	  }
+	},
+	green: {
+	  type: "number",
+	  minimum: 0,
+	  maximum: 255,
+	  errorMessage: {
+		type: "Green must be a number",
+		minimum: "Green must be at least 0",
+		maximum: "Green cannot be higher than 255"
+	  }
+	},
+	blue: {
+	  type: "number",
+	  minimum: 0,
+	  maximum: 255,
+	  errorMessage: {
+		type: "Blue must be a number",
+		minimum: "Blue must be at least 0",
+		maximum: "Blue cannot be higher than 255"
+	  }
+	}
+  },
+  required: ["red", "green", "blue"],
+  additionalProperties: false
+};
+
 export const avatarSchema = {
   type: "object",
   properties: {
@@ -233,6 +271,22 @@ export const answerSchema = {
   },
   required: ["ownerSlug", "tournamentId", "tournamentName", "answer"],
   additionalProperties: false
+};
+
+export const actionBodySchema = {
+  type: "object",
+  properties: {
+	action: {
+	  type: "string",
+	  enum: ["logout", "markRead", "delete"],
+	  errorMessage: {
+		type: "Invalid action",
+		enum: "Invalid action"
+	    }
+	  }
+	},
+	required: ["action"],
+	additionalProperties: false
 };
 
 export const registrationSchema = {

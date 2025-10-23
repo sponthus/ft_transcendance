@@ -60,7 +60,6 @@ export async function getAllTournaments(slug: string):  Promise<TournamentsResul
         const response = await fetch(`/api/games/${slug}/tournaments`, {
             method: 'GET',
             headers: {
-                'Content-Type': 'application/json',
 				'host': window.location.host
             },
             credentials: 'include'
