@@ -1,6 +1,6 @@
 import { changeInfosSchema, idParamSchema, sendMessageToGroupSchema, slugParamsSchema } from "../tools/CheckFormat.js";
 import { getStatusForSlug } from "./StatusGetRoutes.js"
-import { changeUserInfos, changeUserStatus } from "./StatusPatchRoutes.js"
+import { changeUserInfos } from "./StatusPatchRoutes.js"
 import { sendMessageToUsers } from "./StatusPostRoutes.js"; 
 
 export default async function routes (fastify, options) {
