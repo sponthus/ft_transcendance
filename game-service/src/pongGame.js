@@ -533,7 +533,7 @@ export class PongGame {
 		}
 		else
 		{
-			if (this.input1.x && this.specialCooldown2 < 0)
+			if (this.input1.z && this.specialCooldown2 < 0 && this.die2 === false)
 			{
 				this.isSpellGo2 = true;
 				this.specialCooldown2 = 50;
