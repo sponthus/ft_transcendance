@@ -20,7 +20,7 @@ ENV = .env
 
 COMPOSE_FILE = ./docker-compose.yml
 
-all: $(ENV) down up
+all: $(ENV) down build
 
 $(ENV): env
 
@@ -48,9 +48,6 @@ build:
 
 up:
 	docker compose -f $(COMPOSE_FILE) up
-
-detach:
-	docker compose -f $(COMPOSE_FILE) up -d
 
 down: clean-dist
 	docker compose -f $(COMPOSE_FILE) down
@@ -107,4 +104,4 @@ clean-env:
 	@rm .env
 	@rm -r secrets
 
-.PHONY: all re clean fclean down up detach clean-machine env clean-modules clean-db clean-env dev prod
+.PHONY: all re clean fclean down up build ps clean-machine env clean-dist clean-modules clean-db clean-env dev prod
