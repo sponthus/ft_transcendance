@@ -59,9 +59,9 @@ export async function saveUserForm() {
 			const password = formData.get('new-pass') as string;
 			const ConfirmPassword = formData.get('confirm-pass') as string;
 			if ((!ConfirmPassword && password) || (ConfirmPassword && !password))
-				throw new Error("please complete password form");
+				throw new Error("Please complete password form");
 			else if (password && ConfirmPassword && password != ConfirmPassword)
-				throw new Error("dissmatch passwords");
+				throw new Error("Missmatch passwords");
 			if (password && ConfirmPassword) {
 				const req = await updatePassword(password);
 				if (!req.ok)

@@ -68,7 +68,7 @@ export class renderMap {
 
 	get map():  BABYLON.TransformNode {
 		if (!this._map)
-			throw new Error("map not initialized");
+			throw new Error("Map not initialized");
 		return this._map;
 	}
 }
