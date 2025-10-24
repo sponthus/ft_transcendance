@@ -42,8 +42,6 @@ export class DisplayAssets {
 	private _menuPause: AbstractMesh | null = null;
 	private _menuPauseSansCrab: AbstractMesh | null = null;
 
-	//private _skybox: AbstractMesh | null = null;
-
 	private _pancartePlayer1: AbstractMesh | null = null;
 	private _pancartePlayer2: AbstractMesh | null = null;
 
@@ -84,12 +82,6 @@ export class DisplayAssets {
 			this._caste.position = new Vector3(0, -2, 0);
 			result3.animationGroups.forEach(anim => anim.start(true, 1.0));
 		}
-		// const result4 = await ImportMeshAsync("/assets/bobAnime.glb", this._scene);
-		// this._bob = result4.meshes[0];
-		// this._bob.scaling = new Vector3(2, 2, 2);
-		// this._bob.position = new Vector3(3, 3, 3);
-		// this._bobAnime = result.animationGroups.filter(anim => anim.name.includes("bob")) || null;
-
 
 		if (this._scene && !this._scene.isDisposed) {
 			const result4 = await ImportMeshAsync("/assets/patrick.glb", this._scene);
@@ -117,8 +109,6 @@ export class DisplayAssets {
 			this._ananas.position.x = 8;
 			this._ananas.position.y = -1;
 			this._ananas.position.z = 6.4;
-			//this._ananas.scaling = new Vector3(1.2, 1.2, 1.2);
-			//this._ananas.rotation = new Vector3(0, 4.7, 0);
 		}
 
 		if (this._scene && !this._scene.isDisposed) {
@@ -128,7 +118,6 @@ export class DisplayAssets {
 			this._gary.position.y = 0.1;
 			this._gary.position.z = -6;
 			this._gary.scaling = new Vector3(0.02, 0.02, 0.02);
-			//this._ananas.rotation = new Vector3(0, 4.7, 0);
 		}
 
 		if (this._scene && !this._scene.isDisposed){
@@ -137,10 +126,6 @@ export class DisplayAssets {
 			result8.animationGroups.forEach(anim => {
     			anim.start(true); // true = loop infini
 				});
-			// this._test.position.x = 8;
-			// this._test.position.y = -2;
-			// this._test.position.z = 8;
-			//this._test.billboardMode = Mesh.BILLBOARDMODE_ALL;
 			this._menuPause.scaling = new Vector3(0.035, 0.035, 0.035);
 			// créer le parent et l'attacher à la caméra
 			const hudParent = new TransformNode("hudParent", this._scene);
@@ -161,10 +146,6 @@ export class DisplayAssets {
 			result14.animationGroups.forEach(anim => {
     			anim.start(true); // true = loop infini
 				});
-			// this._test.position.x = 8;
-			// this._test.position.y = -2;
-			// this._test.position.z = 8;
-			//this._test.billboardMode = Mesh.BILLBOARDMODE_ALL;
 			this._menuPauseSansCrab.scaling = new Vector3(0.035, 0.035, 0.035);
 			// créer le parent et l'attacher à la caméra
 			const hudParent2 = new TransformNode("hudParen2", this._scene);
@@ -291,11 +272,7 @@ export class DisplayAssets {
 		this._skyboxMaterial = new StandardMaterial("skybox_material", this._scene);
 		this._skyboxMaterial.backFaceCulling = false;
 		this._skyboxMaterial.disableLighting = true;
-
-		// Charge la texture d'environnement pré-filtrée
-		// Assure-toi que le fichier env est dans /assets/skybox/env.env
 		this._skyboxMaterial.reflectionTexture = CubeTexture.CreateFromPrefilteredData("/assets/textures/moon.env", this._scene);
-
 		this._skybox.material = this._skyboxMaterial;
 		this._skybox.infiniteDistance = true;
 	}
@@ -308,15 +285,12 @@ export class DisplayAssets {
 
 		// Crée le matériau eau
 		this._waterMaterial = new WaterMaterial("water_material", this._scene, new Vector2(512, 512));
-
 		this._waterMaterial.bumpTexture = new Texture("/asset/pic/26672.jpg", this._scene);
 		this._waterMaterial.bumpHeight = 9;
 		this._waterMaterial.bumpAffectsReflection = true;
 		this._waterMaterial.bumpSuperimpose = true;
-
 		this._waterMaterial.windForce = 1;
 		this._waterMaterial.windDirection = new Vector2(-1, 0);
-
 		this._waterMaterial.waveHeight = 0.5;
 		this._waterMaterial.waveLength = 0.05;
 		this._waterMaterial.waterColor = new Color3(0.1, 0.4, 1.4);

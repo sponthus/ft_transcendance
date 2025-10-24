@@ -54,9 +54,6 @@ export class Score {
 		this._textPatrick.fontFamily = "Comic Sans MS";
 
 		this._advancedTexturePatrick.addControl(this._textPatrick);
-		// Dessine les textes
-		// this._drawScore();
-		//this._drawSpeak();
 	}
 
 	private _drawScore()
@@ -91,16 +88,6 @@ export class Score {
 		this._bobGoal();
 	}
 
-	// public dispose()
-	// {
-	// 	this._scorePlane.dispose();
-	// 	this._bobSpeak.dispose();
-	// 	this._materialScore.dispose();
-	// 	this._materialSpeak.dispose();
-	// 	this._dynamicTextureScore.dispose();
-	// 	this._dynamicTextureSpeak.dispose();
-	// }
-
 	private _phrases: string[] = [
     "What's the score Patrick ?",
     "He's a cheater right ?",
@@ -129,4 +116,3 @@ export class Score {
 	];
 	
 }
-
