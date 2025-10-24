@@ -50,7 +50,7 @@ export class LoginPage extends BasePage {
 		const ClassNames: [DivClass:string, LabelClass: string, InputClass: string, TextClass: string] = [""
 										, "block text-sm font-medium text-emerald-600 mb-2"
 										, "w-full px-4 py-3 border bg-orange-200 border-emerald-600 rounded-lg focus:ring-2 focus:ring-emerald-800 focus:border-emerald-8 	00 transition-colors duration-200 placeholder-emerald-600"
-										, "block text-sm  text-center font-medium text-emerald-500 mb-2"];
+										, "block text-sm  text-center font-medium text-emerald-600 mb-2"];
 		
 		append (this.Form, [(createFormDiv(["text", 'username', "username", true], "username",   "Enter your username",  ClassNames) as HTMLElement)
 							, (createFormDiv(["password", 'password', "password", true], "password", "Enter your password", ClassNames) as HTMLElement)
@@ -105,9 +105,9 @@ export class LoginPage extends BasePage {
 				if (popup && popup.closed) {clearInterval(timerId);}
 				if (Time >= 120000) {
 					clearInterval(timerId);
-					await ErrorPopup("Error : Timeout, please retry");
 					if (popup && !popup.closed)
 						popup.close();
+					await ErrorPopup("Error : Timeout, please retry");
 				}
 				Time += 2000;
 			}, 2000);
@@ -119,29 +119,38 @@ export class LoginPage extends BasePage {
 			this.ErrorForm();
 		else {
 			this.Form.addEventListener('submit', async (e) => {
-			e.preventDefault();
-			const form = e.target as HTMLFormElement;
-			const formData = new FormData(form);
+				if (this.Form.dataset.locked === "true") return;
+				this.Form.dataset.locked = "true";
+				try {
+					e.preventDefault();
+					const formData = new FormData(this.Form);
 
-			const username = formData.get('username') as string;
-			const password = formData.get('password') as string;
+					const username = formData.get('username') as string;
+					const password = formData.get('password') as string;
 
-			const req = await loginUser(username, password);
-			if (req.ok) {
-				if (req.twoFaEnabled === 1) {
-					await loginTwoFa();
+					const req = await loginUser(username, password);
+					if (req.ok) {
+						if (req.twoFaEnabled === 1) {
+							await loginTwoFa();
+						}
+						else
+							await navigate('/');
+						return ;
+					}
+					else {
+						if (req.error)
+							throw new Error("Connexion failure : " + req.error);
+						else
+							throw new Error("Connexion failure");
 				}
-				else
-					await navigate('/');
-			    return ;
+				
+			} catch(error) {
+				console.log("Erreur attrapée:", error);
+				await ErrorPopup(error as string);
+			} finally {
+				this.Form.dataset.locked = "false";
 			}
-			else {
-			    if (req.error)
-			        await ErrorPopup("Connexion failure : " + req.error);
-			    else
-			        await ErrorPopup("Connexion failure");
-			}
-			});
+		});
 		}
 	}
 

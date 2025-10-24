@@ -14,7 +14,7 @@ export async function  activateTwoFa(): Promise<Result>
 				'content-type': 'application/json',
 				'host': window.location.host
 			},
-			body: JSON.stringify({'action': 'activate'}),
+			body: JSON.stringify({action: 'activate'}),
             credentials: 'include',
         });
         const data = await res.json();
@@ -65,6 +65,11 @@ export async function  deleteCookieTwofa(): Promise<Result>
         {
             method: 'PUT',
             credentials: 'include',
+			headers: { 
+				'Content-Type': 'application/json',
+				'host': window.location.host
+			},
+			body: JSON.stringify({action: 'delete'}),
         });
         const data = await res.json();
         if (res.ok)
@@ -90,7 +95,7 @@ export async function  desactivateTwoFa(): Promise<Result>
 				'Content-Type': 'application/json',
 				'host': window.location.host
 			},
-			body: JSON.stringify({'action': 'desactivate'}),
+			body: JSON.stringify({action: 'delete'}),
             credentials: 'include',
         });
         const data = await res.json();

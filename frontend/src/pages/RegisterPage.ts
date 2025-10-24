@@ -71,7 +71,7 @@ export class RegisterPage extends BasePage {
 		const ClassNames: [DivClass:string, LabelClass: string, InputClass: string, TextClass: string] = [""
 										, "block text-sm font-medium text-emerald-600 mb-2"
 										, "w-full px-4 py-3 border bg-orange-200 border-emerald-600 rounded-lg focus:ring-2 focus:ring-emerald-800 focus:border-emerald-8 	00 transition-colors duration-200 placeholder-emerald-600"
-										, "block text-sm  text-center font-medium text-emerald-500 mb-2"];
+										, "block text-sm  text-center font-medium text-emerald-600 mb-2"];
 		
 		append (this.Form, [(createFormDiv(["text", 'username', "choose a username", true], "username",   "choose a unique username", 
 								ClassNames) as HTMLElement)
@@ -131,9 +131,9 @@ export class RegisterPage extends BasePage {
 				if (popup && popup.closed) {clearInterval(timerId);}
 				if (Time >= 120000) {
 					clearInterval(timerId);
-					await ErrorPopup("Error : Timeout, please retry");
 					if (popup && !popup.closed)
 						popup.close();
+					await ErrorPopup("Error : Timeout, please retry");
 				}
 				Time += 2000;
 			}, 2000);
@@ -145,25 +145,33 @@ export class RegisterPage extends BasePage {
 			this.ErrorForm();
 		else {
 			this.Form.addEventListener('submit', async (e) => {
-				e.preventDefault();
-
-				const formData = new FormData(this.Form);
-				const username = formData.get('username') as string;
-				const password = formData.get('password') as string;
-				const ConfirmPassword = formData.get('ConfirmPassword') as string;
-
-				if (password != ConfirmPassword) {
-					await ErrorPopup("Password miss Match");
-					return ;
+				if (this.Form.dataset.locked === "true") return;
+				this.Form.dataset.locked = "true";
+				try {
+					const formData = new FormData(this.Form);
+					e.preventDefault();
+	
+					const username = formData.get('username') as string;
+					const password = formData.get('password') as string;
+					const ConfirmPassword = formData.get('ConfirmPassword') as string;
+	
+					if (password != ConfirmPassword) {
+						await ErrorPopup("Password miss Match");
+						return ;
+					}
+	
+					const req = await registerUser(username, password);
+					if (req.ok) {
+						await navigate('/');
+						return ;
+					}
+					else {
+						throw new Error(req.error);
 				}
-
-				const req = await registerUser(username, password);
-				if (req.ok) {
-					await navigate('/');
-					return ; // back to home
-				}
-				else {
-					return ;
+				} catch(error) {
+					await ErrorPopup(error as string);
+				} finally {
+					this.Form.dataset.locked = "false";
 				}
 			});
 		}

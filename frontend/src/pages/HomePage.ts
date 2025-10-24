@@ -14,8 +14,6 @@ export class HomePage extends BasePage {
 	}
 
 	async render(): Promise<void> {
-
-
 		await this.renderBanner();
 		await this.InitDivs();
 		await this.createLogo();

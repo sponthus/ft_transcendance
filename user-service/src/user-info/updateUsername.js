@@ -1,5 +1,4 @@
 import slugify from "slugify";
-// import { checkUsernameFormat } from "../tools/checkFormat.js";
 import { generateUniqueSlug } from "../tools/generateUnique.js";
 import { notifyChangeData, notifyChangeSlug } from "../internal-service/notifyServices.js";
 import env from '../../config/env.js';
@@ -31,7 +30,6 @@ export default async function updateUsername (request, reply)
         const ext = old.avatar.split(".").pop();
         const slug = generateUniqueSlug(baseSlug, db);
         const newAvatar = `${slug}.${ext}`;
-        console.debug('newAvatar ', newAvatar);
         db.prepare ("   UPDATE \
                             users \
                         SET \

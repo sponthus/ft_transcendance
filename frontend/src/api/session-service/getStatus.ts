@@ -20,7 +20,6 @@ export async function getUserStatus(slug: string): Promise<StatusResult> {
 		const response = await fetch(`/api/session/${slug}`, {
 			method: 'GET',
 			headers: {
-				'Content-Type': 'application/json', 
 				'host': window.location.host
 			},
 			credentials: 'include',

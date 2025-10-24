@@ -4,8 +4,6 @@ export async function   changeNpcAsset (request, reply)
     const   idUser = request.user.idUser;
     const   newAsset = request.body.asset;
 
-	// TODO : Gives 500 is asset="abc"
-	// TODO : Gives 409 if no asset in body
     if (newAsset < 0 || newAsset > 11)
         return reply.code(400).send( { message: "Invalid NPC asset. Must between 0 and 11" } );
     try

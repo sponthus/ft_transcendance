@@ -24,7 +24,6 @@ export async function registerUser(username: string, password: string): Promise<
             return { ok: true };
         }
         const data = await res.json();
-        await ErrorPopup("Error : " + data.message);
         return { ok: false, error: data.message };
     }
     catch (err)

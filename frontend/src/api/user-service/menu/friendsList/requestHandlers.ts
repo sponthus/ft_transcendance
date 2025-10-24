@@ -5,68 +5,97 @@ export type RequestResult = RequestSuccess | Failure;
 
 export async function   acceptRequest(slug :string): Promise<RequestResult>
 {
-    const res = await fetch('/api/user/menu/friendslist/request', 
+    try
     {
-        method: 'POST',
-        headers: { 
-			'Content-Type': 'application/json',
-			'host': window.location.host
-		},
-        credentials: 'include',
-        body: JSON.stringify({ slug }),
-    });
-    if (res.ok) 
-    {
-        return { ok: true };
+        const res = await fetch('/api/user/menu/friendslist/request', 
+        {
+            method: 'POST',
+            headers:
+            { 
+			      'Content-Type': 'application/json',
+			      'host': window.location.host
+		    },
+            credentials: 'include',
+            body: JSON.stringify({ slug }),
+        });
+        if (res.ok) 
+        {
+            return { ok: true };
+        }
+        const data = await res.json();    
+        return { ok: false, error: data.message};
     }
-    const data = await res.json();    
-    return { ok: false, error: data.message};
+    catch(err)
+    {
+        return { ok: false, error: "Network error" };
+    }
 }
 
 export async function   rejectRequest(slug :string): Promise<RequestResult>
 {
-    const res = await fetch('/api/user/menu/friendslist/request', 
+    try
     {
-        method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({ slug }),
-    });
-    if (res.ok) 
-    {
-        return { ok: true };
+        const res = await fetch('/api/user/menu/friendslist/request', 
+        {
+            method: 'DELETE',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify({ slug }),
+        });
+        if (res.ok) 
+        {
+            return { ok: true };
+        }
+        const data = await res.json();    
+        return { ok: false, error: data.message};
     }
-    const data = await res.json();    
-    return { ok: false, error: data.message};
+    catch (err)
+    {
+        return { ok: false, error: "Network error" };
+    }
 }
 
 export async function   getSentRequests(): Promise<RequestResult>
 {
-    const res = await fetch('/api/user/menu/friendslist/request/sent', 
+    try
     {
-        method: 'GET',
-        credentials: 'include',
-    });
-    const data = await res.json();    
-    if (res.ok)
-    {
-        return { ok: true,  requests: data.requests};
+        const res = await fetch('/api/user/menu/friendslist/request/sent', 
+        {
+            method: 'GET',
+            credentials: 'include',
+        });
+        const data = await res.json();    
+        if (res.ok)
+        {
+            return { ok: true,  requests: data.requests};
+        }
+        return { ok: false, error: data.message};
     }
-    return { ok: false, error: data.message};
+    catch(err)
+    {
+        return { ok: false, error: "Network error" };
+    }
 }
 
 export async function   getReceivedRequests(): Promise<RequestResult>
 {
-    const res = await fetch('/api/user/menu/friendslist/request/received', 
-    {
-        method: 'GET',
-        credentials: 'include',
-    });
-    const data = await res.json();
-    if (res.ok) 
-    {
-        return { ok: true,  requests: data.requests};
+    try
+    { 
+        const res = await fetch('/api/user/menu/friendslist/request/received', 
+        {
+            method: 'GET',
+            credentials: 'include',
+        });
+        const data = await res.json();
+        if (res.ok) 
+        {
+            return { ok: true,  requests: data.requests};
+        }
+        return { ok: false, error: data.message};
     }
-    return { ok: false, error: data.message};
+    catch(err)
+    {
+        return { ok: false, error: "Network error" };
+    }
 }
 

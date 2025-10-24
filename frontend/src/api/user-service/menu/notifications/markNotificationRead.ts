@@ -14,7 +14,7 @@ export async function   markNotificationsRead(): Promise<NotifResult>
 				'host': window.location.host,
 				'content-type': 'application/json'
 			},
-			body: JSON.stringify({'action': 'markRead'}),
+			body: JSON.stringify({action: 'markRead'}),
             credentials: 'include',
         });
         if (res.ok) 

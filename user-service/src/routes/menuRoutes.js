@@ -3,7 +3,7 @@ import { getCharacterAsset, changeCharacterAsset } from "../menu/customization/c
 import { getNpcAsset, changeNpcAsset } from "../menu/customization/npcAsset.js";
 import { changeBackgroundColor, getBackgroundColor } from "../menu/customization/backgroundColor.js";
 import { getAllUsers } from "../menu/customization/getAllUsers.js";
-import { characterAssetSchema, npcAssetSchema } from "../tools/checkFormat.js";
+import { characterAssetSchema, npcAssetSchema, backgroundColorSchema } from "../tools/checkFormat.js";
 
 export default async function menuRoutes(fastify)
 {
@@ -13,7 +13,7 @@ export default async function menuRoutes(fastify)
     fastify.get("/menu/character/asset", { preHandler: [fastify.authenticate] }, getCharacterAsset);
     fastify.patch("/menu/npc/asset", { preHandler: [fastify.authenticate], schema: {body: npcAssetSchema} }, changeNpcAsset);
     fastify.get("/menu/npc/asset", { preHandler: [fastify.authenticate] }, getNpcAsset);
-    fastify.patch("/menu/color", { preHandler: [fastify.authenticate] }, changeBackgroundColor);
+    fastify.patch("/menu/color", { preHandler: [fastify.authenticate], schema: {body: backgroundColorSchema} }, changeBackgroundColor);
     fastify.get("/menu/color", { preHandler: [fastify.authenticate] }, getBackgroundColor);
     fastify.get("/menu/users", { preHandler: [fastify.authenticate] }, getAllUsers);
 }

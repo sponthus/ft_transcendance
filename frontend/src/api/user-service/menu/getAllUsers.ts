@@ -11,18 +11,26 @@ export type UsersResult = Success | Failure;
 
 export async function   getAllUsers(): Promise<UsersResult>
 {
-    const res = await fetch('/api/user/menu/users', 
+    try
     {
-        method: 'GET',
-		headers: {
-			'host': window.location.host
-		},
-        credentials: 'include',
-    });
-    const data = await res.json();    
-    if (res.ok) 
-    {
-        return { ok: true, users: data.users};
+        const res = await fetch('/api/user/menu/users', 
+        {
+            method: 'GET',
+		    headers:
+            {
+			    'host': window.location.host
+		    },
+            credentials: 'include',
+        });
+        const data = await res.json();    
+        if (res.ok) 
+        {
+            return { ok: true, users: data.users};
+        }
+        return { ok: false, error: data.message};
     }
-    return { ok: false, error: data.message};
+    catch (err)
+    {
+        return { ok: false, error: "Network error" };
+    }
 }

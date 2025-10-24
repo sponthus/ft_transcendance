@@ -20,7 +20,7 @@ ENV = .env
 
 COMPOSE_FILE = ./docker-compose.yml
 
-all: $(ENV) up
+all: $(ENV) down up
 
 $(ENV): env
 
@@ -31,7 +31,7 @@ env:
 	fi
 	@echo " ✔ .env present"
 
-re: fclean all
+re: clean all
 
 dev: env
 	sh config/change_mode.sh NODE_ENV development

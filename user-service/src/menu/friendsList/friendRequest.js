@@ -63,8 +63,6 @@ export async function   removeFriend(request, reply)
     const   idUser = request.user.idUser;
     const   friendSlug = request.body.slug;
 
-    // if (checkSlugFormat(request) == false)
-    //     return reply.code(400).send( {message: "Invalid format for the friend's slug"} );
     try
     {
         const friend = db.prepare("   SELECT \

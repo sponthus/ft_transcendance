@@ -893,7 +893,7 @@ export default class DatabaseHandler {
 						return { ok: false, ready: false, error: "Could not change tournament status because: " + changeTournamentStatus.error, players: hasAllPlayerAccepted.players };
 					}
 				}
-				console.log('ICIIIIIIIIIIIIIIIIIIIIIIII :)', hasAllPlayerAccepted);
+				console.log('HasAllPlayerAccepted :)', hasAllPlayerAccepted);
 				return ({ ok: true, ready: true, error: false, result: result, playerIds: hasAllPlayerAccepted.players, owner: hasAllPlayerAccepted.owner });
 			});
 			const result = transaction(userId, tournamentId);

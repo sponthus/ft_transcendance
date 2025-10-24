@@ -3,7 +3,6 @@ import { getSecret } from "../index.js";
 
 const   algorithm = "aes-256-ctr";
 const   key = getSecret('auth_key');
-//const   key = "coucou";
 const   IV_LENGTH = 16;
 
 

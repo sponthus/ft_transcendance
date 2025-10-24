@@ -115,29 +115,4 @@ export class availableGames {
 								, (createElement('h1', "party-statue" + index.toString(), `${Party.created_at}`, "text-orange-200") as HTMLElement)]);
 		append(Div, [CreatedAtDivs]);
 	}
-
-	// private ManagePartyEvent() {
-	// 	// document.getElementById("delete-btn")?.addEventListener('click', async(e) => {
-	// 	// 	this.PartyMap?.forEach(async (value, key) => {
-	// 	// 		if (value.checked) {
-	// 	// 			await this.deleteTournament(key);
-	// 	// 			await this.refreshAvailableGames();
-	// 	// 			return ;
-	// 	// 		}
-	// 	// 	})
-	// 	// })
-	// }
-
-	// private async deleteTournament(tournamentId: number) {
-	// 	try {
-	// 		const request = await deleteTournament(tournamentId);
-	// 		if (!request.ok) {
-	// 			throw new Error(request.error);
-	// 		}
-	// 		await ErrorPopup(request.message);
-	// 	} catch (error) {
-	// 		await ErrorPopup(error as string);
-	// 	}
-	// 	await this.refreshAvailableGames();
-	// }
 }

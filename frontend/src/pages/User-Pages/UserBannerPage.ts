@@ -140,7 +140,6 @@ export class UserBanner {
 				try {
 					const req = await addFriend(this.UserData.slug);
 					if (req.ok) {
-						document.getElementById('friend-request-btn')!.textContent = "friend request sent...";
 						if (currentPage) 
 							currentPage.render();
 					}
@@ -185,7 +184,7 @@ export class UserBanner {
 		}
 		const btn3: HTMLButtonElement = (document.getElementById('decline-btn') as HTMLButtonElement);
 		if (btn3) {
-			(document.getElementById('decline-btn')?.addEventListener('click', async() => {
+			btn3.addEventListener('click', async() => {
 				try {
 					const req = await rejectRequest(this.UserData.username);
 					if (req.ok) {
@@ -197,7 +196,7 @@ export class UserBanner {
 				} catch(error) {
 					await ErrorPopup(error as string);
 				}
-			}))
+			});
 		}
 	}
 

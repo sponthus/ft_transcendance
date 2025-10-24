@@ -1,3 +1,45 @@
+let slugRegex = "^(?![_-])(?!.*[_-]$)(?=.*[a-z])(?![0-9_]+)[a-z0-9_-]+$";
+let tournamentNameRegex = "^@?(?=.*[A-Za-z])[A-Za-z0-9_-]+(?: [A-Za-z0-9_-]+)*$"; // And nickname
+let usernameRegex = "^(?![_-])(?!.*[_-]$)(?=.*[A-Za-z])(?![0-9_]+)[A-Za-z0-9_-]+$";
+
+export const backgroundColorSchema = {
+  type: "object",
+  properties: {
+	red: {
+	  type: "number",
+	  minimum: 0,
+	  maximum: 255,
+	  errorMessage: {
+		type: "Red must be a number",
+		minimum: "Red must be at least 0",
+		maximum: "Red cannot be higher than 255"
+	  }
+	},
+	green: {
+	  type: "number",
+	  minimum: 0,
+	  maximum: 255,
+	  errorMessage: {
+		type: "Green must be a number",
+		minimum: "Green must be at least 0",
+		maximum: "Green cannot be higher than 255"
+	  }
+	},
+	blue: {
+	  type: "number",
+	  minimum: 0,
+	  maximum: 255,
+	  errorMessage: {
+		type: "Blue must be a number",
+		minimum: "Blue must be at least 0",
+		maximum: "Blue cannot be higher than 255"
+	  }
+	}
+  },
+  required: ["red", "green", "blue"],
+  additionalProperties: false
+};
+
 export const avatarSchema = {
   type: "object",
   properties: {
@@ -5,7 +47,7 @@ export const avatarSchema = {
       type: "string",
       minLength: 5,
       maxLength: 255,
-      pattern: "^[A-Za-z0-9 _-]+\\.(png|jpg|jpeg)$",
+      pattern: "^(?![_-])(?!.*[_-]$)(?=.*[a-z])(?![0-9_]+)[a-z0-9_-]+\\.(png|jpg|jpeg)$",
       errorMessage: {
         type: "Avatar must be a string",
         minLength: "Avatar must be at least 5 characters",
@@ -17,7 +59,7 @@ export const avatarSchema = {
       type: "string",
       minLength: 3,
       maxLength: 20,
-      pattern: "^(?![_-])(?!.*[_-]$)(?=.*[a-z])(?![0-9_]+)[a-z0-9_-]+$",
+      pattern: slugRegex,
       errorMessage: {
         type: "Slug must be a string",
         minLength: "Slug must be at least 3 characters",
@@ -37,10 +79,6 @@ export const avatarSchema = {
   required: ["avatar", "slug", "idUser"],
   additionalProperties: false
 }
-
-let slugRegex = "^(?![_-])(?!.*[_-]$)(?=.*[a-z])(?![0-9_]+)[a-z0-9_-]+$";
-let tournamentNameRegex = "^@?(?=.*[A-Za-z])[A-Za-z0-9_-]+(?: [A-Za-z0-9_-]+)*$"; // And nickname
-let usernameRegex = "^(?![_-])(?!.*[_-]$)(?=.*[A-Za-z])(?![0-9_]+)[A-Za-z0-9_-]+$";
 
 export const idUserSchema = {
   type: "object",
@@ -108,14 +146,6 @@ export const addTournamentNotifSchema = {
     receiverId: {
       anyOf: [
         {
-          type: "number",
-          minimum: 1,
-          errorMessage: {
-            type: "Receiver ID must be a number",
-            minimum: "Receiver ID must be at least 1"
-          }
-        },
-        {
           type: "array",
           items: {
             type: "number",
@@ -123,12 +153,21 @@ export const addTournamentNotifSchema = {
             errorMessage: {
               type: "Receiver IDs must be numbers",
               minimum: "Each receiver ID must be at least 1"
-            }
+            },
           },
-          uniqueItems: true,
+		  uniqueItems: true,
           minItems: 1,
           errorMessage: {
-            minItems: "Receiver array cannot be empty"
+            minItems: "Receiver array cannot be empty",
+			uniqueItems: "Receiver IDs must be unique"
+          }
+        },
+		{
+          type: "number",
+          minimum: 1,
+          errorMessage: {
+            type: "Receiver ID must be a number",
+            minimum: "Receiver ID must be at least 1"
           }
         }
       ]
@@ -233,6 +272,22 @@ export const answerSchema = {
   },
   required: ["ownerSlug", "tournamentId", "tournamentName", "answer"],
   additionalProperties: false
+};
+
+export const actionBodySchema = {
+  type: "object",
+  properties: {
+	action: {
+	  type: "string",
+	  enum: ["logout", "markRead", "delete"],
+	  errorMessage: {
+		type: "Invalid action",
+		enum: "Invalid action"
+	    }
+	  }
+	},
+	required: ["action"],
+	additionalProperties: false
 };
 
 export const registrationSchema = {

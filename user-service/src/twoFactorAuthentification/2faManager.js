@@ -8,7 +8,7 @@ export async function activateTwoFa(request, reply)
     const   db = request.server.db;
     const   idUser = request.user.idUser;
 	
-	console.debug(`Activate 2FA for user ID: ${idUser}`);
+	console.log(`Activate 2FA for user ID: ${idUser}`);
     try
     {
          const stmt = db.prepare("  SELECT \
@@ -30,11 +30,9 @@ export async function activateTwoFa(request, reply)
         {
             name: `Island Word: ${row.username}`,
             issuer: "Transcendance",
-            length: 20, //TODO ENLEVER COMMMS Les standards TOTP/HOTP sont pensés pour 20 bytes minimum (SHA-1 digest length).
+            length: 20, // Les standards sont pensés pour 20 bytes minimum.
             symbols: false //plus facile a taper
         });
-        //stocker la cle encrypte ici, utilise crypto ? TODO PLUS TARD
-        console.log('Secret 2fa : ', secret.base32);
         const encryptSecret = encrypt(secret.base32);
         db.prepare(    "UPDATE \
                             users \
@@ -43,19 +41,7 @@ export async function activateTwoFa(request, reply)
                         WHERE \
                             id = ?").run(encryptSecret, idUser);
 
-        //secret.ascii --> juste des caractères ASCII, peu utilisé pour 2FA.
-        //secret.hex --> format hexa
-        //secret.base32 --> format standard pour TOTP
-        //secret.otpauth_url --> pour generer QR code 
-        
         const qrDataUrl = await qrcode.toDataURL(secret.otpauth_url) ;
-
-        //si je veux une saisie manuelle je dois envoyer la cle secret en clair pause un pb de secu*/
-
-        const qrAscii = await qrcode.toString(secret.otpauth_url, {type: 'terminal'}); //temporaire, permet de tester 
-        console.log(`QR Ascii generated`);
-        //console.debug(qrAscii); //TODO enlever
-
         return reply.code(200).send({ qrCode: qrDataUrl });
     }
     catch (err)
@@ -82,21 +68,13 @@ export async function checkTwoFaCode(request, reply)
         if (!row || !row.twofa_secret)
             return reply.code(400).send({ message: "No 2FA setup found" });
 
-        /*const codeServer = speakeasy.totp({
-         secret: row.twofa_secret,
-        encoding: "base32"
-        });
-
-        console.log("💡 Server code:", codeServer);*/ //voir le code du serveur
-
         const   secret = decrypt(row.twofa_secret);
-        console.log('SSSecret 2fa : ', secret);
         const   codeVerified = speakeasy.totp.verify(
         {
             secret: secret,
             encoding: "base32",
             token: code,
-            window: 1 //si il ya de la latence ou un decalage avec l' heure du user c'est 30s + 30s ??
+            window: 1
         });
         if (!codeVerified)
             return reply.code(401).send({ message: "Invalid 2FA code" });
@@ -121,7 +99,6 @@ export async function checkTwoFaCode(request, reply)
                                             WHERE \
                                                 id = ?").get(idUser);
             const token = await reply.jwtSign({ idUser: idUser, username: userInfo.username, slug: userInfo.slug }, {expiresIn: '1h'});
-            console.log('Token de la 2fa', token);
             let secure = false;
             if (env.nodeEnv === 'production')
                 secure = true;
@@ -183,7 +160,6 @@ export async function deleteToken (request, reply)
             secure: false,
             path: '/',
             maxAge: 3600000
-            // TODO mettre same site
         }).send();
     }
     catch (err)
@@ -191,13 +167,3 @@ export async function deleteToken (request, reply)
         return reply.code(500).send({ message: "Internal Servor Error" });
     } 
 }
-
-/* TODO remove ? Change key 
-secret contient : 
-{
-  ascii: 'ABCDEFG...', --> cle TOTP generer differement
-  hex: '1f2e3d4c...', --> pareil
-  base32: 'JBSWY3DPEHPK3PXP', --> "vraie" cle TOTP
-  otpauth_url: 'otpauth://totp/IslandWord:username?secret=JBSWY3DPEHPK3PXP&issuer=Transcendance'
-}
-*/

@@ -32,20 +32,18 @@ export async function   userAnswerTournament(request, reply)
         let url;
         if (answer === "decline")
         {
-            console.log("Declined invitation")
             url = `${prefix}://game-service:${env.game_port}/tournament/decline`;
         }
         else
         {
-            console.log("Accepted invitation")
             url = `${prefix}://game-service:${env.game_port}/tournament/accept`;
         }
         const req = await answerTournament(idUser, ownerId.id, tournamentId, tournamentName, url);
 		if (req.ok)
 		{
-			return reply.code(200).send(); // TODO METTRE EN HAUT 
+			return reply.code(200).send();
 		}
-        return reply.code(req.status).send({ message: req.error });
+        return reply.code(req.status).send({ message: req.message });
     }
     catch(err)
     {

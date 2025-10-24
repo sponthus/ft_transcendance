@@ -8,7 +8,7 @@ export async function addTournamentNotif (request, reply)
     try
     {
         if (checkUsersExist(db, receiverId, senderId) === false)
-            return reply.code(404).send({ error: "Some users you’re trying to notify were not found" });
+            return reply.code(404).send({ error: "Some users you\’re trying to notify were not found" });
 
         let receiverIds;
         if (Array.isArray(receiverId))
@@ -24,14 +24,13 @@ export async function addTournamentNotif (request, reply)
                 addNotif(db, id, senderId, type, tournamentId, tournamentName);
             }
         });
-        console.debug(type)
         addNotifTournament(type, receiverIds, senderId, tournamentId, tournamentName);
 		notifyRefresh(receiverIds, tournamentId, type);
         return reply.code(200).send();
     }
     catch (err)
     { 
-        return reply.code(500).send({ message: "Internal Server Error" });
+        return reply.code(500).send({ error: "Internal Server Error" });
     }
 }
 
@@ -43,6 +42,7 @@ function checkUsersExist(db, receiverId, senderId)
         else
             allIds = [receiverId];
         allIds.push(senderId);
+        allIds = [...new Set(allIds)]; //delete duplicate if senderId is in ReceiverId
         const placeholders = allIds.map(() => '?').join(', ');
 
         const row = db.prepare(`

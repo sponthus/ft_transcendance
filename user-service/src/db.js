@@ -2,15 +2,11 @@ import fp from "fastify-plugin";
 import Database from "better-sqlite3";
 import env from "../config/env.js"; //ou c'est ? sert a quoi ?
 
-// TODO refresh token
-
-// Initializes database from a file spec. in env variables, default = ./blog.db
 async function dbConnector(fastify, options)
 {
     const dbFile = env.usersDbFile || "./users.db";
     const db = new Database(dbFile, { verbose: console.log });
    
-    //FAIRE UNE TRANSACTION
     try
     {
         db.exec(`
@@ -73,7 +69,6 @@ async function dbConnector(fastify, options)
     catch (err)
     {
         console.log("Error : database init failed ");
-        //si db pas creer que faire ?
     }
     fastify.decorate("db", db); // Makes db connection accessible throughout application as fastify.db
 

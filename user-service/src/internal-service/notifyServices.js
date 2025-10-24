@@ -71,7 +71,6 @@ export async function notifyChangeData(idUser, username, slug, status="online")
 
 export async function notifyChangeSlug(oldSlug, newSlug) 
 {
-    console.debug("ENTRER DANS LE FETCH DU CHANGEMENT DE FILE");
     const api_key = getSecret('api_key');
     try
     {

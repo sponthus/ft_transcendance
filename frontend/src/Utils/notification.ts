@@ -5,16 +5,16 @@ import { getAllNotifications, AllNotifs, getUnreadNotifications } from "../api/u
 import { markNotificationsRead } from "../api/user-service/menu/notifications/markNotificationRead";
 import { ErrorPopup } from "../pages/ErrorPage";
 import { answerTournament } from "../api/user-service/menu/notifications/tournaments";
-import { currentPage, WebPath } from "../core/router";
+import { currentPage, navigate, WebPath } from "../core/router";
 
-const notificationWrapper: HTMLElement = createDiv('notif-wrapper','relative flex items-center');
+let notificationWrapper: HTMLElement;
 let isNotificationOpen: boolean = false;
 let ReceiveRequest: AllNotifs[];
 let userData: UserInfo;
 let readNotification: number;
 
 export function createNotificationDiv(parent: HTMLElement) {
-
+	notificationWrapper = createDiv('notif-wrapper','relative flex items-center');
 	append(notificationWrapper, [createNotificationToggle(), createSlidingNotificationPan()]);
 	append(parent, [notificationWrapper]);
 
@@ -127,7 +127,9 @@ export function declineTournamentInvitation(declineBtn: HTMLButtonElement, tourn
 async function openNotification() {
 	isNotificationOpen = true;
 
-	(document.getElementById('sliding-notification-bar-div') as HTMLElement).className = 'absolute left-0 top-16 w-80 h-72 overflow-auto transition-all duration-300 ease-in-out bg-orange-100 rounded-xl shadow-lg border-2 border-emerald-500 opacity-100';
+	const div = (document.getElementById('sliding-notification-bar-div') as HTMLElement)
+	if (div)
+		div.className = 'absolute left-0 top-16 w-80 h-72 overflow-auto transition-all duration-300 ease-in-out bg-orange-100 rounded-xl shadow-lg border-2 border-emerald-500 opacity-100';
 	try {
 		const req = await markNotificationsRead();
 		if (req.ok)
@@ -142,7 +144,9 @@ async function openNotification() {
 async function closeNotification() {
 	isNotificationOpen = false;
 
-	(document.getElementById('sliding-notification-bar-div') as HTMLElement).className = 'absolute left-0 top-16 w-0 h-0 overflow-auto transition-all duration-300 ease-in-out bg-orange-100 rounded-xl shadow-lg border-2 border-emerald-300 opacity-0';
+	const div = (document.getElementById('sliding-notification-bar-div') as HTMLElement);
+	if (div)
+		div.className = 'absolute left-0 top-16 w-0 h-0 overflow-auto transition-all duration-300 ease-in-out bg-orange-100 rounded-xl shadow-lg border-2 border-emerald-300 opacity-0';
 
 	refreshNotification();
 }
@@ -163,9 +167,9 @@ async function fillUSerInfo(request: AllNotifs, parent: HTMLElement){
 			if (request.notif_type === "friend_request" && userData)
 				append(parent ,[addInvitation(userData, null)]);
 			else if (request.notif_type === "friend_accept" && userData)
-				append(parent, [addRequest(userData, `User ${userData.username} accept your friend request`)]);
+				append(parent, [addRequest(userData, `User ${userData.username} accepted your friend request`)]);
 			else if (request.notif_type === "friend_reject" && userData)
-				append(parent, [addRequest(userData, `User ${userData.username} accept your friend request`)]);
+				append(parent, [addRequest(userData, `User ${userData.username} decline your friend request`)]);
 			else if (request.notif_type === "tournament_invite" && userData)
 				append(parent ,[addInvitation(userData, request)]);
 			else if (request.notif_type === "tournament_ready" && userData)
@@ -257,6 +261,7 @@ function addInvitation(userdata: UserInfo, tournament: AllNotifs | null) : HTMLA
 
 function addRequest(userdata: UserInfo, msg: string): HTMLAnchorElement {
 	const acceptDiv: HTMLAnchorElement = createAnchorElement(`notification-${userdata.slug}`, '', `/user/${userData.slug}`, 'group flex items-center justify between w-full h-24 hover:bg-orange-200 space-x-4 shadow-xl w-14 h-14 group-hover:shadow-lg transition-all duration-200 transform');;
+
 	addUSerData(userData, acceptDiv, `${msg}`);
 	return acceptDiv;
 }
