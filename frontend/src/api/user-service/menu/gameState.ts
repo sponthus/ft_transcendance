@@ -25,18 +25,26 @@ export async function   changeGameState(gameState: number): Promise<GameStateRes
 
 export async function   getGameState(): Promise<GameStateResult>
 {
-    const res = await fetch('/api/user/menu/state', 
+    try
     {
-        method: 'GET',
-		headers: {
-			'host': window.location.host
-		},
-        credentials: 'include',
-    });
-    const data = await res.json();    
-    if (res.ok) 
-    {
-        return { ok: true, gameState: data.gameState};
+        const res = await fetch('/api/user/menu/state', 
+        {
+            method: 'GET',
+		    headers:
+            {
+			    'host': window.location.host
+		    },
+            credentials: 'include',
+        });
+        const data = await res.json();    
+        if (res.ok) 
+        {
+            return { ok: true, gameState: data.gameState};
+        }
+        return { ok: false, error: data.message};
     }
-    return { ok: false, error: data.message};
+    catch (err)
+    {
+        return { ok: false, error: "Network error" };
+    }
 }

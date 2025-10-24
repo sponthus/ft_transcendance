@@ -18,7 +18,7 @@ export default async function updateAvatar (request, reply)
         if (user.slug !== slug)
             return reply.code(409).send({ message: "The input slug doesn't match" });
         if (user.avatar === newAvatar)
-            return reply.code(409).send({ message: "Avatar is already set to this value" });
+            return reply.code(200).send();
 
         db.prepare("    UPDATE \
                             users \

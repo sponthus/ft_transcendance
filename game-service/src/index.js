@@ -96,11 +96,17 @@ fastify.decorate("authenticate", async function (request, reply)
     {
 		// Check internal API key
 		const internalApiKey = request.headers['x-internal-api-key'];
-		if (internalApiKey && internalApiKey === getSecret('api_key')) {
-			return;
+		if (internalApiKey) {
+			if (internalApiKey === getSecret('api_key'))
+				return;
+			else {
+				return reply.code(401).send({ error: "Invalid API key" });
+			}
 		}
 		else 
 		{
+			if (!request.cookies || !request.cookies.token)
+				return reply.code(401).send({ error: "Invalid cookie" });
 			const result = fastify.unsignCookie(request.cookies.token); //verifie manuellement signature cookie
   	      	if (!result.valid)
    	        	return reply.code(401).send({ error: "Invalid cookie" });

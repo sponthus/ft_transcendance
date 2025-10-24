@@ -25,7 +25,6 @@ export async function loginUser(username: string, password: string): Promise<Log
         const data = await res.json();
         if (res.ok) 
         {
-            //localStorage.setItem("token", data.token); // plus besoin normalement
             return { ok: true, twoFaEnabled: data.twoFaEnabled };
         }
         return { ok: false, error: data.message };

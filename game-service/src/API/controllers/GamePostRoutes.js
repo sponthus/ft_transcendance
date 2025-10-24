@@ -175,6 +175,10 @@ export async function createGame(request, reply) {
 				console.error("❌ Unable to get userId from slug: ", player_a);
 				return reply.code(404).send({ error: `Requested user ${player_a} not found.`});
 			}
+			if (Number(player1Id.userId) !== idUser) {
+				console.error("❌ You can not play a 1v1 game versus another user");
+				return reply.code(401).send({ error: "You can not play a 1v1 game versus another user."});
+			}
 			else {
 				if (checkIdFormat(player1Id.userId) === false) {
 					console.error("❌ Bad userId format got from slug");
@@ -191,6 +195,10 @@ export async function createGame(request, reply) {
 			if (!player2Id.ok) {
 				console.error("❌ Unable to get userId from slug: ", player_b);
 				return reply.code(404).send({ error: `Requested user ${player_b} not found.`});
+			}
+			if (Number(player2Id.userId) !== idUser) {
+				console.error("❌ You can not play a 1v1 game versus another user");
+				return reply.code(401).send({ error: "You can not play a 1v1 game versus another user."});
 			}
 			else {
 				if (checkIdFormat(player2Id.userId) === false) {

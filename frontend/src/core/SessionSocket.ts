@@ -139,7 +139,7 @@ export class SessionSocket {
 				await logoutUser();
 				await ErrorPopup("Session expired, please log in again");
 				await navigate('/login');
-			} else {
+			} else if (event.code != 4000 && this.shouldAttemptReconnect) {
 				this.reconnect();
 			}
 		};
@@ -203,7 +203,6 @@ export class SessionSocket {
 			if (currentPage && WebPath)
 				console.log("RENDER THE CURRENT PAGE : ", currentPage!, WebPath , WebPath.startsWith('/user'));
 			if ((data.message === "friend_accept"  || data.message === "friend_reject" || data.message === "friend_request") && currentPage && WebPath && WebPath.startsWith('/user')) {
-				console.log("JE SUIS UNE PATATE");
 				currentPage.render();
 			}
 			if (data.message === "tournament_ready" || data.message === "tournament_cancel") {
