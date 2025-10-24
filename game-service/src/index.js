@@ -90,6 +90,29 @@ export function getSecret(name) {
 	}
 }
 
+fastify.decorate("int_authenticate", async function (request, reply)
+{
+	try 
+	{
+		// Check internal API key only
+		const internalApiKey = request.headers['x-internal-api-key'];
+		if (internalApiKey)
+			if (internalApiKey === getSecret('api_key')) {
+				return;
+			} else {
+				return reply.code(401).send({ error: "Invalid API key" });
+			}
+		else {
+			return reply.code(401).send({ error: "API key required" });
+		}
+	} 
+	catch (err)
+	{
+		// console.error("Auth refused: ", err.message);
+		return reply.code(401).send({error : err.message});
+	}
+});
+
 fastify.decorate("authenticate", async function (request, reply)
 {
     try 
