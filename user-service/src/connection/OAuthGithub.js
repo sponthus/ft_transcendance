@@ -1,4 +1,5 @@
 import OAuth2 from '@fastify/oauth2'
+import crypto from 'crypto';
 import { getSecret } from '../index.js';
 import env from '../../config/env.js';
 import prefix from '../tools/url.js';
@@ -7,13 +8,14 @@ import slugify from "slugify";
 import { generateUniqueUsername, generateUniqueSlug } from '../tools/generateUnique.js';
 import { notifyChangeData } from '../internal-service/notifyServices.js';
 
+
 export function initOAuthGithub(fastify)
 {
 	let link = `${prefix}://localhost:5173/api/user/oauth/github/callback`;
 	if (env.nodeEnv === 'production') {
 		link = `${prefix}://${env.host}:4443/api/user/oauth/github/callback`;
 	}
-	// console.log("OAuth Github callback link : ", link);
+    const oauthStateMap = new Map();
     fastify.register(OAuth2, 
     {
         name: 'auth',
@@ -28,6 +30,31 @@ export function initOAuthGithub(fastify)
         },
         startRedirectPath: '/oauth/github',
         callbackUri: link,
+
+
+        generateStateFunction: (request) => {
+          const state = crypto.randomBytes(16).toString('hex');
+          console.debug('State: ', state);
+          oauthStateMap.set(state, true);
+          return state;
+        },
+
+        checkStateFunction: (request, callback) => {
+            console.debug(request.query);
+            console.debug(request.url);
+           // console.debug(request.query.state);
+            console.debug('map : ', oauthStateMap);
+            const state = request.url.split('state=')[1];
+
+            console.log(state)
+
+            if (!oauthStateMap.has(state)) {
+                callback(new Error('Invalid state'));
+                return;
+            }
+            oauthStateMap.delete(state);
+            callback();
+        }
     });
 }
 
@@ -36,14 +63,7 @@ export async function loginThroughGithub(request, reply)
     const fastify = request.server;
 
     let accessToken
-    try
-    {
-        accessToken = await fastify.auth.getAccessTokenFromAuthorizationCodeFlow(request);
-    }
-    catch (err)
-    {
-        return reply.code(401).send({ error: "Invalid or expired authorization code." });
-    }
+        accessToken = await fastify.auth.getAccessTokenFromAuthorizationCodeFlow(request); //Code de l'url envoyer pat github, renvoyer par mon service pour avoir le token
     try
     {
         const userInfo = await createUserWithGithubInfos(accessToken.token.access_token, fastify.db);

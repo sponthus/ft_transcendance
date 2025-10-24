@@ -225,6 +225,8 @@ fastify.setErrorHandler((error, request, reply) => {
     console.error("Error stack:", error.stack);
 
     // On renvoie un JSON générique pour l’utilisateur
+    if (error.message === 'Invalid state')
+        return reply.code(403).send({ message: error.message})
     reply.status(error.statusCode || 500).send({
         message: error.message || "Internal Server Error"
     });
@@ -255,6 +257,15 @@ fastify.setNotFoundHandler((req, reply) => {
     });
     reply.status(404).send("Not found");
 });
+
+fastify.setErrorHandler(function (error, request, reply) {
+  if (error.message === 'Invalid state') {
+    reply.code(403).send({ message: 'Invalid State' });
+  } else {
+    reply.send(error);
+  }
+});
+
 
 /*fastify.setErrorHandler((error, request, reply) =>
 {

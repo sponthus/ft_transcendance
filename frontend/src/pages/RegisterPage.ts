@@ -131,9 +131,9 @@ export class RegisterPage extends BasePage {
 				if (popup && popup.closed) {clearInterval(timerId);}
 				if (Time >= 120000) {
 					clearInterval(timerId);
-					await ErrorPopup("Error : Timeout, please retry");
 					if (popup && !popup.closed)
 						popup.close();
+					await ErrorPopup("Error : Timeout, please retry");
 				}
 				Time += 2000;
 			}, 2000);
