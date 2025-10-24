@@ -31,10 +31,10 @@ export async function sendTournamentCancelation(senderId, playersIds, tournament
 		if (res.ok)
 			return { ok: true };
 		const data = await res.json();
-		return { ok: false, error: data.error };
+		return { ok: false, error: data.error, code: res.status };
 	}
 	catch (error) {
 		console.error("❌ Error while sending tournament cancelation notice: ", error);
-		return { ok: false, error: "Internal error while sending tournament cancelation notice"};
+		return { ok: false, error: "Internal server error"};
 	}
 }

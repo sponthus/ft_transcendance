@@ -12,7 +12,7 @@ export async function deleteGame(request, reply) {
     const { db } = request.server;
     if (!db) {
 		console.error('❌ Error while deleting game: database connection not found');
-		return reply.code(500).send({ error: 'Internal server error.'});
+		return reply.code(500).send({ error: 'Internal server error'});
 	}
 
     try {
@@ -31,6 +31,6 @@ export async function deleteGame(request, reply) {
     } catch (error) {
         console.error('❌ Error deleting game: ');
 		console.error(error);
-		return reply.code(500).send({ error: 'Internal server error.' });
+		return reply.code(500).send({ error: 'Internal server error' });
     }
 }

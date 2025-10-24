@@ -23,7 +23,7 @@ export async function getGamesForSlug(request, reply) {
 	const { db } = request.server;
 	if (!db) {
 		console.error('❌ Error while getting games: database connection not found');
-		return reply.code(500).send({ error: 'Internal server error.'});
+		return reply.code(500).send({ error: 'Internal server error'});
 	}
 
 	try {
@@ -111,6 +111,6 @@ export async function getGamesForSlug(request, reply) {
 	catch (error) {
 		console.error('❌ Error fetching games:');
 		console.error(error);
-		return reply.code(500).send({error: 'Internal server error.'});
+		return reply.code(500).send({error: 'Internal server error'});
 	}
 }

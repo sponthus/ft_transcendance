@@ -67,7 +67,7 @@ export async function acceptTournamentInvitation(request, reply) {
 				} else {
 					console.log("❓ Tournament cancelation notification sent to players ", players);
 				}
-				console.debug(acceptNotification);
+				// console.debug(acceptNotification);
 				return reply.code(acceptNotification.code || 500).send({ error: acceptNotification.error || "Internal server error" });
 			}
 		} else {

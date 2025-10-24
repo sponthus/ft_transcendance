@@ -3,7 +3,6 @@ import env from "../../../config/env.js";
 import prefix from "../../tools/url.js";
 import tlsAgent from "../../tools/tlsAgent.js";
 
-// Check ok
 export async function getUserInfoFromId(userId) {
 	console.log("➡️ Requesting user infos from userId, ", userId);
 	if (!userId) {
@@ -28,6 +27,6 @@ export async function getUserInfoFromId(userId) {
 		return { ok: false, error: data.error };
 	} catch (error) {
 		console.error("❌ Error while requesting user infos from userId: ", error);
-		return { ok: false, error: "Internal error while requesting user infos from userId"};
+		return { ok: false, error: "Internal server error"};
 	}
 }

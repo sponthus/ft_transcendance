@@ -22,7 +22,7 @@ export async function getTournamentsForSlug(request, reply) {
 	const { db } = request.server;
 	if (!db) {
 		console.error('❌ Error while getting tournaments: database connection not found.');
-		return reply.code(500).send({ error: 'Internal server error.'});
+		return reply.code(500).send({ error: 'Internal server error'});
 	}
 
 	try {
@@ -31,7 +31,7 @@ export async function getTournamentsForSlug(request, reply) {
 		if (!tournaments || tournaments.length === 0) {
 			return reply.code(200).send([]);
 		}
-		console.log(`Found ${tournaments.length} tournaments for user ${userId}`);
+		console.log(`Found ${tournaments.length} tournaments`);
 		// console.debug(tournaments); // To show the found data
 
 		let idsDict = new Map();
@@ -72,7 +72,7 @@ export async function getTournamentsForSlug(request, reply) {
 	catch (error) {
 		console.error('❌ Error fetching tournaments:');
 		console.error(error);
-		return reply.code(500).send({error: 'Internal server error.'});
+		return reply.code(500).send({error: 'Internal server error'});
 	}
 }
 
@@ -88,7 +88,7 @@ export async function getTournamentMatches(request, reply) {
 	const { db } = request.server;
 	if (!db) {
 		console.error('❌ Error while getting matches: database connection not found');
-		return reply.code(500).send({ error: 'Internal server error.'});
+		return reply.code(500).send({ error: 'Internal server error'});
 	}
 
 	try {
@@ -97,7 +97,7 @@ export async function getTournamentMatches(request, reply) {
 		if (!matches || matches.length === 0) {
 			return reply.code(404).send({ error : 'No tournament found.'});
 		}
-		console.log(`Found ${matches.length} matches for id ${tournamentId}`);
+		console.log(`Found ${matches.length} matches`);
 		// console.log(matches);
 
 		for (let i = 0; i < matches.length; i++) {
@@ -161,7 +161,7 @@ export async function getTournamentMatches(request, reply) {
 	catch (error) {
 		console.error('❌ Error fetching tournaments:');
 		console.error(error);
-		return reply.code(500).send({error: 'Internal server error.'});
+		return reply.code(500).send({error: 'Internal server error'});
 	}
 }
 
@@ -177,17 +177,17 @@ export async function getTournamentNextMatch(request, reply) {
 	const { db } = request.server;
 	if (!db) {
 		console.error('❌ Error while getting tournament next match: database connection not found');
-		return reply.code(500).send({ error: 'Internal server error.'});
+		return reply.code(500).send({ error: 'Internal server error'});
 	}
 
 	try {
 		// console.debug("Trying to find next match from tournamentId " + tournamentId);
 		const match = db.getNextMatchForTournamentId(tournamentId);
 		if (!match) {
-			console.log("No next match found.");
+			// console.log("No next match found.");
 			return reply.code(404).send({error: 'No next match found for this tournament.'});
 		}
-		console.log("Next match found: match " + match.game_id);
+		// console.log("Next match found: match " + match.game_id);
 		// console.debug(match); // To show the found data
 
 		if (match) {
@@ -216,7 +216,7 @@ export async function getTournamentNextMatch(request, reply) {
 	catch (error) {
 		console.error('❌ Error fetching tournament next match:');
 		console.error(error);
-		return reply.code(500).send({error: 'Internal server error.'});
+		return reply.code(500).send({error: 'Internal server error'});
 	}
 }
 
