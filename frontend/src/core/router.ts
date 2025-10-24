@@ -11,10 +11,9 @@ export let currentPage: BasePage | null = null;
 export let WebPath: string;
 
 export async function renderRoute(path: string) {
-	// if (currentPage)
 	currentPage?.destroy();
     let userData;
-    const req = await getUserInfo(); //Est-ce que je peux y mettre en appel en amont pour eviter une surchage de call API ?
+    const req = await getUserInfo();
     if (req.ok)
         userData = req.userInfo;
     else {
@@ -32,7 +31,6 @@ export async function renderRoute(path: string) {
 		path = '/user';
     }
 
-	// console.log("bonjour");
 	WebPath = path;
 	// Static routes
 	switch (path) {
@@ -111,8 +109,8 @@ export async function setupRouter() {
     });
 
     // Handle back/forward buttons
-    window.addEventListener('popstate', () => {
-        renderRoute(location.pathname);
+    window.addEventListener('popstate', async() => {
+        await renderRoute(location.pathname);
     });
 	window.addEventListener('resize', async() => {
 		await currentPage!.updateBanner();

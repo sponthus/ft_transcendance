@@ -27,7 +27,6 @@ export async function   changeBackgroundColor(red: number, green: number, blue: 
         const data = await res.json();
         if (res.ok)
         {
-            console.log("Background color changed");
             return ({ ok: true, rgbColor: data.rgbColor });
         }
         return ({ ok:false, error: data.message });
@@ -50,7 +49,6 @@ export async function   getBackgroundColor(): Promise<ColorResult>
         const data = await res.json();
         if (res.ok)
         {
-            console.log("Background color changed");
             return ({ ok: true, rgbColor: data.rgbColor });
         }
         return ({ ok:false, error: data.message });

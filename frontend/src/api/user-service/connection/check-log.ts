@@ -20,7 +20,6 @@ export async function checkLog(): Promise<Result>
         });
         if (res.ok)
         {
-            console.log("Log check successful"); 
             return { ok: true }
         }
         const data = await res.json();
