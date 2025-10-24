@@ -59,7 +59,7 @@ export class popUp{
 	}
 
 	removeOverlayToWindow() {
-		if (this._Overlay && this._Overlay.parentNode)
+		if (this._Overlay && this._Overlay.parentNode && this.OverlayDiv.isConnected)
 			document.body.removeChild(this._Overlay);
 	}
 

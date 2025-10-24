@@ -202,23 +202,25 @@ export class renderScene {
 		let now;
 		let delta;
 
-		this._engine!.runRenderLoop(() =>  {
-			now = performance.now();
-			delta = now - lastTime;
-			if (delta >= frameDuration) {
-				lastTime = now;
-				switch (this._state) {
-					case state.HOME:
-						if (this._homeScene)
-							this._homeScene.render();
-						break;
-					case state.PONG:
-						this.renderPongscene();
-						break;
-					default:break;
+		if (this.engine && !this.engine.isDisposed) {
+			this._engine!.runRenderLoop(() =>  {
+				now = performance.now();
+				delta = now - lastTime;
+				if (delta >= frameDuration) {
+					lastTime = now;
+					switch (this._state) {
+						case state.HOME:
+							if (this._homeScene && !this._homeScene.isDisposed)
+								this._homeScene.render();
+							break;
+						case state.PONG:
+							this.renderPongscene();
+							break;
+						default:break;
+					}
 				}
-			}
-		});
+			});
+		}
 
 	}
 
