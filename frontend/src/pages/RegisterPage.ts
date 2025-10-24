@@ -111,7 +111,6 @@ export class RegisterPage extends BasePage {
 			);
 			let Time: number = 0;
 			const timerId = setInterval(async() => {
-				console.log("Time is : ", Time);
 				const req = await getUserInfo();
 				if (req.ok) {
 					clearInterval(timerId);
@@ -131,9 +130,9 @@ export class RegisterPage extends BasePage {
 				if (popup && popup.closed) {clearInterval(timerId);}
 				if (Time >= 120000) {
 					clearInterval(timerId);
-					await ErrorPopup("Error : Timeout, please retry");
 					if (popup && !popup.closed)
 						popup.close();
+					await ErrorPopup("Error : Timeout, please retry");
 				}
 				Time += 2000;
 			}, 2000);
