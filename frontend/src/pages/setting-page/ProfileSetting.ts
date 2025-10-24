@@ -19,7 +19,7 @@ export async function renderProfileSetting(ButtonDiv: HTMLElement, SettingDiv: H
 
 	append(form, [(createFormDiv(["password", "new-password", "choose a new password", true]
 						, "new-pass"
-						, "pleasez choose new password"
+						, "please choose new password"
 						, [""
 							, "block text-sm font-medium text-emerald-500 mb-2"
 							, "w-full px-4 py-3 border bg-orange-200 border-green-800 rounded-lg"
