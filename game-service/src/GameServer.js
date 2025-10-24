@@ -132,6 +132,9 @@ export default class GameServer {
 		this.intervalId = setInterval(() => {
 			// console.log("Tick ", tick);
 			// Appliquer les inputs pour déplacer le paddle
+			if (!this.game) {
+				return ;
+			}
             if (tick % ticks_per_decision == 0) {
 				// console.log("Decision tick ", tick);
 				// console.log("Main action is ", action);
