@@ -449,55 +449,55 @@ export class renderAsset {
 
 	get	playermesh():BABYLON.Mesh {
 		if (!this._player)
-			throw new Error("player asset not initialized");
+			throw new Error("Player asset not initialized");
 		return this._player;
 	}
 
 	get LoadedMap(): Record<string, BABYLON.AbstractMesh> {
 		if (!this._loadedMap)
-			throw new Error("loadedMap asset not initialized");
+			throw new Error("LoadedMap asset not initialized");
 		return this._loadedMap;
 	}
 
 	get	sandcastle(): BABYLON.Mesh {
 		if (!this._sandcastle)
-			throw new Error("sandcastle asset not initialized");
+			throw new Error("Sandcastle asset not initialized");
 		return this._sandcastle;
 	}
 
 	get chest(): BABYLON.Mesh {
 		if (!this._chest)
-			throw new Error("chest asset not initialized");
+			throw new Error("Chest asset not initialized");
 		return this._chest;
 	}
 
 	get npc(): BABYLON.Mesh {
 		if (!this._npc)
-			throw new Error("npc asset not initialized");
+			throw new Error("Npc asset not initialized");
 		return this._npc;
 	}
 
 	get bendTrees(): BABYLON.TransformNode[] {
 		if (!this._bendTrees)
-			throw new Error("bend trees asset not initialized");
+			throw new Error("Bend trees asset not initialized");
 		return this._bendTrees;
 	}
 
 	get straightTrees(): BABYLON.TransformNode[] {
 		if (!this._straighTrees)
-			throw new Error("bend trees asset not initialized");
+			throw new Error("Bend trees asset not initialized");
 		return this._straighTrees;
 	}
 
 	get leafShader(): BABYLON.ShaderMaterial {
 		if (!this._leafShader)
-			throw new Error("no Leaf Shader found");
+			throw new Error("No Leaf Shader found");
 		return this._leafShader;
 	}
 
 	get pirateBoat(): BABYLON.Mesh {
 		if (!this._pirateBoat)
-			throw new Error("pirate boat asset not initialized");
+			throw new Error("Pirate boat asset not initialized");
 		return this._pirateBoat;
 	}
 

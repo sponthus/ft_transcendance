@@ -88,14 +88,14 @@ export class renderScene {
 	private async _initPongGame(): Promise<void> {
 		this._PongGame = new PongGame();
 		if (!this._PongGame)
-			throw new Error("pongGame failed to load");
+			throw new Error("PongGame failed to load");
 		await this._PongGame.start(this.pongScene!, this.canvas!, this.engine!)
 	}
 
 	private _initScene(): BABYLON.Scene {
 		const scene: BABYLON.Scene = new BABYLON.Scene(this._engine!);
 		if (!scene)
-			throw new Error("scene failed to Load");
+			throw new Error("Scene failed to Load");
 		scene.autoClear = true;
 		scene.autoClearDepthAndStencil = true;
 		scene.blockMaterialDirtyMechanism = true;
@@ -114,7 +114,7 @@ export class renderScene {
 	private _initIsoCamera() {
 		this._isocamera = new BABYLON.FreeCamera("isocamera", new BABYLON.Vector3(2, 15, -20), this._homeScene!);
 		if (!this._isocamera)
-			throw new Error("isoCamera failed to load");
+			throw new Error("IsoCamera failed to load");
 		this._isocamera.position = new BABYLON.Vector3(2, 20, -20);
 		this._isocamera.mode = BABYLON.FreeCamera.ORTHOGRAPHIC_CAMERA;
 		this._isocamera.setTarget(BABYLON.Vector3.Zero());
@@ -141,7 +141,7 @@ export class renderScene {
 	private _initLight() {
 		this._light = new BABYLON.HemisphericLight("light1", new BABYLON.Vector3(0, 1, 0), this._homeScene!);
 		if (!this._light)
-			throw new Error("light failed to load");
+			throw new Error("Light failed to load");
 	}
 
 	private _initGravity() {
