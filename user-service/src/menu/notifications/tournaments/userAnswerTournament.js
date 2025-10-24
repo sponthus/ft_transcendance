@@ -43,7 +43,7 @@ export async function   userAnswerTournament(request, reply)
         const req = await answerTournament(idUser, ownerId.id, tournamentId, tournamentName, url);
 		if (req.ok)
 		{
-			return reply.code(200).send(); // TODO METTRE EN HAUT 
+			return reply.code(200).send();
 		}
         return reply.code(req.status).send({ message: req.message });
     }

@@ -12,10 +12,9 @@ import { initOAuthGithub } from "./connection/OAuthGithub.js";
 import { refreshToken } from "./tools/refreshToken.js";
 import Ajv from "ajv";
 import ajvErrors from "ajv-errors";
-//import { getSecret } from "./tools/getSecret.js";
 
-const __filename = fileURLToPath(import.meta.url); // This filename, from ESM expression to classic path
-export const __dirname = path.dirname(__filename); // Parent folder to this file
+const __filename = fileURLToPath(import.meta.url);
+export const __dirname = path.dirname(__filename); 
 
 let fastify;
 
@@ -49,7 +48,7 @@ if (env.nodeEnv === 'production') {
             },
             plugins: [ajvErrors],
         },
-        schemaErrorFormatter: (errors, dataVar) => //DataVar (contexte) : body, params
+        schemaErrorFormatter: (errors, dataVar) => 
         {
             const firstError = errors[0];
             const errorSchema =  { message: firstError.message };
@@ -92,7 +91,7 @@ else
 	console.log("App launched in development mode");
 }
 
-console.log(`\nFastify user-service listen on port ${env.user_port}\n`); // debug
+console.log(`\nFastify user-service listen on port ${env.user_port}\n`);
 
 fastify.register(fastifyCookie,
 {
@@ -127,9 +126,6 @@ fastify.decorate("verifyApiKey", async function (request, reply)
     if (!apiKey || apiKey !== getSecret('api_key'))
 		return reply.code(401).send({ message: 'Unauthorized: Invalid API Key' });
 
-    //console.debug('request.body :', request.body);
-    //console.debug('request.body type :', typeof request.body);
-
     console.log('Check API key success');
 });
 
@@ -142,7 +138,6 @@ fastify.decorate("authenticate_2fa", async function (request, reply)
         if (!result.valid)
             return reply.code(401).send({ message: "Invalid cookie" });
         request.user = await fastify.jwt.verify(result.value);
-        // console.debug("Decoded token 2fa : ", request.user);
         if (request.user.twofa_pending === false)
             return reply.code(401).send({ message: "only tmp token" });
     } 
@@ -154,18 +149,14 @@ fastify.decorate("authenticate_2fa", async function (request, reply)
 
 fastify.decorate("authenticate", async function (request, reply)
 {
-    //TODO PENSEZ A VERIFIER SI LE USER EXISTE ET LE RESTE DES TABLLES ?
     try 
     {
         if (!request.cookies || !request.cookies.token)
 			return reply.code(401).send({ message: "Invalid cookie" });
-		// console.debug("\nToken dans le user-service avant unsign cookie : -" + request.cookies.token + "-");
         const result = fastify.unsignCookie(request.cookies.token); //verifie manuellement signature cookie
         if (!result.valid)
             return reply.code(401).send({ message: "Invalid cookie" });
-        // console.debug("\nToken dans le user-service : " + result.value + "-");
         request.user = await fastify.jwt.verify(result.value); //Décode et verifie le token et stock ses infos dans request
-        // console.debug("USER-SERVICE Decoded token:", request.user);
 
 		console.log(`token = ${request.token}`)
         if (request.user.twofa_pending === true)
@@ -176,24 +167,12 @@ fastify.decorate("authenticate", async function (request, reply)
 		const expThreshold = 900; // 15 minutes * 60s
 		if (request.user.exp - now < expThreshold) {
 			refreshToken(fastify, request.user, reply);
-			// console.debug("⚡️⚡️⚡️⚡️⚡️⚡️ Refreshed token ⚡️⚡️⚡️⚡️⚡️⚡️ ");
 		} 
-		// else {
-		// 	console.debug("⚡️⚡️⚡️⚡️⚡️⚡️ Token still valid, no need to refresh ⚡️⚡️⚡️⚡️⚡️⚡️");
-		// }
 	}
 	catch (err)
 	{
         console.log('err : ', err);
-		/*if (err.message === "Authorization token expired")
-		{
-            return reply.code(401).send({message: err.message});
-        }
-        else
-        {
-            return reply.code(400).send({message: err.message});
-        }*/
-        return reply.code(401).send({message: err.message});
+	    return reply.code(401).send({message: err.message});
     }
     try
     {
@@ -206,25 +185,18 @@ fastify.decorate("authenticate", async function (request, reply)
                                         WHERE \
                                             id = ?").get(idUser);
         if (!userExists)
-            return reply.code(404).send({ message: "User not found" }); // TODO ELODIE bon msg ?
+            return reply.code(404).send({ message: "User not found" });
 
     }
     catch (err)
     {
-        return reply.code(500).send( {message: "Internal Server Error" + err.message} );
+        return reply.code(500).send({ message: "Internal Server Error" });
     }
 });
 
 
 fastify.setErrorHandler((error, request, reply) => {
-    console.error("⚠️ Global error captured");
-    console.error("Route:", request.routerPath);
-    console.error("Method:", request.method);
-    console.error("Body:", request.body);
-    console.error("Headers:", request.headers);
-    console.error("Error stack:", error.stack);
-
-    // On renvoie un JSON générique pour l’utilisateur
+    console.error("error:", error.message);
     if (error.message === 'Invalid state')
         return reply.code(403).send({ message: error.message})
     reply.status(error.statusCode || 500).send({
@@ -248,8 +220,6 @@ fastify.get('/', async (req, reply) => {
 
 // Default handler for undefined routes
 fastify.setNotFoundHandler((req, reply) => {
-    // Extension = file
-   // console.log("ERREUR 404");
     console.log("ERREUR 404", {
         url: req.url,
         method: req.method,
@@ -266,44 +236,6 @@ fastify.setErrorHandler(function (error, request, reply) {
   }
 });
 
-
-/*fastify.setErrorHandler((error, request, reply) =>
-{
-    console.log("⚡️⚡️⚡️⚡️⚡️⚡ LA LE MSG d'ERRRREUUUURR");
-    if (error.validation)
-    {
-        console.log("LA LE MSG d'ERRRREUUUURR");
-        const errors = error.validation.map(e => ({
-        field: e.instancePath.replace(/^\//, ''),
-        message: e.message
-    }))
-    return reply.status(400).send({ errors })
-  }
-});*/
-/*fastify.setErrorHandler((error, request, reply) =>
-{
-    if (error.validation)
-    {
-        const messages = error.validation.map(err => err.message);
-        return reply.status(400).send({ message: messages.join(", ") });
-    }
-    if (error.code === "FST_ERR_VALIDATION")
-    {
-        const messages = error.validation.map(err => err.message);
-        return reply.status(400).send({ message: messages.join(", ") });
-    }
-});*/
-// Fastify listens
-
-/*fastify.setErrorHandler((error, request, reply) => 
-{
-    console.debug('⚡️⚡️⚡️⚡️⚡ SET ERROR HANDLER');
-    if (error.validation)
-    {
-        console.debug('⚡️⚡️⚡️⚡️⚡ Error', error);
-        return reply.code(error.validation.statusCode || 400).send(error.validation); // ton JSON formaté
-    }
-});*/
 
 fastify.addHook('onError', (request, reply, error, done) => {
   console.log('🔥 onError triggered');
