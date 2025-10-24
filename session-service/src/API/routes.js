@@ -17,7 +17,7 @@ export default async function routes (fastify, options) {
 	fastify.register(
 		async function (getRoutes) {
 			getRoutes.get(`/:slug`,
-				{onRequest: [fastify.int_authenticate], schema: { params: slugParamsSchema }},
+				{onRequest: [fastify.authenticate], schema: { params: slugParamsSchema }},
 				getStatusForSlug);
 		}
 	);
