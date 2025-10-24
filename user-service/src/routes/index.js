@@ -16,6 +16,5 @@ export default async function newRoutes(fastify, options)
     await internalRoutes(fastify);
     await notificationsRoutes(fastify);
     await routes2FA(fastify);
-  //  await OAuthRoutes(fastify); // a mettre ailleurs ??
     await tournamentRoutes(fastify);
 }
