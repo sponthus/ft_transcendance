@@ -24,7 +24,6 @@ export async function addTournamentNotif (request, reply)
                 addNotif(db, id, senderId, type, tournamentId, tournamentName);
             }
         });
-        console.debug(type)
         addNotifTournament(type, receiverIds, senderId, tournamentId, tournamentName);
 		notifyRefresh(receiverIds, tournamentId, type);
         return reply.code(200).send();

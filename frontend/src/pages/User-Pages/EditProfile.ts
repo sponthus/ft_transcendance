@@ -223,7 +223,7 @@ export class EditProfile extends popUp {
 				throw new Error("Please, select a file");
 			const file = input.files[0];
 
-			// 🛑 Protection anti-dossier AVANT de lire le header
+			// Protection anti-dossier AVANT de lire le header
 			if (!file ||
 				typeof file.size !== 'number' ||
 				file.size === 0 ||
@@ -235,7 +235,7 @@ export class EditProfile extends popUp {
 				throw new Error("Invalid upload: folders or empty files are not allowed");
 			}
 
-			// ✅ Maintenant seulement on lit le header
+			// Maintenant seulement on lit le header
 			let headerBuffer: ArrayBuffer;
 			try {
 			headerBuffer = await file.slice(0, 8).arrayBuffer();

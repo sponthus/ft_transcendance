@@ -23,8 +23,8 @@ export async function checkLog(): Promise<Result>
             return { ok: true }
         }
         const data = await res.json();
-        console.log("Log check failure");
-        console.log('status = ', res.status);
+        //console.log("Log check failure");
+        //console.log('status = ', res.status);
         if (res.status === 401)
         {
             return { ok: false, error: data.message};
