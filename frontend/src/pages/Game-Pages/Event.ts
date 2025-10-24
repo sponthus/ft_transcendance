@@ -210,22 +210,26 @@ export class Event {
 		if (tmpB.startsWith('@')) {
 			this.LocalGamePage.setPlayerA = '@' + this.LocalGamePage._userData.slug;
 			this.LocalGamePage.setPlayerAInput = this.LocalGamePage._userData.username;
-			this.LocalGamePage._playerAInput.readOnly = true;
+			if (this.LocalGamePage._Ai === 0)
+				this.LocalGamePage._playerAInput.readOnly = true;
 		}
 		else {
 			this.LocalGamePage.setPlayerA = tmpBinput;
 			this.LocalGamePage.setPlayerAInput = this.LocalGamePage._PlayerA;
-			this.LocalGamePage._playerAInput.readOnly = false;
+			if (this.LocalGamePage._Ai === 0)
+				this.LocalGamePage._playerAInput.readOnly = false;
 		}
 		if (tmpA.startsWith('@')) {
 			this.LocalGamePage.setPlayerB = '@' + this.LocalGamePage._userData.slug;
 			this.LocalGamePage.setPlayerBInput = this.LocalGamePage._userData.username;
-			this.LocalGamePage._playerBinput.readOnly = true;
+			if (this.LocalGamePage._Ai === 0)	
+				this.LocalGamePage._playerBinput.readOnly = true;
 		}
 		else {
 			this.LocalGamePage.setPlayerB = tmpAinput;
 			this.LocalGamePage.setPlayerBInput = this.LocalGamePage._PlayerB;
-			this.LocalGamePage._playerBinput.readOnly = false;
+			if (this.LocalGamePage._Ai === 0)
+				this.LocalGamePage._playerBinput.readOnly = false;
 		}
 	}
 
