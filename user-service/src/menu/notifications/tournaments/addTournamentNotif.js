@@ -1,4 +1,3 @@
-import { send } from "process";
 import { notifyRefresh } from "../../../internal-service/notifyServices.js";
 
 export async function addTournamentNotif (request, reply)

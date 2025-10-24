@@ -96,7 +96,6 @@ export class GamePhysics {
 		this._displayCountBegin = MeshBuilder.CreatePlane("displayCountBegin", { size: 6 }, this._scene);
 		this._displayCountBegin.position = new Vector3(0, 3, 0); // décalé au-dessus de ton mesh
 		this._displayCountBegin.billboardMode = Mesh.BILLBOARDMODE_ALL;
-		//this._plane2.rotation = new Vector3(0, Math.PI, 0); // 180° sur Y
 
 		// GUI sur le plane
 		this._advancedTexture2 = AdvancedDynamicTexture.CreateForMesh(this._displayCountBegin);
@@ -208,7 +207,6 @@ export class GamePhysics {
 	private setupControls()
 	{
 		// const	playerId = "player1"; // prompt("t ki ? player1 ou player2 ?") || "player1";
-
 		this._scene.actionManager = new ActionManager(this._scene);
 
 		this._scene.actionManager.registerAction(
@@ -264,7 +262,7 @@ export class GamePhysics {
 		{
 			if (this._serverState.ispaused === true)
 			{
-				this._light.intensity = 0.5;
+				this._light.intensity = 1;//0.5;
 				if (this._serverState.gameOption === 1)
 					this._menuPause.setEnabled(true);
 				else

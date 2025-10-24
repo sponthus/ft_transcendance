@@ -212,7 +212,8 @@ export class EditProfile extends popUp {
 		}
 	}
 
-	async openUploadForm() {
+	async openUploadForm()
+	{
 		try {
 			const form = document.getElementById('avatar-upload-form') as HTMLFormElement;
 			if (!form)
@@ -221,7 +222,27 @@ export class EditProfile extends popUp {
 			if (!input.files || input.files.length === 0)
 				throw new Error("Please, select a file");
 			const file = input.files[0];
-  			const headerBuffer = await file.slice(0, 8).arrayBuffer();
+
+			// Protection anti-dossier AVANT de lire le header
+			if (!file ||
+				typeof file.size !== 'number' ||
+				file.size === 0 ||
+				(file as any).webkitRelativePath?.length > 0 ||
+				file.name.includes('/') ||
+				file.name.includes('\\')
+				)
+			{
+				throw new Error("Invalid upload: folders or empty files are not allowed");
+			}
+
+			// Maintenant seulement on lit le header
+			let headerBuffer: ArrayBuffer;
+			try {
+			headerBuffer = await file.slice(0, 8).arrayBuffer();
+			} catch (err) {
+			throw new Error("Unable to read file (might be a directory)");
+			}
+
 			const bytes = new Uint8Array(headerBuffer);
 			let verif = 0;
   			if (bytes[0] === 0xFF
@@ -244,16 +265,13 @@ export class EditProfile extends popUp {
 				throw new Error("File is more than 5GB");
 			const formData = new FormData();
 			formData.append('avatar-input', file);
+
+
 			const req = await uploadAvatar(formData);
 			if (req.ok) {
-				//const pathReq = await updateAvatar(req.avatar);
-				//if (pathReq.ok) {
 					await this.updateUserData();
 					await navigate(`/user/${this.UserData.slug}`);
 					return ;
-				//}
-				//else
-				//	throw new Error("Error while uploading avatar path in db" + (pathReq.error || "Unknown error"));
 			}
 			else
 				throw new Error("Upload failed: " + (req.error || "Unknown error"));
