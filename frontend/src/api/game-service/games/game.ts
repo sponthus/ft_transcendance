@@ -131,37 +131,6 @@ export async function startGame(gameId: number): Promise<GameInfoResult> {
     }
 }
 
-// GET /:slug/games
-// All available PENDING non-tournament games for a user, gives only useful infos
-// Security : Accessible for every logged-in user
-export async function getAvailableGames(slug: string): Promise<AvailableGamesResult> {
-    try {
-        const allGamesResult = await getAllGames(slug);
-        if (!allGamesResult.ok) {
-            return { ok: false, error: allGamesResult.error };
-        }
-        const pendingGames: PendingGamesInfos[] = allGamesResult.games
-            .filter(game => game.status === 'pending')
-			.filter(game => game.tournament_id == 0)
-            .map(game => ({
-                id: game.id,
-                status: game.status,
-                player_a: game.player_a,
-                player_b: game.player_b,
-                created_at: game.created_at,
-				created_by: game.created_by,
-				ai: game.ai,
-				option: game.option
-            }));
-
-        return { ok: true, games: pendingGames };
-
-    } catch (error) {
-        console.error('❌ Error filtering pending games', error as string );
-        return { ok: false, error: error as string  };
-    }
-}
-
 function countLosses(games: AllGamesInfos[], slug: string): number {
 	return games
 		.filter(game => game.winner !== `@${slug}` 
@@ -247,30 +216,6 @@ export async function getAllGames(slug: string): Promise<AllGamesResult> {
 
     } catch (error) {
         console.error('❌ Error fetching available games:', error);
-        return { ok: false, error: error as string  };
-    }
-}
-
-// DELETE /:gameId
-// Delete a game in backend, actually not implemented in frontend
-// Security : is gonna be possible only if the logges-in user is the owner of the game
-export async function deleteGame(gameId: number): Promise<SimpleResult> {
-    if (!gameId)
-        return {ok: false, error: 'gameId required'};
-    try {
-        const response = await fetch(`/api/games/${gameId}`, {
-            method: 'DELETE',
-			headers: { 
-				'host': window.location.host
-			},
-            credentials: 'include',
-        });
-        if (!response.ok) {
-			const data = await response.json();
-			return { ok: false, error: data?.error as string  || 'Unable to delete game' };
-        }
-        return { ok: true, message: 'Game has been deleted' };
-    } catch(error) {
         return { ok: false, error: error as string  };
     }
 }
