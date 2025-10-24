@@ -4,7 +4,7 @@ import { createDiv, createElement, createButton, append, createImage} from '../.
 import { EditProfile } from './EditProfile.js';
 import { UserInfo } from '../../api/user-service/user-info/getUserInfo.js';
 import { ErrorPopup } from '../ErrorPage.js';
-import { currentPage } from '../../core/router.js';
+import { currentPage, navigate } from '../../core/router.js';
 import { ChangeStateBody, StateBody } from './UserPage.js';
 
 export class UserBanner {
@@ -140,8 +140,7 @@ export class UserBanner {
 				try {
 					const req = await addFriend(this.UserData.slug);
 					if (req.ok) {
-						if (currentPage) 
-							currentPage.render();
+						await navigate(`/user/${this.UserData.slug}`);
 					}
 					else
 						throw new Error(req.error);
@@ -156,8 +155,7 @@ export class UserBanner {
 				try {
 					const req = await removeFriend(this.UserData.slug);
 					if (req.ok) {
-						if (currentPage) 
-							currentPage.render();
+						await navigate(`/user/${this.UserData.slug}`);
 					}
 					else
 						throw new Error(req.error);
@@ -172,8 +170,7 @@ export class UserBanner {
 				try {
 					const req = await acceptRequest(this.UserData.username);
 					if (req.ok) {
-						if (currentPage)
-							currentPage.render();
+						await navigate(`/user/${this.UserData.slug}`);
 					}
 					else
 						throw new Error(req.error);
@@ -188,8 +185,7 @@ export class UserBanner {
 				try {
 					const req = await rejectRequest(this.UserData.username);
 					if (req.ok) {
-						if (currentPage)
-							currentPage.render();
+						await navigate(`/user/${this.UserData.slug}`);
 					}
 					else
 						throw new Error(req.error);
