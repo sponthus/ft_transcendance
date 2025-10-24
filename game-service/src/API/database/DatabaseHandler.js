@@ -122,7 +122,7 @@ export default class DatabaseHandler {
 		ai, 
 		option
 	FROM games
-	WHERE id_user = ?
+	WHERE id_user = ? AND status NOT in ('pending', 'canceled')
 	ORDER BY created_at DESC
 			`);
 			const results = stmt.all(userId);
