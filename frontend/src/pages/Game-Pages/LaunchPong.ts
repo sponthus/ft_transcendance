@@ -27,6 +27,7 @@ export class launchPong {
 		this.Render.PongGame!.GamePhysics!.setMaxScore = 5;
 		window.addEventListener('keydown', (ev) => {
 		if (ev.key == "Escape") {
+			this.Render.engine?.stopRenderLoop();
 			this.returnLobby();
 			}
 		});
