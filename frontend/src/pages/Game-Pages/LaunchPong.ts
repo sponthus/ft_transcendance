@@ -34,6 +34,7 @@ export class launchPong {
 			this.Render.PongGame?.GamePhysics?.launchSocket(gameId);
 		} catch(error) {
 			await ErrorPopup("Error launching pong websocket");
+			this.Render.engine?.stopRenderLoop();
 			this.returnLobby();
 		}
 		this.Render.engine?.runRenderLoop(() => {
