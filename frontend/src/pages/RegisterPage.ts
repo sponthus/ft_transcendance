@@ -125,7 +125,6 @@ export class RegisterPage extends BasePage {
 							popup.close();
 						await loginTwoFa();
 					}
-					console.log(req.error);
 				}
 				if (popup && popup.closed) {clearInterval(timerId);}
 				if (Time >= 120000) {

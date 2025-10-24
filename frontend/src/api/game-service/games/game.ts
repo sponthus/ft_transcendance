@@ -50,7 +50,6 @@ export type AllGamesResult = AllGamesList | Failure;
 // Creates a new game for the user, taking names for players
 // Security : Accessible for every logged-in user
 export async function createLocalGame(player_a: string, player_b: string, maxScore: number = 7, ai: number = 0, option: number = 1): Promise<GameInfoResult> {    
-    console.log(' playA ' + player_a + ' playB ' + player_b);
     const res = await fetch('/api/games/game', {
         method: 'POST',
         headers: {
@@ -211,7 +210,6 @@ export async function getAllGames(slug: string): Promise<AllGamesResult> {
         }
 
         const games: AllGamesInfos[] = await response.json();
-		console.log(games);
         return { ok: true, games: games, stats: { wins: 0, losses: 0, total: 0 } };
 
     } catch (error) {

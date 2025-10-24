@@ -174,7 +174,6 @@ export class GameSocket {
 	}
 	
 	private getGameWsUrl(): string {
-        // console.log(import.meta.env?.MODE);
         const status = import.meta.env?.MODE;
         if (status === "development")
             return `ws://${import.meta.env.VITE_DOMAIN_NAME}:8080/g-ws/`;
@@ -237,10 +236,8 @@ export class GameSocket {
     }
 
 	private startHeartbeat(): void {
-        console.log("Starting heartbeat");
         this.heartbeatInterval = window.setInterval(() => {
             if (this.ws?.readyState === WebSocket.OPEN) {
-                console.log("Game ping sent to server");
                 this.send(JSON.stringify({type: 'ping'}));
                 this.heartbeatTimeout = window.setTimeout(() => {
                     console.error("No pong recieved, closing connection");
@@ -280,9 +277,7 @@ export class GameSocket {
     }
 
 	private handleMessage(data: any) {
-        console.log('Received message:', data);
 		if (data.type === 'pong') {
-			console.log('Received pong from server');
 			this.clearHeartbeatTimeout();
 			return;
 		}

@@ -20,10 +20,8 @@ export async function   updateNickname(nickname: string): Promise<UpdateNickname
         });
         if (res.ok)
         {
-            console.log("Update nickname successful");
             return ( { ok: true } );
         }
-        console.log("Update nickname failed");
         const data = await res.json();
         return ( { ok: false, error: data.message } );
     }

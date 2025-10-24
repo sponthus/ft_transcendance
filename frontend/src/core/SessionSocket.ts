@@ -78,17 +78,11 @@ export class SessionSocket {
 	}
 
 	static getInstance(): SessionSocket {
-		// console.log("=== Socket.getInstance DEBUG ===");
-		// console.log("Current Socket.instance:", !!SessionSocket.instance);
-		// console.log("Global instance exists:", !!(window as any).GLOBAL_WEBSOCKET);
-
 		if (!SessionSocket.instance) {
-			console.log("Creating new Socket instance");
 			SessionSocket.instance = new SessionSocket();
 			(window as any).GLOBAL_WEBSOCKET = SessionSocket.instance;
 		}
 
-		// console.log("=== END Socket.getInstance DEBUG ===");
 		return SessionSocket.instance;
 	}
 
@@ -146,7 +140,6 @@ export class SessionSocket {
 	}
 
 	private getStatusWsUrl(): string {
-		console.log(import.meta.env?.MODE);
 		const status = import.meta.env?.MODE;
 		if (status === "development")
 			return `ws://${import.meta.env.VITE_DOMAIN_NAME}:8080/s-ws/`;
@@ -155,10 +148,8 @@ export class SessionSocket {
 	}
 
 	private startHeartbeat(): void {
-		console.log("Starting heartbeat");
 		this.heartbeatInterval = window.setInterval(() => {
 			if (this.sWS?.readyState === WebSocket.OPEN) {
-				console.log("Session ping sent to server");
 				this.send(JSON.stringify({ type: 'ping' }));
 				this.heartbeatTimeout = window.setTimeout(() => {
 					console.error("No pong recieved, closing connection");
@@ -191,17 +182,12 @@ export class SessionSocket {
 	}
 
 	private handleMessage(data: any) {
-		console.log('➡️ Received message:', data);
 		if (data.type === 'pong') {
-			// console.log('Received pong from server');
 			this.clearHeartbeatTimeout();
 			return;
 		}
 		else if (data.type === "message") {
-			console.log("receive friend request frome data.type message : ", data);
 			refreshNotification();
-			if (currentPage && WebPath)
-				console.log("RENDER THE CURRENT PAGE : ", currentPage!, WebPath , WebPath.startsWith('/user'));
 			if ((data.message === "friend_accept"  || data.message === "friend_reject" || data.message === "friend_request") && currentPage && WebPath && WebPath.startsWith('/user')) {
 				currentPage.render();
 			}

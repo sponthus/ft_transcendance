@@ -103,8 +103,6 @@ export async function getAvailableTournaments(slug: string): Promise<Tournaments
 				winner: tournament.winner,
 				option: tournament.option
 			}));
-		console.log("Available Tournaments : ");
-		console.log(pendingTournaments);
 		return { ok: true, tournaments: pendingTournaments };
 
 	} catch (error) {
@@ -136,8 +134,6 @@ export async function getFinishedTournaments(slug: string): Promise<TournamentsR
 				winner: tournament.winner,
 				option: tournament.option
 			}));
-		console.log("Finished Tournaments : ");
-		console.log(finishedTournaments);
 		return { ok: true, tournaments: finishedTournaments };
 
 	} catch (error) {
@@ -167,8 +163,6 @@ export async function getTournamentMatches(tournamentId: number): Promise<Tourna
         }
 
         const games: GameInfos[] = await response.json();
-		console.log("Matches : ");
-		console.log(games);
         return { ok: true, matches: games };
 
     } catch (error) {
