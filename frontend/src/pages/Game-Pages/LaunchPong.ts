@@ -24,12 +24,6 @@ export class launchPong {
 		const frameDuration = 1000 / targetFPS;
 		let now;
 		let delta;
-		window.addEventListener('keydown', (ev) => {
-		if (ev.key == "Escape") {
-			this.Render.engine?.stopRenderLoop();
-			this.returnLobby();
-			}
-		});
 		try {
 			this.Render.PongGame?.GamePhysics?.launchSocket(gameId);
 		} catch(error) {
