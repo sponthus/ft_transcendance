@@ -197,7 +197,7 @@ export class EditProfile extends popUp {
 			if (username == this.UserData.username)
 				return ;
 			if (username.length > 15)
-				throw new Error("username must have maximum 15 characters");
+				throw new Error("Username must have maximum 15 characters");
 			const req = await updateUsername(username);
 			if (req.ok) {
 				this.cleanBody();
@@ -269,9 +269,9 @@ export class EditProfile extends popUp {
 
 			const req = await uploadAvatar(formData);
 			if (req.ok) {
-					await this.updateUserData();
-					await navigate(`/user/${this.UserData.slug}`);
-					return ;
+				await this.updateUserData();
+				await navigate(`/user/${this.UserData.slug}`);
+				return ;
 			}
 			else
 				throw new Error("Upload failed: " + (req.error || "Unknown error"));

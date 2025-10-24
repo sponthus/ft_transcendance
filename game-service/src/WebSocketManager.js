@@ -20,11 +20,13 @@ export default class WebSocketManager {
                 try {
                     message = JSON.parse(data);
 				} catch (error) {
-                    console.error('❌ Invalid JSON received:', error);
+                    console.warn('❌ Invalid JSON received:', error);
+					this.disconnectWs(ws, 1007, "Invalid message format");
+					return;
                 }
 				const formatCheck = checkWebSocketMessageFormat(message);
                 if (!formatCheck.valid) {
-					console.log('❌ Bad message format received:', formatCheck.errors);
+					console.warn('❌ Bad message format received:', formatCheck.errors);
 					this.disconnectWs(ws, 1007, "Invalid message format");
 					return;
 				}
@@ -70,7 +72,7 @@ export default class WebSocketManager {
 		const result = this.fastify.unsignCookie(token);
         if (!result.valid)
 		{
-			console.log("❌ Invalid cookie game-service");
+			console.warn("❌ Invalid cookie game-service");
             ws.close(4002, "Invalid authentication");
             return ;
         }
@@ -103,10 +105,11 @@ export default class WebSocketManager {
 			console.error("❌ Unable to send pong back");
     }
 
-    sendToWs(ws, message) {
+    sendToWs(ws, message, log = false) {
 		if (ws.readyState == 1) {
 			ws.send(JSON.stringify(message));
-			console.log(`Message sent to socket:`, message);
+			if (log)
+				console.log(`Message sent to socket:`, message);
 		} else {
 			console.warn(`❌ Cannot send message to socket: disconnected`);
 		}
@@ -156,20 +159,20 @@ export default class WebSocketManager {
         try {
             data = this.fastify.jwt.verify(token);
         } catch (err) {
-            console.error(":x: Invalid token:", err.message);
+            console.warn("Invalid token:", err.message);
             ws.close(4002, "Invalid authentication");
             return ;
         }
-        console.log(`Message recieved: auth, from ${data.slug}, for game ${gameId}`);
+        console.log(`Message received: auth, from ${data.slug}, for game ${gameId}`);
 
         if (gameMaster.addUserToGame(ws, data.idUser, gameId) == false) {
-            console.error(":x: Game not found or not enough players");
+            console.error("Game not found or not enough players");
             ws.close(4003, "Game not found or not enough players");
             return ;
         }
         const players = gameMaster.getPlayersByGameId(gameId);
         if (!players || players.length != 2) {
-            console.error(":x: Game not found or not enough players");
+            console.error("Game not found or not enough players");
             ws.close(4003, "Game not found or not enough players");
             return ;
         } else {

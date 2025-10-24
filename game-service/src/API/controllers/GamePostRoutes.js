@@ -74,7 +74,7 @@ export async function startGame(request, reply) {
 				} catch (error) {
 					console.error('❌ Error fetching user info: ');
 					console.error(error);
-					return reply.code(500).send({ error: "Internal server error while fetching user info." });
+					return reply.code(500).send({ error: "Internal server error" });
 				}
 			}
 		}
@@ -84,7 +84,7 @@ export async function startGame(request, reply) {
     catch (error) {
 		console.error('❌ Error fetching games: ');
 		console.error(error);
-        return reply.code(500).send({ error: "Internal server error while fetching games." });
+        return reply.code(500).send({ error: "Internal server error" });
     }
 	
 	// Only the user can launch his own games, game must be pending
@@ -107,7 +107,7 @@ export async function startGame(request, reply) {
 			}
 			else {
 				player_a = `@${player1Name.infos.slug}`;
-				console.debug(`Replaced @${player1Id} with ${player_a}`);
+				// console.debug(`Replaced @${player1Id} with ${player_a}`);
 			}
 		}
 		if (player_b[0] == '@') {
@@ -118,7 +118,7 @@ export async function startGame(request, reply) {
 				return reply.code(404).send({ error: "User not found" });
 			}
 			player_b = `@${player2Name.infos.slug}`;
-			console.debug(`Replaced @${player2Id} with ${player_b}`);
+			// console.debug(`Replaced @${player2Id} with ${player_b}`);
 		}
 	} catch (error) {
 		console.error('❌ Error fetching user info: ');
@@ -126,14 +126,14 @@ export async function startGame(request, reply) {
 		return reply.code(500).send({ error: "Internal server error while fetching user info." });
 	}
     try {
-        console.debug("Trying to create game server with gameId " + gameId + " and userId " + userId);
+        // console.debug("Trying to create game server with gameId " + gameId + " and userId " + userId);
         const gameMaster = GameMaster.getInstance();
         if (!gameMaster) {
 			console.error('❌ Error : No GameMaster found while fetching games');
             return reply.code(500).send({error: 'Internal server error while fetching games.'});
         }
         gameMaster.createServer(gameId, userId, maxScore, tournament, ai, option, [player_a, player_b]);
-        console.debug("✅ Game server created with gameId " + gameId);
+        console.log("✅ Game server created with gameId " + gameId);
 		return reply.code(201).send({
             gameId: gameId, 
             status: status, 
@@ -148,7 +148,7 @@ export async function startGame(request, reply) {
     catch (error) {
         console.error('❌ Error creating game server:')
 		console.error(error);
-        return reply.code(500).send({error: 'Internal server error while fetching games.'});
+        return reply.code(500).send({error: 'Internal server error'});
     }
 }
 
@@ -175,14 +175,18 @@ export async function createGame(request, reply) {
 				console.error("❌ Unable to get userId from slug: ", player_a);
 				return reply.code(404).send({ error: `Requested user ${player_a} not found.`});
 			}
+			if (Number(player1Id.userId) !== idUser) {
+				console.error("❌ You can not play a 1v1 game versus another user");
+				return reply.code(401).send({ error: "You can not play a 1v1 game versus another user."});
+			}
 			else {
 				if (checkIdFormat(player1Id.userId) === false) {
 					console.error("❌ Bad userId format got from slug");
-					return reply.code(500).send({ error: 'Internal server error: Wrong user data format.'});
+					return reply.code(400).send({ error: 'Bad id format from slug'});
 				}
 				let userId = parseInt(player1Id.userId, 10);
 				player_a = `@${userId}`;
-				console.debug(`Replaced ${player1Slug} with ${player_a}`);
+				// console.debug(`Replaced ${player1Slug} with ${player_a}`);
 			}
 		}
 		if (player_b[0] === '@') {
@@ -192,35 +196,34 @@ export async function createGame(request, reply) {
 				console.error("❌ Unable to get userId from slug: ", player_b);
 				return reply.code(404).send({ error: `Requested user ${player_b} not found.`});
 			}
+			if (Number(player2Id.userId) !== idUser) {
+				console.error("❌ You can not play a 1v1 game versus another user");
+				return reply.code(401).send({ error: "You can not play a 1v1 game versus another user."});
+			}
 			else {
 				if (checkIdFormat(player2Id.userId) === false) {
 					console.error("❌ Bad userId format got from slug");
-					return reply.code(500).send({ error: 'Internal server error: Wrong user data format.'});
+					return reply.code(400).send({ error: 'Bad id format from slug'});
 				}
 				let userId = parseInt(player2Id.userId, 10);
 				player_b = `@${userId}`;
-				console.debug(`Replaced ${player2Slug} with ${player_b}`);
+				// console.debug(`Replaced ${player2Slug} with ${player_b}`);
 			}
 		}
 	} catch (error) {
 		console.error('❌ Error fetching userId from slug: ');
 		console.error(error);
-		return reply.code(500).send({ error: "Internal server error while fetching userId from slug." });
+		return reply.code(500).send({ error: "Internal server error" });
 	}
 
 	const { db } = request.server;
 	if (!db) {
 		console.error('❌ Error while creating game: database connection not found');
-		return reply.code(500).send({error: 'No database connection found.'});
+		return reply.code(500).send({error: 'Internal server error'});
 	}
 
 	const userId = idUser;
 	// console.debug('userId = ' + userId + ' playA ' + player_a + ' playB ' + player_b);
-
-	if (!db) {
-		console.error('❌ Error while deleting game: database connection not found');
-		return reply.code(500).send({error: 'No database connection found.'});
-	}
 
 	let finalMaxScore = 7;
 	let finalAi = 0;
@@ -237,7 +240,7 @@ export async function createGame(request, reply) {
 
     try {
         const result = await db.createGame(userId, player_a, player_b, finalMaxScore, finalAi, finalOption);
-        console.debug("Game created with id ", result.game_id);
+        // console.debug("Game created with id ", result.game_id);
 		return reply.code(201).send({
 			gameId: result.game_id,
 			status: result.status,
@@ -252,6 +255,6 @@ export async function createGame(request, reply) {
     catch (error) {
 		console.error("❌ Error creating game : ")
 		console.error(error);
-        return reply.code(500).send({ error: "Internal server error creating game."});
+        return reply.code(500).send({ error: "Internal server error"});
     }
 }

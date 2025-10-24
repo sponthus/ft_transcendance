@@ -111,7 +111,6 @@ export class RegisterPage extends BasePage {
 			);
 			let Time: number = 0;
 			const timerId = setInterval(async() => {
-				console.log("Time is : ", Time);
 				const req = await getUserInfo();
 				if (req.ok) {
 					clearInterval(timerId);
@@ -126,7 +125,6 @@ export class RegisterPage extends BasePage {
 							popup.close();
 						await loginTwoFa();
 					}
-					console.log(req.error);
 				}
 				if (popup && popup.closed) {clearInterval(timerId);}
 				if (Time >= 120000) {

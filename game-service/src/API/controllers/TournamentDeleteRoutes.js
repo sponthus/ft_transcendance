@@ -6,10 +6,6 @@ import { sendTournamentCancelation } from '../requests/SendTournamentCancelation
 export async function deleteTournament(request, reply) {
 	console.log('➡️ User accessed DELETE /tournament/:gameId');
 
-    const requestingUserId = request.user.idUser;
-	if (!requestingUserId)
-		return reply.code(401).send({ error: "Unauthorized."});
-
 	const { tournamentId } = request.params;
     if (!tournamentId) {
         return reply.code(400).send({error: 'No tournamentId found in request.'});
@@ -18,7 +14,7 @@ export async function deleteTournament(request, reply) {
 	const { db } = request.server;
     if (!db) {
 		console.error('❌ Error while deleting tournament: database connection not found');
-		return reply.code(500).send({ error: 'Internal server error.'});
+		return reply.code(500).send({ error: 'Internal server error'});
 	}
 	
 	// console.debug("Requesting user = ", requestingUserId, " / Tournament = ", tournamentId);
@@ -39,15 +35,11 @@ export async function deleteTournament(request, reply) {
 						name: tournamentToDelete.name
 					});
 				} else {
-					return reply.code(500).send({ error: '❌ Internal server error while canceling tournament.' });
+					return reply.code(500).send({ error: 'Internal server error' });
 				}
 			}
             return reply.code(403).send({ error : 'Forbidden, tournament is not pending.' });
         }
-		if (tournamentToDelete.id_user !== requestingUserId) {
-			console.error("❌ Error because found user_id = ", tournamentToDelete.id_user, " VS Request = ", requestingUserId);
-			return reply.code(403).send({ error: "Forbidden, this is not your tournament."});
-		}
 
         db.deleteTournament(tournamentId);
 
@@ -68,6 +60,6 @@ export async function deleteTournament(request, reply) {
     } catch (error) {
         console.error('❌ Error deleting tournament: ');
 		console.error(error);
-		return reply.code(500).send({ error: 'Internal server error.' });
+		return reply.code(500).send({ error: 'Internal server error' });
     }
 }

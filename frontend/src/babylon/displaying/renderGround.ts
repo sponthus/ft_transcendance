@@ -28,10 +28,10 @@ export class renderGround {
 		/***************create and set up skybox************************/
 		this._skybox = BABYLON.MeshBuilder.CreateBox("skyBox", {size: 150.0}, this._scene);
 		if (!this._skybox)
-			throw new Error("skybox failed to load");
+			throw new Error("Skybox failed to load");
 		this._skyboxMaterial = new BABYLON.StandardMaterial("skybox_material", this._scene);
 		if (!this._skyboxMaterial)
-			throw new Error("skybox materials failed to load")
+			throw new Error("Skybox materials failed to load")
 		this._skyboxMaterial.backFaceCulling = false;
 		this._skyboxMaterial.disableLighting = true;
 

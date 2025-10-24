@@ -22,13 +22,9 @@ export default class GameServer {
         this.scoreA = 0;
         this.scoreB = 0;
         this.end = false;
-
-		// this.statusId = setInterval(() => {
-        //     console.log("I exist");
-        // }, 6000);
     }
 
-	sendToWs(ws, message, log) {
+	sendToWs(ws, message, log = false) {
 		if (ws.readyState == 1) {
 			ws.send(JSON.stringify(message));
 			if (log)
@@ -41,7 +37,7 @@ export default class GameServer {
 	addWs(ws) {
 		if (this.ws) {
 			console.error(`Game already has a ws`);
-			return;
+			return false;
 		}
 		this.ws = ws;
 		if (this.ai != 0)
@@ -49,10 +45,10 @@ export default class GameServer {
 		else
 			this.game = new PongGame(this.gameId, this.ai, this.option);
 		this.setHandlers(this.game);
+		return true;
 	}
 
     setHandlers(game) {
-		// console.debug("Handlers are set");
         this.ws.on('close', () => {
 			console.log("WebSocket closed by client");
             if (this.end == false) {
@@ -74,7 +70,7 @@ export default class GameServer {
 			}
 			catch (err)
 			{
-				console.error("ERR: JSON :", msg);
+				console.error("ERR: JSON ", msg);
 				return;
 			}
 
@@ -92,7 +88,7 @@ export default class GameServer {
 					break;
 
 				default:
-					console.warn("ERR: Type inconnu :", data.type);
+					console.warn("ERR: Type inconnu ", data.type);
 			}
 		});
 
@@ -123,7 +119,6 @@ export default class GameServer {
 			userId: this.userId
 		});
 
-        // à chaque tick du serveur
 		let tick = 0;
 		let action = 2; // 0 = UP, 1 = DOWN, 2 = STILL (default 1st action)
         let ticks_per_decision = 30; // 1 / 0.033 = 30.3
@@ -131,7 +126,9 @@ export default class GameServer {
 		// console.debug(ticks_per_decision);
 		this.intervalId = setInterval(() => {
 			// console.log("Tick ", tick);
-			// Appliquer les inputs pour déplacer le paddle
+			if (!this.game) {
+				return ;
+			}
             if (tick % ticks_per_decision == 0) {
 				// console.log("Decision tick ", tick);
 				// console.log("Main action is ", action);
@@ -140,21 +137,20 @@ export default class GameServer {
             else
 				action = this.game.update(action);
 			let gameState = this.game.getState();
-			// broadcast du nouvel état
+
             const stateMsg = JSON.stringify({
                 type: "stateUpdate",
                 gameState: gameState
             });
             this.scoreA = gameState.score.s1;
 			this.scoreB = gameState.score.s2;
-            // balance le message a tout les players connecté
+            // broadcast message to all connected players
             if (this.ws.readyState === 1) {
 				this.ws.send(stateMsg);
 			} else {
-				console.log("❌ Unable to send game state");
+				console.error("❌ Unable to send game state");
 			}
 			if ((this.scoreA >= this.maxScore || this.scoreB >= this.maxScore) && this.end === false) {
-                // console.debug("🏆 Game ended with score ", this.scoreA, "-", this.scoreB);
 				this.end = true;
 				this.state == "finished";
 				this.endGame();
@@ -181,9 +177,9 @@ export default class GameServer {
 				scoreA: this.scoreA,
 				scoreB: this.scoreB
             }));
-			console.log("✅ endGame sent to player with winner ", winner);
+			// console.log("✅ endGame sent to player with winner ", winner);
 		} else {
-			console.log(" ❌ Unable to send endGame");
+			console.error(" ❌ Unable to send endGame");
 		}
         gameEventEmitter.emitGameEvent('game:ended', this.gameId, {
             scoreA: this.scoreA,

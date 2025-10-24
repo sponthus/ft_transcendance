@@ -7,14 +7,14 @@ export async function changeUserInfos(request, reply) {
 	const { userId } = request.params;
 	if (!userId) {
 		console.error('❌ No userId found in request params');
-		return reply.status(400).send({error: 'No userId found in request.'});
+		return reply.status(400).send({error: 'No userId found in request'});
 	}
 	const { username, slug, status } = request.body;
 
 	const { WebSocketManager } = request.server;
 	if (!WebSocketManager) {
 		console.error('❌ Error while getting sessions: connexion not found');
-		return reply.status(500).send({ error: 'Internal server error while fetching users'});
+		return reply.status(500).send({ error: 'Internal server error'});
 	}
 
 	try {
@@ -23,6 +23,6 @@ export async function changeUserInfos(request, reply) {
 		return reply.status(200).send({ userId: data.userId, username: data.username, slug: data.slug });
 	} catch (err) {
 		console.error('❌ Error while updating user infos:', err.message);
-		return reply.status(500).send({ error: 'Internal server error.'});
+		return reply.status(500).send({ error: 'Internal server error'});
 	}
 }

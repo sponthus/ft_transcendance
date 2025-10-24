@@ -30,14 +30,14 @@ export async function sendTournamentInvitation(userId, inviterId, tournamentId, 
 		});
 		if (res.ok)
 		{
-			console.log('invitation envoye');
+			console.log('Invitation success');
 			return { ok: true };
 		}
 		const data = await res.json();
-		console.error("❌ Error while sending tournament invitation: ", data.message); //il est la car au dessus c'est vide :) juste le ok
-		return { ok: false, error: data.message };
+		console.error("❌ Error while sending tournament invitation: ", data.message);
+		return { ok: false, error: data.message, code: res.status };
 	} catch (error) {
 		console.error("❌ Error while sending tournament invitation: ", error);
-		return { ok: false, error: "Internal error while sending tournament invitation"};
+		return { ok: false, error: "Internal server error"};
 	}
 }

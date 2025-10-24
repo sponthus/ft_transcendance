@@ -85,7 +85,6 @@ export class LoginPage extends BasePage {
 			);
 			let Time: number = 0;
 			const timerId = setInterval(async() => {
-				console.log("Time is : ", Time);
 				const req = await getUserInfo();
 				if (req.ok) {
 					clearInterval(timerId);
@@ -100,7 +99,6 @@ export class LoginPage extends BasePage {
 							popup.close();
 						await loginTwoFa();
 					}
-					console.log(req.error);
 				}
 				if (popup && popup.closed) {clearInterval(timerId);}
 				if (Time >= 120000) {
@@ -145,7 +143,6 @@ export class LoginPage extends BasePage {
 				}
 				
 			} catch(error) {
-				console.log("Erreur attrapée:", error);
 				await ErrorPopup(error as string);
 			} finally {
 				this.Form.dataset.locked = "false";

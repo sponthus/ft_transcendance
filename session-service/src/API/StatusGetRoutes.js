@@ -12,7 +12,7 @@ export async function getStatusForSlug(request, reply) {
 	const { WebSocketManager } = request.server;
 	if (!WebSocketManager) {
 		console.error('❌ Error while getting sessions: connexion not found');
-		return reply.status(500).send({ error: 'Internal server error while fetching users.'});
+		return reply.status(500).send({ error: 'Internal server error'});
 	}
 
 	const status = WebSocketManager.getUserStatusBySlug(slug);

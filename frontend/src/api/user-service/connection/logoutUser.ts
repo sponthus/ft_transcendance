@@ -1,3 +1,5 @@
+import { SessionSocket } from "../../../core/SessionSocket.js";
+
 type Success = { ok: true };
 type Failure = { ok: false; error: string };
 
@@ -5,6 +7,12 @@ export type LogoutResult = Success | Failure;
 
 export async function logoutUser(): Promise<LogoutResult>
 {
+	const sessionSocket = SessionSocket.getInstance();
+	if (sessionSocket.isOpen())
+	{
+		sessionSocket.close(4000, "User logged out");
+	}
+
     try
     {
         const res = await fetch('/api/user/logout',

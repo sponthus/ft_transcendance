@@ -1,7 +1,7 @@
 import { getAllUsers } from "./tools/GetUsers.js";
 import { checkWebSocketMessageFormat } from "./tools/CheckWsFormat.js";
-import { getSecret } from "./index.js";
 
+// Manages all WebSocket connections and user sessions
 export default class WebSocketManager {
     constructor(wss, fastify) {
         this.ws = wss;
@@ -29,22 +29,24 @@ export default class WebSocketManager {
 		this.ws.on('connection', (ws, request) => {
             console.log('🟢 New WebSocket connection');
 			
-			this.checkTokenFromCookies(ws, request.headers.cookie); //mettre await ???
+			this.checkTokenFromCookies(ws, request.headers.cookie); 
 			ws.on('message', (data) => {
                 let message;
 				try {
                     message = JSON.parse(data);
 				} catch (error) {
-                    console.error('❌ Invalid JSON recieved:', error);
+                    console.warn('❌ Invalid JSON received:', error);
+					this.disconnectWs(ws, 1007, "Invalid message format");
+					return;
                 }
 				
 				const formatCheck = checkWebSocketMessageFormat(message);
 				if (!formatCheck.valid) {
-					console.log('❌ Bad message format received:', formatCheck.errors);
+					console.warn('❌ Bad message format received:', formatCheck.errors);
 					this.disconnectWs(ws, 1007, "Invalid message format");
 					return;
 				}
-				if (message.type !== 'auth')
+				if (message.type !== 'auth' && message.type !== 'ping')
 					console.log('Message received :', message);
 				else
 					console.log('Auth message received');
@@ -142,7 +144,7 @@ export default class WebSocketManager {
 				// console.debug("Checking for users to delog...");
 				this.checkDelog();
 			} catch (error) {
-				console.error("Error in watchDelog:", error);
+				console.error("Error while searching for users with expired token:", error);
 			}
 			await this.sleep(60000); // Check every minute
 		}
@@ -354,7 +356,7 @@ export default class WebSocketManager {
                 return client.status;
             }
         }
-		console.log(`User ${slug} is not found`);
+		// console.log(`User ${slug} is not found`);
         return 'not found';
     }
 
@@ -364,7 +366,7 @@ export default class WebSocketManager {
             console.log(`User ${userId} is not found`);
             return 'not found';
         }
-        console.log(`User ${userId} is ${client.status}`);
+        // console.log(`User ${userId} is ${client.status}`);
         return client.status;
 	}
 
@@ -396,7 +398,7 @@ export default class WebSocketManager {
 					throw new Error("Socket not connected");
 				}
 			} catch (error) {
-				console.warn(`❌ Cannot send message to one socket of user ${userId}:`, error);
+				console.error(`❌ Cannot send message to one socket of user ${userId}:`, error);
 			}
 		}
 		if (!sent) {
@@ -405,10 +407,12 @@ export default class WebSocketManager {
 		return sent;
     }
 	
-	sendToWs(ws, message) {
+	sendToWs(ws, message, log = false) {
 		if (ws && ws.readyState == 1) {
 			ws.send(JSON.stringify(message));
-			console.log(`Message sent to socket:`, message);
+			if (log) {
+				console.log(`Message sent to socket:`, message);
+			}
 		} else {
 			console.warn(`❌ Cannot send message to socket: disconnected`);
 		}
@@ -445,7 +449,7 @@ export default class WebSocketManager {
 		client.messages = [];
 
 		let count = 0;
-        console.log(`messages to send ${messages.length}`);
+        console.log(`Messages to send ${messages.length}`);
         for (const message of messages) {
 			let trMessage = JSON.parse(message);
 			count += this.sendMessageToUser(userId, trMessage.sender, trMessage.message);

@@ -11,7 +11,6 @@ import env from "../config/env.js";
 import WebSocketManager from "./WebSocketManager.js";
 import prefix from "./tools/url.js";
 import routes from "./API/routes.js";
-// import WebSocketManager from "./WebSocketManager.js";
 
 const __filename = fileURLToPath(import.meta.url);
 export const __dirname = path.dirname(__filename);
@@ -66,7 +65,6 @@ fastify.register(fastifyCookie,
 // Register JWT plugin in fastify
 fastify.register(fastifyJwt, {
 	secret: getSecret('hash_key'),
-	//console.log
 });
 
 fastify.decorate("authenticate", async function (request, reply)
@@ -74,29 +72,30 @@ fastify.decorate("authenticate", async function (request, reply)
 	try 
 	{
 		// Check internal API key
-		const internalApiKey = request.headers['x-internal-api-key'];
-		if (internalApiKey && internalApiKey === getSecret('api_key')) {
-			return;
+		if (request.headers && request.headers['x-internal-api-key']) {
+			const internalApiKey = request.headers['x-internal-api-key'];
+			if (internalApiKey === getSecret('api_key'))
+				return;
+			else {
+				return reply.code(401).send({ error: "Invalid API key" });
+			}
 		}
-		else {
-			const result = fastify.unsignCookie(request.cookies.token); //verifie manuellement signature cookie
+		else if (request.cookies && request.cookies.token)
+		{		
+			const result = fastify.unsignCookie(request.cookies.token); // Check cookie signature
 			if (!result.valid)
 				return reply.code(401).send({ error: "Invalid cookie" });
-			request.user = await fastify.jwt.verify(result.value);
+			request.user = await fastify.jwt.verify(result.value); // Check external JWT token from users and store their infos in request.user
 			if (request.user.twofa_pending === true)
 				return reply.code(401).send({ error: "2FA required" });
+		} else {
+			return reply.code(401).send({ error: "Authentication required" });
 		}
-	} 
+	}
 	catch (err)
 	{
-		if (err.message === "Authorization token expired")
-		{
-            return reply.code(401).send({error : err.message});
-        }
-        else
-        {
-            return reply.code(400).send({error : err.message});
-        }
+		console.log("❌ Error : ", err.message);
+		return reply.code(401).send({error : err.message});
 	}
 });
 
@@ -104,15 +103,23 @@ fastify.decorate("int_authenticate", async function (request, reply)
 {
 	try 
 	{
+		if (!request.headers)
+			return reply.code(401).send({ error: "Authentication required" });
 		// Check internal API key only
 		const internalApiKey = request.headers['x-internal-api-key'];
-		if (internalApiKey && internalApiKey === getSecret('api_key')) {
-			return;
+		if (internalApiKey)
+			if (internalApiKey === getSecret('api_key')) {
+				return;
+			} else {
+				return reply.code(401).send({ error: "Invalid API key" });
+			}
+		else {
+			return reply.code(401).send({ error: "Authentication required" });
 		}
 	} 
 	catch (err)
 	{
-		console.error("Auth refused: ", err.message);
+		console.warn(`Internal auth refused to ${request.ip || request.headers['x-forwarded-for'] || ''}: `, err.message);
 		return reply.code(401).send({error : err.message});
 	}
 });
@@ -154,7 +161,6 @@ async function launch_app() {
         key: fs.readFileSync(`/etc/ssl/${env.domain_name}.key`),
         cert: fs.readFileSync(`/etc/ssl/${env.domain_name}.crt`)
     }) : createServer();
-    // const server = createServer();
     const wss = new WebSocketServer({ server, path: "/s-ws/" });
     console.log("Ws server created");
 

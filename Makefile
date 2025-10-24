@@ -20,7 +20,7 @@ ENV = .env
 
 COMPOSE_FILE = ./docker-compose.yml
 
-all: $(ENV) down up
+all: $(ENV) clean build
 
 $(ENV): env
 
@@ -49,16 +49,13 @@ build:
 up:
 	docker compose -f $(COMPOSE_FILE) up
 
-detach:
-	docker compose -f $(COMPOSE_FILE) up -d
-
-down:
+down: clean-dist
 	docker compose -f $(COMPOSE_FILE) down
 
 ps:
 	docker compose -f $(COMPOSE_FILE) ps
 
-clean: clean-modules
+clean: clean-dist clean-modules
 	docker compose -f $(COMPOSE_FILE) down --rmi all -v --remove-orphans
 
 fclean: clean clean-db
@@ -85,8 +82,10 @@ clean-db:
 	@rm -f $(DB)
 	@echo " ✔ DB deleted";
 
-clean-modules:
+clean-dist:
 	@rm -rf $(FRONTEND_DIR)/dist
+
+clean-modules:
 	@rm -rf $(FRONTEND_DIR)/node_modules \
 		$(USERS_DIR)/node_modules \
 		$(UPLOAD_DIR)/node_modules \
@@ -104,4 +103,4 @@ clean-env:
 	@rm .env
 	@rm -r secrets
 
-.PHONY: all re clean fclean down up detach clean-machine env clean-modules clean-db clean-env dev prod
+.PHONY: all re clean fclean down up build ps clean-machine env clean-dist clean-modules clean-db clean-env dev prod

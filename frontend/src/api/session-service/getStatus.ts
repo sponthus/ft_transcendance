@@ -35,7 +35,6 @@ export async function getUserStatus(slug: string): Promise<StatusResult> {
 		}
 
 		const status: UserStatus = await response.json();
-		console.log(status);
 		return { ok: true, status: status };
 
 	} catch (error) {

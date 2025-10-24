@@ -35,7 +35,7 @@ export class PongGame {
 			this.gameOption = 0;
 		
 		this.gameId = gameId;
-		console.debug("➡️ Launching game ", this.gameId, " with AI mode ", this.gameMode, " and option ", this.gameOption);
+		console.log("➡️ Launching game ", this.gameId, " with AI mode ", this.gameMode, " and option ", this.gameOption);
 
 		this.inputs = {}; // { player1: {...}, player2: {...} }
 		this.input1 = {};

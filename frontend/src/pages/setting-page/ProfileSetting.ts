@@ -19,7 +19,7 @@ export async function renderProfileSetting(ButtonDiv: HTMLElement, SettingDiv: H
 
 	append(form, [(createFormDiv(["password", "new-password", "choose a new password", true]
 						, "new-pass"
-						, "pleasez choose new password"
+						, "please choose new password"
 						, [""
 							, "block text-sm font-medium text-emerald-500 mb-2"
 							, "w-full px-4 py-3 border bg-orange-200 border-green-800 rounded-lg"
@@ -59,9 +59,9 @@ export async function saveUserForm() {
 			const password = formData.get('new-pass') as string;
 			const ConfirmPassword = formData.get('confirm-pass') as string;
 			if ((!ConfirmPassword && password) || (ConfirmPassword && !password))
-				throw new Error("please complete password form");
+				throw new Error("Please complete password form");
 			else if (password && ConfirmPassword && password != ConfirmPassword)
-				throw new Error("dissmatch passwords");
+				throw new Error("Missmatch passwords");
 			if (password && ConfirmPassword) {
 				const req = await updatePassword(password);
 				if (!req.ok)

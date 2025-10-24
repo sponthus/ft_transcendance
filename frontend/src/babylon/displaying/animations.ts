@@ -26,24 +26,24 @@ export class renderAnimation {
 
 		this._walkAnimation = this._scene?.getAnimationGroupByName("walk");
 		if (!this._walkAnimation)
-			throw new Error("failed to load walk animation");
+			throw new Error("Failed to load walk animation");
 	
 		this._idleAnimation = this._scene?.getAnimationGroupByName("idle");
 		if (!this._idleAnimation)
-			throw new Error("failed to load idle animation");
+			throw new Error("Failed to load idle animation");
 	
 		this. _idleNpcAnimation = this._scene?.getAnimationGroupByName("npc_idle");
 		if (!this._idleNpcAnimation)
-			throw new Error("failed to load yes animation");
+			throw new Error("Failed to load yes animation");
 	
 		this._openChest = this._scene?.getAnimationGroupByName("chest_open");
 		if (!this._openChest)
-			throw new Error("failed to load open animation");
+			throw new Error("Failed to load open animation");
 	
 		this.stopOpen();
 		this._closeChest = this._scene?.getAnimationGroupByName("chest_close");
 		if (!this._closeChest)
-			throw new Error("failed to load close animation");
+			throw new Error("Failed to load close animation");
 	}
 
 	animateTrees() {

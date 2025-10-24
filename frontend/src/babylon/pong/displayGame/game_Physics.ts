@@ -90,7 +90,6 @@ export class GamePhysics {
 		this._displayName = new DisplayName(this._scene, "player1", "player2", this._pancartePlayer1, this._pancartePlayer2);
 
 		this._ball.speed = 0;
-		console.log("win ? in game physics", this.Win);
 		this.setupControls();
 
 		this._displayCountBegin = MeshBuilder.CreatePlane("displayCountBegin", { size: 6 }, this._scene);
@@ -155,7 +154,6 @@ export class GamePhysics {
 			
 			if (data.type == "pong")
 			{
-				console.log('Received pong from server');
 				this.socket?.clearHeartbeatTimeout();
 				return;
 			}

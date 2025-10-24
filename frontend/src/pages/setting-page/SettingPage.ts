@@ -18,6 +18,8 @@ export class SettingPage extends BasePage {
 
 	private statePage: number;
 	private ReturnDiv!: HTMLElement;
+
+	private hasRunSetting!: boolean;
 	constructor () {
 		super();
 		this.statePage = 0;
@@ -25,6 +27,7 @@ export class SettingPage extends BasePage {
 
 	async render(): Promise<void> {
 
+		this.hasRunSetting = false;
 		this.renderBanner();
 
 		await this.createHomeSetting();
@@ -71,6 +74,9 @@ export class SettingPage extends BasePage {
 		const gameSettingButton = createButton("Game-Setting", "bg-orange-300 bg-opacity-10 text-orange-200 font-bold h-full w-[40%] rounded-xl shadow-md hover:shadow-lg transition-all duration-200 transform hover:scale-105 text-6xl", "Game-Setting");
 		setbackgroundImages(gameSettingButton, "url('game_ui/setting/SettingPan.png')");
 		gameSettingButton.addEventListener('click', async(e) => {
+			if (this.hasRunSetting)
+				return ;
+			this.hasRunSetting = true;
 			this.statePage = 0;
 			await renderGameSetting(this.ButtonDiv, this.SettingDiv, this.ReturnDiv);
 		});
@@ -81,9 +87,12 @@ export class SettingPage extends BasePage {
 		const ProfileSettingButton = createButton("profile-setting", "bg-orange-300 bg-opacity-10 text-orange-200 font-bold h-full w-[40%] rounded-xl shadow-md hover:shadow-lg transition-all duration-200 transform hover:scale-105 text-6xl", "Profile Setting");
 		setbackgroundImages(ProfileSettingButton, "url('game_ui/setting/SettingPan.png')");
 		ProfileSettingButton.addEventListener('click', async(e) => {
+			if (this.hasRunSetting)
+				return ;
+			this.hasRunSetting = true;
 			this.statePage = 1;
 			await renderProfileSetting(this.ButtonDiv, this.SettingDiv, this.ReturnDiv);
-		});
+		}); 
 		append(this.ButtonDiv, [ProfileSettingButton]);
 	}
 
@@ -136,6 +145,7 @@ export class SettingPage extends BasePage {
 			await this.displayButtonDiv();
 			await this.cleanSettingdiv();
 		},300);
+		this.hasRunSetting = false;
 	}
 
 	private async displayButtonDiv() {

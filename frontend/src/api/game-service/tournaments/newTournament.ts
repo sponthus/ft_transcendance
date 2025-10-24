@@ -37,7 +37,6 @@ type TournamentSuccess = { ok: true; tournament: TournamentInfos }
 export type TournamentResult = TournamentSuccess | Failure;
 
 export async function createTournament(name: string, playersList: Array<string>, option: number = 1): Promise<TournamentResult> {
-	console.log('name', name, 'players list', playersList);
 
 	try {
 		const res = await fetch('/api/games/tournament', {

@@ -90,7 +90,7 @@ export class BabylonSceneBuilder
 	get ball(): BallMesh | null 
 	{
 		if (!this._ball)
-			throw new Error("");
+			throw new Error("Failed to load ball");
 		return this._ball;
 	}
 

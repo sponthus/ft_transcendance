@@ -55,7 +55,7 @@ class DatabaseEventHandler {
     }
 
     async   handlePlayerScored(eventData) {
-        console.log('💾 Loading score:', eventData);
+        // console.log('💾 Loading score:', eventData);
 
 		try {
 			this.DatabaseHandler.updateScore(eventData.gameId, eventData.scoreA, eventData.scoreB);

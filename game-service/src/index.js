@@ -85,32 +85,60 @@ export function getSecret(name) {
 		const key = fs.readFileSync(`/run/secrets/${name}`, 'utf8').trim();
 		return (key);
 	} catch (error) {
-		console.log("❌ Critical error : Unable to read secret ", name);
+		console.error("❌ Critical error : Unable to read secret ", name);
 		process.exit(1);
 	}
 }
+
+fastify.decorate("int_authenticate", async function (request, reply)
+{
+	try 
+	{
+		if (!request.headers)
+			return reply.code(401).send({ error: "Authentication required" });
+		// Check internal API key only
+		const internalApiKey = request.headers['x-internal-api-key'];
+		if (internalApiKey)
+			if (internalApiKey === getSecret('api_key')) {
+				return;
+			} else {
+				return reply.code(401).send({ error: "Invalid API key" });
+			}
+		else {
+			return reply.code(401).send({ error: "Authentication required" });
+		}
+	} 
+	catch (err)
+	{
+		console.warn(`Internal auth refused to ${request.ip || request.headers['x-forwarded-for'] || ''}: `, err.message);
+		return reply.code(401).send({error : err.message});
+	}
+});
 
 fastify.decorate("authenticate", async function (request, reply)
 {
     try 
     {
 		// Check internal API key
-		const internalApiKey = request.headers['x-internal-api-key'];
-		if (internalApiKey && internalApiKey === getSecret('api_key')) {
-			return;
+		if (request.headers && request.headers['x-internal-api-key']) {
+			const internalApiKey = request.headers['x-internal-api-key'];
+			if (internalApiKey === getSecret('api_key'))
+				return;
+			else {
+				return reply.code(401).send({ error: "Invalid API key" });
+			}
 		}
-		else 
-		{
-			const result = fastify.unsignCookie(request.cookies.token); //verifie manuellement signature cookie
+		else if (request.cookies && request.cookies.token)
+		{		
+			const result = fastify.unsignCookie(request.cookies.token); // Check cookie signature
   	      	if (!result.valid)
    	        	return reply.code(401).send({ error: "Invalid cookie" });
-    	    // console.debug("\nToken dans le game-service : " + result.value + "-");
-    	    request.user = await fastify.jwt.verify(result.value); //Décode et verifie le token et stock ses infos dans request
+    	    request.user = await fastify.jwt.verify(result.value); // Check external JWT token from users and store their infos in request.user
     	    if (request.user.twofa_pending === true)
             	return reply.code(401).send({ error: "2FA required" });
+		} else {
+			return reply.code(401).send({ error: "Authentication required" });
 		}
-		//	await request.jwtVerify(); // Check external JWT token from users and store their infos in request.user
-		// console.log("Decoded token:", request.user);
     }
     catch (err)
     {
