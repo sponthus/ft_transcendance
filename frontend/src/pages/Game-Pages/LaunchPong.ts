@@ -24,7 +24,6 @@ export class launchPong {
 		const frameDuration = 1000 / targetFPS;
 		let now;
 		let delta;
-		this.Render.PongGame!.GamePhysics!.setMaxScore = 5;
 		window.addEventListener('keydown', (ev) => {
 		if (ev.key == "Escape") {
 			this.Render.engine?.stopRenderLoop();
