@@ -21,6 +21,8 @@ export default class WebSocketManager {
                     message = JSON.parse(data);
 				} catch (error) {
                     console.error('❌ Invalid JSON received:', error);
+					this.disconnectWs(ws, 1007, "Invalid message format");
+					return;
                 }
 				const formatCheck = checkWebSocketMessageFormat(message);
                 if (!formatCheck.valid) {

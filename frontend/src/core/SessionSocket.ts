@@ -139,7 +139,7 @@ export class SessionSocket {
 				await logoutUser();
 				await ErrorPopup("Session expired, please log in again");
 				await navigate('/login');
-			} else {
+			} else if (event.code != 4000 && this.shouldAttemptReconnect) {
 				this.reconnect();
 			}
 		};

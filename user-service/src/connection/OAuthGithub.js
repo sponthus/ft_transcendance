@@ -36,14 +36,14 @@ export async function loginThroughGithub(request, reply)
     const fastify = request.server;
 
     let accessToken
-    try
-    {
+    // try
+    // {
         accessToken = await fastify.auth.getAccessTokenFromAuthorizationCodeFlow(request);
-    }
-    catch (err)
-    {
-        return reply.code(401).send({ error: "Invalid or expired authorization code." });
-    }
+    // }
+    // catch (err)
+    // {
+    //     return reply.code(401).send({ error: "Invalid or expired authorization code." });
+    // }
     try
     {
         const userInfo = await createUserWithGithubInfos(accessToken.token.access_token, fastify.db);

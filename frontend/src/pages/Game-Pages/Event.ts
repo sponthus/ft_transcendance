@@ -222,7 +222,7 @@ export class Event {
 		if (tmpA.startsWith('@')) {
 			this.LocalGamePage.setPlayerB = '@' + this.LocalGamePage._userData.slug;
 			this.LocalGamePage.setPlayerBInput = this.LocalGamePage._userData.username;
-			if (this.LocalGamePage._Ai === 0)	
+			if (this.LocalGamePage._Ai === 0)
 				this.LocalGamePage._playerBinput.readOnly = true;
 		}
 		else {
