@@ -125,15 +125,12 @@ fastify.decorate("verifyApiKey", async function (request, reply)
     const   apiKey = request.headers['x-internal-api-key'];
     if (!apiKey || apiKey !== getSecret('api_key'))
 		return reply.code(401).send({ message: 'Unauthorized: Invalid API Key' });
-
-    console.log('Check API key success');
 });
 
 fastify.decorate("authenticate_2fa", async function (request, reply)
 {
     try 
     {
-        console.log("Check 2FA");
         const result = fastify.unsignCookie(request.cookies.token); 
         if (!result.valid)
             return reply.code(401).send({ message: "Invalid cookie" });
@@ -158,7 +155,6 @@ fastify.decorate("authenticate", async function (request, reply)
             return reply.code(401).send({ message: "Invalid cookie" });
         request.user = await fastify.jwt.verify(result.value); //Décode et verifie le token et stock ses infos dans request
 
-		console.log(`token = ${request.token}`)
         if (request.user.twofa_pending === true)
             return reply.code(401).send({ message: "2FA required" });
 
@@ -171,7 +167,6 @@ fastify.decorate("authenticate", async function (request, reply)
 	}
 	catch (err)
 	{
-        console.log('err : ', err);
 	    return reply.code(401).send({message: err.message});
     }
     try
@@ -220,7 +215,7 @@ fastify.get('/', async (req, reply) => {
 
 // Default handler for undefined routes
 fastify.setNotFoundHandler((req, reply) => {
-    console.log("ERREUR 404", {
+    console.log("Error 404", {
         url: req.url,
         method: req.method,
         headers: req.headers
@@ -234,12 +229,6 @@ fastify.setErrorHandler(function (error, request, reply) {
   } else {
     reply.send(error);
   }
-});
-
-
-fastify.addHook('onError', (request, reply, error, done) => {
-  console.log('🔥 onError triggered');
-  done();
 });
 
 fastify.listen({ port: env.user_port, host: `${env.ip}` }, (err, address) => {

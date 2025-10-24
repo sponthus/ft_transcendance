@@ -30,7 +30,6 @@ export default async function updateUsername (request, reply)
         const ext = old.avatar.split(".").pop();
         const slug = generateUniqueSlug(baseSlug, db);
         const newAvatar = `${slug}.${ext}`;
-        console.debug('newAvatar ', newAvatar);
         db.prepare ("   UPDATE \
                             users \
                         SET \

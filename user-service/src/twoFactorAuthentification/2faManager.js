@@ -8,7 +8,7 @@ export async function activateTwoFa(request, reply)
     const   db = request.server.db;
     const   idUser = request.user.idUser;
 	
-	console.debug(`Activate 2FA for user ID: ${idUser}`);
+	console.log(`Activate 2FA for user ID: ${idUser}`);
     try
     {
          const stmt = db.prepare("  SELECT \
@@ -69,7 +69,6 @@ export async function checkTwoFaCode(request, reply)
             return reply.code(400).send({ message: "No 2FA setup found" });
 
         const   secret = decrypt(row.twofa_secret);
-        console.log('SSSecret 2fa : ', secret);
         const   codeVerified = speakeasy.totp.verify(
         {
             secret: secret,
@@ -100,7 +99,6 @@ export async function checkTwoFaCode(request, reply)
                                             WHERE \
                                                 id = ?").get(idUser);
             const token = await reply.jwtSign({ idUser: idUser, username: userInfo.username, slug: userInfo.slug }, {expiresIn: '1h'});
-            console.log('Token de la 2fa', token);
             let secure = false;
             if (env.nodeEnv === 'production')
                 secure = true;

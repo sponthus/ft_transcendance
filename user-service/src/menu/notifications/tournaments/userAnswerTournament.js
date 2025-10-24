@@ -32,12 +32,10 @@ export async function   userAnswerTournament(request, reply)
         let url;
         if (answer === "decline")
         {
-            console.log("Declined invitation")
             url = `${prefix}://game-service:${env.game_port}/tournament/decline`;
         }
         else
         {
-            console.log("Accepted invitation")
             url = `${prefix}://game-service:${env.game_port}/tournament/accept`;
         }
         const req = await answerTournament(idUser, ownerId.id, tournamentId, tournamentName, url);

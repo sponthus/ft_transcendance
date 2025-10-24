@@ -40,8 +40,6 @@ export function initOAuthGithub(fastify)
 
         checkStateFunction: (request, callback) => {
             const state = request.url.split('state=')[1];
-            console.log(state)
-
             if (!oauthStateMap.has(state)) {
                 callback(new Error('Invalid state'));
                 return;
