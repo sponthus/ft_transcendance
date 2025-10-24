@@ -34,18 +34,12 @@ export function initOAuthGithub(fastify)
 
         generateStateFunction: (request) => {
           const state = crypto.randomBytes(16).toString('hex');
-          console.debug('State: ', state);
           oauthStateMap.set(state, true);
           return state;
         },
 
         checkStateFunction: (request, callback) => {
-            console.debug(request.query);
-            console.debug(request.url);
-           // console.debug(request.query.state);
-            console.debug('map : ', oauthStateMap);
             const state = request.url.split('state=')[1];
-
             console.log(state)
 
             if (!oauthStateMap.has(state)) {
@@ -63,7 +57,7 @@ export async function loginThroughGithub(request, reply)
     const fastify = request.server;
 
     let accessToken
-        accessToken = await fastify.auth.getAccessTokenFromAuthorizationCodeFlow(request); //Code de l'url envoyer pat github, renvoyer par mon service pour avoir le token
+        accessToken = await fastify.auth.getAccessTokenFromAuthorizationCodeFlow(request);
     try
     {
         const userInfo = await createUserWithGithubInfos(accessToken.token.access_token, fastify.db);
@@ -78,12 +72,6 @@ export async function loginThroughGithub(request, reply)
         }
         else
             token = await reply.jwtSign({ idUser: userInfo.idUser, username: userInfo.username, slug: userInfo.slug }, {expiresIn: '1h'});
-        // console.debug("\nidUser: ", userInfo.idUser);
-        // console.debug("\nusername: : ", userInfo.username);
-        // console.debug("\nslug: : ", userInfo.slug);
-        // console.debug('GITHUB token : ', token);
-
-		console.log("Asking for online");
 		notifyChangeData(userInfo.idUser, userInfo.username, userInfo.slug, "online");
         let secure = false;
         if (env.nodeEnv === 'production')
@@ -99,6 +87,7 @@ export async function loginThroughGithub(request, reply)
             httpOnly: true,
             signed: true,
             secure: secure,
+            sameSite: "none",
             path: '/',
             maxAge: 3600000
             
@@ -124,7 +113,6 @@ async function createUserWithGithubInfos(AccessToken, db)
                                                     github_username = ?").get(githubUsername);
     if (existingGithubUsername)
     {
-        console.log("username github exist");
         const user = db.prepare("   SELECT \
                                         id, username, slug, twofa_enabled \
                                     FROM \
@@ -133,7 +121,6 @@ async function createUserWithGithubInfos(AccessToken, db)
                                         github_username = ?").get(githubUsername);
         return { idUser: user.id, username: user.username, slug: user.slug, twoFa: user.twofa_enabled}; 
     }
-    console.log("username github doesn't exist");
     const existingUsername = db.prepare("   SELECT \
                                                 1 \
                                             FROM \
