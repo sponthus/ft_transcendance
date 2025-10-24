@@ -10,8 +10,6 @@ enum EditState {AVATAR = 0, USERNAME = 1};
 
 export class EditProfile extends popUp {
 
-	// protected slug?: string;
-
 	private BtnDiv!: HTMLElement
 	private EditingState!: number;
 	private isEdit!: boolean;

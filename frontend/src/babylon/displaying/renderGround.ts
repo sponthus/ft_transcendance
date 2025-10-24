@@ -66,7 +66,7 @@ export class renderGround {
 		this._waterMaterial.waveHeight = 0.5;
 		this._waterMaterial.waveLength = 0.05;
 		
-		this._waterMaterial.waterColor =  new BABYLON.Color3(0.1, 0.4, 1.4); //new BABYLON.Color3(0.0882353, 0.28627452, 0.48235294);
+		this._waterMaterial.waterColor =  new BABYLON.Color3(0.1, 0.4, 1.4);
 		this._waterMaterial.colorBlendFactor = 0.1;
 		this._waterMaterial.alpha = 1.6; 
 		this._waterMaterial.addToRenderList(this._skybox);

@@ -132,10 +132,6 @@ export class renderScene {
 		this._isocamera.orthoTop    =  halfHeight;
 		this._isocamera.orthoBottom = -halfHeight;
 		this._isocamera.detachControl();
-		/***************************for debug to delete at end of project***************************/
-		// this._isocamera.attachControl(this._canvas, true);
-		// if (this._homeScene)
-		// 	this._homeScene.activeCamera = this._isocamera;
 	}
 
 	private _initLight() {

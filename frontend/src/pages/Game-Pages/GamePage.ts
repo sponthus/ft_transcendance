@@ -99,7 +99,6 @@ export class GamePage extends popUp {
 			this.cleanPage();
 			await this.TournamentPage.renderNewTournament();
 			this.Event.manageNewTournamentEvent();
-			// manage new tournament event
 		} , 300);	
 	}
 
@@ -126,7 +125,6 @@ export class GamePage extends popUp {
 			this.cleanPage();
 			this.TournamentPage.renderWaitingScreen(IdTournament);
 			this.Event.manageWaitingScreenEvent();
-			// manage Event waiting
 		}, 300);
 	}
 

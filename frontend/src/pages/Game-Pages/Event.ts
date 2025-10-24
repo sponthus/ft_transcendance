@@ -455,7 +455,6 @@ export class Event {
 			if (!request.ok) {
 				throw new Error('Unable to start game : ' + request.error);
 			}
-			// state.launchGame(gameId);
 			this.renderGame(gameId, tournament);
 		} 
 		catch (error) {
