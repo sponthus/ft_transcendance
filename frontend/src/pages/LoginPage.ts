@@ -118,7 +118,6 @@ export class LoginPage extends BasePage {
 		if (!this.Form) 
 			this.ErrorForm();
 		else {
-			console.log("coucou");
 			this.Form.addEventListener('submit', async (e) => {
 				if (this.Form.dataset.locked === "true") return;
 				this.Form.dataset.locked = "true";
