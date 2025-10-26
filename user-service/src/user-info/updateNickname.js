@@ -1,9 +1,5 @@
-// import { checkNicknameFormat } from "../tools/checkFormat.js";
-
 export default async function   updateNickname (request, reply)
 {
-	// TODO : Mettre son propre nickname = 409 ? preciser l'erreur
-
     const db = request.server.db;
     const newNickname = request.body.nickname;
     const idUser = request.user.idUser;      

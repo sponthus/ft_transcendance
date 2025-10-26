@@ -28,6 +28,6 @@ export async function getUserIdFromSlug(slug) {
 		}
 	} catch (error) {
 		console.error("❌ Error while requesting userId from slug: ", error);
-		return { ok: false, error: "Internal error while requesting userId from slug"};
+		return { ok: false, error: "Internal server error"};
 	}
 }

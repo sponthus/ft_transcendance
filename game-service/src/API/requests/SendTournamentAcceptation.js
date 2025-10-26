@@ -31,8 +31,8 @@ export async function sendTournamentAcceptation(inviterId, inviteeId, tournament
 		if (res.ok)
 			return { ok: true };
 		const data = await res.json();
-		console.log("Data received from user-service: ", data);
-		console.log("Status code: ", res.status);
+		// console.debug("Data received from user-service: ", data);
+		// console.debug("Status code: ", res.status);
 		return { ok: false, error: data.error, code: res.status };
 	} catch (error) {
 		console.error("❌ Error while sending tournament acceptation notice: ", error);

@@ -15,7 +15,7 @@ export default class GameMaster {
 		// Load Q-table from JSON file
 		const data = fs.readFileSync("q_table.json", "utf-8");
 		this.qtable = JSON.parse(data);
-		console.debug("Q-Table loaded");
+		console.log("Q-Table loaded");
 		// console.debug(this.qtable);
 		// console.debug(typeof this.qtable);
 		// console.debug(typeof this.qtable["00"]);
@@ -32,11 +32,13 @@ export default class GameMaster {
         if (this.games.has(Number(gameId))) {
 			const game = this.games.get(Number(gameId));
             if (!game)
-                throw new Error("No game found for this id");
+                return false;
 			if (game.userId !== userId)
-                throw new Error("This game is not yours");
+                return false;
             game.ws = ws;
-            game.server.addWs(ws);
+            if (game.server.addWs(ws) == false) {
+				return false;
+			}
 			console.log(`✅ User ${userId} authenticated to game ${gameId}`);
 			return true;
 		} 
@@ -82,7 +84,7 @@ export default class GameMaster {
 
     // gameId has been checked when server creation is called
     createServer(gameId, userId, maxScore, tournament, ai, option, players) {
-		console.log("Creating game with : tournament ",tournament, " ai, option ", ai, option, "players: ", players);
+		console.log("Creating game with : tournament ",tournament, " ai, option ", ai, option);
 		if (players.length != 2) {
 			throw new Error("Invalid number of players");
 		}
@@ -102,7 +104,7 @@ export default class GameMaster {
     // Call when a game is finished to destroy its object completely
     endServer(gameId) {
         if (!gameId) {
-            console.debug(`No gameId given`);
+            console.warn(`No gameId given`);
             return ;
         }
         if (this.games.has(Number(gameId))) {
@@ -113,7 +115,7 @@ export default class GameMaster {
             this.games.delete(Number(gameId));
             console.log("🔴 GameServer stopped");
         } else {
-            console.debug(`No server associated with gameId ${gameId}`);
+            console.warn(`No server associated with gameId ${gameId}`);
         }
     }
 }

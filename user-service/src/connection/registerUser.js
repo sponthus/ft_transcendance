@@ -41,7 +41,6 @@ export default async function registerUser(request, reply)
                 secure: secure,
                 path: '/',
                 maxAge: 3600000
-                //TODO mettre same site
             }).send();
     }
     catch (err)

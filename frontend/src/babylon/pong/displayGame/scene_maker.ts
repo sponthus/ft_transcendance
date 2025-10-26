@@ -81,10 +81,8 @@ export class BabylonSceneBuilder
 
 	private initializeBall()
 	{
-		//this._ball = Babylon.MeshBuilder.CreateBox("ball", {width: 0.5, height: 0.5, depth:0.5}) as BallMesh;
 		this._ball = Babylon.MeshBuilder.CreateSphere("ball", { diameter: 0.5}, this._scene) as BallMesh;
 		this._ball.position.y = 0;
-		//this._ball.direction = new Babylon.Vector3(0.1, 0, 0.5);
 		this._ball.direction = Babylon.Vector3.Zero();
 		this._ball.speed = 0;
 	}

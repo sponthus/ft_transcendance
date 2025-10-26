@@ -1,4 +1,5 @@
 import OAuth2 from '@fastify/oauth2'
+import crypto from 'crypto';
 import { getSecret } from '../index.js';
 import env from '../../config/env.js';
 import prefix from '../tools/url.js';
@@ -7,13 +8,14 @@ import slugify from "slugify";
 import { generateUniqueUsername, generateUniqueSlug } from '../tools/generateUnique.js';
 import { notifyChangeData } from '../internal-service/notifyServices.js';
 
+
 export function initOAuthGithub(fastify)
 {
 	let link = `${prefix}://localhost:5173/api/user/oauth/github/callback`;
 	if (env.nodeEnv === 'production') {
 		link = `${prefix}://${env.host}:4443/api/user/oauth/github/callback`;
 	}
-	// console.log("OAuth Github callback link : ", link);
+    const oauthStateMap = new Map();
     fastify.register(OAuth2, 
     {
         name: 'auth',
@@ -28,6 +30,23 @@ export function initOAuthGithub(fastify)
         },
         startRedirectPath: '/oauth/github',
         callbackUri: link,
+
+
+        generateStateFunction: (request) => {
+          const state = crypto.randomBytes(16).toString('hex');
+          oauthStateMap.set(state, true);
+          return state;
+        },
+
+        checkStateFunction: (request, callback) => {
+            const state = request.url.split('state=')[1];
+            if (!oauthStateMap.has(state)) {
+                callback(new Error('Invalid state'));
+                return;
+            }
+            oauthStateMap.delete(state);
+            callback();
+        }
     });
 }
 
@@ -36,14 +55,7 @@ export async function loginThroughGithub(request, reply)
     const fastify = request.server;
 
     let accessToken
-    // try
-    // {
         accessToken = await fastify.auth.getAccessTokenFromAuthorizationCodeFlow(request);
-    // }
-    // catch (err)
-    // {
-    //     return reply.code(401).send({ error: "Invalid or expired authorization code." });
-    // }
     try
     {
         const userInfo = await createUserWithGithubInfos(accessToken.token.access_token, fastify.db);
@@ -58,12 +70,6 @@ export async function loginThroughGithub(request, reply)
         }
         else
             token = await reply.jwtSign({ idUser: userInfo.idUser, username: userInfo.username, slug: userInfo.slug }, {expiresIn: '1h'});
-        // console.debug("\nidUser: ", userInfo.idUser);
-        // console.debug("\nusername: : ", userInfo.username);
-        // console.debug("\nslug: : ", userInfo.slug);
-        // console.debug('GITHUB token : ', token);
-
-		console.log("Asking for online");
 		notifyChangeData(userInfo.idUser, userInfo.username, userInfo.slug, "online");
         let secure = false;
         if (env.nodeEnv === 'production')
@@ -79,6 +85,7 @@ export async function loginThroughGithub(request, reply)
             httpOnly: true,
             signed: true,
             secure: secure,
+            sameSite: "none",
             path: '/',
             maxAge: 3600000
             
@@ -104,7 +111,6 @@ async function createUserWithGithubInfos(AccessToken, db)
                                                     github_username = ?").get(githubUsername);
     if (existingGithubUsername)
     {
-        console.log("username github exist");
         const user = db.prepare("   SELECT \
                                         id, username, slug, twofa_enabled \
                                     FROM \
@@ -113,7 +119,6 @@ async function createUserWithGithubInfos(AccessToken, db)
                                         github_username = ?").get(githubUsername);
         return { idUser: user.id, username: user.username, slug: user.slug, twoFa: user.twofa_enabled}; 
     }
-    console.log("username github doesn't exist");
     const existingUsername = db.prepare("   SELECT \
                                                 1 \
                                             FROM \

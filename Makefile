@@ -84,7 +84,6 @@ clean-db:
 
 clean-dist:
 	@rm -rf $(FRONTEND_DIR)/dist
-	@echo " ✔ Frontend dist deleted";
 
 clean-modules:
 	@rm -rf $(FRONTEND_DIR)/node_modules \

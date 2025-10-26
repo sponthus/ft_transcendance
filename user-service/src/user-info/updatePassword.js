@@ -1,4 +1,3 @@
-// import { checkPasswordFormat } from "../tools/checkFormat.js";
 import bcrypt from "bcrypt";
 
 export default async function   updatePassword (request, reply)
