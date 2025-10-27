@@ -48,7 +48,7 @@ export default class WebSocketManager {
 				}
 				if (message.type !== 'auth' && message.type !== 'ping')
 					console.log('Message received :', message);
-				else
+				else if (message.type === 'auth')
 					console.log('Auth message received');
 
 				try {
