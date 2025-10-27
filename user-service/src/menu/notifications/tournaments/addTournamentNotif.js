@@ -5,12 +5,12 @@ export async function addTournamentNotif (request, reply)
     const   db = request.server.db;
     const   { type, receiverId, senderId, tournamentId, tournamentName } = request.body;
   
-	console.debug("Adding tournament notification:");
-	console.debug(request.body);
+	console.log("Adding tournament notification:");
+	// console.debug(request.body);
     try
     {
         if (checkUsersExist(db, receiverId, senderId) === false) {
-			console.debug("Some users you're trying to notify do not exist");
+			// console.warn("Some users you're trying to notify were not found");
             return reply.code(404).send({ error: "Some users you\’re trying to notify were not found" });
 		}
 
@@ -30,7 +30,7 @@ export async function addTournamentNotif (request, reply)
         });
         addNotifTournament(type, receiverIds, senderId, tournamentId, tournamentName);
 		notifyRefresh(receiverIds, tournamentId, type);
-		console.debug("Tournament notification added successfully");
+		console.log("Tournament notification added successfully");
         return reply.code(200).send();
     }
     catch (err)

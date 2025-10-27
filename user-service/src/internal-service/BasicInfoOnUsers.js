@@ -45,7 +45,7 @@ export async function getUserInfosFromId(request, reply)
 	const UserId = parseInt(idUser);
 
     const   db = request.server.db;
-	console.debug("➡️ Getting info for user id ", UserId);
+	console.log("➡️ Getting info for user id ", UserId);
 
     try
     {

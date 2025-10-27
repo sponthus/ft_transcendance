@@ -380,7 +380,7 @@ export default class WebSocketManager {
 
 	
     sendToUserId(userId, message) {
-		console.debug(this.clients);
+		// console.debug(this.clients);
 		const client = this.getClientByUserId(Number(userId));
 		if (!client) {
 			console.warn(`Unknown user when send message `, message);

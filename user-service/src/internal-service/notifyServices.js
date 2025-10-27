@@ -13,7 +13,7 @@ export async function notifyRefresh(idReceivers, sender, message)
 		receivers = [Number(idReceivers)];
 	else if (Array.isArray(idReceivers) == true)
 		receivers = idReceivers;
-	console.debug("💬 Notify refresh to session-service for users: ", receivers, " - type = ", typeof receivers, typeof receivers[0]);
+	console.log("💬 Notify refresh to session-service for users: ", receivers, " - type = ", typeof receivers, typeof receivers[0]);
     try
     {
         const res = await fetch(`${prefix}://session-service:${env.session_port}/message`, 
@@ -41,7 +41,7 @@ export async function notifyRefresh(idReceivers, sender, message)
 
 export async function notifyChangeData(idUser, username, slug, status="online") 
 {
-	console.debug("💬 Notify change data to session-service");
+	console.log("💬 Notify change data to session-service");
     const api_key = getSecret('api_key');
     try
     {

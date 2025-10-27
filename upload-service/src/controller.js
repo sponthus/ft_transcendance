@@ -45,11 +45,11 @@ export async function uploadAvatar(request, reply) {
 				const result = await updateAvatar(fileName, user.idUser, user.slug);
 				if (!result.ok)
 				{
-					console.debug('💬 Error update avatar : ', updateAvatar);
+					console.warn('💬 Error update avatar : ', updateAvatar);
 					return reply.code(result.status).send({error : result.error});
 				}
 				else
-					console.debug('💬 Avatar succesfully updated in user-service');
+					console.log('💬 Avatar succesfully updated in user-service');
 				const filePath = path.join(avatarDir, fileName);
 	
 				try {
