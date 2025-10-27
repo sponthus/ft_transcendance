@@ -1,6 +1,6 @@
 import { popUp } from '../../Utils/popUp.js';
 import { renderScene } from '../../babylon/displaying/renderScene.js';
-import { createDiv, createElement, createButton, createDropdownDiv, append, createImage, setbackgroundImages} from '../../Utils/elementMaker.js';
+import { createDiv, createElement, createButton, append, createImage, setbackgroundImages} from '../../Utils/elementMaker.js';
 import { LocalGamePage } from './LocalGamePage.js';
 import { TournamentPage } from "./tounramentPage.js";
 import { Event } from './Event.js';
@@ -9,14 +9,6 @@ import { endGamePage } from './endGamePage.js';
 import { ErrorPopup } from '../ErrorPage.js';
 
 export type Waiting = {idTournament: number, IsWaiting: boolean};
-
-export async function renderDropdown(Parent: HTMLElement, Options: string[], Name: string, TextContent: string): Promise<void> {
-	const Div = createDropdownDiv(Options, Name, TextContent, 
-		["flex items-center w-full h-[10%] justify-between p-4 bg-orange-300 focus:bg-orange-400  rounded-lg py-3 px-4 space-x-4",
-		"w-[40%]  text-emerald-600 font-bold underline", 
-		"w-[30%]  bg-orange-400 rounded-lg text-emerald-700"]);
-	append(Parent, [Div]);
-}
 
 export class GamePage extends popUp {
 
