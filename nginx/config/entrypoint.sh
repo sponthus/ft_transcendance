@@ -79,6 +79,7 @@ try_until "curl -ks ${PREFIX}://session-service:${SESSION_PORT}/health" "Waiting
 if env | grep -q "^NODE_ENV=development"; then
 	try_until "curl -ks ${PREFIX}://frontend:${VITE_PORT}/health" "Waiting for frontend dev server..."
 else
+	sleep 30
 	try_until "[ -f /usr/share/nginx/html/build-ready ]" "Waiting for frontend build..."
 fi
 
