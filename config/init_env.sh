@@ -79,8 +79,8 @@ AUTH_KEY=$(generate_rand "auth_key.txt")
 COOKIE_KEY=$(generate_rand "cookie_key.txt")
 GIT_SECRET=$(store_secret "git_secret.txt" "TODO complete me")
 GIT_ID=$(store_secret "git_id.txt" "TODO complete me")
-SSH_CERT=$(store_secret "ssl_cert.txt" "TODO complete me")
-SSH_KEY=$(store_secret "ssl_key.txt" "TODO complete me")
+SSH_CERT=$(store_secret "ssl_cert.crt" "TODO complete me")
+SSH_KEY=$(store_secret "ssl_key.key" "TODO complete me")
 
 NODE_ENV=$(chose_mode "Chose dev mode (1) or production mode (2) : " validate_num_choice)
 

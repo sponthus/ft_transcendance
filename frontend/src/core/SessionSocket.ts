@@ -82,7 +82,11 @@ export class SessionSocket {
 			SessionSocket.instance = new SessionSocket();
 			(window as any).GLOBAL_WEBSOCKET = SessionSocket.instance;
 		}
-
+		if (SessionSocket.instance.isOpen() === false) {
+			SessionSocket.instance.reconnectAttempts = 0;
+			// SessionSocket.instance.shouldAttemptReconnect = true;
+			SessionSocket.instance.reconnect();
+		}
 		return SessionSocket.instance;
 	}
 
@@ -123,12 +127,14 @@ export class SessionSocket {
 			console.log(`Connexion to Session WebSocket closed with code ${event.code} and reason: ${event.reason}`);
 			this.stopHeartbeat();
 			if (event.code == 4002) {
+				// this.shouldAttemptReconnect = false;
 				console.error("Websocket closed due to authentication error");
 				await logoutUser();
 				await ErrorPopup("Authentication error, please log in again");
 				await navigate('/login');
 			}
 			else if (event.code == 4003) {
+				// this.shouldAttemptReconnect = false;
 				console.error("WebSocket closed due to authentication failure");
 				await logoutUser();
 				await ErrorPopup("Session expired, please log in again");
@@ -210,6 +216,8 @@ export class SessionSocket {
 			return;
 		} else if (data.type === "auth_success") {
 			this.reconnectAttempts = 0;
+			// this.shouldAttemptReconnect = true;
+			return;
 		}
 	}
 
@@ -232,6 +240,9 @@ export class SessionSocket {
 	}
 
 	public async reconnect(): Promise<void> {
+		// if (!this.shouldAttemptReconnect) {
+		// 	return;
+		// }
 		if (this.reconnectAttempts >= this.maxReconnectAttempts) {
 			console.error("Max reconnect attempts reached. Giving up.");
 			this.shouldAttemptReconnect = false;
@@ -259,11 +270,12 @@ export class SessionSocket {
 			} else {
 				clearInterval(reconnectInterval);
 			}
-		}, 10000); // Try to reconnect every 10 seconds
+		}, this.reconnectDelay); // Try to reconnect every x seconds
 		// this.sWS.close();
 	}
 
 	public close(code: number = -1, reason: string = ""): void {
+		this.shouldAttemptReconnect = false;
 		this.stopHeartbeat();
 		if (!this.sWS)
 			return;
