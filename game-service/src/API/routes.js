@@ -30,12 +30,12 @@ export default async function routes (fastify, options) {
 				},
                 createTournament);
 			postRoutes.post("/tournament/accept",
-				{onRequest: [fastify.authenticate], 
+				{onRequest: [fastify.int_authenticate], 
 					schema : { body: tournamentActionSchema }
 				},
 				acceptTournamentInvitation);
 			postRoutes.post("/tournament/decline",
-				{onRequest: [fastify.authenticate], 
+				{onRequest: [fastify.int_authenticate], 
 					schema : { body: tournamentActionSchema }
 				},
 				declineTournamentInvitation);
