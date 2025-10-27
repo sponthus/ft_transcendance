@@ -347,6 +347,8 @@ export default class WebSocketManager {
 
 	isUserConnected(userId) {
         const client = this.clients.get(Number(userId));
+		if (client.ws.length == 0)
+			return false;
         return client && client.status !== 'disconnected';
     }
 
@@ -378,13 +380,14 @@ export default class WebSocketManager {
 
 	
     sendToUserId(userId, message) {
+		console.debug(this.clients);
 		const client = this.getClientByUserId(Number(userId));
 		if (!client) {
 			console.warn(`Unknown user when send message `, message);
 			return false;
 		}
 		if (client.ws.length == 0) {
-			console.warn(`User not connected while trying to send message `, message);
+			console.warn(`User ${userId} not connected while trying to send message `, message);
             return false;
 		}
 		let sent = false;
