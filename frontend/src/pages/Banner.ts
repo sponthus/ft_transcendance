@@ -32,7 +32,7 @@ export async function renderLoggedOutBanner(banner: HTMLElement): Promise<void> 
 }
 
 export async function renderLoggedInBanner(banner: HTMLElement, userData: UserInfo): Promise<void> {	
-	if (!checkLoginElement(banner)) { //On sait deja que les infos du user existe grace a la requete
+	if (!checkLoginElement(banner)) { 
 		return;
 	}
 	setLoginUserInfo(userData);

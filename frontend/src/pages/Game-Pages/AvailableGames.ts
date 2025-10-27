@@ -87,7 +87,6 @@ export class availableGames {
 					append(this.bodyParty, [PartyDiv]);
 					this.PartyMap.set(Party, PartyDiv);
 				})
-				// this.ManagePartyEvent();
 			}
 	}
 

@@ -260,7 +260,6 @@ export class SessionSocket {
 				clearInterval(reconnectInterval);
 			}
 		}, 10000); // Try to reconnect every 10 seconds
-		// this.sWS.close();
 	}
 
 	public close(code: number = -1, reason: string = ""): void {

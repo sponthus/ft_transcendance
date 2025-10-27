@@ -42,7 +42,6 @@ export class renderAsset {
 	
 	constructor (scene: BABYLON.Scene) {
 		this._scene = scene;
-		// this._leafShader.backFaceCulling = false;
 	}
 
 	public async _load(): Promise<void> {

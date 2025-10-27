@@ -1,4 +1,4 @@
-export type UserInfo = //VA ETRE CHANGER, le token renvoie le username et l'id du user
+export type UserInfo =
 {
     id?: number
     username: string;
