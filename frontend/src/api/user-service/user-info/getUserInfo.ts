@@ -32,6 +32,8 @@ export async function   getUserInfo() : Promise<GetUserInfoResult>
         {
             return ({ ok: true, userInfo: data.userInfo })   
         }
+		if (res.status === 401)
+			return ({ ok: false, error: undefined });
         return ({ ok: false, error: data.message });
     }
     catch (err)

@@ -5,10 +5,14 @@ export async function addTournamentNotif (request, reply)
     const   db = request.server.db;
     const   { type, receiverId, senderId, tournamentId, tournamentName } = request.body;
   
+	console.debug("Adding tournament notification:");
+	console.debug(request.body);
     try
     {
-        if (checkUsersExist(db, receiverId, senderId) === false)
+        if (checkUsersExist(db, receiverId, senderId) === false) {
+			console.debug("Some users you're trying to notify do not exist");
             return reply.code(404).send({ error: "Some users you\’re trying to notify were not found" });
+		}
 
         let receiverIds;
         if (Array.isArray(receiverId))
@@ -26,10 +30,12 @@ export async function addTournamentNotif (request, reply)
         });
         addNotifTournament(type, receiverIds, senderId, tournamentId, tournamentName);
 		notifyRefresh(receiverIds, tournamentId, type);
+		console.debug("Tournament notification added successfully");
         return reply.code(200).send();
     }
     catch (err)
-    { 
+    {
+        console.error("❌ Error while adding tournament notification: ", err);
         return reply.code(500).send({ error: "Internal Server Error" });
     }
 }

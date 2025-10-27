@@ -164,6 +164,7 @@ fastify.decorate("authenticate_2fa", async function (request, reply)
         if (!result.valid)
             return reply.code(401).send({ message: "Invalid cookie" });
         request.user = await fastify.jwt.verify(result.value);
+		console.debug('authenticate 2fa DECODED TOKEN ', request.user);
         if (request.user.twofa_pending === false)
             return reply.code(401).send({ message: "only tmp token" });
     } 
@@ -183,7 +184,7 @@ fastify.decorate("authenticate", async function (request, reply)
         if (!result.valid)
             return reply.code(401).send({ message: "Invalid cookie" });
         request.user = await fastify.jwt.verify(result.value); //Décode et verifie le token et stock ses infos dans request
-
+		console.debug('authenticate DECODED TOKEN ', request.user);
         if (request.user.twofa_pending === true)
             return reply.code(401).send({ message: "2FA required" });
 
@@ -207,7 +208,7 @@ fastify.decorate("authenticate", async function (request, reply)
                                         FROM \
                                             users \
                                         WHERE \
-                                            id = ?").get(idUser);
+                                            id = ? AND slug = ? AND username = ?").get(idUser, request.user.slug, request.user.username);
         if (!userExists)
             return reply.code(404).send({ message: "User not found" });
 
