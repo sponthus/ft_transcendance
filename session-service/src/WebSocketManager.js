@@ -401,11 +401,13 @@ export default class WebSocketManager {
 					throw new Error("Socket not connected");
 				}
 			} catch (error) {
-				console.error(`❌ Cannot send message to one socket of user ${userId}:`, error);
+				console.error(`❌ Cannot send message to user ${userId}`);
 			}
 		}
 		if (!sent) {
-			console.warn(`⚠️ No active sockets for user ${userId} while trying to send`, message);
+			console.warn(`No active sockets for user ${userId} while trying to send`, message);
+			console.log('Storing message');
+			client.messages.push(JSON.stringify(message));
 		}
 		return sent;
     }
