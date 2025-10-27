@@ -13,7 +13,7 @@ export async function notifyRefresh(idReceivers, sender, message)
 		receivers = [Number(idReceivers)];
 	else if (Array.isArray(idReceivers) == true)
 		receivers = idReceivers;
-	console.log("💬 Notify refresh to session-service for users: ", receivers, " - type = ", typeof receivers, typeof receivers[0]);
+	console.log("💬 Notify refresh to session-service for users: ", receivers);
     try
     {
         const res = await fetch(`${prefix}://session-service:${env.session_port}/message`, 
