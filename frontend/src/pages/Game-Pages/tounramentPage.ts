@@ -12,7 +12,7 @@ export class TournamentPage {
 	private TournamentId?: number;
 	private NextGameId: number;
 	private Username!: string;
-	private TournamentMatches: Map<number, number>; // Map<gameId, idDiv>
+	private TournamentMatches: Map<number, number>;
 
 	private Option: number = 1;
 	/*************************button*************************/
@@ -228,7 +228,7 @@ export class TournamentPage {
 			const data = await getTournamentMatches(this.TournamentId!);
 			if (!data.ok)
 				throw new Error("Unable to get tournament matches");
-				this.TournamentMatches.clear(); // On vide avant de remplir
+				this.TournamentMatches.clear();
 
 				// Assign key = gameId, value = element in div
 				data.matches.forEach((match, index) => {

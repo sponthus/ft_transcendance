@@ -9,7 +9,7 @@ export class LocalGamePage {
 	/*************************for creatingGame*************************/
 	private PlayerA?: string;
 	private PlayerB?: string;
-	private Ai: number; // ia playerA 2 PlayerB 
+	private Ai: number;
 	private MaxScore: number;
 	private Option: number;
 

@@ -20,9 +20,6 @@ export async function renderRoute(path: string) {
 		if (req.error === "No token found")
 			userData = null;
 	}
-    /*else {
-        await ErrorPopup("PAS DE USER INFO DANS ROUTER, PAS POSSIBLE NORMALEMENT");//a enlever
-    }*/ //router est appeler a chaque fois du coup le message s'affiche a chaque page
 
 	let dynamicPart = '';
     // Dynamic routes
