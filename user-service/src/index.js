@@ -12,6 +12,7 @@ import { initOAuthGithub } from "./connection/OAuthGithub.js";
 import { refreshToken } from "./tools/refreshToken.js";
 import Ajv from "ajv";
 import ajvErrors from "ajv-errors";
+import { get } from "http";
 
 const __filename = fileURLToPath(import.meta.url);
 export const __dirname = path.dirname(__filename); 
@@ -22,21 +23,50 @@ const ajv = new Ajv({ allErrors: true, removeAdditional: false });
 ajvErrors(ajv);
 
 if (env.nodeEnv === 'production') {
-	try {
-		fs.accessSync(`/etc/ssl/${env.domain_name}.key`, fs.constants.R_OK);
-		fs.accessSync(`/etc/ssl/${env.domain_name}.crt`, fs.constants.R_OK);
-		console.log("SSL certificates found and accessible");
-	} catch (err) {
-		console.error(err);
-		console.error("❌ Critical message: SSL certificates not found or inaccessible");
-		process.exit(1);
-	}
+	// With cert in volumes
+	// try {
+	// 	fs.accessSync(`/etc/ssl/${env.domain_name}.key`, fs.constants.R_OK);
+	// 	fs.accessSync(`/etc/ssl/${env.domain_name}.crt`, fs.constants.R_OK);
+	// 	console.log("SSL certificates found and accessible");
+	// } catch (err) {
+	// 	console.error(err);
+	// 	console.error("❌ Critical message: SSL certificates not found or inaccessible");
+	// 	process.exit(1);
+	// }
 
-	fastify = Fastify({
+	// fastify = Fastify({
+	// 	logger: logger,
+	// 	https: {
+	// 		key: fs.readFileSync(`/etc/ssl/${env.domain_name}.key`),
+	// 		cert: fs.readFileSync(`/etc/ssl/${env.domain_name}.crt`)
+	// 	},
+    //     ajv:
+    //     {
+    //         customOptions:
+    //         {
+    //             coerceTypes: false,
+    //             removeAdditional: false,
+    //             allErrors: true,
+    //         },
+    //         plugins: [ajvErrors],
+    //     },
+    //     schemaErrorFormatter: (errors, dataVar) => 
+    //     {
+    //         const firstError = errors[0];
+    //         const errorSchema =  { message: firstError.message };
+    //         const err = new Error(errorSchema.message);
+    //         err.validation = errorSchema;
+    //         err.validationContext = dataVar;
+    //         err.statusCode = 400;
+    //         return err;
+    //     }
+	// });
+
+		fastify = Fastify({
 		logger: logger,
 		https: {
-			key: fs.readFileSync(`/etc/ssl/${env.domain_name}.key`),
-			cert: fs.readFileSync(`/etc/ssl/${env.domain_name}.crt`)
+			key: getSecret('ssl_key.key'),
+			cert: getSecret('ssl_cert.crt')
 		},
         ajv:
         {
@@ -58,7 +88,6 @@ if (env.nodeEnv === 'production') {
             err.statusCode = 400;
             return err;
         }
-
 	});
 	console.log("App launched in production mode");
 }

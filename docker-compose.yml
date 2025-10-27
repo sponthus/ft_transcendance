@@ -11,6 +11,10 @@ secrets:
     file: ./secrets/git_secret.txt
   git_id:
     file: ./secrets/git_id.txt
+  ssl_cert:
+    file: ./secrets/ssl_cert.crt
+  ssl_key:
+    file: ./secrets/ssl_key.key
 
 services:
 
@@ -26,12 +30,17 @@ services:
     depends_on:
       nginx:
         condition: service_started
-    volumes:
-      - ssl_certs:/etc/ssl # For nginx SSL certs
-      - ./api-gateway:/app # TODO Comment me for prod, dev only
+    # volumes:
+      # - ssl_certs:/etc/ssl # For nginx SSL certs in dev
+      # - ./api-gateway:/app # Dev only
       # - ./config:/app/config # Dev only
     networks:
       - pongnet
+    secrets:
+      - source: ssl_cert
+        target: ssl_cert.crt
+      - source: ssl_key
+        target: ssl_key.key
     restart: always
 
   user-service:
@@ -41,9 +50,9 @@ services:
       dockerfile: user-service/Dockerfile
     env_file:
       - ".env"
-    volumes:
-      - ssl_certs:/etc/ssl # For nginx SSL certs
-      - ./user-service:/app # TODO Comment me for prod, Dev only
+    # volumes:
+      # - ssl_certs:/etc/ssl # For nginx SSL certs in dev
+      # - ./user-service:/app # Dev only
       # - ./config:/app/config # Dev only
     networks:
       - pongnet
@@ -54,6 +63,10 @@ services:
       - cookie_key
       - git_secret
       - git_id
+      - source: ssl_cert
+        target: ssl_cert.crt
+      - source: ssl_key
+        target: ssl_key.key
     restart: always
 
   game-service:
@@ -65,9 +78,9 @@ services:
         WS_PORT: ${GAME_WS_PORT}
     env_file:
       - ".env"
-    volumes:
-      - ssl_certs:/etc/ssl # For nginx SSL certs
-      - ./game-service:/app # TODO Comment me for prod, dev only
+    # volumes:
+      # - ssl_certs:/etc/ssl # For nginx SSL certs in dev
+      # - ./game-service:/app # Dev only
       # - ./config:/app/config # Dev only
     networks:
       - pongnet
@@ -75,6 +88,10 @@ services:
       - hash_key
       - api_key
       - cookie_key
+      - source: ssl_cert
+        target: ssl_cert.crt
+      - source: ssl_key
+        target: ssl_key.key
     restart: always
 
   session-service:
@@ -86,13 +103,17 @@ services:
         WS_PORT: ${SESSION_WS_PORT}
     env_file:
       - ".env"
-    volumes:
-      - ssl_certs:/etc/ssl # For nginx SSL certs
-      - ./session-service:/app # TODO Comment me for prod, Dev only
+    # volumes:
+      # - ssl_certs:/etc/ssl # For nginx SSL certs in dev
+      # - ./session-service:/app # Dev only
       # - ./config:/app/config # Dev only
     networks:
       - pongnet
     secrets:
+      - source: ssl_cert
+        target: ssl_cert.crt
+      - source: ssl_key
+        target: ssl_key.key
       - hash_key
       - api_key
       - cookie_key
@@ -107,11 +128,16 @@ services:
       - "8080:80"
       - "4443:443"
     volumes:
-      - ssl_certs:/etc/ssl # For nginx SSL certs
+      # - ssl_certs:/etc/ssl # For nginx SSL certs in dev
       - frontend_dist:/usr/share/nginx/html # Shared with frontend
       - avatar_uploads:/app/uploads # Shared with upload service
     networks:
       - pongnet
+    secrets:
+      - source: ssl_cert
+        target: ssl_cert.crt
+      - source: ssl_key
+        target: ssl_key.key
     restart: always
 
   frontend:
@@ -123,7 +149,7 @@ services:
     ports:
       - "5173:5173" # Dev only
     volumes:
-      - ./frontend:/app # TODO Comment me for prod, Dev only
+      # - ./frontend:/app # Dev only
       # - ./config:/app/config # dev only
       - frontend_dist:/app/dist # Prod volume for nginx
     networks:
@@ -138,21 +164,25 @@ services:
     container_name: upload-service
     volumes:
       # - ./config:/app/config # Dev only
-      - ./upload-service:/app # TODO Comment me for prod, Dev only
-      - ssl_certs:/etc/ssl # For nginx SSL certs
+      # - ./upload-service:/app # Dev only
+      # - ssl_certs:/etc/ssl # For nginx SSL certs in dev
       - avatar_uploads:/app/uploads # share with nginx
     secrets:
       - hash_key
       - api_key
       - cookie_key
+      - source: ssl_cert
+        target: ssl_cert.crt
+      - source: ssl_key
+        target: ssl_key.key
     networks:
       - pongnet
     restart: always
 
 volumes:
-  frontend_dist:
   avatar_uploads:
-  ssl_certs:
+  frontend_dist:
+  # ssl_certs:
 
 networks:
   pongnet:

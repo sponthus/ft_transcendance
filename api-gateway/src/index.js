@@ -13,21 +13,30 @@ export const __dirname = path.dirname(__filename); // Parent folder to this file
 let fastify;
 if (env.nodeEnv === 'production') {
 
-	try {
-		fs.accessSync(`/etc/ssl/${env.domain_name}.key`, fs.constants.R_OK);
-		fs.accessSync(`/etc/ssl/${env.domain_name}.crt`, fs.constants.R_OK);
-		console.log("SSL certificates found and accessible");
-	} catch (err) {
-		console.error(err);
-		console.error("❌ Critical error : SSL certificates not found or inaccessible");
-		process.exit(1);
-	}
+	// With cert in volumes
+	// try {
+	// 	fs.accessSync(`/etc/ssl/${env.domain_name}.key`, fs.constants.R_OK);
+	// 	fs.accessSync(`/etc/ssl/${env.domain_name}.crt`, fs.constants.R_OK);
+	// 	console.log("SSL certificates found and accessible");
+	// } catch (err) {
+	// 	console.error(err);
+	// 	console.error("❌ Critical error : SSL certificates not found or inaccessible");
+	// 	process.exit(1);
+	// }
 
-    fastify = Fastify({
+    // fastify = Fastify({
+    //     logger: logger,
+	// 	https: {
+	// 		key: fs.readFileSync(`/etc/ssl/${env.domain_name}.key`),
+	// 		cert: fs.readFileSync(`/etc/ssl/${env.domain_name}.crt`)
+	// 	}
+    // });
+
+	fastify = Fastify({
         logger: logger,
 		https: {
-			key: fs.readFileSync(`/etc/ssl/${env.domain_name}.key`),
-			cert: fs.readFileSync(`/etc/ssl/${env.domain_name}.crt`)
+			key: getSecret('ssl_key.key'),
+			cert: getSecret('ssl_cert.crt')
 		}
     });
 	console.log("fastify launched in production mode");
@@ -134,6 +143,16 @@ fastify.addHook('onRequest', async (request, reply) => {
 		return;
 	}
 });
+
+export function getSecret(name) {
+	try {
+		const key = fs.readFileSync(`/run/secrets/${name}`, 'utf8').trim();
+		return (key);
+	} catch (error) {
+		console.error("❌ Critical error : Unable to read secret ", name);
+		process.exit(1);
+	}
+}
 
 // Protection of attacks looking for valid URL by hardly protecting 404
 fastify.setNotFoundHandler({
