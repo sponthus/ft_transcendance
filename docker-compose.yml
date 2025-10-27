@@ -1,5 +1,3 @@
-# name: pong
-
 secrets:
   hash_key:
     file: ./secrets/hash_key.txt
@@ -31,7 +29,7 @@ services:
     volumes:
       - ssl_certs:/etc/ssl # For nginx SSL certs
       - ./api-gateway:/app # TODO Comment me for prod, dev only
-      - ./config:/app/config # TODO Comment me for prod, dev only
+      # - ./config:/app/config # Dev only
     networks:
       - pongnet
     restart: always
@@ -45,8 +43,8 @@ services:
       - ".env"
     volumes:
       - ssl_certs:/etc/ssl # For nginx SSL certs
-      - ./user-service:/app # TODO Comment me for prod, dev only
-      - ./config:/app/config # TODO Comment me for prod, dev only
+      - ./user-service:/app # TODO Comment me for prod, Dev only
+      # - ./config:/app/config # Dev only
     networks:
       - pongnet
     secrets:
@@ -70,7 +68,7 @@ services:
     volumes:
       - ssl_certs:/etc/ssl # For nginx SSL certs
       - ./game-service:/app # TODO Comment me for prod, dev only
-      - ./config:/app/config # TODO Comment me for prod, dev only
+      # - ./config:/app/config # Dev only
     networks:
       - pongnet
     secrets:
@@ -90,8 +88,8 @@ services:
       - ".env"
     volumes:
       - ssl_certs:/etc/ssl # For nginx SSL certs
-      - ./session-service:/app # TODO Comment me for prod, dev only
-      - ./config:/app/config # TODO Comment me for prod, dev only
+      - ./session-service:/app # TODO Comment me for prod, Dev only
+      # - ./config:/app/config # Dev only
     networks:
       - pongnet
     secrets:
@@ -125,8 +123,8 @@ services:
     ports:
       - "5173:5173" # Dev only
     volumes:
-      - ./frontend:/app # TODO Comment me for prod, dev only
-      - ./config:/app/config # TODO Comment me for prod, dev only
+      - ./frontend:/app # TODO Comment me for prod, Dev only
+      # - ./config:/app/config # dev only
       - frontend_dist:/app/dist # Prod volume for nginx
     networks:
       - pongnet
@@ -139,8 +137,8 @@ services:
       - ".env"
     container_name: upload-service
     volumes:
-      - ./config:/app/config # TODO Comment me for prod, dev only
-      - ./upload-service:/app # TODO Comment me for prod, dev only
+      # - ./config:/app/config # Dev only
+      - ./upload-service:/app # TODO Comment me for prod, Dev only
       - ssl_certs:/etc/ssl # For nginx SSL certs
       - avatar_uploads:/app/uploads # share with nginx
     secrets:

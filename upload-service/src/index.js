@@ -97,7 +97,6 @@ fastify.register(fastifyJwt, {
 	secret: getSecret('hash_key'),
 });
 
-// TODO implement routes
 await fastify.register(routes);
 
 fastify.get('/', async (req, reply) => {

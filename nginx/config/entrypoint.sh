@@ -81,6 +81,6 @@ else
 	try_until "[ -f /usr/share/nginx/html/build-ready ]" "Waiting for frontend build..."
 fi
 
-echo "\nAll services are up, launching nginx"
+echo " > All services are up, launching nginx"
 
 nginx -g "daemon off;"
