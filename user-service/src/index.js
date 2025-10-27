@@ -253,14 +253,6 @@ fastify.setNotFoundHandler((req, reply) => {
     reply.status(404).send("Not found");
 });
 
-fastify.setErrorHandler(function (error, request, reply) {
-  if (error.message === 'Invalid state') {
-    reply.code(403).send({ message: 'Invalid State' });
-  } else {
-    reply.send(error);
-  }
-});
-
 fastify.listen({ port: env.user_port, host: `${env.ip}` }, (err, address) => {
     if (err) {
         fastify.log.error(err);
