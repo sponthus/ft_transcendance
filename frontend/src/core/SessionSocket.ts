@@ -80,7 +80,7 @@ export class SessionSocket {
 	static getInstance(): SessionSocket {
 		if (!SessionSocket.instance) {
 			SessionSocket.instance = new SessionSocket();
-			alert("WebSocket session instance created");
+			// alert("WebSocket session instance created");
 			(window as any).GLOBAL_WEBSOCKET = SessionSocket.instance;
 		}
 		return SessionSocket.instance;

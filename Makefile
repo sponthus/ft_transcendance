@@ -20,7 +20,7 @@ ENV = .env
 
 COMPOSE_FILE = ./docker-compose.yml
 
-all: $(ENV) clean build
+all: $(ENV) down build
 
 $(ENV): env
 
@@ -31,7 +31,7 @@ env:
 	fi
 	@echo " ✔ .env present"
 
-re: clean all
+re: fclean build
 
 dev: env
 	sh config/change_mode.sh NODE_ENV development
@@ -48,9 +48,6 @@ build:
 
 up:
 	docker compose -f $(COMPOSE_FILE) up
-
-down: clean-dist
-	docker compose -f $(COMPOSE_FILE) down
 
 ps:
 	docker compose -f $(COMPOSE_FILE) ps
@@ -84,6 +81,7 @@ clean-db:
 
 clean-dist:
 	@rm -rf $(FRONTEND_DIR)/dist
+	@echo " ✔ Dist deleted";
 
 clean-modules:
 	@rm -rf $(FRONTEND_DIR)/node_modules \
