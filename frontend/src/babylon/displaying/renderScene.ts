@@ -199,6 +199,8 @@ export class renderScene {
 		let delta;
 
 		if (this.engine && !this.engine.isDisposed) {
+			if (this._canvas)
+				this._canvas.focus();
 			this._engine!.runRenderLoop(() =>  {
 				now = performance.now();
 				delta = now - lastTime;
