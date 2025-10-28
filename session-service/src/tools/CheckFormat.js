@@ -2,6 +2,7 @@ import Ajv from "ajv";
 
 let slugRegex = "^(?![_-])(?!.*[_-]$)(?=.*[a-z])(?![0-9_]+)[a-z0-9_-]+$";
 let usernameRegex = "^(?![_-])(?!.*[_-]$)(?=.*[A-Za-z])(?![0-9_]+)[A-Za-z0-9_-]+$";
+let messageRegex = "^(?!\\s)(?!.*\\s$)[A-Za-z0-9./ _-]+(-[0-9]+)?$";
 
 export const slugSchema = {
   type: "string",
@@ -63,7 +64,7 @@ export const sendMessageToGroupSchema = {
 		anyOf: [
 				{ type: "number" },
 				{ type: "string", 
-					pattern: "^(?!\\s)(?!.*\\s$)[a-z0-9 _-]+(-[0-9]+)?$",
+					pattern: messageRegex,
 					minLength: 3,
 					maxLength: 20 
 				}
@@ -73,7 +74,7 @@ export const sendMessageToGroupSchema = {
 		type: "string",
 		minLength: 3,
 		maxLength: 20,
-		pattern: "^(?!\\s)(?!.*\\s$)[a-z0-9 _-]+(-[0-9]+)?$"
+		pattern: messageRegex
     }
   },
   required: ["sender","message"],
