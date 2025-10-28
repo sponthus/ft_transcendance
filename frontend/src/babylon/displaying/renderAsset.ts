@@ -158,7 +158,7 @@ export class renderAsset {
 	private async _loadSanCastle() {
 		/**************************for sand castle**************************/
 		if (this._scene && !this._scene.isDisposed) {
-			const result = await ImportMeshAsync("/assets/chateauSable.glb", this._scene);
+			const result = await ImportMeshAsync("/asset/SandCastle.glb", this._scene);
 			result.animationGroups.forEach(element => {
 				element.stop();
 			});
@@ -213,6 +213,7 @@ export class renderAsset {
 			await this._loadTower();
 			await this._loadFlag();
 			await this._loadBarrel();
+			await this._loadPanel();
 		}
 	}
 
@@ -418,6 +419,15 @@ export class renderAsset {
 			barrel.rotation = new BABYLON.Vector3(0, -1, 0.1);
 			barrel.scaling.scaleInPlace(2);
 		}
+	}
+
+	private async _loadPanel() {
+		/**************************for Panel**************************/
+		const result = await ImportMeshAsync("/asset/MovePanel.glb", this._scene);
+		var Panel = result.meshes[0];
+		Panel.position = new BABYLON.Vector3(-19 ,0, 22);
+		Panel.rotation = new BABYLON.Vector3(0, 1.5, 0);
+		Panel.scaling.scaleInPlace(5);
 	}
 
 	private _setUpMesh(result: BABYLON.ISceneLoaderAsyncResult, position: BABYLON.Vector3, scaling: number) {
