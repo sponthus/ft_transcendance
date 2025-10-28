@@ -171,7 +171,7 @@ async function fillUSerInfo(request: AllNotifs, parent: HTMLElement){
 			else if (request.notif_type === "friend_accept" && userData)
 				append(parent, [addRequest(userData, `User ${userData.username} accepted your friend request`)]);
 			else if (request.notif_type === "friend_reject" && userData)
-				append(parent, [addRequest(userData, `User ${userData.username} decline your friend request`)]);
+				append(parent, [addRequest(userData, `User ${userData.username} declined your friend request`)]);
 			else if (request.notif_type === "tournament_invite" && userData)
 				append(parent ,[addInvitation(userData, request)]);
 			else if (request.notif_type === "tournament_ready" && userData)
