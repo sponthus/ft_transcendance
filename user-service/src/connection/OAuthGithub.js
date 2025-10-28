@@ -59,9 +59,13 @@ export async function loginThroughGithub(request, reply)
     try
     {
         const userInfo = await createUserWithGithubInfos(accessToken.token.access_token, fastify.db);
-        if (userInfo.error)
-            reply.code(401).send({ message: userInfo.error});
-        let token;
+		if (userInfo.error) {
+			return reply.code(401).send({ message: userInfo.error});
+		}
+		if (userInfo.idUser === undefined || userInfo.username === undefined || userInfo.slug === undefined) {
+			return reply.code(401).send({ message: "Github authentification failed" });
+		}
+		let token;
         let twofa = false;
         if (userInfo.twoFa === 1)
         {
@@ -70,6 +74,7 @@ export async function loginThroughGithub(request, reply)
         }
         else
             token = await reply.jwtSign({ idUser: userInfo.idUser, username: userInfo.username, slug: userInfo.slug }, {expiresIn: '1h'});
+
 		notifyChangeData(userInfo.idUser, userInfo.username, userInfo.slug, "online");
         let secure = false;
         if (env.nodeEnv === 'production')
