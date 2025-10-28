@@ -37,7 +37,7 @@ export async function uploadAvatar(request, reply) {
 					return reply.code(400).send({ error: "File must be a PNG or JPEG image" });
 				}
 	
-				const MAX_SIZE = 2 * 1024 * 1024; // 2 Mo
+				const MAX_SIZE = 0.6 * 1024 * 1024; // 500 Ko
 				let uploadedSize = 0;
 				const chunks = [];
 	
@@ -58,7 +58,7 @@ export async function uploadAvatar(request, reply) {
 							uploadedSize += chunk.length;
 							if (uploadedSize > MAX_SIZE) {
 								part.file.destroy();
-								return reject(new Error("File too large (max 5MB)"));
+								return reject(new Error("File too large (max 600Ko)"));
 							}
 							chunks.push(chunk);
 						});
