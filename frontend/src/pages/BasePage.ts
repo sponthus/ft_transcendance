@@ -32,11 +32,17 @@ export abstract class BasePage {
             const req = await checkLog();
             if (req.ok) {
                 const req = await getUserInfo();
-                if (!req.ok)
-                    throw new Error(req.error);
+                if (!req.ok) {
+                    if (req.code !== 401)
+						throw new Error(req.error);
+					else
+						await renderLoggedOutBanner(this.banner);
+					return;
+				}
                 const userData = req.userInfo;
                 const socket = SessionSocket.getInstance(); //Creation du socket du user
-                await renderLoggedInBanner(this.banner, userData);
+                socket.connect();
+				await renderLoggedInBanner(this.banner, userData);
             }
             else 
                 await renderLoggedOutBanner(this.banner);

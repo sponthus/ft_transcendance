@@ -31,6 +31,8 @@ export class launchPong {
 			this.Render.engine?.stopRenderLoop();
 			this.returnLobby();
 		}
+		if (this.Render.canvas)
+			this.Render.canvas.focus();
 		this.Render.engine?.runRenderLoop(() => {
 			now = performance.now();
 			delta = now - lastTime;

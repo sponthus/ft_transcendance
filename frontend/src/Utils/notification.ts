@@ -94,7 +94,7 @@ function declineFriendInvitation(declineBtn: HTMLButtonElement, userData: UserIn
 		e.preventDefault();	
 		try {
 			const req = await rejectRequest(userData.slug);
-			if (req.ok)
+			if (req.ok) 
 				refreshNotification();
 			else
 				throw new Error(req.error);
@@ -114,6 +114,8 @@ export function declineTournamentInvitation(declineBtn: HTMLButtonElement, tourn
 		try {
 			const req = await answerTournament(tournament.slug, tournament.notif_tournament_id, tournament.notif_tournament_name, "decline");
 			if (req.ok) {
+				if (currentPage && WebPath && WebPath.startsWith('/user'))
+					currentPage.render();
 				refreshNotification();
 			}
 			else 

@@ -1,4 +1,3 @@
-import { DropDown } from "../Utils/dropDown";
 import { navigate } from "../core/router";
 
 export function createDiv(Id: string, ClassName: string): HTMLElement {
@@ -30,7 +29,7 @@ export function createButton(Id: string, ClassName: string, TextContent: string 
 
 export function createLabel(Name: string, ClassName: string): HTMLLabelElement {
 	const Label: HTMLLabelElement = document.createElement('label');
-	Label.htmlFor = Name + '-Label';
+	Label.htmlFor = Name + "-input";
 	Label.className = ClassName;
 	
 	return Label;
@@ -93,18 +92,6 @@ export function createCheckBoxLabel(Id: string, Name: string, TextContent: strin
 
 }
 
-export function createDropdownDiv(Options: string[], Name: string, TextContent: string, ClassName: [DivClass: string, TextClass: string, DropDownClass: string]): HTMLElement {
-
-	const div = createDiv(Name, ClassName[0]);
-	const Text = createElement('h1', Name, TextContent, ClassName[1]);
-
-	const DropDownDiv: DropDown = new DropDown(Options, Name + "-DropDown");
-	DropDownDiv.getDropdownDiv.className = ClassName[2];
-
-	append(div, [Text, DropDownDiv.getDropdownDiv]);
-
-	return div;
-}
 
 export function append(Parent: HTMLElement, Childs: HTMLElement[]) {
 	Childs.forEach(Child => {

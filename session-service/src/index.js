@@ -18,21 +18,30 @@ export const __dirname = path.dirname(__filename);
 // Init Fastify app
 let fastify;
 if (env.nodeEnv === 'production') {
-	try {
-		fs.accessSync(`/etc/ssl/${env.domain_name}.key`, fs.constants.R_OK);
-		fs.accessSync(`/etc/ssl/${env.domain_name}.crt`, fs.constants.R_OK);
-		console.log("SSL certificates found and accessible");
-	} catch (err) {
-		console.error(err);
-		console.error("❌ Critical error : SSL certificates not found or inaccessible");
-		process.exit(1);
-	}
+	// With cert in volumes
+	// try {
+	// 	fs.accessSync(`/etc/ssl/${env.domain_name}.key`, fs.constants.R_OK);
+	// 	fs.accessSync(`/etc/ssl/${env.domain_name}.crt`, fs.constants.R_OK);
+	// 	console.log("SSL certificates found and accessible");
+	// } catch (err) {
+	// 	console.error(err);
+	// 	console.error("❌ Critical error : SSL certificates not found or inaccessible");
+	// 	process.exit(1);
+	// }
+
+	// fastify = Fastify({
+	// 	logger: logger,
+	// 	https: {
+	// 		key: fs.readFileSync(`/etc/ssl/${env.domain_name}.key`),
+	// 		cert: fs.readFileSync(`/etc/ssl/${env.domain_name}.crt`)
+	// 	}
+	// });
 
 	fastify = Fastify({
 		logger: logger,
 		https: {
-			key: fs.readFileSync(`/etc/ssl/${env.domain_name}.key`),
-			cert: fs.readFileSync(`/etc/ssl/${env.domain_name}.crt`)
+			key: getSecret('ssl_key.key'),
+			cert: getSecret('ssl_cert.crt')
 		}
 	});
 	console.log("App launched in production mode");
@@ -157,10 +166,18 @@ async function launch_app() {
 	} else {
 		({ createServer } = await import('http'));
 	}
+
+	// When cert is in volumes
+	// const server = env.nodeEnv === 'production' ? createServer({
+    //     key: fs.readFileSync(`/etc/ssl/${env.domain_name}.key`),
+    //     cert: fs.readFileSync(`/etc/ssl/${env.domain_name}.crt`)
+    // }) : createServer();
+
 	const server = env.nodeEnv === 'production' ? createServer({
-        key: fs.readFileSync(`/etc/ssl/${env.domain_name}.key`),
-        cert: fs.readFileSync(`/etc/ssl/${env.domain_name}.crt`)
+        key: getSecret('ssl_key.key'),
+        cert: getSecret('ssl_cert.crt')
     }) : createServer();
+
     const wss = new WebSocketServer({ server, path: "/s-ws/" });
     console.log("Ws server created");
 

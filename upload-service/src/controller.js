@@ -37,7 +37,7 @@ export async function uploadAvatar(request, reply) {
 					return reply.code(400).send({ error: "File must be a PNG or JPEG image" });
 				}
 	
-				const MAX_SIZE = 5 * 1024 * 1024; // 5 Mo
+				const MAX_SIZE = 2 * 1024 * 1024; // 2 Mo
 				let uploadedSize = 0;
 				const chunks = [];
 	
@@ -45,11 +45,11 @@ export async function uploadAvatar(request, reply) {
 				const result = await updateAvatar(fileName, user.idUser, user.slug);
 				if (!result.ok)
 				{
-					console.debug('💬 Error update avatar : ', updateAvatar);
+					console.warn('💬 Error update avatar : ', updateAvatar);
 					return reply.code(result.status).send({error : result.error});
 				}
 				else
-					console.debug('💬 Avatar succesfully updated in user-service');
+					console.log('💬 Avatar succesfully updated in user-service');
 				const filePath = path.join(avatarDir, fileName);
 	
 				try {
@@ -58,7 +58,7 @@ export async function uploadAvatar(request, reply) {
 							uploadedSize += chunk.length;
 							if (uploadedSize > MAX_SIZE) {
 								part.file.destroy();
-								return reject(new Error("File too large (max 5MB)")); //c'est quoi ca ?? TODO MORGAN
+								return reject(new Error("File too large (max 5MB)"));
 							}
 							chunks.push(chunk);
 						});

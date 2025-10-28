@@ -64,11 +64,11 @@ export async function sendMessageToUsers(request, reply) {
 				not_found: notFoundCount,
 				status: 'no_user_found' });
 		} else if (failedCount === userIds.length) {
-			return reply.status(500).send({
+			return reply.status(201).send({
 				sent: successCount,
 				failed: failedCount,
 				not_found: notFoundCount,
-				status: 'all_failed' });
+				status: 'all_stored' });
 		}
 	}
 }

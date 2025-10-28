@@ -48,7 +48,7 @@ export default class WebSocketManager {
 				}
 				if (message.type !== 'auth' && message.type !== 'ping')
 					console.log('Message received :', message);
-				else
+				else if (message.type === 'auth')
 					console.log('Auth message received');
 
 				try {
@@ -347,6 +347,8 @@ export default class WebSocketManager {
 
 	isUserConnected(userId) {
         const client = this.clients.get(Number(userId));
+		if (client.ws.length == 0)
+			return false;
         return client && client.status !== 'disconnected';
     }
 
@@ -378,13 +380,14 @@ export default class WebSocketManager {
 
 	
     sendToUserId(userId, message) {
+		// console.debug(this.clients);
 		const client = this.getClientByUserId(Number(userId));
 		if (!client) {
 			console.warn(`Unknown user when send message `, message);
 			return false;
 		}
 		if (client.ws.length == 0) {
-			console.warn(`User not connected while trying to send message `, message);
+			console.warn(`User ${userId} not connected while trying to send message `, message);
             return false;
 		}
 		let sent = false;
@@ -398,11 +401,13 @@ export default class WebSocketManager {
 					throw new Error("Socket not connected");
 				}
 			} catch (error) {
-				console.error(`❌ Cannot send message to one socket of user ${userId}:`, error);
+				console.error(`❌ Cannot send message to user ${userId}`);
 			}
 		}
 		if (!sent) {
-			console.warn(`⚠️ No active sockets for user ${userId} while trying to send`, message);
+			console.warn(`No active sockets for user ${userId} while trying to send`, message);
+			console.log('Storing message');
+			client.messages.push(JSON.stringify(message));
 		}
 		return sent;
     }

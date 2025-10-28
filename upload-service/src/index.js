@@ -14,21 +14,30 @@ export const __dirname = path.dirname(__filename); // Parent folder to this file
 
 let fastify;
 if (env.nodeEnv === 'production') {
-	try {
-		fs.accessSync(`/etc/ssl/${env.domain_name}.key`, fs.constants.R_OK);
-		fs.accessSync(`/etc/ssl/${env.domain_name}.crt`, fs.constants.R_OK);
-		console.log("SSL certificates found and accessible");
-	} catch (err) {
-		console.error(err);
-		console.error("❌ Critical error : SSL certificates not found or inaccessible");
-		process.exit(1);
-	}
+	// With cert in volumes
+	// try {
+	// 	fs.accessSync(`/etc/ssl/${env.domain_name}.key`, fs.constants.R_OK);
+	// 	fs.accessSync(`/etc/ssl/${env.domain_name}.crt`, fs.constants.R_OK);
+	// 	console.log("SSL certificates found and accessible");
+	// } catch (err) {
+	// 	console.error(err);
+	// 	console.error("❌ Critical error : SSL certificates not found or inaccessible");
+	// 	process.exit(1);
+	// }
+
+	// fastify = Fastify({
+	// 	logger: logger,
+	// 	https: {
+	// 		key: fs.readFileSync(`/etc/ssl/${env.domain_name}.key`),
+	// 		cert: fs.readFileSync(`/etc/ssl/${env.domain_name}.crt`)
+	// 	}
+	// });
 
 	fastify = Fastify({
 		logger: logger,
 		https: {
-			key: fs.readFileSync(`/etc/ssl/${env.domain_name}.key`),
-			cert: fs.readFileSync(`/etc/ssl/${env.domain_name}.crt`)
+			key: getSecret('ssl_key.key'),
+			cert: getSecret('ssl_cert.crt')
 		}
 	});
 	console.log("App launched in production mode");
@@ -67,7 +76,7 @@ fastify.decorate("authenticate", async function (request, reply)
         request.user = await fastify.jwt.verify(result.value);
         if (request.user.twofa_pending === true)
             return reply.code(401).send({ error: "2FA required" });
-		console.debug('DECODED TOKEN ', request.user);
+		// console.debug('DECODED TOKEN ', request.user);
 	}
 	catch (err)
 	{
@@ -97,7 +106,6 @@ fastify.register(fastifyJwt, {
 	secret: getSecret('hash_key'),
 });
 
-// TODO implement routes
 await fastify.register(routes);
 
 fastify.get('/', async (req, reply) => {

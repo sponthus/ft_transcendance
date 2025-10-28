@@ -5,7 +5,11 @@ import env from "../config/env.js"; //ou c'est ? sert a quoi ?
 async function dbConnector(fastify, options)
 {
     const dbFile = env.usersDbFile || "./users.db";
-    const db = new Database(dbFile, { verbose: console.log });
+	let db;
+	if (env.nodeEnv !== 'production')
+    	db = new Database(dbFile, { verbose: console.log });
+	else
+		db = new Database(dbFile);
    
     try
     {

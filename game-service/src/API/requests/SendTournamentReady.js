@@ -21,7 +21,7 @@ export async function sendTournamentReady(userIds, inviterId, tournamentId, tour
 		 	},
 		 	body : JSON.stringify({
 				type: "tournament_ready",
-				senderId: tournamentId,
+				senderId: inviterId,
 				receiverId: userIds,
 				tournamentId: tournamentId,
 				tournamentName: tournamentName
@@ -32,6 +32,7 @@ export async function sendTournamentReady(userIds, inviterId, tournamentId, tour
 			return { ok: true };
 		}
 		const data = await res.json();
+		console.warn("❌ Error while sending tournament ready notice: ", data);
 		return { ok: false, error: data.error, code: res.status };
 	} catch (error) {
 		console.error("❌ Error while sending tournament ready notice: ", error);

@@ -18,14 +18,14 @@ export async function renderProfileSetting(ButtonDiv: HTMLElement, SettingDiv: H
 	setbackgroundImages(twofabtn, "url('game_ui/setting/emptyPan.png')");
 
 	append(form, [(createFormDiv(["password", "new-password", "choose a new password", true]
-						, "new-pass"
+						, "new-password"
 						, "please choose new password"
 						, [""
 							, "block text-sm font-medium text-emerald-500 mb-2"
 							, "w-full px-4 py-3 border bg-orange-200 border-green-800 rounded-lg"
 							, "block text-sm  text-center font-medium text-orange-200 mb-2 font-bold"]) as HTMLElement )
 						, (createFormDiv(["password", "confirm-password", "confirm a new password", true]
-						, "confirm-pass"
+						, "confirm-password"
 						, "please confirm new password"
 						, [""
 							, "block text-sm font-medium text-emerald-500 mb-2"
@@ -55,9 +55,11 @@ export async function saveUserForm() {
 		return;
 	else {
 		try {
+			console.log("save userform called");
 			const formData = new FormData(form);
-			const password = formData.get('new-pass') as string;
-			const ConfirmPassword = formData.get('confirm-pass') as string;
+			const password = formData.get('new-password') as string;
+			const ConfirmPassword = formData.get('confirm-password') as string;
+			console.log("new password is : ", password, " confirm is : ", ConfirmPassword);
 			if ((!ConfirmPassword && password) || (ConfirmPassword && !password))
 				throw new Error("Please complete password form");
 			else if (password && ConfirmPassword && password != ConfirmPassword)

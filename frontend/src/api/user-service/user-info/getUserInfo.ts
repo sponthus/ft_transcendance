@@ -11,7 +11,7 @@ export type UserInfo =
 };
 
 type getUserInfoSuccess = {ok: true; userInfo: UserInfo}
-type Failure = { ok: false; error?: string };
+type Failure = { ok: false; error?: string; code?: number };
 
 export type GetUserInfoResult = getUserInfoSuccess | Failure 
 
@@ -32,11 +32,13 @@ export async function   getUserInfo() : Promise<GetUserInfoResult>
         {
             return ({ ok: true, userInfo: data.userInfo })   
         }
-        return ({ ok: false, error: data.message });
+		if (res.status === 401)
+			return ({ ok: false, error: data.message, code: 401 });
+        return ({ ok: false, error: data.message, code: res.status });
     }
     catch (err)
     {
-        return ({ ok: false, error: "Network error" });
+        return ({ ok: false, error: "Network error", code: 500 });
     }
 }
 

@@ -18,15 +18,41 @@ export const __dirname = path.dirname(__filename);
 // Init Fastify app
 let fastify;
 if (env.nodeEnv === 'production') {
-	try {
-		fs.accessSync(`/etc/ssl/${env.domain_name}.key`, fs.constants.R_OK);
-		fs.accessSync(`/etc/ssl/${env.domain_name}.crt`, fs.constants.R_OK);
-		console.log("SSL certificates found and accessible");
-	} catch (err) {
-		console.error(err);
-		console.error("❌ Critical error : SSL certificates not found or inaccessible");
-		process.exit(1);
-	}
+	// With cert in volumes
+	// try {
+	// 	fs.accessSync(`/etc/ssl/${env.domain_name}.key`, fs.constants.R_OK);
+	// 	fs.accessSync(`/etc/ssl/${env.domain_name}.crt`, fs.constants.R_OK);
+	// 	console.log("SSL certificates found and accessible");
+	// } catch (err) {
+	// 	console.error(err);
+	// 	console.error("❌ Critical error : SSL certificates not found or inaccessible");
+	// 	process.exit(1);
+	// }
+
+	// fastify = Fastify({
+	// 	logger: logger,
+	// 	ajv: {
+	// 		customOptions: {
+	// 			removeAdditional: false,
+	// 			allErrors: true
+	// 		},
+	// 		plugins: [ajvErrors]
+	// 	},
+	// 	schemaErrorFormatter: (errors, dataVar) => //DataVar (contexte) : body, params
+    //     {
+    //         const firstError = errors[0];
+    //         const errorSchema =  { message: firstError.message };
+    //         const err = new Error(errorSchema.message);
+    //         err.validation = errorSchema;
+    //         err.validationContext = dataVar;
+    //         err.statusCode = 400;
+    //         return err;
+    //     },
+	// 	https: {
+	// 		key: fs.readFileSync(`/etc/ssl/${env.domain_name}.key`),
+	// 		cert: fs.readFileSync(`/etc/ssl/${env.domain_name}.crt`)
+	// 	}
+	// });
 
 	fastify = Fastify({
 		logger: logger,
@@ -48,10 +74,11 @@ if (env.nodeEnv === 'production') {
             return err;
         },
 		https: {
-			key: fs.readFileSync(`/etc/ssl/${env.domain_name}.key`),
-			cert: fs.readFileSync(`/etc/ssl/${env.domain_name}.crt`)
+			key: getSecret('ssl_key.key'),
+			cert: getSecret('ssl_cert.crt')
 		}
 	});
+
 	console.log("App launched in production mode");
 }
 else {
@@ -184,11 +211,18 @@ if (env.nodeEnv === 'production') {
 } else {
 	({ createServer } = await import('http'));
 }
+
+// When cert is in volumes
+// const server = env.nodeEnv === 'production' ? createServer({
+// 	key: fs.readFileSync(`/etc/ssl/${env.domain_name}.key`),
+// 	cert: fs.readFileSync(`/etc/ssl/${env.domain_name}.crt`)
+// }) : createServer();
+
 const server = env.nodeEnv === 'production' ? createServer({
-	key: fs.readFileSync(`/etc/ssl/${env.domain_name}.key`),
-	cert: fs.readFileSync(`/etc/ssl/${env.domain_name}.crt`)
+	key: getSecret('ssl_key.key'),
+	cert: getSecret('ssl_cert.crt')
 }) : createServer();
-// const server = createServer();
+
 const wss = new WebSocketServer({ server, path: "/g-ws/" });
 console.log("Ws server created");
 const WSManager = new WebSocketManager(wss, fastify);

@@ -54,15 +54,15 @@ export function checkWebSocketMessageFormat(message: WebSocketMessage): FormatCh
 
 export class SessionSocket {
 	static instance: null | SessionSocket = null;
-	public sWS: WebSocket;
+	public sWS: WebSocket | null = null;
 	private heartbeatInterval: number | null = null;
 	private heartbeatTimeout: number | null = null;
 	private pingInterval: number = 30000; // every 30s sends a ping
-	private pongInterval: number = 10000; // 10s to recieve back pong
+	private pongInterval: number = 30000; // 30s to recieve back pong
 
 	private reconnectAttempts: number = 0;
 	private maxReconnectAttempts: number = 5;
-	private reconnectDelay: number = 5000; // 5 seconds
+	private reconnectDelay: number = 10000; // 10 seconds
 	private shouldAttemptReconnect: boolean = true;
 
 	constructor() {
@@ -80,10 +80,29 @@ export class SessionSocket {
 	static getInstance(): SessionSocket {
 		if (!SessionSocket.instance) {
 			SessionSocket.instance = new SessionSocket();
+			// alert("WebSocket session instance created");
 			(window as any).GLOBAL_WEBSOCKET = SessionSocket.instance;
 		}
-
 		return SessionSocket.instance;
+	}
+
+	public connect() {
+		if (!this.sWS) {
+			this.sWS = new WebSocket(this.getStatusWsUrl());
+			this.stopHeartbeat();
+			this.clearHeartbeatTimeout();
+			this.setupEventListeners();
+
+		} else {
+			if (this.isOpen() === false && this.sWS.readyState !== WebSocket.CONNECTING) {
+				// console.log(this.sWS.readyState);
+				this.sWS = null;
+				this.sWS = new WebSocket(this.getStatusWsUrl());
+				this.stopHeartbeat();
+				this.clearHeartbeatTimeout();
+				this.setupEventListeners();
+			}
+		}
 	}
 
 	private setupEventListeners() {
@@ -122,18 +141,21 @@ export class SessionSocket {
 		this.sWS.onclose = async (event) => {
 			console.log(`Connexion to Session WebSocket closed with code ${event.code} and reason: ${event.reason}`);
 			this.stopHeartbeat();
+			this.clearHeartbeatTimeout();
 			if (event.code == 4002) {
+				this.shouldAttemptReconnect = false;
 				console.error("Websocket closed due to authentication error");
 				await logoutUser();
 				await ErrorPopup("Authentication error, please log in again");
 				await navigate('/login');
 			}
 			else if (event.code == 4003) {
+				this.shouldAttemptReconnect = false;
 				console.error("WebSocket closed due to authentication failure");
 				await logoutUser();
 				await ErrorPopup("Session expired, please log in again");
 				await navigate('/login');
-			} else if (event.code != 4000 && this.shouldAttemptReconnect) {
+			} else if (event.code != 4000 && event.code != 4010 && this.shouldAttemptReconnect) {
 				this.reconnect();
 			}
 		};
@@ -210,6 +232,9 @@ export class SessionSocket {
 			return;
 		} else if (data.type === "auth_success") {
 			this.reconnectAttempts = 0;
+			this.shouldAttemptReconnect = true;
+			console.log("Authentication successful");
+			return;
 		}
 	}
 
@@ -232,6 +257,9 @@ export class SessionSocket {
 	}
 
 	public async reconnect(): Promise<void> {
+		if (!this.shouldAttemptReconnect) {
+			return;
+		}
 		if (this.reconnectAttempts >= this.maxReconnectAttempts) {
 			console.error("Max reconnect attempts reached. Giving up.");
 			this.shouldAttemptReconnect = false;
@@ -246,8 +274,12 @@ export class SessionSocket {
 		this.stopHeartbeat();
 		const reconnectInterval = setInterval(() => {
 			if (!this.isOpen()) {
+				if (this.sWS && this.sWS.readyState == WebSocket.CONNECTING) {
+					return;
+				}
 				try {
 					console.log("Attempting to reconnect...");
+					this.sWS = null;
 					this.sWS = new WebSocket(this.getStatusWsUrl());
 					console.log("Reconnected successfully!");
 					this.setupEventListeners();
@@ -259,10 +291,11 @@ export class SessionSocket {
 			} else {
 				clearInterval(reconnectInterval);
 			}
-		}, 10000); // Try to reconnect every 10 seconds
+		}, this.reconnectDelay); // Try to reconnect every x milliseconds
 	}
 
 	public close(code: number = -1, reason: string = ""): void {
+		this.shouldAttemptReconnect = false;
 		this.stopHeartbeat();
 		if (!this.sWS)
 			return;

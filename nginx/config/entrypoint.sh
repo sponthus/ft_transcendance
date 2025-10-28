@@ -22,22 +22,23 @@ else
 fi
 
 mkdir -p /etc/nginx/sites-enabled
+echo "include /etc/nginx/sites-available/$DOMAIN_NAME.conf;" > /etc/nginx/sites-enabled/$DOMAIN_NAME.conf
 
-if [ ! -f /etc/ssl/$DOMAIN_NAME.key ]; then
-    openssl genpkey -algorithm RSA -out /etc/ssl/$DOMAIN_NAME.key
-	echo "Key generated"
-fi
+# if [ ! -f /etc/ssl/$DOMAIN_NAME.key ]; then
+#     openssl genpkey -algorithm RSA -out /etc/ssl/$DOMAIN_NAME.key
+# 	echo "Key generated"
+# fi
 
-if [ ! -f /etc/ssl/$DOMAIN_NAME.crt ]; then
-    openssl req -newkey rsa:4096 \
-	-nodes \
-	-x509 \
-	-key /etc/ssl/$DOMAIN_NAME.key \
-	-out /etc/ssl/$DOMAIN_NAME.crt \
-	-subj "/C=FR/ST=Lyon/O=42/UID=transcendance/CN=$DOMAIN_NAME"
-	echo "Self-signed certificate generated"
-	echo "include /etc/nginx/sites-available/$DOMAIN_NAME.conf;" > /etc/nginx/sites-enabled/$DOMAIN_NAME.conf
-fi
+# if [ ! -f /etc/ssl/$DOMAIN_NAME.crt ]; then
+#     openssl req -newkey rsa:4096 \
+# 	-nodes \
+# 	-x509 \
+# 	-key /etc/ssl/$DOMAIN_NAME.key \
+# 	-out /etc/ssl/$DOMAIN_NAME.crt \
+# 	-subj "/C=FR/ST=Lyon/O=42/UID=transcendance/CN=$DOMAIN_NAME"
+# 	echo "Self-signed certificate generated"
+# 	echo "include /etc/nginx/sites-available/$DOMAIN_NAME.conf;" > /etc/nginx/sites-enabled/$DOMAIN_NAME.conf
+# fi
 
 # Daemon : Nginx would launch in daemon mode, in the background
 # but he is the main process and should stay front otherwise the container would stop
@@ -78,9 +79,10 @@ try_until "curl -ks ${PREFIX}://session-service:${SESSION_PORT}/health" "Waiting
 if env | grep -q "^NODE_ENV=development"; then
 	try_until "curl -ks ${PREFIX}://frontend:${VITE_PORT}/health" "Waiting for frontend dev server..."
 else
+	sleep 30
 	try_until "[ -f /usr/share/nginx/html/build-ready ]" "Waiting for frontend build..."
 fi
 
-echo "\nAll services are up, launching nginx"
+echo " > All services are up, launching nginx"
 
 nginx -g "daemon off;"
