@@ -75,13 +75,15 @@ export class TournamentPage {
 
 	/****************fill panel with create tournament form****************/
 	private fillNewPan() {
-		append(this.TournamentPan, [createImage('player-name', 'object-center h-[10%] w-[20%] transition-transform duration-200 ease-out translate-y-24 -translate-x-64', 'game_ui/setting/playerNamestext.png')	
-									, this.addNameForm(), this.createTournamentNameForm() ,this.createcrabmehamehaDiv()]);
+		const container: HTMLElement = createDiv('container', 'flex  h-[20%] w-[20%] flex-col items-center justify-center translate-y-24 -translate-x-64');
+		append(container, [createImage('player-name', 'object-center transition-transform duration-200 ease-out', 'game_ui/setting/playerNamestext.png')
+									, createElement('p', 'add-user', 'To add another user, type @ before his name.', 'text-orange-200')])
+		append(this.TournamentPan, [container, this.addNameForm(), this.createTournamentNameForm() ,this.createcrabmehamehaDiv()]);
 	}
 
 	/****************adding player names input on panel****************/
 	private addNameForm(): HTMLElement {
-		const NameFormDiv: HTMLElement = createDiv('name-form', 'flex flex-col w-full h-[50%] items-center z-10 space-y-4 translate-x-10');
+		const NameFormDiv: HTMLElement = createDiv('name-form', 'flex flex-col w-full h-[50%] items-center z-10 space-y-4 translate-x-10 -translate-y-12');
 		for (let i = 0; i < 4; i++) {
 			append(NameFormDiv, [this.createPlayerNameDiv(i)]);
 		}
@@ -116,7 +118,7 @@ export class TournamentPage {
 
 	/****************create tournament names input****************/
 	private createTournamentNameForm() {
-		const checcrabmehamehaDiv: HTMLElement = createDiv('crabmehameha', 'flex items-center justify-arround h-[10%] -translate-x-32 space-x-4');
+		const checcrabmehamehaDiv: HTMLElement = createDiv('crabmehameha', 'flex items-center justify-arround h-[10%] -translate-x-32 -translate-y-12 space-x-4');
 
 		this.TournamentName = createInput(['text', 'tournament-name', 'tournament name', true], 'tournament-name', 'h-[70%] w-[70%]');
 	
@@ -128,7 +130,7 @@ export class TournamentPage {
 
 	/****************create crabmehameha input****************/
 	private createcrabmehamehaDiv() : HTMLElement {
-		const checcrabmehamehaDiv: HTMLElement = createDiv('crabmehameha', 'flex items-center justify-arround h-[10%] -translate-x-28 space-x-4');
+		const checcrabmehamehaDiv: HTMLElement = createDiv('crabmehameha', 'flex items-center justify-arround h-[10%] -translate-x-28 -translate-y-16 space-x-4');
 
 		this.OptionBtn = createButton('minus', 'flex items-center active:scale-95 h-[70%] aspect-square hover:scale-105 transition-all duration-200', '');
 		let src: string = 'game_ui/setting/checkedValue.png';
