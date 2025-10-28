@@ -80,7 +80,7 @@ export class EditProfile extends popUp {
 	private CreateUsernameForm() : HTMLFormElement {
 		const Form: HTMLFormElement = createElement("form", "Edit", "", "space-y-6") as HTMLFormElement;
 
-		const UserNameForm: HTMLElement = createFormDiv(["text", "", "choose a new username", true], "username", "edit your username", [""
+		const UserNameForm: HTMLElement = createFormDiv(["text", "username", "choose a new username", true], "username", "edit your username", [""
 																												, "block text-sm font-medium text-emerald-600 mb-2"
 																												, "w-full px-4 py-3 border bg-orange-200 border-emerald-600 rounded-lg focus:ring-2 focus:ring-emerald-800 focus:border-emerald-8 	00 transition-colors duration-200 placeholder-emerald-600"
 																												, "block text-sm  text-center font-medium text-emerald-500 mb-2"]);
@@ -93,7 +93,7 @@ export class EditProfile extends popUp {
 		const Form: HTMLFormElement = createElement('form', "avatar-upload", "", "space-y-6") as HTMLFormElement;
 		Form.enctype = "multipart/form-data";
 
-		const Input: HTMLInputElement = createInput(["file", "", "", true], "avatar", "w-full px-4 py-3 border bg-orange-200 border-emerald-600 rounded-lg focus:ring-2 focus:ring-emerald-800 focus:border-emerald-8 	00 transition-colors duration-200 placeholder-emerald-600");
+		const Input: HTMLInputElement = createInput(["file", "avatar", "", true], "avatar", "w-full px-4 py-3 border bg-orange-200 border-emerald-600 rounded-lg focus:ring-2 focus:ring-emerald-800 focus:border-emerald-8 	00 transition-colors duration-200 placeholder-emerald-600");
 		Input.accept = "image/*";
 		append(Form, [Input]);
 		

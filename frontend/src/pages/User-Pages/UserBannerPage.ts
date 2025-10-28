@@ -168,7 +168,7 @@ export class UserBanner {
 		if (btn2) {
 			btn2.addEventListener('click', async() => {
 				try {
-					const req = await acceptRequest(this.UserData.username);
+					const req = await acceptRequest(this.UserData.slug);
 					if (req.ok) {
 						await navigate(`/user/${this.UserData.slug}`);
 					}
@@ -183,7 +183,7 @@ export class UserBanner {
 		if (btn3) {
 			btn3.addEventListener('click', async() => {
 				try {
-					const req = await rejectRequest(this.UserData.username);
+					const req = await rejectRequest(this.UserData.slug);
 					if (req.ok) {
 						await navigate(`/user/${this.UserData.slug}`);
 					}
