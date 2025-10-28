@@ -1,6 +1,7 @@
 let slugRegex = "^(?![_-])(?!.*[_-]$)(?=.*[a-z])(?![0-9_]+)[a-z0-9_-]+$";
 let tournamentNameRegex = "^@?(?=.*[A-Za-z])[A-Za-z0-9_-]+(?: [A-Za-z0-9_-]+)*$"; // And nickname
 let usernameRegex = "^(?![_-])(?!.*[_-]$)(?=.*[A-Za-z])(?![0-9_]+)[A-Za-z0-9_-]+$";
+let passwordRegex = "^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?+!@$%^&*\=]).{6,}$";
 
 export const backgroundColorSchema = {
   type: "object",
@@ -315,13 +316,13 @@ export const registrationSchema = {
       type: "string",
       minLength: 6,
       maxLength: 15,
-      pattern: "^(?=.*[a-zA-Z])[^\\[\\]{}();]+$",
+      pattern: passwordRegex,
       errorMessage:
       {
         type: "Password must be a string",
         minLength: "Password must be at least 6 characters",
         maxLength: "Password cannot be longer than 15 characters",
-        pattern: "Password contains invalid characters"
+        pattern: "Password needs at least one uppercase and lowercase letter, one number and one special character between #?+!@$%^&*=",
       },
     },
   },
@@ -356,12 +357,12 @@ export const passwordSchema = {
       type: "string",
       minLength: 6,
       maxLength: 15,
-      pattern: "^(?=.*[a-zA-Z])[^\\[\\]{}();]+$",
+      pattern: passwordRegex,
       errorMessage: {
         type: "Password must be a string",
         minLength: "Password must be at least 6 characters",
         maxLength: "Password cannot be longer than 15 characters",
-        pattern: "Password contains invalid characters"
+        pattern: "Password needs at least one uppercase and lowercase letter, one number and one special character between #?+!@$%^&*="
       }
     }
   },
