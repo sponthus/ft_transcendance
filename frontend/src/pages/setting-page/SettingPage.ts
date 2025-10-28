@@ -20,6 +20,8 @@ export class SettingPage extends BasePage {
 	private ReturnDiv!: HTMLElement;
 
 	private hasRunSetting!: boolean;
+	private HasBack!: boolean;
+
 	constructor () {
 		super();
 		this.statePage = 0;
@@ -28,6 +30,7 @@ export class SettingPage extends BasePage {
 	async render(): Promise<void> {
 
 		this.hasRunSetting = false;
+		this.HasBack = false;
 		this.renderBanner();
 
 		await this.createHomeSetting();
@@ -124,16 +127,22 @@ export class SettingPage extends BasePage {
 		const DoneButton = document.getElementById("done-btn") as HTMLButtonElement;
 
 		returnBtn.addEventListener('click', async(e) => {
+			if (this.HasBack)
+				return ;
+			this.HasBack = true;
 			await this.Return();
 		})
 
 		DoneButton.addEventListener('click', async(e) => {
+			if (this.HasBack)
+				return ;
+			this.HasBack = true;
 			await this.Done();
 		})
 	}
 
 	private async Return(): Promise<void> {
-		if (this.statePage === PageState.PROFILE){
+		if (this.statePage === PageState.PROFILE) {
 			this.SettingDiv.classList.add('translate-x-96');
 			cleanForm();
 		}
@@ -144,8 +153,9 @@ export class SettingPage extends BasePage {
 			this.ReturnDiv.classList.add('hidden');
 			await this.displayButtonDiv();
 			await this.cleanSettingdiv();
+			this.HasBack = false;
+			this.hasRunSetting = false;
 		},300);
-		this.hasRunSetting = false;
 	}
 
 	private async displayButtonDiv() {
