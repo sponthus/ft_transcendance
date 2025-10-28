@@ -1,5 +1,10 @@
 #!/bin/sh
 
+if [  -f "/app/dist/build-ready" ]; then
+  echo "Build ready file exists, removing it to wait for new build"
+  rm /app/dist/build-ready
+fi
+
 if [ ! -d "node_modules" ]; then
   echo "Installing dependencies..."
   npm install
@@ -7,7 +12,7 @@ fi
 
 # Copy every static file in dist/ to be served by nginx
 cp public/favicon.ico dist/favicon.ico
-echo copy done
+echo "Copy done"
 
 echo "Launching in $NODE_ENV mode"
 
