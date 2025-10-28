@@ -11,8 +11,6 @@
 #  C (country)
 # -nodes = no passphrase
 
-
-
 if env | grep -q "^NODE_ENV=development"; then
 	envsubst '${GAME_WS_PORT} ${SESSION_WS_PORT} ${API_PORT} ${DOMAIN_NAME}' < /etc/nginx/nginx.development.conf.template > /etc/nginx/nginx.conf
 	PREFIX="http"
@@ -79,7 +77,6 @@ try_until "curl -ks ${PREFIX}://session-service:${SESSION_PORT}/health" "Waiting
 if env | grep -q "^NODE_ENV=development"; then
 	try_until "curl -ks ${PREFIX}://frontend:${VITE_PORT}/health" "Waiting for frontend dev server..."
 else
-	sleep 30
 	try_until "[ -f /usr/share/nginx/html/build-ready ]" "Waiting for frontend build..."
 fi
 
