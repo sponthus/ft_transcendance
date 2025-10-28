@@ -47,8 +47,6 @@ export class renderScene {
 
 		this._initGameCreatorPage();
 
-		this._setdebugLayer();
-
 		this._renderingloop();
 		
 	}
@@ -227,16 +225,6 @@ export class renderScene {
 		this._gameCreatorPage?.renderGamePage();
 	}
 
-	/***************************TODO for debug to delete at end of project***************************/
-	private _setdebugLayer() {
-		window.addEventListener('keydown', (ev) => {
-			if (ev.shiftKey && ev.ctrlKey && ev.altKey &&(ev.key == "i" || ev.key == "I")) {
-				if (this._homeScene!.debugLayer.isVisible())
-					this._homeScene!.debugLayer.hide();
-				else
-					this._homeScene!.debugLayer.show(); }
-		});
-	}
 
 	callRenderLoop() {
 		this._renderingloop();

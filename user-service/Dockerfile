@@ -10,7 +10,7 @@ COPY ./config/logger.js /app/config/logger.js
 COPY ./user-service/config/entrypoint.sh /usr/local/bin/
 RUN		chmod +x /usr/local/bin/entrypoint.sh
 
-# TODO Ajout de bash, sqlite3... pour faire des tests dans le docker
+# Ajout de bash, sqlite3... pour faire des tests dans le docker
 RUN apk add --no-cache sqlite sqlite-libs bash vim curl
 
 WORKDIR /app
