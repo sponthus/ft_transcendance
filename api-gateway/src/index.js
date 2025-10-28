@@ -63,9 +63,18 @@ function isTrustedRequest(request) {
 
 await fastify.register(rateLimit, {
     global: true,
-    max: 1000,
+    max: 5000,
     timeWindow: '100 seconds',
-    allowList: (request) => isTrustedRequest(request)
+    allowList: (request) => isTrustedRequest(request),
+	errorResponseBuilder: function (request, context) {
+		return {
+		statusCode: 429,
+		error: 'Too Many Requests',
+		message: `Rate limit exceeded`,
+		date: Date.now(),
+		expiresIn: context.ttl // milliseconds
+		}
+	}
 });
 
 fastify.addHook('onRequest', async (request, reply) => {
