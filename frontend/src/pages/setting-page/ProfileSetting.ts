@@ -55,11 +55,9 @@ export async function saveUserForm() {
 		return;
 	else {
 		try {
-			console.log("save userform called");
 			const formData = new FormData(form);
 			const password = formData.get('new-password') as string;
 			const ConfirmPassword = formData.get('confirm-password') as string;
-			console.log("new password is : ", password, " confirm is : ", ConfirmPassword);
 			if ((!ConfirmPassword && password) || (ConfirmPassword && !password))
 				throw new Error("Please complete password form");
 			else if (password && ConfirmPassword && password != ConfirmPassword)
