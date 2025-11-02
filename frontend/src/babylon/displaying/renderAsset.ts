@@ -23,7 +23,7 @@ export class renderAsset {
 	private _bendTrees?: BABYLON.TransformNode[] | null = [];
 	private _straighTrees?: BABYLON.TransformNode[] = [];
 
-	private _leafShader?: BABYLON.ShaderMaterial;
+	private _leafShader?: BABYLON.ShaderMaterial | null;
 	
 	
 	private _loadedMap?: Record<string, BABYLON.AbstractMesh>;
@@ -534,8 +534,10 @@ export class renderAsset {
 	}
 
 	get bendTrees(): BABYLON.TransformNode[] | null {
-		if (!this._bendTrees)
-			throw new Error("Bend trees asset not initialized");
+		if (!this._bendTrees) {
+			return null;
+			// throw new Error("Bend trees asset not initialized");
+		}
 		return this._bendTrees;
 	}
 
@@ -545,9 +547,10 @@ export class renderAsset {
 		return this._straighTrees;
 	}
 
-	get leafShader(): BABYLON.ShaderMaterial {
+	get leafShader(): BABYLON.ShaderMaterial | null {
 		if (!this._leafShader)
-			throw new Error("No Leaf Shader found");
+			return null;
+			// throw new Error("No Leaf Shader found");
 		return this._leafShader;
 	}
 

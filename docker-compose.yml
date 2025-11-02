@@ -187,4 +187,3 @@ volumes:
 networks:
   pongnet:
     driver: bridge
-
