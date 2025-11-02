@@ -34,14 +34,14 @@ export class renderAnimation {
 	
 		this. _idleNpcAnimation = this._scene?.getAnimationGroupByName("npc_idle");
 		if (!this._idleNpcAnimation)
-			throw new Error("Failed to load yes animation");
+			throw new Error("Failed to load npc_idle animation");
 	
-		this._openChest = this._scene?.getAnimationGroupByName("chest_open");
+		this._openChest = this._scene?.getAnimationGroupByName("open_chest_clone");
 		if (!this._openChest)
 			throw new Error("Failed to load open animation");
 	
 		this.stopOpen();
-		this._closeChest = this._scene?.getAnimationGroupByName("chest_close");
+		this._closeChest = this._scene?.getAnimationGroupByName("close_chest_clone");
 		if (!this._closeChest)
 			throw new Error("Failed to load close animation");
 	}
@@ -68,8 +68,10 @@ export class renderAnimation {
 			tree.rotationQuaternion = BABYLON.Quaternion.RotationYawPitchRoll(sway, tilt, 0);
 		})
 
-		if (this._renderAsset.leafShader)
-			this._renderAsset.leafShader.setFloat("time", performance.now() * 0.004);
+		if (this._renderAsset.leafShader) {
+		    const t = performance.now() * 0.004;
+		    this._renderAsset.leafShader.setFloat("time", t);
+		}
 	}
 
 	animateBoat() {

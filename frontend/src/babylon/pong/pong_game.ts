@@ -47,4 +47,10 @@ export class PongGame  {
 			return this._gamePhysics;
 		return null;
 	}
+
+	get Assets(): DisplayAssets | null {
+		if (this._displayAssets)
+			return this._displayAssets;
+		return null;
+	}
 }

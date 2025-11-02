@@ -12,6 +12,8 @@ import { renderAsset } from "./displaying/renderAsset.js";
 import { sleep } from "./displaying/dialogueBox.js";
 import { cleanBanner} from "../pages/Banner.js";
 import { ErrorPopup } from "../pages/ErrorPage.js";
+import { BabylonSceneCache } from "./Cache/LoadSceneWithCache.js";
+import { BabylonAssetCache } from "./Cache/LoadAssetWithCache.js";
 
 export class Game extends BasePage {
 
@@ -36,8 +38,8 @@ export class Game extends BasePage {
 		await this.renderBanner();
 		try {
 			this._renderScene = new renderScene(this.app);
-			if (this._renderScene.engine)
-				this._renderScene.engine.displayLoadingUI();
+			await this._renderScene.start();
+	
 			
 			if (this._renderScene.homeScene && !this._renderScene.homeScene.isDisposed) {
 				this._renderAsset = new renderAsset(this._renderScene.homeScene);
@@ -62,7 +64,7 @@ export class Game extends BasePage {
 			await sleep(3000);
 			if (this._renderScene.engine)
 				this._renderScene.engine.hideLoadingUI(); 
-		} 
+		}
 		catch(Error) {
 			await ErrorPopup(Error as string);
 		}
@@ -75,19 +77,17 @@ export class Game extends BasePage {
 		document.documentElement.style["overflow"] = "";
 		document.documentElement.style.overflow = "";
 		cleanBanner();
+		if (this._renderAsset)
+			this._renderAsset.destroy();
+		if (this._renderGround)
+			this._renderGround.destroy();
 		if (this._renderScene) {
-			if (this._renderScene.homeScene && !this._renderScene.homeScene.isDisposed)
-				this._renderScene.homeScene.dispose();
-			if (this._renderScene.pongScene && !this._renderScene.pongScene.isDisposed)
-				this._renderScene.pongScene.dispose();
+			BabylonSceneCache._clearCacheScene();
 			if (this._renderScene.engine && !this._renderScene.engine.isDisposed) {
 				this._renderScene.engine.stopRenderLoop();
-				this._renderScene.engine.dispose();
 			}
 			if (this._renderScene.PongGame && this._renderScene.PongGame.GamePhysics)
-				this._renderScene.PongGame!.GamePhysics!.stopGame();
-			if (this._renderScene.GamePage && this._renderScene.GamePage.OverlayDiv.isConnected)
-				this._renderScene.GamePage.removeOverlayToWindow();
+				this._renderScene.PongGame.GamePhysics.stopGame();
 		}
 	}
 

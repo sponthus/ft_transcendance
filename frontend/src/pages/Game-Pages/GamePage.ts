@@ -7,6 +7,7 @@ import { Event } from './Event.js';
 import { getUserInfo, UserInfo } from '../../api/user-service/user-info/getUserInfo.js';
 import { endGamePage } from './endGamePage.js';
 import { ErrorPopup } from '../ErrorPage.js';
+import { navigate } from '../../core/router.js';
 
 export type Waiting = {idTournament: number, IsWaiting: boolean};
 
@@ -32,15 +33,24 @@ export class GamePage extends popUp {
 		this.IsWaitingScreen = {idTournament : 0, IsWaiting : false};
 	}
 	
-	async startGamePage() {
-		await this.getUsername();
-		this.initPopUpPage();
+	async startGamePage() { 
+		try {
+			await this.getUsername();
+			await this.initPopUpPage();
+			await this.InitGamePage();
+			await this.generateGamePage();
+		} catch (e) {
+			await navigate('/');
+		}
+
+	}
+
+	private async InitGamePage() {
 		this.EndGamePage = new endGamePage(this.Page);
 		this.LocalGamePage = new LocalGamePage(this.Page, this.userData!);
 		this.TournamentPage = new TournamentPage(this.Page, this.userName!);
 		this.Event = new Event(this.LocalGamePage, this.TournamentPage, this);
 		this._Title.remove();
-		this.generateGamePage();
 	}
 
 	private async getUsername(){
@@ -52,6 +62,7 @@ export class GamePage extends popUp {
 			}
 		} catch(error) {
 			await ErrorPopup (error as string);
+			await navigate('/');
 		}
 	}
 

@@ -159,7 +159,6 @@ export class GameSocket {
 			if (!gameId || gameId == 0)
 				throw new Error('No gameID provided');
 			this.gameId = gameId;
-			console.log("Creating new WebSocket connection");
 			this.ws = new WebSocket(this.getGameWsUrl());
 			this.setupEventListeners();
 
@@ -188,7 +187,6 @@ export class GameSocket {
         }
 
         this.ws.onopen = () => {
-            console.log("Connected to WebSocket Game server");
             this.authenticate();
             this.startHeartbeat();
         };
@@ -216,7 +214,6 @@ export class GameSocket {
         };
 
         this.ws.onclose = async (event) => {
-            console.log(`Connexion to Game WebSocket closed with code ${event.code} and reason: ${event.reason}`);
             this.stopHeartbeat();
 			if (event.code == 4002) {
 				console.error("Websocket closed due to authentication error");
