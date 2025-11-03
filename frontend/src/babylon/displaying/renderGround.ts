@@ -73,4 +73,24 @@ export class renderGround {
 		if (this._ground && this._waterMaterial)
 			this._ground.material = this._waterMaterial;
 	}
+
+	destroy(): void {
+		if (this._waterMaterial) {
+			this._waterMaterial.dispose();
+			this._waterMaterial = undefined;
+		}
+		if (this._ground) {
+			this._ground.dispose();
+			this._ground = undefined;
+		}
+		if (this._skyboxMaterial) {
+			this._skyboxMaterial.dispose();
+			this._skyboxMaterial = undefined;
+		}
+		if (this._skybox) {
+			this._skybox.dispose();
+			this._skybox = undefined;
+		}
+
+	}
 }

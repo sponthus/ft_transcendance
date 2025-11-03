@@ -27,6 +27,10 @@ export class BabylonSceneBuilder
 	}
 
 	private initializeCamera() {
+		if (this.scene && this.scene.cameras.length === 1) {
+			this._camera = this._scene.cameras[0] as Babylon.ArcRotateCamera;
+			return ;
+		}
 			this._camera = new Babylon.ArcRotateCamera(
 				"camera",
 				Math.PI,
@@ -75,6 +79,10 @@ export class BabylonSceneBuilder
 
 	private initializeLight()
 	{
+		if (this._scene && this._scene.lights.length === 1) {
+			this._light = this._scene.lights[0] as Babylon.HemisphericLight;
+			return ;
+		}
 		this._light = new Babylon.HemisphericLight("light", new Babylon.Vector3(1, 1, 0), this._scene);
 		this._light.intensity = 1;
 	}

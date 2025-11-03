@@ -64,8 +64,10 @@ http {
         listen 443 ssl;
 		listen [::]:443 ssl;
 
-        ssl_certificate /etc/ssl/${DOMAIN_NAME}.crt;
-        ssl_certificate_key /etc/ssl/${DOMAIN_NAME}.key;
+        # ssl_certificate /etc/ssl/${DOMAIN_NAME}.crt;
+        # ssl_certificate_key /etc/ssl/${DOMAIN_NAME}.key;
+		ssl_certificate /run/secrets/ssl_cert.crt;
+        ssl_certificate_key /run/secrets/ssl_key.key;
 
         ssl_protocols TLSv1.2 TLSv1.3;
         client_max_body_size 5M;

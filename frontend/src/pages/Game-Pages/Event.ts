@@ -337,12 +337,14 @@ export class Event {
 			if (value.username.toLocaleLowerCase().substring(0, input.value.toLocaleLowerCase().length - 1) === input.value.substring(1, input.value.length)) {
 				const btn: HTMLButtonElement = createButton(`${value.username}`, 'activate:scale-95 hover:bg-orange-200', value.username);
 				div.appendChild(btn);
-				btn.addEventListener('click', () => {
-					this.TournamentNameMap[index] = ({slug: '@' + value.slug, username: value.username});
-					input.value = value.username;
-					div.classList.add('opacity-0');
-					div.classList.add('hidden');
-				})
+				if (btn) {
+					btn.addEventListener('click', () => {
+						this.TournamentNameMap[index] = ({slug: '@' + value.slug, username: value.username});
+						input.value = value.username;
+						div.classList.add('opacity-0');
+						div.classList.add('hidden');
+					})
+				}
 			}
 		})
 	}

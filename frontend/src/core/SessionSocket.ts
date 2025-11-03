@@ -67,7 +67,6 @@ export class SessionSocket {
 
 	constructor() {
 		try {
-			console.log("Creating new WebSocket connection");
 			this.sWS = new WebSocket(this.getStatusWsUrl());
 			this.setupEventListeners();
 
@@ -95,7 +94,6 @@ export class SessionSocket {
 
 		} else {
 			if (this.isOpen() === false && this.sWS.readyState !== WebSocket.CONNECTING) {
-				// console.log(this.sWS.readyState);
 				this.sWS = null;
 				this.sWS = new WebSocket(this.getStatusWsUrl());
 				this.stopHeartbeat();
@@ -112,7 +110,6 @@ export class SessionSocket {
 		}
 
 		this.sWS.onopen = () => {
-			console.log("Connected to WebSocket session server");
 			this.startHeartbeat();
 		};
 
@@ -139,7 +136,6 @@ export class SessionSocket {
 		};
 
 		this.sWS.onclose = async (event) => {
-			console.log(`Connexion to Session WebSocket closed with code ${event.code} and reason: ${event.reason}`);
 			this.stopHeartbeat();
 			this.clearHeartbeatTimeout();
 			if (event.code == 4002) {
@@ -233,7 +229,6 @@ export class SessionSocket {
 		} else if (data.type === "auth_success") {
 			this.reconnectAttempts = 0;
 			this.shouldAttemptReconnect = true;
-			console.log("Authentication successful");
 			return;
 		}
 	}
@@ -270,7 +265,6 @@ export class SessionSocket {
 			return;
 		}
 		this.reconnectAttempts++;
-		console.log("Reconnecting to Session WebSocket server...");
 		this.stopHeartbeat();
 		const reconnectInterval = setInterval(() => {
 			if (!this.isOpen()) {
@@ -278,10 +272,8 @@ export class SessionSocket {
 					return;
 				}
 				try {
-					console.log("Attempting to reconnect...");
 					this.sWS = null;
 					this.sWS = new WebSocket(this.getStatusWsUrl());
-					console.log("Reconnected successfully!");
 					this.setupEventListeners();
 					this.startHeartbeat();
 					clearInterval(reconnectInterval);

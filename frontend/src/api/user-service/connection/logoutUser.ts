@@ -1,3 +1,6 @@
+import { BabylonAssetCache } from "../../../babylon/Cache/LoadAssetWithCache.js";
+import { BabylonEngineCache } from "../../../babylon/Cache/LoadEngineWithCache.js";
+import { BabylonSceneCache } from "../../../babylon/Cache/LoadSceneWithCache.js";
 import { SessionSocket } from "../../../core/SessionSocket.js";
 
 type Success = { ok: true };
@@ -24,6 +27,9 @@ export async function logoutUser(): Promise<LogoutResult>
         });
         if (res.ok) 
         {
+			BabylonAssetCache.clearCache();
+			BabylonEngineCache._clearCache();
+			BabylonSceneCache.clearCache();
             return { ok: true };
         }
         const data = await res.json();

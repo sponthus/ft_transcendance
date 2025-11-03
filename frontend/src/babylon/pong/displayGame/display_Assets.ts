@@ -19,6 +19,7 @@ import { SceneLoader, ImportMeshAsync } from "@babylonjs/core/Loading/sceneLoade
 
 import { TransformNode } from "@babylonjs/core/Meshes/transformNode";
 import { Quaternion } from "@babylonjs/core/Maths/math.vector";
+import { BabylonAssetCache } from "../../Cache/LoadAssetWithCache";
 
 
 export class DisplayAssets {
@@ -57,7 +58,7 @@ export class DisplayAssets {
 	public async load(): Promise<void>
 	{
 		if (this._scene && !this._scene.isDisposed) {
-			const result = await ImportMeshAsync("/assets/crabSamourail.glb", this._scene);
+			const result = await BabylonAssetCache._loadAndCloneWithCache("/assets/crabSamourail.glb", "_clone", this._scene);
 			this._crab1 = result.meshes[0];
 			this._crab1.position.z = -8;
 			this._crab1.scaling = new Vector3(0.18, 0.18, 0.18);
@@ -69,7 +70,7 @@ export class DisplayAssets {
 
 
 		if (this._scene && !this._scene.isDisposed) {
-			const result2 = await ImportMeshAsync("/assets/crabKing.glb", this._scene);
+			const result2 = await BabylonAssetCache._loadAndCloneWithCache("/assets/crabKing.glb", "_clone", this._scene);
 			this._crab2 = result2.meshes[0];
 			this._crab2.position.z = 8;
 			this._crab2.scaling = new Vector3(0.18, 0.18, 0.18);
@@ -77,14 +78,14 @@ export class DisplayAssets {
 		}
 
 		if (this._scene && !this._scene.isDisposed) {
-			const result3 = await ImportMeshAsync("/assets/chateauSable.glb", this._scene);
+			const result3 = await BabylonAssetCache._loadWithCache("/assets/chateauSable.glb", this._scene);
 			this._caste = result3.meshes[0];
 			this._caste.position = new Vector3(0, -2, 0);
 			result3.animationGroups.forEach(anim => anim.start(true, 1.0));
 		}
 
 		if (this._scene && !this._scene.isDisposed) {
-			const result4 = await ImportMeshAsync("/assets/patrick.glb", this._scene);
+			const result4 = await BabylonAssetCache._loadWithCache("/assets/patrick.glb", this._scene);
 			this._patrick = result4.meshes[0];
 			this._patrick.position.x = 5.8;
 			this._patrick.position.y = -0.2;
@@ -104,7 +105,7 @@ export class DisplayAssets {
 		}
 
 		if (this._scene && !this._scene.isDisposed) {
-			const result6 = await ImportMeshAsync("/assets/ananas.glb", this._scene);
+			const result6 = await BabylonAssetCache._loadAndCloneWithCache("/assets/ananas.glb", "_clone", this._scene);
 			this._ananas = result6.meshes[0];
 			this._ananas.position.x = 8;
 			this._ananas.position.y = -1;
@@ -112,7 +113,7 @@ export class DisplayAssets {
 		}
 
 		if (this._scene && !this._scene.isDisposed) {
-			const result7 = await ImportMeshAsync("/assets/gary.glb", this._scene);
+			const result7 = await BabylonAssetCache._loadWithCache("/assets/gary.glb", this._scene);
 			this._gary = result7.meshes[0];
 			this._gary.position.x = -6.2;
 			this._gary.position.y = 0.1;
@@ -179,7 +180,7 @@ export class DisplayAssets {
 		}
 
 		if (this._scene && !this._scene.isDisposed) {
-			const result12 = await ImportMeshAsync("/assets/pancarte.glb", this._scene);
+			const result12 = await BabylonAssetCache._loadAndCloneWithCache("/assets/pancarte.glb", "_clone", this._scene);
 			this._pancartePlayer1 = result12.meshes[0];
 			this._pancartePlayer1.position = new Vector3(7, 2, 10.5);
 			this._pancartePlayer1.scaling = new Vector3(8,8,8);
@@ -187,7 +188,7 @@ export class DisplayAssets {
 		}
 
 		if (this._scene && !this._scene.isDisposed) {
-			const result13 = await ImportMeshAsync("/assets/pancarte.glb", this._scene);
+			const result13 = await BabylonAssetCache._loadAndCloneWithCache("/assets/pancarte.glb", "_clone", this._scene);
 			this._pancartePlayer2 = result13.meshes[0];
 			this._pancartePlayer2.position = new Vector3(7, 1.8, -10.5);
 			this._pancartePlayer2.scaling = new Vector3(8,8,8);"@babylonjs/core";
@@ -301,5 +302,84 @@ export class DisplayAssets {
 
 		// Assigne le matériau à ton plan d'eau
 		this._ground.material = this._waterMaterial;
+	}
+
+	destroy(): void {
+		// if (this._crab1) {
+		// 	this._crab1.dispose();
+		// 	this._crab1 = null;
+		// }
+		// if (this._crab2) {
+		// 	this._crab2.dispose();
+		// 	this._crab2 = null;
+		// }
+		// if (this._crabRobot1) {
+		// 	this._crabRobot1.dispose();
+		// 	this._crabRobot1 = null;
+		// }
+		// if (this._crabRobot2) {
+		// 	this._crabRobot2.dispose();
+		// 	this._crabRobot2 = null;
+		// }
+		// if (this._bullBob) {
+		// 	this._bullBob.dispose();
+		// 	this._bullBob = null;
+		// }
+		// if (this._bullPatrick) {
+		// 	this._bullPatrick.dispose();
+		// 	this._bullPatrick = null;
+		// }
+		// if (this._caste) {
+		// 	this._caste.dispose();
+		// 	this._caste = null;
+		// }
+		// if (this._casteAnimation) {
+		// 	this._casteAnimation.forEach((tree: AnimationGroup) => {tree.dispose();});
+		// 	this._casteAnimation = null;
+		// }
+		// if (this._crab1Walk) {
+		// 	this._crab1Walk.forEach((tree: AnimationGroup) => {tree.dispose();});
+		// 	this._crab1Walk = null;
+		// }
+		// if (this._patrick) {
+		// 	this._patrick.dispose();
+		// 	this._patrick = null;
+		// }
+		// if (this._bob) {
+		// 	this._bob.dispose();
+		// 	this._bob = null;
+		// }
+		// if (this._ananas) {
+		// 	this._ananas.dispose();
+		// 	this._ananas = null;
+		// }
+		// if (this._gary) {
+		// 	this._gary.dispose();
+		// 	this._gary = null;
+		// }
+		// if (this._menuPauseSansCrab) {
+		// 	this._menuPauseSansCrab.dispose();
+		// 	this._menuPauseSansCrab = null;
+		// }
+		// if (this._pancartePlayer1) {
+		// 	this._pancartePlayer1.dispose();
+		// 	this._pancartePlayer1 = null;
+		// }
+		// if (this._pancartePlayer2) {
+		// 	this._pancartePlayer2.dispose();
+		// 	this._pancartePlayer2 = null;
+		// }
+		// if (this._ground) {
+		// 	this._ground.dispose();
+		// 	this._ground = undefined;
+		// }
+		// if (this._skybox) {
+		// 	this._skybox.dispose();
+		// 	this._skybox = undefined;
+		// }
+		// if (this._waterMaterial) {
+		// 	this._waterMaterial.dispose();
+		// 	this._waterMaterial = undefined;
+		// }
 	}
 }

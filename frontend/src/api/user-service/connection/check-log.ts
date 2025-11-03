@@ -8,7 +8,6 @@ export async function checkLog(): Promise<Result>
 {
     try
     {
-        console.log("Checking log...");
         const res = await fetch('/api/user/protected',
         {
             method: 'GET',
