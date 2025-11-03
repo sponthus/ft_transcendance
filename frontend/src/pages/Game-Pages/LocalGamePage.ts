@@ -167,7 +167,7 @@ export class LocalGamePage {
 		append(container, [this.maxScoreP ,MaxScorePan]); // add Maxscore img here 
 
 		const scoreLimitPan: HTMLElement = createDiv('score-limit-pan', 'relative flex h-full w-[45%] space-x-4');
-		append(scoreLimitPan, [this.plusbtn, container, this.minusBtn]);
+		append(scoreLimitPan, [this.minusBtn, container, this.plusbtn]);
 
 		append(scoreLimitDiv, [createElement('p', '', "score limit", 'text-center text-orange-200 text-4xl')
 								,scoreLimitPan]);
