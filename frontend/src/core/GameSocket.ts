@@ -216,13 +216,13 @@ export class GameSocket {
         this.ws.onclose = async (event) => {
             this.stopHeartbeat();
 			if (event.code == 4002) {
-				console.error("Websocket closed due to authentication error");
+				console.warn("Websocket closed due to authentication error");
 				await logoutUser();
 				await ErrorPopup("Authentication error, please log in again");
 				await navigate('/login');
 			}
 			else if (event.code == 4003) {
-				console.error("WebSocket closed due to authentication failure");
+				console.warn("WebSocket closed due to expired session");
 				await logoutUser();
 				await ErrorPopup("Session expired, please log in again");
 				await navigate('/login');
@@ -237,8 +237,8 @@ export class GameSocket {
             if (this.ws?.readyState === WebSocket.OPEN) {
                 this.send(JSON.stringify({type: 'ping'}));
                 this.heartbeatTimeout = window.setTimeout(() => {
-                    console.error("No pong recieved, closing connection");
-                    this.ws?.close(1000, 'No pong recieved');
+                    console.warn("No pong received, closing connection");
+                    this.ws?.close(1000, 'No pong received');
                 }, this.pongInterval)
             }
         }, this.pingInterval);
