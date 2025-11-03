@@ -1,7 +1,6 @@
 import path from "path";
 import fs from "fs";
 import { __dirname } from "./index.js";
-import pump from "pump";
 import { fileTypeFromBuffer } from "file-type";
 import sharp from "sharp";
 import { updateAvatar } from "./updateAvatar.js";
