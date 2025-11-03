@@ -53,6 +53,7 @@ export class renderAsset {
 			await this._loadChest();
 			await this._loadMap();
 			await this.__loadStageSet();
+			await this._loadPancartePong();
 			// BabylonAssetCache.printCacheStats();
 		}
 	}
@@ -445,6 +446,20 @@ export class renderAsset {
 			this._barrel.position = new BABYLON.Vector3(-25 ,0, 18);
 			this._barrel.rotation = new BABYLON.Vector3(0, -1, 0.1);
 			this._barrel.scaling.scaleInPlace(2);
+		}
+	}
+
+	private _pancartePong?: BABYLON.AbstractMesh;
+
+	private async _loadPancartePong() {
+		/**************************for barrel**************************/
+		if (this._scene && !this._scene.isDisposed) {
+			const result = await BabylonAssetCache._loadAndCloneWithCache("/assets/PancartePong.glb", "_clone", this._scene);
+			this._addColisionForEach(result);
+			this._pancartePong = result.meshes[0];
+			this._pancartePong.position = new BABYLON.Vector3(10 ,0, -10);
+			this._pancartePong.rotation = new BABYLON.Vector3(0, -0.2, 0);
+			this._pancartePong.scaling.scaleInPlace(2);
 		}
 	}
 
