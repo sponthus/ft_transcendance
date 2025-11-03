@@ -38,6 +38,8 @@ export class LoginPage extends BasePage {
 		this.TopTextDiv = createDiv("top-text", "text-center mb-8");
 		this.BotTextDiv = createDiv("bot-text", "mt-6 text-center");
 		this.Form = createElement('form', "register-form", "", " space-y-6") as HTMLFormElement;
+	
+		this.Form.method = "POST";
 	}
 
 	private async createTopText(): Promise<void>  {
