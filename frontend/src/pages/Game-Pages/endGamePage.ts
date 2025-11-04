@@ -111,7 +111,7 @@ export class endGamePage {
 
 	/****************append element for  EndGame panel****************/
 	private appendEndGameForm(btnDiv: HTMLElement) {
-		append(this.Page, [createImage("1v1", "absolute object-fill object-center h-full w-full opacity-20", 'EndGame-page.png')]);
+		// append(this.Page, [createImage("1v1", "absolute object-fill object-center h-full w-full opacity-20", 'EndGame-page.png')]);
 
 		append(this.Page, [createImage('bot-text', 'z-10 object-center h-[20%] w-[80%] animate-wiggle margin-top-32', 'game_ui/LocalPongText.png') /**change to EndGame title */
 						, this.endGamePan, btnDiv]);
