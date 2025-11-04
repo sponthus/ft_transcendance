@@ -140,8 +140,7 @@ export class renderScene {
 		this._isocamera.orthoRight  =  halfWidth;
 		this._isocamera.orthoTop    =  halfHeight;
 		this._isocamera.orthoBottom = -halfHeight;
-		// this._isocamera.detachControl();
-		this._isocamera.attachControl();
+		this._isocamera.detachControl();
 	}
 
 	private  async _initLight() {

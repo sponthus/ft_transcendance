@@ -96,6 +96,20 @@ export class renderAsset {
 			this._Wall_E.rotation.set(0, -1.7, 0);
 			this._Wall_E.checkCollisions = true;
 		}
+		if (this._scene && !this._scene.isDisposed) {
+			const Wall = BABYLON.MeshBuilder.CreateBox("wall", {width: 25, height: 5, depth:0.2}, this._scene);
+			Wall.position.set(28, 0, 17.5);
+			Wall.rotation.set(0, 0, 0);
+			Wall.isVisible = false;
+			Wall.checkCollisions = true;
+		}
+		if (this._scene && !this._scene.isDisposed) {
+			const Wall = BABYLON.MeshBuilder.CreateBox("wall", {width: 40, height: 5, depth:0.2}, this._scene);
+			Wall.position.set(-7, 0, 23);
+			Wall.rotation.set(0, 0, 0);
+			Wall.isVisible = false;
+			Wall.checkCollisions = true;
+		}
 	}
 
 	private async _loadPlayer() {
