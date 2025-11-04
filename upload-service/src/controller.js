@@ -1,7 +1,6 @@
 import path from "path";
 import fs from "fs";
 import { __dirname } from "./index.js";
-import pump from "pump";
 import { fileTypeFromBuffer } from "file-type";
 import sharp from "sharp";
 import { updateAvatar } from "./updateAvatar.js";
@@ -37,7 +36,7 @@ export async function uploadAvatar(request, reply) {
 					return reply.code(400).send({ error: "File must be a PNG or JPEG image" });
 				}
 	
-				const MAX_SIZE = 0.6 * 1024 * 1024; // 500 Ko
+				const MAX_SIZE = 0.6 * 1024 * 1024; // 600 Ko
 				let uploadedSize = 0;
 				const chunks = [];
 	
@@ -57,8 +56,10 @@ export async function uploadAvatar(request, reply) {
 						part.file.on('data', chunk => {
 							uploadedSize += chunk.length;
 							if (uploadedSize > MAX_SIZE) {
-								part.file.destroy();
-								return reject(new Error("File too large (max 600Ko)"));
+								const sizeErr = new Error("File too large (max 600Ko)");
+                                sizeErr.statusCode = 400;
+                                part.file.destroy();
+                                return reject(sizeErr);
 							}
 							chunks.push(chunk);
 						});
@@ -94,6 +95,9 @@ export async function uploadAvatar(request, reply) {
 	
 				} catch (err) {
 					console.error("❌ Upload failed:", err.message);
+					if (err && err.statusCode) {
+						return reply.code(err.statusCode).send({ error: err.message });
+					}
 					return reply.code(500).send({ error: "Internal Server Error"});
 				}
 			} else {
@@ -132,7 +136,7 @@ export async function updateName(request, reply)
         const oldPath = path.join(uploadDir, oldFile)
         const newPath = path.join(uploadDir, `${newName}${ext}`);
         fs.renameSync(oldPath, newPath);
-        console.log(`✅ Avatar renommé : ${oldFile} → ${newName}${ext}`);
+        console.log(`✅ Avatar renamed : ${oldFile} → ${newName}${ext}`);
         return reply.code(200).send();
     }
     catch (err)

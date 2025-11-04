@@ -12,7 +12,6 @@ import { initOAuthGithub } from "./connection/OAuthGithub.js";
 import { refreshToken } from "./tools/refreshToken.js";
 import Ajv from "ajv";
 import ajvErrors from "ajv-errors";
-import { get } from "http";
 
 const __filename = fileURLToPath(import.meta.url);
 export const __dirname = path.dirname(__filename); 
