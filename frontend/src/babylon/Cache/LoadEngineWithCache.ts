@@ -35,7 +35,7 @@ export class BabylonEngineCache {
 		this._EngineCache.forEach((Engine, Name) => {
 			Engine.stopRenderLoop();
 			Engine.dispose();
-		})
+		});
 		this._EngineCache.clear();
 		this._CanvasCache.forEach((Canvas, Name) => {
 			if (Canvas.parentElement)
