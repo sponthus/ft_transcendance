@@ -13,13 +13,16 @@ let ReceiveRequest: AllNotifs[];
 let userData: UserInfo;
 let readNotification: number;
 
+let _documentClickHandler: ((e: Event) => void) | null = null;
+let _docListenerAttached = false;
+
 export function createNotificationDiv(parent: HTMLElement) {
 	notificationWrapper = createDiv('notif-wrapper','relative flex items-center');
 	append(notificationWrapper, [createNotificationToggle(), createSlidingNotificationPan()]);
 	append(parent, [notificationWrapper]);
 
 	toggleNotification();
-	eventCloseSearch();
+	attachCloseListener();
 }
 
 function toggleNotification() {
@@ -34,12 +37,16 @@ function toggleNotification() {
 	}
 }
 
-function eventCloseSearch() {
-	document.addEventListener('click', (e) => {
+function attachCloseListener() {
+	if (_docListenerAttached)
+		return;
+	_documentClickHandler = (e: Event) => {
 		if (isNotificationOpen && !notificationWrapper.contains(e.target as Node)) {
 			closeNotification();
 		}
-	});
+	}
+	document.addEventListener('click', _documentClickHandler);
+	_docListenerAttached = true;
 }
 
 function acceptFriendInvitation(acceptBtn: HTMLButtonElement, userData: UserInfo) {
@@ -151,6 +158,15 @@ async function closeNotification() {
 		div.className = 'absolute left-0 top-16 w-0 h-0 overflow-auto transition-all duration-300 ease-in-out bg-orange-100 rounded-xl shadow-lg border-2 border-emerald-300 opacity-0';
 
 	refreshNotification();
+}
+
+// Call when destroying page to avoid multiple listeners
+export function destroyNotificationDocumentClickListener() {
+	if (_documentClickHandler && _docListenerAttached) {
+		document.removeEventListener('click', _documentClickHandler);
+		_documentClickHandler = null;
+		_docListenerAttached = false;
+	}
 }
 
 function createSlidingNotificationPan(): HTMLElement {
@@ -305,5 +321,5 @@ export function refreshNotification() {
 
 	append(notificationWrapper, [createNotificationToggle(), createSlidingNotificationPan()]);
 	toggleNotification();
-	eventCloseSearch();
+	attachCloseListener();
 }
