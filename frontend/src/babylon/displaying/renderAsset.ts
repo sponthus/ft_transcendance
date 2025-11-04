@@ -204,6 +204,7 @@ export class renderAsset {
 				{
 					if (this._scene && !this._scene.isDisposed) {
 						const result1 = await BabylonAssetCache._loadAndCloneWithCache(this._titleType[type], "_clone", this._scene);
+						this._addColisionForEach(result1);
 						if (result1) {
 							this._setUpMesh(result1, BABYLON.Vector3.Zero(), 3.5);
 							const mesh = result1.meshes[0];
