@@ -1,9 +1,6 @@
 /*****************************************************************export class for render scene*****************************************************************/
-import "@babylonjs/core/Debug/debugLayer";
 import * as BABYLON from "@babylonjs/core";
 import "@babylonjs/loaders/glTF";
-import "@babylonjs/core/Debug/debugLayer";
-// import "@babylonjs/inspector";
 import { PongGame } from "../pong/pong_game";
 import { LoadingScreen } from "./loadingScreen";
 import { GamePage } from "../../pages/Game-Pages/GamePage";
@@ -141,7 +138,6 @@ export class renderScene {
 		this._isocamera.orthoTop    =  halfHeight;
 		this._isocamera.orthoBottom = -halfHeight;
 		this._isocamera.detachControl();
-		// this._isocamera.attachControl();
 	}
 
 	private  async _initLight() {

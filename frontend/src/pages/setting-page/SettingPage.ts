@@ -6,6 +6,7 @@ import { changeNpcAsset } from "../../api/user-service/menu/npcAsset";
 import { changeCharacterAsset } from "../../api/user-service/menu/characterAsset";
 import { ErrorPopup } from '../ErrorPage.js';
 import { cleanBanner } from "../Banner";
+import { BabylonAssetCache } from "../../babylon/Cache/LoadAssetWithCache";
 
 enum PageState {GAME = 0, PROFILE = 1};
 
@@ -207,8 +208,10 @@ export class SettingPage extends BasePage {
 		let CurrentAvatarAsset: number = getAvatarAsset();
 		try {
 			const reqAvatar = await changeCharacterAsset(CurrentAvatarAsset);
-			if (reqAvatar.ok)
+			if (reqAvatar.ok) {
+				BabylonAssetCache.clearCache();
 				return ;
+			}
  
 		} catch (error) {
 			await ErrorPopup(error as string);

@@ -1,8 +1,7 @@
 /*****************************************************************export class for rendering assets*****************************************************************/
 
-import "@babylonjs/core/Debug/debugLayer";
 import * as BABYLON from "@babylonjs/core";
-import "@babylonjs/loaders/glTF";
+// import "@babylonjs/loaders/glTF";
 import { ImportMeshAsync } from "@babylonjs/core/Loading/sceneLoader";
 import { getCharacterAsset } from "../../api/user-service/menu/characterAsset";
 import { getNpcAsset } from "../../api/user-service/menu/npcAsset";
@@ -97,6 +96,20 @@ export class renderAsset {
 			this._Wall_E.rotation.set(0, -1.7, 0);
 			this._Wall_E.checkCollisions = true;
 		}
+		if (this._scene && !this._scene.isDisposed) {
+			const Wall = BABYLON.MeshBuilder.CreateBox("wall", {width: 25, height: 5, depth:0.2}, this._scene);
+			Wall.position.set(28, 0, 17.5);
+			Wall.rotation.set(0, 0, 0);
+			Wall.isVisible = false;
+			Wall.checkCollisions = true;
+		}
+		if (this._scene && !this._scene.isDisposed) {
+			const Wall = BABYLON.MeshBuilder.CreateBox("wall", {width: 40, height: 5, depth:0.2}, this._scene);
+			Wall.position.set(-7, 0, 23);
+			Wall.rotation.set(0, 0, 0);
+			Wall.isVisible = false;
+			Wall.checkCollisions = true;
+		}
 	}
 
 	private async _loadPlayer() {
@@ -142,7 +155,7 @@ export class renderAsset {
 			const result = await BabylonAssetCache._loadWithCache(`/asset/Characters/Models/GLBformat1/character-${AssetNumber}.glb`, this._scene);
 			if (result) {
 				this._catAnimationGroupName(result, "npc_");
-				this._addColisionForEach(result);
+				// this._addColisionForEach(result);
 				this._setUpMesh(result, BABYLON.Vector3.Zero(), 2);
 				this._npc = result.meshes[0] as BABYLON.Mesh;
 				this._npc.rotation = new BABYLON.Vector3(0, -2.5, 0);
@@ -458,7 +471,7 @@ export class renderAsset {
 			const result = await BabylonAssetCache._loadAndCloneWithCache("/assets/PancartePong.glb", "_clone", this._scene);
 			this._addColisionForEach(result);
 			this._pancartePong = result.meshes[0];
-			this._pancartePong.position = new BABYLON.Vector3(10 ,0, -10);
+			this._pancartePong.position = new BABYLON.Vector3(-15 ,0, -20);
 			this._pancartePong.rotation = new BABYLON.Vector3(0, -0.2, 0);
 			this._pancartePong.scaling.scaleInPlace(2);
 		}
@@ -584,86 +597,71 @@ export class renderAsset {
 
 	destroy(): void {
 		if (this._ground) {
-			this._ground.dispose();
 			this._ground = undefined;
 		}
 		if (this._Wall_S) {
-			this._Wall_S.dispose();
 			this._Wall_S = undefined;
 		}
 		if (this._Wall_W) {
-			this._Wall_W.dispose();
 			this._Wall_W = undefined;
 		}
 		if (this._Wall_E) {
-			this._Wall_E.dispose();
 			this._Wall_E = undefined;
 		}
+		if (this._player)
+			this._player = undefined;
+		if (this._npc)
+			this._npc = undefined;
 		if (this._chest) {
-			this._chest.dispose();
 			this._chest = undefined;
 		}
 		if (this._sandcastle) {
-			this._sandcastle.dispose();
 			this._sandcastle = undefined;
 		}
-		// if (this._bob) {
-		//     this._bob.dispose();
-		//     this._bob = undefined;
-		// }
+		if (this._bob) {
+		    this._bob = undefined;
+		}
 		if (this._pirateBoat) {
-		    this._pirateBoat.dispose();
 		    this._pirateBoat = undefined;
 		}
 		if (this._leafShader) {
-			this._leafShader.dispose();
 			this._leafShader = undefined;
 		}
 		if (this._bendTrees) {
-			this._bendTrees.forEach((tree: BABYLON.TransformNode) => {tree.dispose();});
 			this._bendTrees = undefined;
 		}
 		if (this._straighTrees) {
-			this._straighTrees.forEach((tree: BABYLON.TransformNode) => {tree.dispose();});
 			this._straighTrees = undefined;		
 		}
 		if (this._boat2) {
-			this._boat2.dispose();
 			this._boat2 = undefined;
 		}
 		if (this._boat3) {
-			this._boat3.dispose();
 			this._boat3 = undefined;
 		}
 		if (this._tower) {
-			this._tower.dispose();
 			this._tower = undefined;
 		}
 		if (this._flag) {
-			this._flag.dispose();
 			this._flag = undefined;
 		}
 		if (this._barrel) {
-			this._barrel.dispose();
 			this._barrel = undefined;
 		}
 		if (this._Panel) {
-			this._Panel.dispose();
 			this._Panel = undefined;
 		}
 		if (this._loadedMap) {
-			Object.values(this._loadedMap).forEach((mesh: BABYLON.AbstractMesh) => {
-			    mesh.dispose();
-			});
 			this._loadedMap = undefined;	
 		}
 		if (this._platform) {
-			this._platform.forEach((tree: BABYLON.TransformNode) => {tree.dispose();});
 			this._platform = undefined;		
 		}
 		if (this._bottles) {
-			this._bottles.forEach((tree: BABYLON.TransformNode) => {tree.dispose();});
 			this._bottles = undefined;		
+		}
+		if (this._pancartePong) {
+			this._pancartePong = undefined;	
 		}
 	}
 }
