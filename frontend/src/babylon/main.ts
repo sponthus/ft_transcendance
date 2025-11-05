@@ -81,8 +81,8 @@ export class Game extends BasePage {
 		if (this._renderGround)
 			this._renderGround.destroy();
 		if (this._renderScene) {
-			if (this.renderScene?.PongGame && this.renderScene.PongGame.Assets)
-				this.renderScene.PongGame.Assets.destroy();
+			if (this._renderScene.PongGame && this._renderScene.PongGame.Assets)
+				this._renderScene.PongGame.Assets.destroy();
 			BabylonSceneCache._clearCacheScene();
 			if (this._renderScene.engine && !this._renderScene.engine.isDisposed) {
 				this._renderScene.engine.stopRenderLoop();
