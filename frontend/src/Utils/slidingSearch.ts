@@ -50,11 +50,13 @@ function createSearchToggle(): HTMLButtonElement {
 
 function manageSearchBarEvent() {
 	const toggle = (document.getElementById("search-toggle-btn") as HTMLButtonElement);
-	if (toggle)
-		toggle.addEventListener('click', toggleSearch);
 	const close = (document.getElementById('close-btn-div') as HTMLElement)
-	if (close)
+	if (toggle) {
+		toggle.addEventListener('click', toggleSearch);
+	}
+	if (close) {
 		close.addEventListener('click', closeSearch);
+	}
 	handleSearchEnter();
 	eventCloseSearch();
 }
@@ -98,7 +100,7 @@ function eventCloseSearch() {
 			if (isOpen)
 				closeSearchPanel();
 		}
-	});
+	}, { once: true });
 }
 
 function toggleSearch() {
