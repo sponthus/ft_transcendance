@@ -258,9 +258,9 @@ export class EditProfile extends popUp {
 			{verif = 1;}
 			if (verif === 0)
 				throw new Error("File is not jpg or png");
-			const maxSizeBytes = 5 * 1024 * 1024;
+			const maxSizeBytes = 0.6 * 1024 * 1024;
 			if (file.size > maxSizeBytes)
-				throw new Error("File is more than 5GB");
+				throw new Error("File is more than 600KB");
 			const formData = new FormData();
 			formData.append('avatar-input', file);
 
