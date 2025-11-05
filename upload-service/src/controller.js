@@ -32,7 +32,7 @@ export async function uploadAvatar(request, reply) {
 			if (part.type === 'file') {
 				const allowedTypes = ['image/jpeg', 'image/png'];
 				if (!allowedTypes.includes(part.mimetype)) {
-					console.log("Invalid file type:", part.mimetype);
+					console.warn("Invalid file type:", part.mimetype);
 					return reply.code(400).send({ error: "File must be a PNG or JPEG image" });
 				}
 	
