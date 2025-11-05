@@ -9,6 +9,9 @@ const searchPanel : HTMLElement = createDiv('search-panel', 'flex flex-col items
 let isOpen :boolean = false;
 let UserTab: AllUsers[] = [];
 
+let _eventListener: ((e: Event) => void) | null = null;
+let _eventListenerAttached: boolean = false;
+
 /*************************************functions for creating search button*************************************/
 export function createSearchBarDiv(parent :HTMLElement) {
 
@@ -93,14 +96,26 @@ function handleSearchEnter() {
 	});
 }
 
+function closeSearchEvent(e: Event) {
+	if (isSearchOpen && !searchWrapper.contains(e.target as Node)) {
+		closeSearch();
+	}
+	if (isOpen)
+		closeSearchPanel();
+}
+
+export function destroyCloseSearchEvent() {
+	if (_eventListener && _eventListenerAttached) {
+		document.removeEventListener('click', _eventListener);
+		_eventListenerAttached = false;
+		_eventListener = null;
+	}
+}
+
 function eventCloseSearch() {
-	document.addEventListener('click', (e) => {
-			if (isSearchOpen && !searchWrapper.contains(e.target as Node)) {
-				closeSearch();
-			if (isOpen)
-				closeSearchPanel();
-		}
-	}, { once: true });
+	_eventListener = closeSearchEvent;
+	document.addEventListener('click', _eventListener);
+	_eventListenerAttached = true;
 }
 
 function toggleSearch() {

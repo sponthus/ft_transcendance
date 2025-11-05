@@ -7,6 +7,7 @@ import { SessionSocket } from "../core/SessionSocket.js";
 import { setbackgroundImages } from "../Utils/elementMaker";
 import { ErrorPopup } from "./ErrorPage";
 import { destroyNotificationDocumentClickListener } from "../Utils/notification.js";
+import { destroyCloseSearchEvent } from "../Utils/slidingSearch.js";
 
 export abstract class BasePage {
     protected app: HTMLElement;
@@ -74,6 +75,7 @@ export abstract class BasePage {
     destroy(): void {
         cleanBanner();
 		destroyNotificationDocumentClickListener();
+		destroyCloseSearchEvent();
 		Array.from(this.banner.children).forEach(child => {child.remove()});
         this.banner.innerHTML = '';
         Array.from(this.app.children).forEach(child => {child.remove()});

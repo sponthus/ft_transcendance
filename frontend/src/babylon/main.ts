@@ -13,7 +13,6 @@ import { sleep } from "./displaying/dialogueBox.js";
 import { cleanBanner} from "../pages/Banner.js";
 import { ErrorPopup } from "../pages/ErrorPage.js";
 import { BabylonSceneCache } from "./Cache/LoadSceneWithCache.js";
-import { BabylonAssetCache } from "./Cache/LoadAssetWithCache.js";
 
 export class Game extends BasePage {
 
@@ -82,6 +81,8 @@ export class Game extends BasePage {
 		if (this._renderGround)
 			this._renderGround.destroy();
 		if (this._renderScene) {
+			if (this.renderScene?.PongGame && this.renderScene.PongGame.Assets)
+				this.renderScene.PongGame.Assets.destroy();
 			BabylonSceneCache._clearCacheScene();
 			if (this._renderScene.engine && !this._renderScene.engine.isDisposed) {
 				this._renderScene.engine.stopRenderLoop();
