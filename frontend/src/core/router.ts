@@ -12,6 +12,7 @@ export let WebPath: string;
 
 export async function renderRoute(path: string) {
 	currentPage?.destroy();
+	currentPage = null;
     let userData;
     const req = await getUserInfo();
     if (req.ok)
