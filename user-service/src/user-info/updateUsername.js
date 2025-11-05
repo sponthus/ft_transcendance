@@ -29,7 +29,9 @@ export default async function updateUsername (request, reply)
         const baseSlug = slugify(newUsername, { lower: true, strict: true });
         const ext = old.avatar.split(".").pop();
         const slug = generateUniqueSlug(baseSlug, db);
-        const newAvatar = `${slug}.${ext}`;
+        let newAvatar = "default.jpg";
+        if (old.avatar !== "default.jpg")
+            newAvatar = `${slug}.${ext}`;
         db.prepare ("   UPDATE \
                             users \
                         SET \

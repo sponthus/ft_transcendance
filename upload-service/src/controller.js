@@ -87,10 +87,24 @@ export async function uploadAvatar(request, reply) {
 						console.error("Sharp failed to read image: ", err.mesage);
 						return reply.code(400).send({error: "Corrupted or invalid image"});
 					}
-	
+					
+        			const files = fs.readdirSync(avatarDir);
+    				const oldFile = files.find((file) => file.startsWith(slug + "."));
+        			if (oldFile)
+        			{
+        				const oldPath = path.join(avatarDir, oldFile);
+						fs.unlink(oldPath, (err) => {
+							if (err) {
+								throw new Error("Unable to delete old avatar");
+								return ;
+							}
+							console.log(`Old avatar deleted at ${oldPath}`);
+						});
+        			}
+
 					// Écrit le fichier après validation
 					fs.writeFileSync(filePath, buffer);
-					console.log(`✅ Avatar uploaded for user: ${slug}`);
+					console.log(`✅ Avatar uploaded for user: ${slug} at ${filePath}`);
 					return reply.code(200).send({ avatar: fileName});
 	
 				} catch (err) {
