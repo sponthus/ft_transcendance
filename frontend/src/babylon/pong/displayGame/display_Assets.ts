@@ -15,7 +15,7 @@ import { StandardMaterial } from "@babylonjs/core/Materials/standardMaterial";
 import { WaterMaterial } from "@babylonjs/materials/water/waterMaterial";
 
 // SceneLoader
-import { SceneLoader, ImportMeshAsync } from "@babylonjs/core/Loading/sceneLoader";
+import { ImportMeshAsync } from "@babylonjs/core/Loading/sceneLoader";
 
 import { TransformNode } from "@babylonjs/core/Meshes/transformNode";
 import { Quaternion } from "@babylonjs/core/Maths/math.vector";
@@ -305,81 +305,81 @@ export class DisplayAssets {
 	}
 
 	destroy(): void {
-		// if (this._crab1) {
-		// 	this._crab1.dispose();
-		// 	this._crab1 = null;
-		// }
-		// if (this._crab2) {
-		// 	this._crab2.dispose();
-		// 	this._crab2 = null;
-		// }
-		// if (this._crabRobot1) {
-		// 	this._crabRobot1.dispose();
-		// 	this._crabRobot1 = null;
-		// }
-		// if (this._crabRobot2) {
-		// 	this._crabRobot2.dispose();
-		// 	this._crabRobot2 = null;
-		// }
-		// if (this._bullBob) {
-		// 	this._bullBob.dispose();
-		// 	this._bullBob = null;
-		// }
-		// if (this._bullPatrick) {
-		// 	this._bullPatrick.dispose();
-		// 	this._bullPatrick = null;
-		// }
-		// if (this._caste) {
-		// 	this._caste.dispose();
-		// 	this._caste = null;
-		// }
-		// if (this._casteAnimation) {
-		// 	this._casteAnimation.forEach((tree: AnimationGroup) => {tree.dispose();});
-		// 	this._casteAnimation = null;
-		// }
-		// if (this._crab1Walk) {
-		// 	this._crab1Walk.forEach((tree: AnimationGroup) => {tree.dispose();});
-		// 	this._crab1Walk = null;
-		// }
-		// if (this._patrick) {
-		// 	this._patrick.dispose();
-		// 	this._patrick = null;
-		// }
-		// if (this._bob) {
-		// 	this._bob.dispose();
-		// 	this._bob = null;
-		// }
-		// if (this._ananas) {
-		// 	this._ananas.dispose();
-		// 	this._ananas = null;
-		// }
-		// if (this._gary) {
-		// 	this._gary.dispose();
-		// 	this._gary = null;
-		// }
-		// if (this._menuPauseSansCrab) {
-		// 	this._menuPauseSansCrab.dispose();
-		// 	this._menuPauseSansCrab = null;
-		// }
-		// if (this._pancartePlayer1) {
-		// 	this._pancartePlayer1.dispose();
-		// 	this._pancartePlayer1 = null;
-		// }
-		// if (this._pancartePlayer2) {
-		// 	this._pancartePlayer2.dispose();
-		// 	this._pancartePlayer2 = null;
-		// }
-		// if (this._ground) {
-		// 	this._ground.dispose();
-		// 	this._ground = undefined;
-		// }
-		// if (this._skybox) {
-		// 	this._skybox.dispose();
-		// 	this._skybox = undefined;
-		// }
-		// if (this._waterMaterial) {
-		// 	this._waterMaterial.dispose();
-		// 	this._waterMaterial = undefined;
-		// }
+		if (this._crab1) {
+			// this._crab1.dispose();
+			this._crab1 = null;
+		}
+		if (this._crab2) {
+			// this._crab2.dispose();
+			this._crab2 = null;
+		}
+		if (this._crabRobot1) {
+			// this._crabRobot1.dispose();
+			this._crabRobot1 = null;
+		}
+		if (this._crabRobot2) {
+			// this._crabRobot2.dispose();
+			this._crabRobot2 = null;
+		}
+		if (this._bullBob) {
+			// this._bullBob.dispose();
+			this._bullBob = null;
+		}
+		if (this._bullPatrick) {
+			// this._bullPatrick.dispose();
+			this._bullPatrick = null;
+		}
+		if (this._caste) {
+			// this._caste.dispose();
+			this._caste = null;
+		}
+		if (this._casteAnimation) {
+			// this._casteAnimation.forEach((tree: AnimationGroup) => {tree.dispose();});
+			this._casteAnimation = null;
+		}
+		if (this._crab1Walk) {
+			// this._crab1Walk.forEach((tree: AnimationGroup) => {tree.dispose();});
+			this._crab1Walk = null;
+		}
+		if (this._patrick) {
+			// this._patrick.dispose();
+			this._patrick = null;
+		}
+		if (this._bob) {
+			// this._bob.dispose();
+			this._bob = null;
+		}
+		if (this._ananas) {
+			// this._ananas.dispose();
+			this._ananas = null;
+		}
+		if (this._gary) {
+			// this._gary.dispose();
+			this._gary = null;
+		}
+		if (this._menuPauseSansCrab) {
+			// this._menuPauseSansCrab.dispose();
+			this._menuPauseSansCrab = null;
+		}
+		if (this._pancartePlayer1) {
+			// this._pancartePlayer1.dispose();
+			this._pancartePlayer1 = null;
+		}
+		if (this._pancartePlayer2) {
+			// this._pancartePlayer2.dispose();
+			this._pancartePlayer2 = null;
+		}
+		if (this._ground) {
+			// this._ground.dispose();
+			this._ground = undefined;
+		}
+		if (this._skybox) {
+			// this._skybox.dispose();
+			this._skybox = undefined;
+		}
+		if (this._waterMaterial) {
+			// this._waterMaterial.dispose();
+			this._waterMaterial = undefined;
+		}
 	}
 }
