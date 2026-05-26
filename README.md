@@ -1,31 +1,28 @@
 # **Project** : Transcendance
 
-## Description
 <table>
-  <p align="center">
-     <img src="https://upload.wikimedia.org/wikipedia/commons/f/f8/Pong.png" alt="Pong wikipedia image" width="400"/>
-  </p>
-  </tr>
   <tr>
     <td>
-      Transcendance is the last group common core project at 42 school. The goal is to create a website to play <a href="https://fr.wikipedia.org/wiki/Pong">Pong</a>, with a lot of modules around this concept : frontend, DevObs architecture, user authentification and chat, match history, online games and cybersecurity. 
-      Therefore, many programming languages and concepts are expected. This repo contains our WIP for this project.
+      <img src="https://github.com/ayogun/42-project-badges/blob/main/badges/ft_transcendencem.png" alt="ft_transcendance 42 project badge" width="400"/>
+    </td>
+    <td>
+      ft_transcendance is the last group common core project at 42 school. The goal is to build everything needed to run a website to play <a href="https://fr.wikipedia.org/wiki/Pong">Pong</a>, with a lot of different modules around this concept : frontend, DevObs architecture, user authentification and chat, match history, online games and cybersecurity. 
     </td>
   </tr>
 </table>
 
 ## :memo: Status
 <p align="center">
-  <strong>Ongoing :</strong> <br>
-  :star: Check the whole API security<br>
-  :star: Check frontend style<br>
-  :star: Complete evaluations !<br>
+  <img src="https://github.com/sponthus/assets/blob/main/42school/scores/125.png" alt="125 grade"/>
+  <br><strong>Validated 2025-11-06</strong>
+  <br>All bonuses
 </p>
 
-## :orange_book: Features (WIP)
-+ Basic SPA website with router and back/forward navigation working
-+ 3D pong game (local), tournaments
-+ User system with registration and log-in
+## :orange_book: Features
++ SPA website with spongebob theme
++ 3D pong game and lobby, tournaments (local), AI opponent (q-learning algorithm)
++ User system with registration and log-in, 2FA with github sign-in
++ Profile pages with friend system and real-time notifications
 + Using `docker-compose` to launch the project with micro-services architecture :<br>
      - Nginx
      - Frontend compilation, then served by nginx in prod mode / vite server in dev mode
@@ -43,7 +40,6 @@ From the project directory, use :
 ```shell
 make
 ```
-Be awarwe that this is a WIP and a project, not designed to be a finished product !
 
 :hugs: Thanx !
 ---
